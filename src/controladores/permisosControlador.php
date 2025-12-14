@@ -6,18 +6,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
     $accion = $_POST["accion"];
     ob_clean();
 
-    // $modeloPermisos = new permisosModel();
-    // $resultado = $modeloPermisos->Permisos_Val('permisos', $accion);
-    // if (isset($resultado['tipo'])) {
-    //     echo json_encode($resultado);
-    //     exit();
-    // }
-
-    $accion = isset($_POST["accion"]) ? $_POST["accion"] : '';
-    $idRol = isset($_POST['id_rol']) ? $_POST['id_rol'] : '';
-    $idModulo = isset($_POST['id_modulo']) ? $_POST['id_modulo'] : "";
-    $idPermiso = isset($_POST['id_permiso']) ? $_POST['id_permiso'] : "";
-    $cambio = isset($_POST['cambio']) ? $_POST['cambio'] : "";
+    $accion = $_POST["accion"] ?? '';
+    $idRol = $_POST['id_rol'] ?? '';
+    $idModulo = $_POST['id_modulo'] ?? "";
+    $idPermiso = $_POST['id_permiso'] ?? "";
+    $cambio = $_POST['cambio'] ?? "";
 
     $modeloPermisos = new permisosModelo();
 

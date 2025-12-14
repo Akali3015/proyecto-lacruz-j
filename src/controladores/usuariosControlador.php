@@ -5,16 +5,16 @@ use src\modelos\usuariosModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
     $accion = $_POST["accion"];
-    $cedula = isset($_POST['cedula_usuario']) ? $_POST['cedula_usuario'] : "";
-    $nombre = isset($_POST['nombre_usuario']) ? $_POST['nombre_usuario'] : "";
-    $apellido = isset($_POST['apellido_usuario']) ? $_POST['apellido_usuario'] : "";
-    $correo = isset($_POST['correo_usuario']) ? $_POST['correo_usuario'] : "";
-    $telefono = isset($_POST['telefono_usuario']) ? $_POST['telefono_usuario'] : "";
-    $rol = isset($_POST['id_rol']) ? $_POST['id_rol'] : "";
-    $usuario = isset($_POST['usuario_usuario']) ? $_POST['usuario_usuario'] : "";
-    $contrasena1 = isset($_POST['contrasena1_usuario']) ? $_POST['contrasena1_usuario'] : "";
-    $contrasena2 = isset($_POST['contrasena2_usuario']) ? $_POST['contrasena2_usuario'] : "";
-    $foto = isset($_FILES['foto_usuario']) ? $_FILES['foto_usuario'] : "";
+    $cedula = $_POST['cedula_usuario'] ?? "";
+    $nombre = $_POST['nombre_usuario'] ?? "";
+    $apellido = $_POST['apellido_usuario'] ?? "";
+    $correo = $_POST['correo_usuario'] ?? "";
+    $telefono = $_POST['telefono_usuario'] ?? "";
+    $rol = $_POST['id_rol'] ?? "";
+    $usuario = $_POST['usuario_usuario'] ?? "";
+    $contrasena1 = $_POST['contrasena1_usuario'] ?? "";
+    $contrasena2 = $_POST['contrasena2_usuario'] ?? "";
+    $foto = $_FILES['foto_usuario'] ?? "";
 
     $objeto = new usuariosModelo();
     ob_clean();
@@ -93,20 +93,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
     require_once "src/vistas/usuarios/usuarios.php";
     $_SESSION['vistaActual'] = 'usuarios';
 } else {
-
-    $cedula = isset($_POST['cedula_usuario']) ? $_POST['cedula_usuario'] : "";
-    $nombre = isset($_POST['nombre_usuario']) ? $_POST['nombre_usuario'] : "";
-    $apellido = isset($_POST['apellido_usuario']) ? $_POST['apellido_usuario'] : "";
-    $correo = isset($_POST['correo_usuario']) ? $_POST['correo_usuario'] : "";
-    $telefono = isset($_POST['telefono_usuario']) ? $_POST['telefono_usuario'] : "";
-    $rol = isset($_POST['id_rol']) ? $_POST['id_rol'] : 2;
-    $usuario = isset($_POST['usuario_usuario']) ? $_POST['usuario_usuario'] : "";
-    $contrasena1 = isset($_POST['contrasena1_usuario']) ? $_POST['contrasena1_usuario'] : "";
-    $contrasena2 = isset($_POST['contrasena2_usuario']) ? $_POST['contrasena2_usuario'] : "";
+    
+    $accion = $_POST['accion'];
+    $cedula = $_POST['cedula_usuario'] ?? "";
+    $nombre = $_POST['nombre_usuario'] ?? "";
+    $apellido = $_POST['apellido_usuario'] ?? "";
+    $correo = $_POST['correo_usuario'] ?? "";
+    $telefono = $_POST['telefono_usuario'] ?? "";
+    $rol = $_POST['id_rol'] ?? 2;
+    $usuario = $_POST['usuario_usuario'] ?? "";
+    $contrasena1 = $_POST['contrasena1_usuario'] ?? "";
+    $contrasena2 = $_POST['contrasena2_usuario'] ?? "";
 
     $objeto = new usuariosModelo();
     if (isset($_POST['accion'])) {
-        $accion = $_POST['accion'];
+        
         ob_clean();
         switch ($accion) {
             case 'iniciarSesion':

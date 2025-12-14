@@ -337,10 +337,10 @@ class usuariosModelo extends conexion
             //campos específicos para la consulta
             $instruccionesBD = [
                 'campos' => '
-                        u.cedula_usuario, ro.nombre_rol, u.nombre_usuario,
-                        u.apellido_usuario, u.telefono_usuario, u.correo_usuario,
-                        u.usuario_usuario
-                    ',
+                    u.cedula_usuario, ro.nombre_rol, u.nombre_usuario,
+                    u.apellido_usuario, u.telefono_usuario, u.correo_usuario,
+                    u.usuario_usuario
+                ',
                 'tabla' => 'usuarios AS u',
                 'PEL' => 'u',
                 'datosJoins' => [
@@ -585,42 +585,12 @@ class usuariosModelo extends conexion
     }
     private function eliminarUsuariosP()
     {
-
-        /*hacemos la consulta */
-        $instruccionesBD = [
-            'campos' => '*',
-            'tabla' => 'usuarios',
-            'WHERE' => [
-                [
-                    "condicion_campo" => "cedula_usuario",
-                    "condicion_marcador" => ":ID",
-                    "condicion_valor" => $this->cedulaUsuario,
-                    "comparacion" => "="
-                ]
-            ]
-        ];
-        $datos = $this->seleccionarDatos($instruccionesBD);
-        /*verificamos que el usuario seleccionado exista */
-        if ($datos->rowCount() <= 0) {
-            $alerta = [
-                "tipo" => "simple",
-                "titulo" => "Usuario no encontrado",
-                "texto" => "El usuario que ha intentado eliminar no se encuentra en la base de datos",
-                "icono" => "error"
-            ];
-            return $alerta;
-            exit();
-        } else {
-            $datos = $datos->fetch();/*hacemos el arrays */
-        }
-
         $eliminarUsuario = $this->eliminarDatos("usuarios", "cedula_usuario", $this->cedulaUsuario);
         if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
-
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Usuario eliminado",
-                "texto" => "El usuario de " . $datos['nombre_usuario'] . " " . $datos['apellido_usuario'] . " ha sido eliminado con éxito",
+                "texto" => "El usuario ha sido eliminado con éxito",
                 "icono" => "success"
             ];
             $this->commit();

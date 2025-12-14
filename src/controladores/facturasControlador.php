@@ -13,7 +13,6 @@ function isAjaxRequest() {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
-
 function sendJsonResponse($success, $message, $details = '', $data = []) {
     header('Content-Type: application/json');
     echo json_encode([

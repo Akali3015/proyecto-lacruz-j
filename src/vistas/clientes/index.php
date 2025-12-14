@@ -1,5 +1,7 @@
 <?php require_once('src/vista/parcial/header.php'); ?>
 
+<input type="hidden" class="nombreVista" value="cedula_cliente">
+
 <div class="main-content">
     <div class="container-fluid py-4">
         <div class="row mb-4">

@@ -7,7 +7,6 @@
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/dataTables.bootstrap5.min.js"></script>
 
-
 <?php
     $directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';
     if (

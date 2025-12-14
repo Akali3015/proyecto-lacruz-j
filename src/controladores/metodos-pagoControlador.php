@@ -5,9 +5,9 @@ use src\modelos\metodosPagoModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
     $accion = $_POST["accion"];
-    $id = isset($_POST['id_metodo_pago']) ? $_POST['id_metodo_pago'] : "";
-    $nombre = isset($_POST['nombre_metodo_pago']) ? $_POST['nombre_metodo_pago'] : "";
-    $necesitaMoneda = isset($_POST['necesita_moneda']) ? $_POST['necesita_moneda'] : "";
+    $id = $_POST['id_metodo_pago'] ?? "";
+    $nombre = $_POST['nombre_metodo_pago'] ?? "";
+    $necesitaMoneda = $_POST['necesita_moneda'] ?? "";
 
     $objeto = new metodosPagoModelo();
     ob_clean();

@@ -29,8 +29,12 @@
                     <div class="row">
                         <input type="hidden" name="accion" value="registrar">
                         <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Nombre de la Unidad de Medida</label>
-                            <input type="text" class="form-control noRepetir" name="nombre_unidad_medida" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required placeholder="Ej: CARLOS">
+                            <label class="form-label">Nombre de la Unidad de Medida</label>
+                            <input type="text" class="form-control noRepetir" name="nombre_unidad_medida" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Símbolo de la unidad de medida</label>
+                            <input type="text" class="form-control noRepetir" name="simbolo_unidad_medida" pattern="<?php echo regexSimboloMoneda ?>" minlength="<?php echo minRegexSimboloMoneda ?>" maxlength="<?php echo maxRegexSimboloMoneda ?>" required>
                         </div>
                     </div>
                 </div>
@@ -63,10 +67,13 @@
                     <div class="row">
                         <input type="hidden" name="accion" value="actualizar">
                         <input type="hidden" name="id_unidad_medida" class="formularioActualizar">
-                        
                         <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Nombre de la unidad de medida</label>
-                            <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_rol" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: CARLOS">
+                            <label class="form-label">Nombre de la unidad de medida</label>
+                            <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_unidad_medida" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Símbolo de la unidad de medida</label>
+                            <input type="text" class="form-control formularioActualizar noRepetir" name="simbolo_unidad_medida" pattern="<?php echo regexSimboloMoneda ?>" minlength="<?php echo minRegexSimboloMoneda ?>" maxlength="<?php echo maxRegexSimboloMoneda ?>" required>
                         </div>
                     </div>
                 </div>

@@ -1,29 +1,16 @@
 import {
-    enviarFormulario, eliminarRegistro, obtenerDatosRegistro, encabezados,
-    ListarDataTable, cargarInputsActualizarQNR, extraerDatosAjax
+    enviarFormulario, eliminarRegistro, obtenerDatosRegistro, 
+    ListarDataTable, cargarInputsActualizarQNR,
+    
+    encabezados
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 
 $(document).on('DOMContentLoaded', async function (e) {
     let instruccionesLista = {
-        'encabezados': encabezados,
-        'modulo': 'presentaciones'
+        'encabezados' : encabezados,
+        'modulo' : 'unidadesMedidas'
     }
     await ListarDataTable(instruccionesLista);
-
-    let instrucciones = {
-        'modulosPeticion': ['unidadesMedidas'],
-        'accionesPeticion': [{ 'accion': 'listar' }],
-        'tipoElemento': ['select'],
-        'elementosDestino': [$('.selectUnidadMedida')],
-        'datosInsertar': [
-            {
-                'value': 'id_unidad_medida',
-                'texto': 'nombre_unidad_medida',
-                'textoDefault': 'Seleccione una unidad de medida'
-            }
-        ]
-    }
-    extraerDatosAjax(instrucciones)
 })
 
 //Evento para el envío de formularios

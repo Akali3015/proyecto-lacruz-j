@@ -73,7 +73,7 @@ class presentacionesModelo extends conexion
                     "debeSerUnico" => true,
                 ],
                 [
-                    "campo_valor" => $this->nombrePresentacion,
+                    "campo_valor" => $this->cantidadPMP,
                     "formulario_nombre" => "cantidad del producto o materia prima",
                     "requerido" => true,
                     "minimo" => minRegexPrecio,
@@ -186,8 +186,15 @@ class presentacionesModelo extends conexion
     {
         if ($this->idPresentacion == null || $this->idPresentacion == "") {
             $instruccionesBD = [
-                'campos' => '*',
-                'tabla' => 'presentaciones',
+                'campos' => 'pr.id_presentacion, pr.nombre_presentacion, pr.cantidad_pmp, um.nombre_unidad_medida',
+                'tabla' => 'presentaciones as pr',
+                'PEL'=>'pr',
+                'datosJoins'=>[
+                    [
+                        'TablaDestino'=>'unidades_medidas as um',
+                        'conexionLo'=>'pr.id_unidad_medida = um.id_unidad_medida',
+                    ]
+                ]
             ];
             $resultado = $this->seleccionarDatos($instruccionesBD);
             $Presentaciones = $resultado->fetchAll(PDO::FETCH_ASSOC);

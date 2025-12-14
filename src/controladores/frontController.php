@@ -16,12 +16,14 @@ class frontController
                 $this->archivo = "src/controladores/usuariosControlador.php";
             } else {
                 $this->url = explode("/", $_GET['views']);
-                $_SESSION['vistaActual'] = $this->url[0];
+                // monedas/cambios-monedas/valor3
+                // [monedas, cambios-monedas, valor3]
+
                 $this->url = $this->url[0];
 
                 $this->controladores = [
-                    'clientes',
-                    'compras',
+                    'clientes', 
+                    'compras', 
                     'config',
                     'cuentasCobrar',
                     'facturas',
@@ -42,8 +44,7 @@ class frontController
                     'permisos',
                     'cambiosIva',
                     'metodos-pago',
-                    'monedas',
-                    
+                    'monedas'
                 ];
 
                 if (in_array($this->url, $this->controladores)) {

@@ -5,7 +5,7 @@ use src\modelos\cambiosIvaModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
     $accion = $_POST["accion"];
-    $monto = isset($_POST['monto_cambio_iva']) ? $_POST['monto_cambio_iva'] : "";
+    $monto = $_POST['monto_cambio_iva'] ?? "";
     
     $modeloCambiosIva = new cambiosIvaModelo();
     ob_clean();

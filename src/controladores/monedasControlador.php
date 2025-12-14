@@ -5,10 +5,10 @@ use src\modelos\monedasModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
     $accion = $_POST["accion"];
 
-    $id = isset($_POST['id_moneda']) ? $_POST['id_moneda'] : "";
-    $nombre = isset($_POST['nombre_moneda']) ? $_POST['nombre_moneda'] : "";
-    $simbolo = isset($_POST['simbolo_moneda']) ? $_POST['simbolo_moneda'] : "";
-    $valor = isset($_POST['valor_moneda']) ? $_POST['valor_moneda'] : "";
+    $id = $_POST['id_moneda'] ?? "";
+    $nombre = $_POST['nombre_moneda'] ?? "";
+    $simbolo = $_POST['simbolo_moneda'] ?? "";
+    $valor = $_POST['valor_moneda'] ?? "";
     
     $objeto = new monedasModelo();
 

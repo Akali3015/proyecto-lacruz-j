@@ -156,12 +156,11 @@ class rolesModelo extends conexion
             return $roles;
         } else {
 
-            /*Hacemos la consulta */;
-            
             $instruccionesBD = [
                 'campos' => 'id_rol, nombre_rol',
                 'tabla' => 'roles',
-                'WHERE' => [
+                'WHERE' => 
+                [
                     [
                         "condicion_campo" => "id_rol",
                         "condicion_marcador" => ":ID",

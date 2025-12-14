@@ -28,9 +28,10 @@
                 <div class="modal-body">
                     <div class="row">
                         <input type="hidden" name="accion" value="registrar">
+                        
                         <div class="col-md-12 mb-3">
                             <label for="cedula" class="form-label">Nombre del Rol</label>
-                            <input type="text" class="form-control noRepetir" name="nombre_rol" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: CARLOS">
+                            <input type="text" class="form-control noRepetir" name="nombre_rol" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required>
                         </div>
                     </div>
                 </div>

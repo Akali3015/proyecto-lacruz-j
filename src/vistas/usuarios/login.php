@@ -8,21 +8,15 @@
                     <div class="text-center mb-4">
                         <img src="src/assets/images/logo.png" alt="Logo Multiservicios Lacruz" class="mb-3" style="width: 200px;">
                     </div>
-                    <form method="POST" class="formularioAjax" action="usuarios" novalidate>
+                    <form method="POST" class="formularioAjax login" action="usuarios" novalidate>
                         <input type="hidden" name="accion" value="iniciarSesion">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" name="usuario_usuario" placeholder="Usuario" required>
                             <label for="usuario">Usuario</label>
-                            <div class="invalid-feedback">
-                                Por favor ingrese su nombre de usuario.
-                            </div>
                         </div>
                         <div class="form-floating mb-4">
                             <input type="password" class="form-control" name="contrasena1_usuario" placeholder="Contraseña" required>
                             <label for="clave">Contraseña</label>
-                            <div class="invalid-feedback">
-                                Por favor ingrese su contraseña.
-                            </div>
                         </div>
 
                         <div class="d-grid mb-3">
@@ -57,48 +51,46 @@
             <div class="modal-body">
                 <form class="formularioAjax validar login" method="POST" action="usuarios" id="registroForm" novalidate>
                     <input type="hidden" name="accion" value="registrar">
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="cedula" class="form-label">Cédula</label>
                         <input type="text" class="form-control" name="cedula_usuario" minlength="<?php echo minRegexCedula ?>" maxlength="<?php echo maxRegexCedula ?>" pattern="<?php echo regexCedula ?>" required>
                         <div class="form-text">Solo números (6-10 dígitos)</div>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="cedula" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre_usuario" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" pattern="<?php echo regexNombrePer ?>" required>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="cedula" class="form-label">Apellido</label>
                         <input type="text" class="form-control" name="apellido_usuario" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" pattern="<?php echo regexNombrePer ?>" required>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="telefono" class="form-label">Teléfono</label>
                         <input type="tel" class="form-control" name="telefono_usuario" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" pattern="<?php echo regexTelefono ?>" required>
                         <div class="form-text">Formato: xxxx-xxxxxxx</div>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="correo" class="form-label">Correo electrónico</label>
                         <input type="email" class="form-control" name="correo_usuario" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" pattern="<?php echo regexCorreo ?>" required>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="nombre" class="form-label">Nombre de usuario</label>
                         <input type="text" class="form-control" name="usuario_usuario" minlength="<?php echo minRegexUsuario ?>" maxlength="<?php echo maxRegexUsuario ?>" pattern="<?php echo regexUsuario ?>" required>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="clave" class="form-label">Contraseña</label>
                         <input type="password" class="form-control" name="contrasena1_usuario" id="contrasena1_usuario" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" pattern="<?php echo regexContrasena ?>" required>
-                        <div class="form-text">Mínimo 6 caracteres</div>
                         <div class="invalid-feedback"></div>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-group mb-3">
                         <label for="clave" class="form-label">Repetir Contraseña</label>
                         <input type="password" class="form-control" name="contrasena2_usuario" id="contrasena2_usuario" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" pattern="<?php echo regexContrasena ?>" required>
-                        <div class="form-text">Mínimo 6 caracteres</div>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="d-grid">

@@ -5,9 +5,8 @@ use src\modelos\rolesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
     $accion = $_POST["accion"];
-    $id = isset($_POST['id_rol']) ? $_POST['id_rol'] : "";
-    $nombre = isset($_POST['nombre_rol']) ? $_POST['nombre_rol'] : "";
-    
+    $id = $_POST['id_rol'] ?? "";
+    $nombre = $_POST['nombre_rol'] ?? "";
     $objeto = new rolesModelo();
     ob_clean();
     switch ($accion) {

@@ -5,10 +5,10 @@ use src\modelos\presentacionesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
     $accion = $_POST["accion"];
-    $id = isset($_POST['id_presentacion']) ? $_POST['id_presentacion'] : "";
-    $idUnidadMedida = isset($_POST['id_unidad_medida']) ? $_POST['id_unidad_medida'] : "";
-    $nombre = isset($_POST['nombre_presentacion']) ? $_POST['nombre_presentacion'] : "";
-    $cantidadPmp = isset($_POST['cantidad_pmp']) ? $_POST['cantidad_pmp'] : "";
+    $id = $_POST['id_presentacion'] ?? "";
+    $idUnidadMedida = $_POST['id_unidad_medida'] ?? "";
+    $nombre = $_POST['nombre_presentacion'] ?? "";
+    $cantidadPmp = $_POST['cantidad_pmp'] ?? "";
     
     $objeto = new presentacionesModelo();
     ob_clean();

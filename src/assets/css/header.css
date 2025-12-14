@@ -120,6 +120,9 @@ a {
     margin: 0;
 }
 
+.sidebar-menu li{
+    cursor: pointer;
+}
 .sidebar-menu li a {
     display: flex;
     align-items: center;
@@ -129,12 +132,12 @@ a {
     border-bottom: 1px solid #e9ecef;
 }
 
-.sidebar-menu li a:hover {
+.sidebar-menu li a:hover, .sidebar-menu li.activa {
     background-color: #e9ecef;
     color: var(--primary-color);
 }
 
-.sidebar-menu li a i {
+.sidebar-menu li a i, .subMenuSidebar div i {
     margin-right: 1rem;
     width: 24px;
     text-align: center;
@@ -529,14 +532,33 @@ i{
 .sidebar-menu .subMenuSidebar a{
     justify-items: center;
 }
-.sidebar-menu .subMenuSidebar a svg{
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    transition: all 0.2s ease-in-out;
-    color: #c82333;
+.sidebar-menu > .subMenuSidebar {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-dark);
+    border-bottom: solid 1px #e9ecef;
+    justify-content: space-between;
+}
+
+.sidebar-menu > .subMenuSidebar::after{
+    content: ''; 
+    position: absolute;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333333' d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    transition: all 0.2s ease;
+}
+.sidebar:not(.active) .sidebar-menu > .subMenuSidebar::after{
+    display: none;
+}
+.sidebar-menu > .subMenuSidebar:not(.collapsed)::after{
+    transform: rotate(90deg);
 }
 
 
 
-/* ... (el resto del código CSS se mantiene igual) ... */
+/*active ... (el resto del código CSS se mantiene igual) ... */

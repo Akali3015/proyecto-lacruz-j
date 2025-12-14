@@ -3,12 +3,11 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_presentacion">
+<input type="hidden" class="nombreVista" value="id_rol">
 
 <?php 
     $instruccionesLista=[
-        'encabezado'=>'Gestionar Presentaciones',
-        'tituloBtnReg'=>'Registrar Presentación',
+        'encabezado'=>'Gestionar Permisos',
     ];
     echo $componente->listaDataTable($instruccionesLista);
 ?>
@@ -19,7 +18,7 @@
         <div class="modal-content border-0">
             <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
                 <h5 class="modal-title" id="registrarUsuarioModalLabel">
-                    <i class="fas fa-user-plus me-2"></i> Registro de Nueva Presentación
+                    <i class="fas fa-user-plus me-2"></i> Registro de Nuevo Rol
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -28,17 +27,10 @@
                 <div class="modal-body">
                     <div class="row">
                         <input type="hidden" name="accion" value="registrar">
+                        
                         <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Nombre de la Presentación</label>
-                            <input type="text" class="form-control noRepetir" name="nombre_presentacion" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Unidad de medida</label>
-                            <select class="form-select selectUnidadMedida" name="id_unidad_medida"></select>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Cantidad que contiene</label>
-                            <input type="text" class="form-control" name="cantidad_pmp" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" required>
+                            <label for="cedula" class="form-label">Nombre del Rol</label>
+                            <input type="text" class="form-control noRepetir" name="nombre_rol" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required>
                         </div>
                     </div>
                 </div>
@@ -70,19 +62,11 @@
                 <div class="modal-body">
                     <div class="row">
                         <input type="hidden" name="accion" value="actualizar">
-                        <input type="hidden" name="id_presentacion" class="formularioActualizar">
+                        <input type="hidden" name="id_rol" class="formularioActualizar">
                         
                         <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Nombre de la Presentación</label>
-                            <input type="text" class="form-control noRepetir formularioActualizar" name="nombre_presentacion" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Unidad de medida</label>
-                            <select class="form-select selectUnidadMedida formularioActualizar" name="id_unidad_medida"></select>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="cedula" class="form-label">Cantidad que contiene</label>
-                            <input type="text" class="form-control formularioActualizar" name="cantidad_pmp" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" required>
+                            <label for="cedula" class="form-label">Nombre del Rol</label>
+                            <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_rol" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: CARLOS">
                         </div>
                     </div>
                 </div>

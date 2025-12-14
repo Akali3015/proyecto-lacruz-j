@@ -1,12 +1,14 @@
 import {
-    enviarFormulario, eliminarRegistro, obtenerDatosRegistro, encabezados,
-    ListarDataTable, cargarInputsActualizarQNR
+    enviarFormulario, eliminarRegistro, obtenerDatosRegistro, 
+    ListarDataTable, cargarInputsActualizarQNR,
+    
+    encabezados
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 
 $(document).on('DOMContentLoaded', async function (e) {
     let instruccionesLista = {
-        'encabezados': encabezados,
-        'modulo': 'roles'
+        'encabezados' : encabezados,
+        'modulo' : 'roles'
     }
     await ListarDataTable(instruccionesLista);
 })

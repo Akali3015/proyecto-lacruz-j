@@ -8,7 +8,11 @@ class componentesModelo extends conexion
     public function listaDataTable($instrucciones)
     {
         $encabezado=$instrucciones['encabezado'];
-        $tituloBtnReg=$instrucciones['tituloBtnReg'];
+        $tituloBtnReg=$instrucciones['tituloBtnReg'] ?? null;
+        $boton= !isset($tituloBtnReg) ? '' : '
+        <button type="button" class="p-btn" data-bs-toggle="modal" data-bs-target=".modalRegistrar">
+            <i class="fas fa-plus-circle"></i> '.$tituloBtnReg.'
+        </button>';
 
         $listaDataTable = '
             <div class="main-content" id="mainContent">
@@ -18,9 +22,7 @@ class componentesModelo extends conexion
                             <h2 class="mb-0">'.$encabezado.'</h2>
                         </div>
                         <div class="col-md-6 text-end">
-                            <button type="button" class="p-btn" data-bs-toggle="modal" data-bs-target=".modalRegistrar">
-                                <i class="fas fa-plus-circle"></i> '.$tituloBtnReg.'
-                            </button>
+                            '.$boton.'
                         </div>
                     </div>
                     <div class="card">

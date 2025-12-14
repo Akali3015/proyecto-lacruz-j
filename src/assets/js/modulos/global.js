@@ -11,47 +11,6 @@ export let inputsActualizarNoRepetir = {};
 //#region [Lista de encabezados según la vista] COMIENZO
 export let Camposfuera = ['status'];
 switch (vista) {
-    case 'id_venta':
-        encabezados = {
-            'productos': {
-                "nombre_producto": "PRODUCTO",
-                "precio_producto": "PRECIO",
-                "cantidad_producto": "CANTIDAD",
-                "detalle_producto": "DETALLES",
-                "sub_total": "SUBTOTAL",
-            },
-            'promociones': {
-                "promocion": "PROMOCIÓN",
-                "producto": "PRODUCTO",
-                "cantidad": "CANTIDAD",
-                "detalles": "DETALLES",
-                "pllevar": "¿P/LLEVAR?",
-            },
-            'insumos': {
-                "nombre_insumo": "INSUMO",
-                "precio_unitario_insumo": "PRECIO",
-                "cantidad_insumo": "CANTIDAD",
-                "sub_total": "SUBTOTAL",
-            },
-            'pagos': {
-                "nombre_metodo_pago": "MÉTODO DE PAGO",
-                "nombre_moneda": "MONEDA",
-                "monto_pago": "MONTO",
-                "banco_emisor": "BANCO EMISOR",
-                "referencia_pago": "REF",
-                "banco_receptor": "BANCO RECEPTOR",
-            },
-            'listaGeneral': {
-                "id_venta": "ID",
-                "CLIENTE": "CLIENTE",
-                "MONTO": "MONTO",
-                "FECHA": "FECHA",
-                "estado": "¿DESPACHADA?",
-            }
-        }
-        modulo = 'ventas';
-        Camposfuera = [];
-        break;
     case 'cedula_cliente':
         encabezados = {
             //Clientes
@@ -109,26 +68,11 @@ switch (vista) {
         modulo = 'monedas'
         break;
     case 'cedula_usuario':
-    case 'registrar_usuario':
-    case 'olvidarCon_1':
-    case 'olvidarCon_2':
-        encabezados = {
-            //Usuarios
-            "cedula_usuario": "CÉDULA",
-            "nombre_usuario": "NOMBRE",
-            "apellido_usuario": "APELLIDO",
-            "correo_usuario": "CORREO",
-            "telefono_usuario": "TELÉFONO",
-            "nombre_rol": "ROL",
-            "usuario_usuario": "USUARIO",
-        }
-        modulo = 'usuarios'
-        break;
     case 'id_rol':
         encabezados = {
             //Roles
-            "id_rol": "ID",
-            "nombre_rol": "NOMBRE",
+            "id_rol": "ID DEL ROL",
+            "nombre_rol": "NOMBRE DEL ROL",
         }
         modulo = 'roles'
         break;
@@ -156,6 +100,23 @@ switch (vista) {
             "necesita_rellenos": "¿NECESITA RELLENOS?",
         }
         modulo = 'productos'
+        break;
+    case 'id_unidad_medida':
+        encabezados = {
+            "id_unidad_medida": "ID",
+            "nombre_unidad_medida": "NOMBRE",
+            "simbolo_unidad_medida": "SÍMBOLO",
+        }
+        modulo = 'unidadesMedidas'
+        break;
+    case 'id_presentacion':
+        encabezados = {
+            "id_presentacion": "ID",
+            "nombre_presentacion": "NOMBRE",
+            "cantidad_pmp": "CANTIDAD",
+            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+        }
+        modulo = 'presentaciones'
         break;
     default:
         break;
@@ -206,24 +167,23 @@ async function validarEnTiempoReal(input) {
     let esValido = expresionRegular.test(valorIntroducido);
 
     let funcionAlertaError = (texto) => {
-        return `
-            <div class="mensajeError text-danger small mt-1">${texto}</div>
-        `;
+        return `<div class="mensajeError text-danger small mt-1">${texto}</div>`;
     };
     if ($(input).closest('form').hasClass('login')) {
         funcionAlertaError = (texto) => {
             return `
-            <div class="mensajeError d-flex alert alert-danger alert-dismissible fade show mt-3">
-                <i class="fi fi-rr-triangle-warning me-2"></i>
-                ${texto}
-            </div>
-        `;
+                <div class="mensajeError d-flex alert alert-danger alert-dismissible fade show mt-3">
+                    <i class="fi fi-rr-triangle-warning me-2"></i>
+                    ${texto}
+                </div>
+            `;
         }
     }
     let funcionMandarError = (mensaje) => {
         let mensajeHTML = funcionAlertaError(mensaje);
-        let contenedorGI = input.closest('[class^="col-"]');
+        let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
         input.removeClass('validado').addClass('error');
+
         if (contenedorGI.find('.msjError').length > 0) {
             contenedorGI.find('.msjError').find('.mensajeError').remove();
             contenedorGI.find('.msjError').append(mensajeHTML)
@@ -234,9 +194,11 @@ async function validarEnTiempoReal(input) {
     }
     let funcionEliminaError = () => {
         input.addClass('validado').removeClass('error');
-        input.closest('[class^="col-"]').find('.mensajeError').remove();
+        let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
+        contenedorGI.find('.mensajeError').remove();
     }
 
+    //Validar si es requerido
     if (requerido && valorIntroducido == '') {
         funcionMandarError('Este campo es obligatorio!!!');
         return;
@@ -293,7 +255,7 @@ async function validarEnTiempoReal(input) {
     //Para validar campos que deben tener valores únicos
     if (input.hasClass('noRepetir')) {
         let proseguir = false;
-        
+
         if (input.hasClass('formularioActualizar')) {
             if (
                 inputsActualizarNoRepetir[nameImput] != valorIntroducido &&
@@ -307,19 +269,21 @@ async function validarEnTiempoReal(input) {
         if (proseguir != true) {
             return;
         }
+
+        // Interacción con la BD
         let instruccionesPe = {
             'modulo': modulo,
             'datosPe': {
-                'accion': 'listar'
+                'accion': 'listar',
             },
         }
-
         let registrosExistentes = await pedirDatosAjax(instruccionesPe);
+
         let mandaAlerta = false;
         for (let i = 0; i < registrosExistentes.length; i++) {
             if (
                 registrosExistentes[i][`${nameImput}`] == valorIntroducido ||
-                registrosExistentes[i][`${nameImput}`] == valorIntroducido.toUpperCase() 
+                registrosExistentes[i][`${nameImput}`] == valorIntroducido.toUpperCase()
             ) {
                 mandaAlerta = true;
                 break;
@@ -334,14 +298,14 @@ async function validarEnTiempoReal(input) {
 }
 function validarTodosLosCampos() {
 
-    let inputs = $(this).find('input')
-    inputs.each((indice, input) => {
-        validarEnTiempoReal(input);
-    })
+    let elementosForm = $(this).find('input, select');
+    elementosForm.each((indice, elemento) => {
+        validarEnTiempoReal(elemento);
+    });
 
     let hayUnoInvalido = false;
-    inputs.each((indice, input) => {
-        if ($(input).hasClass('error')) {
+    elementosForm.each((indice, elemento) => {
+        if ($(elemento).hasClass('error')) {
             hayUnoInvalido = true;
         }
     })
@@ -390,11 +354,12 @@ export async function btnLista(modulo) {
         case 'id_metodo_pago':
         case 'id_moneda':
         case 'id_presentacion':
+        case 'id_unidad_medida':
         case 'id_rol':
             // if(
             //     permisos[modulo].includes('actualizar') ||
             //     permisos[modulo].includes('eliminar')
-            // ){
+            // ) {
             botonesAccion = (idRegistro) => {
                 let boton = '';
                 boton += `<ul class="list-inline me-auto mb-0">`;
@@ -420,6 +385,8 @@ export async function btnLista(modulo) {
             };
             // }
             break;
+        
+        
         case 'id_promocion':
             if (
                 permisos['promociones'].includes('ver detalles de promociones') ||
@@ -521,17 +488,16 @@ export async function ListarDataTable(instrucciones) {
     let modulo = instrucciones['modulo'];
     let botonesAccion = await btnLista(modulo);
 
-    console.log(selector);
     // Destruye cualquier instancia existente de DataTables en la tabla para evitar conflictos
-    if ($.fn.DataTable.isDataTable(selector)) {
+    if($.fn.DataTable.isDataTable(selector)){
         $(selector).DataTable().destroy();
     }
+
     let instruccionesPe = {
         'modulo': modulo,
         'datosPe': CEP
     };
-    let data = await pedirDatosAjax(instruccionesPe);
-    let datos = data;
+    let datos = await pedirDatosAjax(instruccionesPe);
     let arregloColumnas = [];
     let dynamicColumnDefs = [];
     let targetsCount = 0;
@@ -564,6 +530,8 @@ export async function ListarDataTable(instrucciones) {
     } else {
         console.warn("No hay datos iniciales ni 'encabezados' predefinidos. La tabla podría no mostrar las columnas correctamente hasta que haya datos.");
     }
+
+    console.log('key para las columnas: ',keysParaLasColumnas)
 
     //Recorremos el arreglo
     keysParaLasColumnas.forEach((key) => {
@@ -733,8 +701,7 @@ export function cambiarFormatos(cadena, tipo) {
         //Unimos todo
         const fechaFormateada = `${dia}-${mes}-${ano} ${horasFormateadas}:${minutos} ${ampm}`;
         cadena = fechaFormateada;
-    }
-    if (tipo == "fecha") {
+    }if (tipo == "fecha") {
         const fechaObj = new Date(cadena);
         // Obtener los componentes de la fecha
         const dia = String(fechaObj.getDate()).padStart(2, '0');
@@ -752,7 +719,7 @@ export function cambiarFormatos(cadena, tipo) {
 
 //#endregion [ LISTAR CON DATATABLE ] FIN
 
-//#region [ENVIAR FORMULARIOS CON AJAX] COMIENZO
+//#region [ ENVIAR FORMULARIOS CON AJAX ] COMIENZO
 export async function enviarFormulario() {
 
     esteFormulario = $(this);
@@ -769,14 +736,16 @@ export async function enviarFormulario() {
 
     if (resultado.isConfirmed) {
 
-        let hayUnCampoInvalido = validarTodosLosCampos.call(this);
-        if (hayUnCampoInvalido) {
-            return;
+        if(esteFormulario.hasClass('validar')){
+            let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
+            if (hayUnCampoInvalido) {
+                return;
+            }
         }
 
-        let metodo = $(this).attr("method");
-        let action = $(this).attr("action");
-        let data = new FormData(this);
+        let metodo = $(esteFormulario).attr("method");
+        let action = $(esteFormulario).attr("action");
+        let data = new FormData(esteFormulario[0]);
         let encabezados = new Headers();
 
         let config = {
@@ -794,7 +763,7 @@ export async function enviarFormulario() {
         if (contentType.includes("application/json") || contentType.includes("text/html")) {
             const respuestaJSON = await respuesta.json();
 
-            //Para actualizar los listados
+            //Para refrescar las listas de dataTable
             if (instanciasDatatable) {
                 if (instanciasDatatable.length > 0) {
                     instanciasDatatable.forEach(instancia => {
@@ -820,7 +789,7 @@ export async function enviarFormulario() {
 }
 //#endregion [ENVIAR FORMULARIOS CON AJAX] FIN
 
-//#region [ALERTAS AJAX] COMIENZO
+//#region [ ALERTAS AJAX ] COMIENZO
 export async function alertas_ajax(alerta) {
     let resultado = '';
     switch (alerta.tipo) {
@@ -965,6 +934,7 @@ export async function eliminarRegistro() {
         confirmButtonText: 'Aceptar',
         cancelButtonText: 'Cancelar'
     })
+
     if (resultado.isConfirmed) {
 
         let idRegistro = botonEliminar.value;
@@ -1002,69 +972,56 @@ export async function obtenerDatosRegistro() {
 
     //Para obtener el accion especifico del formulario a que se imprime mediante el click del usuario
     let claseObjetivo = $(this).attr('data-bs-target')//
+    // .modalActualizar
     let formulario = $(claseObjetivo).find('.formularioAjax');
-
     if (formulario.length == 0) {
         formulario = $('.formularioAjax.actualizar')
     }
-
     //Para poder imprimir los datos del usuario en el modal de editar mi perfil 
-    let nombreCampo = $(this).hasClass('valueHeader') ? 'cedula_usuario' : vista;
+    let nombreCampoUnicoBD = vista;
     let idRegistro = $(this).attr('value');
 
     let instruccionesPe = {
         'modulo': 'SPI',//
-        'nombreId': nombreCampo,
+        'nombreId': nombreCampoUnicoBD,
         'datosPe': {
             'accion': 'seleccionarUno',
-            [nombreCampo]: idRegistro
+            [nombreCampoUnicoBD]: idRegistro
         }
-    }
+    };
     let respuesta = await pedirDatosAjax(instruccionesPe);
-    let datosNoAgrupados = respuesta['datosNoAgrupados'] ? respuesta['datosNoAgrupados'] : respuesta;
-
     formulario.find('input, select').removeClass('validado error').closest('[class^="col-"]').find('.mensajeError').remove()
-    let inputs = formulario.find(".formularioActualizar");
-    inputs.each((indice, input) => {
-        const nombreCampo = input.name; // Obtener el atributo "name"
-        if (datosNoAgrupados.hasOwnProperty(nombreCampo)) {
-            input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input
+    
+    let elementosForm = formulario.find(".formularioActualizar");
+    elementosForm.each((indice, elemento) => {
+        const nombreCampo = elemento.name;
+        if (respuesta.hasOwnProperty(nombreCampo)) {
+            elemento.value = respuesta[nombreCampo]; // Le Asignamos el valor al input
         }
     });
-
-    //Deshabilitamos los datos que se deban
-    let datosInhab = inputs.filter('.inha')
-    datosInhab.each((indice, input) => {
-        $(input).prop('disabled', true)
-    })
 }
 //#endregion [PARA OBTENER DATOS A ACTUALIZAR] FIN
 
-//#region [PARA HACER PETICIONES AJAX] COMIENZO}
+//#region [PARA HACER PETICIONES AJAX] COMIENZO
 export async function pedirDatosAjax(instrucciones) {
 
-    let modulosFuera = ['usuarios', 'ventas', 'bitacora', 'notificaciones', 'roles','metodos-pago', 'monedas','cambios-monedas','presentaciones','permisos'];
+    let modulosFuera = ['ventas', 'bitacora', 'notificaciones', 'metodos-pago', 'monedas', 'cambios-monedas', 'presentaciones', 'permisos'];
+    let desactivarCaching=true;
     let moduloPe = instrucciones['modulo'];
     let accionPe = instrucciones['datosPe']['accion'];
     let listaDeIds = {
-        'ventas': 'id_venta',
         'clientes': 'cedula_cliente',
         'cambios': 'id_cambio',
         'productos': 'id_producto',
-        'categorias': 'id_categoria',
-        'promociones': 'id_promocion',
         'insumos': 'id_insumo',
         'metodos-pago': 'id_metodo_pago',
-        'bancos': 'id_banco',
         'monedas': 'id_moneda',
         'usuarios': 'cedula_usuario',
         'roles': 'id_rol',
         'permisos': 'id_rol',
-        'contornos': 'id_contorno',
-        'rellenos': 'id_relleno',
-        'repartidores': 'cedula_repartidor',
-        'rutas': 'id_ruta',
         'bitacora': 'id_bitacora',
+        'unidadesMedidas': 'id_unidad_medida',
+        'presentaciones': 'id_presentacion',
     }
     if (moduloPe == 'SPI') {
         for (const clave in listaDeIds) {
@@ -1142,9 +1099,8 @@ export async function pedirDatosAjax(instrucciones) {
         if (!instrucciones['noJSON']) {
             respuesta = await respuesta.json();
 
-
             if (
-                !instrucciones['noGuardarLocal'] &&
+                !instrucciones['noGuardarLocal'] && desactivarCaching == false &&
                 !(moduloPe == 'permisos' && accionPe == 'listar') &&
                 !modulosFuera.includes(moduloPe)
             ) {
@@ -1353,6 +1309,41 @@ export async function extraerDatosAjax(instrucciones) {
 }
 //#endregion [PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML] FIN
 
+//#region [DINAMISMO DEL HTML] COMIENZO
+
+function cambiarEstadoLiSidebar() {
+    if($(this).hasClass('activa')){
+        return;
+    }else{
+        $(this).addClass('activa');
+        $(this).closest('.sidebar-menu').find('li').not($(this)).removeClass('activa')
+    }
+
+    if(!$(this).hasClass('subMenuSidebar')){
+        console.log(this)
+        let textoOpcionSeleccionada = $(this).find('span').text();
+        sessionStorage.setItem('moduloSeleccionadoSidebar', textoOpcionSeleccionada);
+    }
+}
+function cargarModuloSeleccionaSidebar() {
+    let opcionSeleccionada = sessionStorage.getItem('moduloSeleccionadoSidebar');
+    if (opcionSeleccionada != 'null' && opcionSeleccionada != null) {
+        let opcionesSidebar = $('.sidebar-menu').find('li').find('span');
+        opcionesSidebar.each((indice, elemento) => {
+            if ($(elemento).text() == opcionSeleccionada) {
+                $(elemento).closest('li').addClass('activa')
+                let subMenuPadre = $(elemento).closest('.bloqueSubMenu')
+                if (subMenuPadre.length > 0) {
+                    subMenuPadre.addClass('show');
+                    let liDeBloqueSM = $('[data-bs-target="#'+subMenuPadre.attr('id')+'"]');
+                    liDeBloqueSM.addClass('activa').removeClass('collapsed').attr('aria-expanded',true)
+                }
+            }
+        })
+    }
+}
+//#endregion [DINAMISMO DEL HTML] FIN
+
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 
 //Evento para la precarga datos y eventos
@@ -1362,9 +1353,16 @@ $(document).on('DOMContentLoaded', async function (e) {
     if (sidebar && sidebarToggle) {
         sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('active');
-            document.querySelector('.main-content').classList.toggle('sidebar-active');
         });
     }
+
+    $(document).off('click', '.sidebar-menu li')
+    $(document).on('click', '.sidebar-menu li', function (e) {
+        // e.preventDefault();
+        cambiarEstadoLiSidebar.call(this);
+    })
+
+    cargarModuloSeleccionaSidebar();
 });
 
 //Evento para validar en tiempo real
