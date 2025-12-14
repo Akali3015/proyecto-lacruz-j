@@ -73,17 +73,4 @@
     const minRegexContrasena='8';
     const maxRegexContrasena='20';
 
-    // const regexToken='^[a-zA-ZáéíóúüÁÉÍÓÚñÑ0-9\-\_\.\:\;\!\/\%\$\=\&\s]{1,255}$';
-    // const minRegexToken='1';
-    // const maxRegexToken='255';
-
-    // const regexTipoToken='^[a-zA-ZáéíóúüÁÉÍÓÚñÑ0-9\-\_\.\:\;\!\/\%\$\=\&\s]{1,255}$';
-    // const minRegexTipoToken='1';
-    // const maxRegexTipoToken='255';
-
-    // const regexReferencia="^\d{4,10}$";
-    // const minRegexReferencia='4';
-    // const maxRegexReferencia='10';
-
-
 ?>

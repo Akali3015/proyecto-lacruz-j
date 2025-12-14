@@ -36,6 +36,10 @@
                             <label class="form-label">Símbolo de la unidad de medida</label>
                             <input type="text" class="form-control noRepetir" name="simbolo_unidad_medida" pattern="<?php echo regexSimboloMoneda ?>" minlength="<?php echo minRegexSimboloMoneda ?>" maxlength="<?php echo maxRegexSimboloMoneda ?>" required>
                         </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Equivalencia a Unidad Base</label>
+                            <input type="text" class="form-control" name="equivalencia_ub" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
@@ -74,6 +78,10 @@
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Símbolo de la unidad de medida</label>
                             <input type="text" class="form-control formularioActualizar noRepetir" name="simbolo_unidad_medida" pattern="<?php echo regexSimboloMoneda ?>" minlength="<?php echo minRegexSimboloMoneda ?>" maxlength="<?php echo maxRegexSimboloMoneda ?>" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Equivalencia a Unidad Base</label>
+                            <input type="text" class="form-control formularioActualizar" name="equivalencia_ub" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
                         </div>
                     </div>
                 </div>

@@ -20,11 +20,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
             echo json_encode($resultado);
             exit();
         case "listarPorRol":
-            $resultado = $modeloPermisos->SeleccionarPermisosPorRol();
+            $resultado = $modeloPermisos->seleccionarPermisosPorRol();
             echo json_encode($resultado);
             exit();
         case "actualizar":
-            $resultado = $modeloPermisos->ActualizarPermisos($idRol, $idModulo, $idPermiso, $cambio);
+            $resultado = $modeloPermisos->actualizarPermisos($idRol, $idModulo, $idPermiso, $cambio);
             echo json_encode($resultado);
             exit();
         default:
