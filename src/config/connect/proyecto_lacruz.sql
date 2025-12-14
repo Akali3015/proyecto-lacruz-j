@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-12-2025 a las 01:42:07
+-- Tiempo de generación: 14-12-2025 a las 22:00:56
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -58,8 +58,8 @@ CREATE TABLE `acciones` (
 CREATE TABLE `bitacora` (
   `id_bitacora` int(11) NOT NULL,
   `cedula_usuario` int(11) NOT NULL,
-  `id_modulo` int(11) NOT NULL,
   `id_accion` int(11) NOT NULL,
+  `id_modulo` int(11) NOT NULL,
   `fecha_bitacora` datetime NOT NULL,
   `resultado_accion_bitacora` varchar(20) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
@@ -113,7 +113,10 @@ INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, 
 (1, 1, 17, '2025-12-06 20:12:19', 1),
 (2, 5, 2, '2025-12-06 20:13:37', 1),
 (3, 2, 3, '2025-12-06 20:13:48', 1),
-(4, 1, 257.93, '2025-12-06 20:14:15', 1);
+(4, 1, 257.93, '2025-12-06 20:14:15', 1),
+(5, 1, 250, '2025-12-11 18:35:07', 1),
+(6, 2, 250, '2025-12-11 19:04:46', 1),
+(7, 5, 1, '2025-12-14 16:30:34', 1);
 
 -- --------------------------------------------------------
 
@@ -208,6 +211,7 @@ CREATE TABLE `insumos_ventas` (
 
 CREATE TABLE `materias_primas` (
   `id_materia_prima` int(11) NOT NULL,
+  `id_unidad_medida` int(11) NOT NULL,
   `nombre_materia_prima` varchar(50) NOT NULL,
   `stock_materia_prima` int(15) NOT NULL,
   `costo_materia_prima` float NOT NULL,
@@ -327,11 +331,11 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 257.93, 1),
-(2, 'EURO', '€', 3, 1),
+(1, 'DÓLAR', '$', 250, 1),
+(2, 'EURO', '€', 250, 1),
 (3, 'YUAN', '¥', 12, 1),
 (4, 'AGUACATE', '$O', 1, 0),
-(5, 'BÓLIVAR', 'BS', 2, 1);
+(5, 'BÓLIVAR', 'BS', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -413,6 +417,27 @@ CREATE TABLE `presentaciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `presentaciones`
+--
+
+INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_presentacion`, `cantidad_pmp`, `status`) VALUES
+(1, 2, 'PIPA', 200, 1),
+(2, 2, 'BIDÓN', 20, 1),
+(3, 2, 'GRANEL', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producciones`
+--
+
+CREATE TABLE `producciones` (
+  `id_produccion` int(11) NOT NULL,
+  `fecha_produccion` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- --------------------------------------------------------
 
 --
@@ -421,6 +446,7 @@ CREATE TABLE `presentaciones` (
 
 CREATE TABLE `productos` (
   `id_producto` int(11) NOT NULL,
+  `id_unidad_medida` int(11) NOT NULL,
   `nombre_producto` varchar(100) NOT NULL,
   `costo_producto_detal` float NOT NULL,
   `costo_producto_mayor` float NOT NULL,
@@ -437,8 +463,8 @@ CREATE TABLE `productos` (
 
 CREATE TABLE `productos_compras` (
   `id_producto_compra` int(11) NOT NULL,
-  `id_compra` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
+  `id_compra` int(11) NOT NULL,
   `cantidad_producto` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -451,8 +477,22 @@ CREATE TABLE `productos_compras` (
 
 CREATE TABLE `productos_presentaciones` (
   `id_producto_presentacion` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
   `id_presentacion` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `productos_producciones`
+--
+
+CREATE TABLE `productos_producciones` (
+  `id_producto_produccion` int(11) NOT NULL,
+  `id_produccion` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad_producida` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -466,7 +506,7 @@ CREATE TABLE `productos_servicios_ventas` (
   `id_producto_servicio_venta` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
   `id_servicio_venta` int(11) NOT NULL,
-  `cantidad_producto` int(11) NOT NULL,
+  `cantidad_producto` int(10) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -519,7 +559,12 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (1, 'ADMINISTRADOR', 1),
 (2, 'OFICINISTA', 1),
 (5, 'CAJERO', 0),
-(6, 'CAJEROTA', 0);
+(6, 'CAJEROTA', 0),
+(7, 'COCINEROS', 1),
+(8, 'OFICINISTAI', 0),
+(9, 'CAJERO', 0),
+(10, 'JNJ', 1),
+(11, 'IJKSKKKSS', 0);
 
 -- --------------------------------------------------------
 
@@ -552,14 +597,24 @@ CREATE TABLE `servicios_ventas` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `unidades_medida`
+-- Estructura de tabla para la tabla `unidades_medidas`
 --
 
-CREATE TABLE `unidades_medida` (
+CREATE TABLE `unidades_medidas` (
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_unidad_medida` varchar(50) NOT NULL,
+  `simbolo_unidad_medida` varchar(3) NOT NULL,
+  `equivalencia_ub` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `unidades_medidas`
+--
+
+INSERT INTO `unidades_medidas` (`id_unidad_medida`, `nombre_unidad_medida`, `simbolo_unidad_medida`, `equivalencia_ub`, `status`) VALUES
+(1, 'KILO(S)', 'KG', 0, 1),
+(2, 'LITRO(S)', 'L', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -601,7 +656,7 @@ CREATE TABLE `ventas` (
   `rif_cedula_cliente` varchar(20) NOT NULL,
   `id_cambio_iva` int(11) NOT NULL,
   `fecha_venta` datetime NOT NULL,
-  `status` tinyint(4) NOT NULL
+  `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -693,7 +748,8 @@ ALTER TABLE `insumos_ventas`
 -- Indices de la tabla `materias_primas`
 --
 ALTER TABLE `materias_primas`
-  ADD PRIMARY KEY (`id_materia_prima`);
+  ADD PRIMARY KEY (`id_materia_prima`),
+  ADD KEY `id_unidad_medida_materia_prima_fk` (`id_unidad_medida`);
 
 --
 -- Indices de la tabla `materias_primas_compras`
@@ -771,10 +827,17 @@ ALTER TABLE `presentaciones`
   ADD KEY `id_unidad_medida_presentaciones_fk` (`id_unidad_medida`);
 
 --
+-- Indices de la tabla `producciones`
+--
+ALTER TABLE `producciones`
+  ADD PRIMARY KEY (`id_produccion`);
+
+--
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD PRIMARY KEY (`id_producto`);
+  ADD PRIMARY KEY (`id_producto`),
+  ADD KEY `id_unidad_medida_producto_fk` (`id_unidad_medida`);
 
 --
 -- Indices de la tabla `productos_compras`
@@ -791,6 +854,14 @@ ALTER TABLE `productos_presentaciones`
   ADD PRIMARY KEY (`id_producto_presentacion`),
   ADD KEY `id_producto_presentacion_fk` (`id_producto`),
   ADD KEY `id_presentacion_productos_presentacion_fk` (`id_presentacion`);
+
+--
+-- Indices de la tabla `productos_producciones`
+--
+ALTER TABLE `productos_producciones`
+  ADD PRIMARY KEY (`id_producto_produccion`),
+  ADD KEY `id_produccion_productos_produccion_fk` (`id_produccion`),
+  ADD KEY `id_producto_productos_produccion_fk` (`id_producto`);
 
 --
 -- Indices de la tabla `productos_servicios_ventas`
@@ -836,9 +907,9 @@ ALTER TABLE `servicios_ventas`
   ADD KEY `id_servicio_servicios_ventas_fk` (`id_servicio`);
 
 --
--- Indices de la tabla `unidades_medida`
+-- Indices de la tabla `unidades_medidas`
 --
-ALTER TABLE `unidades_medida`
+ALTER TABLE `unidades_medidas`
   ADD PRIMARY KEY (`id_unidad_medida`);
 
 --
@@ -888,7 +959,7 @@ ALTER TABLE `cambios_iva`
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
 --
 ALTER TABLE `cambios_monedas`
-  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `compras`
@@ -984,7 +1055,13 @@ ALTER TABLE `permisos`
 -- AUTO_INCREMENT de la tabla `presentaciones`
 --
 ALTER TABLE `presentaciones`
-  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `producciones`
+--
+ALTER TABLE `producciones`
+  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -1005,6 +1082,12 @@ ALTER TABLE `productos_presentaciones`
   MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `productos_producciones`
+--
+ALTER TABLE `productos_producciones`
+  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `productos_servicios_ventas`
 --
 ALTER TABLE `productos_servicios_ventas`
@@ -1014,7 +1097,7 @@ ALTER TABLE `productos_servicios_ventas`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios_ventas`
@@ -1023,10 +1106,10 @@ ALTER TABLE `servicios_ventas`
   MODIFY `id_servicios_ventas` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `unidades_medida`
+-- AUTO_INCREMENT de la tabla `unidades_medidas`
 --
-ALTER TABLE `unidades_medida`
-  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `unidades_medidas`
+  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
@@ -1089,6 +1172,12 @@ ALTER TABLE `insumos_ventas`
   ADD CONSTRAINT `id_venta_insumos_ventas_fk` FOREIGN KEY (`id_venta`) REFERENCES `ventas` (`id_venta`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `materias_primas`
+--
+ALTER TABLE `materias_primas`
+  ADD CONSTRAINT `id_unidad_medida_materia_prima_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `materias_primas_compras`
 --
 ALTER TABLE `materias_primas_compras`
@@ -1126,7 +1215,13 @@ ALTER TABLE `pagos`
 -- Filtros para la tabla `presentaciones`
 --
 ALTER TABLE `presentaciones`
-  ADD CONSTRAINT `id_unidad_medida_presentaciones_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medida` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_unidad_medida_presentaciones_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `productos`
+--
+ALTER TABLE `productos`
+  ADD CONSTRAINT `id_unidad_medida_producto_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `productos_compras`
@@ -1141,6 +1236,13 @@ ALTER TABLE `productos_compras`
 ALTER TABLE `productos_presentaciones`
   ADD CONSTRAINT `id_presentacion_productos_presentacion_fk` FOREIGN KEY (`id_presentacion`) REFERENCES `presentaciones` (`id_presentacion`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_producto_presentacion_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `productos_producciones`
+--
+ALTER TABLE `productos_producciones`
+  ADD CONSTRAINT `id_produccion_productos_produccion_fk` FOREIGN KEY (`id_produccion`) REFERENCES `producciones` (`id_produccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_producto_productos_produccion_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `productos_servicios_ventas`
@@ -1160,7 +1262,7 @@ ALTER TABLE `productos_ventas`
 -- Filtros para la tabla `servicios`
 --
 ALTER TABLE `servicios`
-  ADD CONSTRAINT `id_unidad_medida_servicios_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medida` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_unidad_medida_servicios_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `servicios_ventas`
