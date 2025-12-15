@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-12-2025 a las 22:00:56
+-- Tiempo de generación: 15-12-2025 a las 01:17:38
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -36,6 +36,79 @@ CREATE TABLE `accesos` (
   `id_modulo` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `accesos`
+--
+
+INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status`) VALUES
+(125, 1, 8, 3, 1),
+(126, 1, 6, 10, 1),
+(127, 1, 21, 10, 1),
+(128, 1, 22, 3, 1),
+(129, 1, 10, 3, 1),
+(130, 1, 11, 11, 1),
+(131, 1, 14, 9, 1),
+(132, 1, 15, 9, 1),
+(133, 1, 16, 9, 1),
+(134, 1, 23, 9, 1),
+(135, 1, 19, 13, 1),
+(136, 2, 6, 10, 0),
+(137, 2, 21, 10, 0),
+(138, 2, 8, 3, 0),
+(139, 2, 22, 3, 0),
+(140, 2, 10, 3, 0),
+(141, 2, 11, 11, 0),
+(142, 2, 14, 9, 0),
+(143, 2, 15, 9, 0),
+(144, 2, 16, 9, 0),
+(145, 2, 23, 9, 0),
+(146, 2, 19, 13, 0),
+(147, 1, 1, 1, 1),
+(148, 1, 1, 8, 1),
+(149, 1, 2, 1, 1),
+(150, 1, 2, 8, 1),
+(151, 1, 3, 8, 1),
+(152, 1, 3, 1, 1),
+(153, 1, 4, 1, 1),
+(154, 1, 4, 8, 1),
+(155, 1, 5, 1, 1),
+(156, 1, 5, 8, 1),
+(157, 1, 5, 6, 1),
+(158, 1, 4, 6, 1),
+(159, 1, 3, 6, 1),
+(160, 1, 2, 6, 1),
+(161, 1, 1, 6, 1),
+(162, 1, 1, 4, 1),
+(163, 1, 2, 4, 1),
+(164, 1, 3, 4, 1),
+(165, 1, 4, 4, 1),
+(166, 1, 5, 4, 1),
+(167, 1, 5, 15, 1),
+(168, 1, 4, 15, 1),
+(169, 1, 4, 7, 1),
+(170, 1, 3, 15, 1),
+(171, 1, 3, 7, 1),
+(172, 1, 2, 7, 1),
+(173, 1, 2, 15, 1),
+(174, 1, 1, 15, 1),
+(175, 1, 1, 7, 1),
+(176, 1, 1, 5, 1),
+(177, 1, 2, 5, 1),
+(178, 1, 3, 5, 1),
+(179, 1, 4, 5, 1),
+(180, 1, 5, 5, 1),
+(181, 1, 5, 7, 1),
+(182, 1, 5, 9, 1),
+(183, 1, 5, 3, 1),
+(184, 1, 4, 3, 1),
+(185, 1, 4, 9, 1),
+(186, 1, 3, 9, 1),
+(187, 1, 3, 3, 1),
+(188, 1, 2, 3, 1),
+(189, 1, 2, 9, 1),
+(190, 1, 1, 9, 1),
+(191, 1, 1, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -303,14 +376,18 @@ CREATE TABLE `modulos` (
 
 INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (1, 'clientes', 1),
-(2, 'presupuesto', 1),
 (3, 'ventas', 1),
 (4, 'productos', 1),
 (5, 'servicios', 1),
 (6, 'materias_primas', 1),
 (7, 'proveedores', 1),
 (8, 'compras', 1),
-(9, 'usuarios', 1);
+(9, 'usuarios', 1),
+(10, 'cambios', 1),
+(11, 'reportes', 1),
+(13, 'bitacora', 1),
+(15, 'promociones', 1),
+(16, 'imagenes', 1);
 
 -- --------------------------------------------------------
 
@@ -401,7 +478,18 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (2, 'listar', 1),
 (3, 'registrar', 1),
 (4, 'actualizar', 1),
-(5, 'eliminar', 1);
+(5, 'eliminar', 1),
+(6, 'ver historial de cambio', 1),
+(8, 'ver detalles de las ventas', 1),
+(10, 'ver ventas sin cancelar', 1),
+(11, 'imprimir reportes de ventas', 1),
+(14, 'asignar roles a usuarios', 1),
+(15, 'ver el precio del dólar', 1),
+(16, 'ver notificaciones', 1),
+(19, 'ver bitácora', 1),
+(21, 'actualizar cambio de divisas', 1),
+(22, 'ver ventas despachadas', 1),
+(23, 'ver modal de ayuda', 1);
 
 -- --------------------------------------------------------
 
@@ -560,10 +648,10 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (2, 'OFICINISTA', 1),
 (5, 'CAJERO', 0),
 (6, 'CAJEROTA', 0),
-(7, 'COCINEROS', 1),
+(7, 'COCINEROS', 0),
 (8, 'OFICINISTAI', 0),
 (9, 'CAJERO', 0),
-(10, 'JNJ', 1),
+(10, 'JNJ', 0),
 (11, 'IJKSKKKSS', 0);
 
 -- --------------------------------------------------------
@@ -613,8 +701,8 @@ CREATE TABLE `unidades_medidas` (
 --
 
 INSERT INTO `unidades_medidas` (`id_unidad_medida`, `nombre_unidad_medida`, `simbolo_unidad_medida`, `equivalencia_ub`, `status`) VALUES
-(1, 'KILO(S)', 'KG', 0, 1),
-(2, 'LITRO(S)', 'L', 0, 1);
+(1, 'KILO(S)', 'KG', 1000, 1),
+(2, 'LITRO(S)', 'L', 1000, 1);
 
 -- --------------------------------------------------------
 
@@ -935,7 +1023,7 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=192;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones`
@@ -1019,7 +1107,7 @@ ALTER TABLE `metodos_pagos`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
@@ -1049,7 +1137,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `presentaciones`
