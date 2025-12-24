@@ -199,7 +199,10 @@ trait traitModelo {
                 }
 
                 if ($registrosExis != false) {
-                    if ($registrosExis[$campo['campo_nombre']] != $campo['campo_valor']) {
+                    if (
+                        $registrosExis[$campo['campo_nombre']] != $campo['campo_valor'] &&
+                        $registrosExis[$campo['campo_nombre']] != strtoupper($campo['campo_valor'])
+                    ){
                         $instruccionesBD = [
                             'campos' => $campo['campo_nombre'],
                             'tabla' =>  $campo['tabla'],

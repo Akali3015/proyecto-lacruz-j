@@ -11,16 +11,27 @@ export let inputsActualizarNoRepetir = {};
 //#region [Lista de encabezados según la vista] COMIENZO
 export let Camposfuera = ['status'];
 switch (vista) {
-    case 'cedula_cliente':
+    case 'rif_cedula_cliente':
         encabezados = {
             //Clientes
-            "cedula_cliente": "CÉDULA",
-            "nombre_cliente": "NOMBRE",
-            "apellido_cliente": "APELLIDO",
+            "rif_cedula_cliente": "CÉDULA",
+            "razon_social_cliente": "RAZÓN SOCIAL",
             "telefono_cliente": "TELÉFONO",
+            "correo_cliente": "CORREO ELECTRÓNICO",
+            "direccion_cliente": "DIRECCIÓN",
         }
         modulo = 'clientes'
         break;
+    case 'rif_proveedor':
+        encabezados = {
+            "rif_proveedor": "RIF",
+            "razon_social_proveedor": "RAZON SOCIAL",
+            "telefono_proveedor": "TELÉFONO",
+            "correo_proveedor": "CORREO ELECTRÓNICO",
+            "direccion_proveedor": "DIRECCIÓN",
+        }
+        modulo = 'proveedores'
+        break
     case 'id_cambio_iva':
         encabezados = {
             //Cambios
@@ -68,6 +79,18 @@ switch (vista) {
         modulo = 'monedas'
         break;
     case 'cedula_usuario':
+        encabezados = {
+            //Roles
+            "cedula_usuario": "CÉDULA",
+            "nombre_rol": "ROL",
+            "nombre_usuario": "NOMBRE",
+            "apellido_usuario": "APELLIDO",
+            "telefono_usuario": "TELÉFONO",
+            "correo_usuario": "CORREO",
+            "usuario_usuario": "USUARIO",
+        }
+        modulo = 'roles'
+        break;
     case 'id_rol':
         encabezados = {
             //Roles
@@ -355,6 +378,8 @@ export async function btnLista(modulo) {
         case 'id_moneda':
         case 'id_presentacion':
         case 'id_unidad_medida':
+        case 'rif_cedula_cliente':
+        case 'rif_proveedor':
         case 'id_rol':
             // if(
             //     permisos[modulo].includes('actualizar') ||
@@ -385,8 +410,6 @@ export async function btnLista(modulo) {
             };
             // }
             break;
-        
-        
         case 'id_promocion':
             if (
                 permisos['promociones'].includes('ver detalles de promociones') ||
@@ -489,7 +512,7 @@ export async function ListarDataTable(instrucciones) {
     let botonesAccion = await btnLista(modulo);
 
     // Destruye cualquier instancia existente de DataTables en la tabla para evitar conflictos
-    if($.fn.DataTable.isDataTable(selector)){
+    if ($.fn.DataTable.isDataTable(selector)) {
         $(selector).DataTable().destroy();
     }
 
@@ -531,7 +554,7 @@ export async function ListarDataTable(instrucciones) {
         console.warn("No hay datos iniciales ni 'encabezados' predefinidos. La tabla podría no mostrar las columnas correctamente hasta que haya datos.");
     }
 
-    console.log('key para las columnas: ',keysParaLasColumnas)
+    console.log('key para las columnas: ', keysParaLasColumnas)
 
     //Recorremos el arreglo
     keysParaLasColumnas.forEach((key) => {
@@ -701,7 +724,7 @@ export function cambiarFormatos(cadena, tipo) {
         //Unimos todo
         const fechaFormateada = `${dia}-${mes}-${ano} ${horasFormateadas}:${minutos} ${ampm}`;
         cadena = fechaFormateada;
-    }if (tipo == "fecha") {
+    } if (tipo == "fecha") {
         const fechaObj = new Date(cadena);
         // Obtener los componentes de la fecha
         const dia = String(fechaObj.getDate()).padStart(2, '0');
@@ -736,7 +759,7 @@ export async function enviarFormulario() {
 
     if (resultado.isConfirmed) {
 
-        if(esteFormulario.hasClass('validar')){
+        if (esteFormulario.hasClass('validar')) {
             let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
             if (hayUnCampoInvalido) {
                 return;
@@ -991,7 +1014,7 @@ export async function obtenerDatosRegistro() {
     };
     let respuesta = await pedirDatosAjax(instruccionesPe);
     formulario.find('input, select').removeClass('validado error').closest('[class^="col-"]').find('.mensajeError').remove()
-    
+
     let elementosForm = formulario.find(".formularioActualizar");
     elementosForm.each((indice, elemento) => {
         const nombreCampo = elemento.name;
@@ -1006,7 +1029,7 @@ export async function obtenerDatosRegistro() {
 export async function pedirDatosAjax(instrucciones) {
 
     let modulosFuera = ['ventas', 'bitacora', 'notificaciones', 'metodos-pago', 'monedas', 'cambios-monedas', 'presentaciones', 'permisos'];
-    let desactivarCaching=true;
+    let desactivarCaching = true;
     let moduloPe = instrucciones['modulo'];
     let accionPe = instrucciones['datosPe']['accion'];
     let listaDeIds = {
@@ -1022,6 +1045,8 @@ export async function pedirDatosAjax(instrucciones) {
         'bitacora': 'id_bitacora',
         'unidadesMedidas': 'id_unidad_medida',
         'presentaciones': 'id_presentacion',
+        'clientes': 'rif_cedula_cliente',
+        'proveedores': 'rif_proveedor',
     }
     if (moduloPe == 'SPI') {
         for (const clave in listaDeIds) {
@@ -1312,14 +1337,14 @@ export async function extraerDatosAjax(instrucciones) {
 //#region [DINAMISMO DEL HTML] COMIENZO
 
 function cambiarEstadoLiSidebar() {
-    if($(this).hasClass('activa')){
+    if ($(this).hasClass('activa')) {
         return;
-    }else{
+    } else {
         $(this).addClass('activa');
         $(this).closest('.sidebar-menu').find('li').not($(this)).removeClass('activa')
     }
 
-    if(!$(this).hasClass('subMenuSidebar')){
+    if (!$(this).hasClass('subMenuSidebar')) {
         console.log(this)
         let textoOpcionSeleccionada = $(this).find('span').text();
         sessionStorage.setItem('moduloSeleccionadoSidebar', textoOpcionSeleccionada);
@@ -1335,8 +1360,8 @@ function cargarModuloSeleccionaSidebar() {
                 let subMenuPadre = $(elemento).closest('.bloqueSubMenu')
                 if (subMenuPadre.length > 0) {
                     subMenuPadre.addClass('show');
-                    let liDeBloqueSM = $('[data-bs-target="#'+subMenuPadre.attr('id')+'"]');
-                    liDeBloqueSM.addClass('activa').removeClass('collapsed').attr('aria-expanded',true)
+                    let liDeBloqueSM = $('[data-bs-target="#' + subMenuPadre.attr('id') + '"]');
+                    liDeBloqueSM.addClass('activa').removeClass('collapsed').attr('aria-expanded', true)
                 }
             }
         })

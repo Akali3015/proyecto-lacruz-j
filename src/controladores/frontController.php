@@ -16,9 +16,6 @@ class frontController
                 $this->archivo = "src/controladores/usuariosControlador.php";
             } else {
                 $this->url = explode("/", $_GET['views']);
-                // monedas/cambios-monedas/valor3
-                // [monedas, cambios-monedas, valor3]
-
                 $this->url = $this->url[0];
 
                 $this->controladores = [

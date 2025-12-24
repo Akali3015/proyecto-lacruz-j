@@ -1,15 +1,19 @@
 <?php
+
 namespace src\modelos;
+
 use src\config\connect\conexion;
 use PDO;
 use PDOException;
 use Exception;
 
-class unidadesMedidasModelo extends conexion {
-    
+class unidadesMedidasModelo extends conexion
+{
+
     private $idUnidadMedida;
     private $nombreUnidadMedida;
     private $simboloUnidadMedida;
+    private $equivalenciaUB;
 
     public function seleccionarUnidadesMedidas($id = null)
     {
@@ -42,11 +46,13 @@ class unidadesMedidasModelo extends conexion {
             return $this->seleccionarUnidadesMedidasP();
         }
     }
-    public function registrarUnidadesMedidas($nombre, $simbolo)
+    public function registrarUnidadesMedidas($nombre, $simbolo, $equivalenciaUB)
     {
         try {
             $this->nombreUnidadMedida = $nombre;
             $this->simboloUnidadMedida = $simbolo;
+            $this->equivalenciaUB = $equivalenciaUB;
+
             $campos = [
                 [
                     "campo_nombre" => "nombre_unidad_medida",
@@ -69,7 +75,17 @@ class unidadesMedidasModelo extends conexion {
                     "expresion_re" => regexSimboloMoneda,
                     "tabla" => "unidades_medidas",
                     "debeSerUnico" => true,
-                ]
+                ],
+                [
+                    "campo_nombre" => "equivalencia_ub",
+                    "campo_valor" => $this->equivalenciaUB,
+                    "formulario_nombre" => "equivalencia de la unidad base",
+                    "requerido" => true,
+                    "minimo" => minRegexPrecio,
+                    "maximo" => maxRegexPrecio,
+                    "expresion_re" => regexPrecio,
+                    "tabla" => "unidades_medidas",
+                ],
             ];
 
             $respuesta = $this->limpiar_Verificar($campos);
@@ -84,11 +100,12 @@ class unidadesMedidasModelo extends conexion {
             throw new Exception("Error al registrar el rol en la base de datos: " . $e->getMessage());
         }
     }
-    public function actualizarUnidadesMedidas($id, $nombre,$simbolo)
+    public function actualizarUnidadesMedidas($id, $nombre, $simbolo, $equivalenciaUB)
     {
         $this->idUnidadMedida = $id;
         $this->nombreUnidadMedida = $nombre;
         $this->simboloUnidadMedida = $simbolo;
+        $this->equivalenciaUB = $equivalenciaUB;
 
         //Arrays para las validaciones
         $campos = [
@@ -125,7 +142,17 @@ class unidadesMedidasModelo extends conexion {
                 "expresion_re" => regexSimboloMoneda,
                 "tabla" => "unidades_medidas",
                 "debeSerUnico" => true,
-            ]
+            ],
+            [
+                "campo_nombre" => "equivalencia_ub",
+                "campo_valor" => $this->equivalenciaUB,
+                "formulario_nombre" => "equivalencia de la unidad base",
+                "requerido" => true,
+                "minimo" => minRegexPrecio,
+                "maximo" => maxRegexPrecio,
+                "expresion_re" => regexPrecio,
+                "tabla" => "unidades_medidas",
+            ],
         ];
 
         $respuesta = $this->limpiar_Verificar($campos);
@@ -178,7 +205,7 @@ class unidadesMedidasModelo extends conexion {
             return $unidadesMedidas;
         } else {
 
-            /*Hacemos la consulta */;
+                /*Hacemos la consulta */;
             $instruccionesBD = [
                 'campos' => '*',
                 'tabla' => 'unidades_medidas',
@@ -222,6 +249,11 @@ class unidadesMedidasModelo extends conexion {
                 "campo_valor" => $this->simboloUnidadMedida,
                 "ponerEnMayusculas" => true
             ],
+            [
+                "campo_nombre" => "equivalencia_ub",
+                "campo_marcador" => ":equivalencia",
+                "campo_valor" => $this->equivalenciaUB,
+            ],
         ];
 
         $ultimoId = $this->guardarDatos('unidades_medidas', $datos_registro_unidades_medidas);
@@ -260,7 +292,12 @@ class unidadesMedidasModelo extends conexion {
                     "campo_marcador" => ":simbolo",
                     "campo_valor" => $this->simboloUnidadMedida,
                     "ponerEnMayusculas" => true
-                ]
+                ],
+                [
+                    "campo_nombre" => "equivalencia_ub",
+                    "campo_marcador" => ":equivalencia",
+                    "campo_valor" => $this->equivalenciaUB,
+                ],
             ],
             "condiciones" => [
                 [
@@ -314,4 +351,3 @@ class unidadesMedidasModelo extends conexion {
         return $alerta;
     }
 }
-?>

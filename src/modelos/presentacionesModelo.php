@@ -103,7 +103,7 @@ class presentacionesModelo extends conexion
         //Arrays para las validaciones
         $campos = [
             [
-                "campo_nombre" => "id_materia_prima",
+                "campo_nombre" => "id_presentacion",
                 "campo_valor" => $this->idPresentacion,
                 "formulario_nombre" => "id de la presentación",
                 "requerido" => true,
@@ -160,9 +160,9 @@ class presentacionesModelo extends conexion
         //Arrays para las validaciones
         $campos = [
             [
-                "campo_nombre" => "id_rol",
+                "campo_nombre" => "id_presentacion",
                 "campo_valor" => $this->idPresentacion,
-                "formulario_nombre" => "id del rol",
+                "formulario_nombre" => "id de la presentación",
                 "requerido" => true,
                 "minimo" => minRegexId,
                 "maximo" => maxRegexId,
