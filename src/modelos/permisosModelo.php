@@ -45,7 +45,7 @@ class permisosModelo extends conexion
         }
         return $this->listarPermisosP();
     }
-    public function SeleccionarPermisosPorRol()
+    public function seleccionarPermisosPorRol()
     {
         $this->idRol = $_SESSION['rol'];
 
@@ -69,9 +69,9 @@ class permisosModelo extends conexion
                 exit();
             }
         }
-        return $this->SeleccionarPermisosPorRolP();
+        return $this->seleccionarPermisosPorRolP();
     }
-    public function ActualizarPermisos($rol, $modulo, $permiso, $cambio)
+    public function actualizarPermisos($rol, $modulo, $permiso, $cambio)
     {
 
         $this->idRol = $rol;
@@ -129,9 +129,9 @@ class permisosModelo extends conexion
             exit();
         }
 
-        return $this->ActualizarPermisosP();
+        return $this->actualizarPermisosP();
     }
-    public function Permisos_Val($modulo, $permiso)
+    public function validarPermisos($modulo, $permiso)
     {
         $this->moduloVal= $modulo;
 
@@ -207,7 +207,7 @@ class permisosModelo extends conexion
             return $respuesta;
             exit();
         }
-        return $this->ValidarPermisos();
+        return $this->validarPermisosP();
 
     }
 
@@ -322,13 +322,10 @@ class permisosModelo extends conexion
         /*Función para armar la estructura completa de la permisologia
         con los permisos especiales*/
         $respaldoPerEsp = [
-            'dashboard' => ['ver dashboard'],
             'cambios' => ['ver historial de cambio', 'actualizar cambio de divisas'],
             'ventas' => ['ver detalles de las ventas','ver ventas despachadas', 'ver ventas sin cancelar'],
             'reportes' => [
                 'imprimir reportes de ventas',
-                'imprimir reportes de productos',
-                'imprimir comandas',
             ],
             'usuarios' => [
                 'asignar roles a usuarios',
@@ -336,9 +333,7 @@ class permisosModelo extends conexion
                 'ver notificaciones',
                 'ver modal de ayuda'
             ],
-            'promociones' => ['ver detalles de promociones'],
             'bitacora' => ['ver bitácora'],
-            'imagenes' => ['transformar imagenes']
         ];
 
         $NTPE = 0;
@@ -349,7 +344,7 @@ class permisosModelo extends conexion
         $instruccionesBD = [
             'campos' => '
                 ac.id_permiso, pe.nombre_permiso, ac.id_modulo,
-                mo.nombre_modulo,ac.estado
+                mo.nombre_modulo,ac.status
             ',
             'tabla' => 'accesos as ac',
             'PEL' => 'ac',
@@ -440,8 +435,8 @@ class permisosModelo extends conexion
                             "campo_valor" => $modulo
                         ],
                         [
-                            "campo_nombre" => "estado",
-                            "campo_marcador" => ":estado",
+                            "campo_nombre" => "status",
+                            "campo_marcador" => ":status",
                             "campo_valor" => "1"
                         ],
                     ];
@@ -478,8 +473,8 @@ class permisosModelo extends conexion
                                 "campo_valor" => $permiso
                             ],
                             [
-                                "campo_nombre" => "estado",
-                                "campo_marcador" => ":estado",
+                                "campo_nombre" => "status",
+                                "campo_marcador" => ":status",
                                 "campo_valor" => "1"
                             ],
                         ];
@@ -545,8 +540,8 @@ class permisosModelo extends conexion
                                 "campo_valor" => $this->idRol
                             ],
                             [
-                                "campo_nombre" => "estado",
-                                "campo_marcador" => ":estado",
+                                "campo_nombre" => "status",
+                                "campo_marcador" => ":status",
                                 "campo_valor" => "0"
                             ],
                         ];
@@ -575,7 +570,7 @@ class permisosModelo extends conexion
             $instruccionesBD = [
                 'campos' => '
                     ac.id_permiso, pe.nombre_permiso, ac.id_modulo,
-                    mo.nombre_modulo, ac.estado
+                    mo.nombre_modulo, ac.status
                 ',
                 'tabla' => 'accesos as ac',
                 'PEL' => 'ac',
@@ -621,6 +616,12 @@ class permisosModelo extends conexion
                         "condicion_valor" => 4,
                         "comparacion" => "!="
                     ],
+                    [
+                        "condicion_campo" => "ac.id_permiso",
+                        "condicion_marcador" => ":idPermiso5",
+                        "condicion_valor" => 5,
+                        "comparacion" => "!="
+                    ],
                 ],
                 'ORDER' => 'id_modulo ASC'
             ];
@@ -642,7 +643,7 @@ class permisosModelo extends conexion
         ];
         return $permisos;
     }
-    private function SeleccionarPermisosPorRolP()
+    private function seleccionarPermisosPorRolP()
     {
         //Obtenemos los permisos totales del rol en todos los modulos
         $instruccionesBD = [
@@ -697,7 +698,7 @@ class permisosModelo extends conexion
         }
         return $ArrayPermisos;
     }
-    private function ActualizarPermisosP()
+    private function actualizarPermisosP()
     {
         $instruccionesBD = [
             'campos' => '*',
@@ -755,7 +756,7 @@ class permisosModelo extends conexion
             $ultimoId = $this->guardarDatos('accesos', $datos_registro_acceso);
             if ($ultimoId !== false && $ultimoId > 0) {
                 $alerta = [
-                    "tipo" => "limpiar",
+                    "tipo" => "simple",
                     "titulo" => "Acceso registrado",
                     "texto" => "El acceso ha sido registrado exitosamente",
                     "icono" => "success",
@@ -795,8 +796,8 @@ class permisosModelo extends conexion
                     "tabla" => "accesos",
                     "datos" => [
                         [
-                            "campo_nombre" => "estado",
-                            "campo_marcador" => ":estado",
+                            "campo_nombre" => "status",
+                            "campo_marcador" => ":status",
                             "campo_valor" => $this->cambio
                         ]
                     ],
@@ -809,6 +810,11 @@ class permisosModelo extends conexion
                         ]
                     ]
                 ];
+
+                // return [
+                //     'cambio'=>$this->cambio,
+                //     'idAcceso'=>$idAcceso,
+                // ];
                 $resultado = $this->actualizarDatos($instruccionesBD);
                 if ($resultado != 0) {
                     $alertaExito = [
@@ -836,8 +842,8 @@ class permisosModelo extends conexion
             }
         }
     }
-    private function ValidarPermisos(){
-        $permisos= $this->SeleccionarPermisosPorRol();
+    private function validarPermisosP(){
+        $permisos= $this->seleccionarPermisosPorRol();
         if(!isset($permisos[$this->moduloVal])){
             $alerta = [
                 "tipo" => "simple",
@@ -866,3 +872,4 @@ class permisosModelo extends conexion
         }
     }
 }
+

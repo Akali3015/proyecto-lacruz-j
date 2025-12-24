@@ -14,6 +14,7 @@ class unidadesMedidasModelo extends conexion
     private $nombreUnidadMedida;
     private $simboloUnidadMedida;
     private $equivalenciaUB;
+    private $equivalenciaUB;
 
     public function seleccionarUnidadesMedidas($id = null)
     {
@@ -105,6 +106,7 @@ class unidadesMedidasModelo extends conexion
         $this->idUnidadMedida = $id;
         $this->nombreUnidadMedida = $nombre;
         $this->simboloUnidadMedida = $simbolo;
+        $this->equivalenciaUB = $equivalenciaUB;
         $this->equivalenciaUB = $equivalenciaUB;
 
         //Arrays para las validaciones
@@ -254,6 +256,11 @@ class unidadesMedidasModelo extends conexion
                 "campo_marcador" => ":equivalencia",
                 "campo_valor" => $this->equivalenciaUB,
             ],
+            [
+                "campo_nombre" => "equivalencia_ub",
+                "campo_marcador" => ":equivalencia",
+                "campo_valor" => $this->equivalenciaUB,
+            ],
         ];
 
         $ultimoId = $this->guardarDatos('unidades_medidas', $datos_registro_unidades_medidas);
@@ -292,6 +299,12 @@ class unidadesMedidasModelo extends conexion
                     "campo_marcador" => ":simbolo",
                     "campo_valor" => $this->simboloUnidadMedida,
                     "ponerEnMayusculas" => true
+                ],
+                [
+                    "campo_nombre" => "equivalencia_ub",
+                    "campo_marcador" => ":equivalencia",
+                    "campo_valor" => $this->equivalenciaUB,
+                ],
                 ],
                 [
                     "campo_nombre" => "equivalencia_ub",

@@ -129,6 +129,7 @@ switch (vista) {
             "id_unidad_medida": "ID",
             "nombre_unidad_medida": "NOMBRE",
             "simbolo_unidad_medida": "SÍMBOLO",
+            "equivalencia_ub": "EQUIVALENCIA A UNIDAD BASE",
         }
         modulo = 'unidadesMedidas'
         break;
