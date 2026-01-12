@@ -69,12 +69,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
     }
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET" && isset($url2) && $url2 != "") {
     if (isset($url2) && $url2 != "") {
-        if (is_file("src/vistas/usuarios/".$url2.".php")) {
+        if (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
             if ($url2 == "dashboard" && isset($_SESSION['rol'])) {
                 require_once "src/config/inc/header.php";
                 require_once "src/config/inc/sidebar.php";
-                require_once "src/vistas/usuarios/".$url2.".php";
-            }else {
+                require_once "src/vistas/usuarios/" . $url2 . ".php";
+            } else {
                 require_once "src/vistas/usuarios/" . $url2 . ".php";
             }
             $_SESSION['vistaActual'] = $url2;
@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
     require_once "src/vistas/usuarios/usuarios.php";
     $_SESSION['vistaActual'] = 'usuarios';
 } else {
-    
+
     $accion = $_POST['accion'];
     $cedula = $_POST['cedula_usuario'] ?? "";
     $nombre = $_POST['nombre_usuario'] ?? "";
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
 
     $objeto = new usuariosModelo();
     if (isset($_POST['accion'])) {
-        
+
         ob_clean();
         switch ($accion) {
             case 'iniciarSesion':
@@ -130,6 +130,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
                     $resultado['tipo'] = 'alertarYredireccionar';
                     $resultado['url'] = APP_URL;
                 }
+                echo json_encode($resultado);
+                exit();
+            case "eliminar":
+                $resultado = $modeloUsuarios->Usuarios_Eli($cedula);
+                echo json_encode($resultado);
+                exit();
+            case "seleccionarUno":
+                $resultado = $modeloUsuarios->Usuarios_Sel($cedula);
+                echo json_encode($resultado);
+                exit();
+            case "actualizar":
+                $resultado = $modeloUsuarios->Usuarios_Act(
+                    $cedula,
+                    $nombre,
+                    $apellido,
+                    $correo,
+                    $telefono,
+                    $rol,
+                    $usuario,
+                    $contrasena1,
+                    $contrasena2
+                );
+                echo json_encode($resultado);
+                exit();
+            case "actualizarFoto":
+                $resultado = $modeloUsuarios->Usuarios_ActFoto($cedula, $foto);
+                echo json_encode($resultado);
+                exit();
+            case "eliminarFoto":
+                $resultado = $modeloUsuarios->Usuarios_EliFoto($cedula);
+                echo json_encode($resultado);
+                exit();
+            case "cerrarSesion":
+                $resultado = $modeloUsuarios->Usuarios_CerSesion();
                 echo json_encode($resultado);
                 exit();
             default:

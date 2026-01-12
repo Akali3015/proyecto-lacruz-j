@@ -14,7 +14,6 @@ class unidadesMedidasModelo extends conexion
     private $nombreUnidadMedida;
     private $simboloUnidadMedida;
     private $equivalenciaUB;
-    private $equivalenciaUB;
 
     public function seleccionarUnidadesMedidas($id = null)
     {
@@ -49,56 +48,50 @@ class unidadesMedidasModelo extends conexion
     }
     public function registrarUnidadesMedidas($nombre, $simbolo, $equivalenciaUB)
     {
-        try {
-            $this->nombreUnidadMedida = $nombre;
-            $this->simboloUnidadMedida = $simbolo;
-            $this->equivalenciaUB = $equivalenciaUB;
 
-            $campos = [
-                [
-                    "campo_nombre" => "nombre_unidad_medida",
-                    "campo_valor" => $this->nombreUnidadMedida,
-                    "formulario_nombre" => "nombre de la unidad de medida",
-                    "requerido" => true,
-                    "minimo" => minRegexNombreObj,
-                    "maximo" => maxRegexNombreObj,
-                    "expresion_re" => regexNombreObj,
-                    "tabla" => "unidades_medidas",
-                    "debeSerUnico" => true,
-                ],
-                [
-                    "campo_nombre" => "simbolo_unidad_medida",
-                    "campo_valor" => $this->simboloUnidadMedida,
-                    "formulario_nombre" => "simbolo de la unidad de medida",
-                    "requerido" => true,
-                    "minimo" => minRegexSimboloMoneda,
-                    "maximo" => maxRegexSimboloMoneda,
-                    "expresion_re" => regexSimboloMoneda,
-                    "tabla" => "unidades_medidas",
-                    "debeSerUnico" => true,
-                ],
-                [
-                    "campo_nombre" => "equivalencia_ub",
-                    "campo_valor" => $this->equivalenciaUB,
-                    "formulario_nombre" => "equivalencia de la unidad base",
-                    "requerido" => true,
-                    "minimo" => minRegexPrecio,
-                    "maximo" => maxRegexPrecio,
-                    "expresion_re" => regexPrecio,
-                    "tabla" => "unidades_medidas",
-                ],
-            ];
+        $this->nombreUnidadMedida = $nombre;
+        $this->simboloUnidadMedida = $simbolo;
+        $this->equivalenciaUB = $equivalenciaUB;
 
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-                exit();
-            } else {
-                return $this->registrarUnidadesMedidasP();
-            }
-        } catch (PDOException $e) {
-            error_log("Error: " . $e->getMessage());
-            throw new Exception("Error al registrar el rol en la base de datos: " . $e->getMessage());
+        $campos = [
+            [
+                "campo_nombre" => "nombre_unidad_medida",
+                "campo_valor" => $this->nombreUnidadMedida,
+                "formulario_nombre" => "nombre de la unidad de medida",
+                "requerido" => true,
+                "minimo" => minRegexNombreObj,
+                "maximo" => maxRegexNombreObj,
+                "expresion_re" => regexNombreObj,
+                "tabla" => "unidades_medidas",
+                "debeSerUnico" => true,
+            ],
+            [
+                "campo_nombre" => "simbolo_unidad_medida",
+                "campo_valor" => $this->simboloUnidadMedida,
+                "formulario_nombre" => "simbolo de la unidad de medida",
+                "requerido" => true,
+                "minimo" => minRegexSimboloMoneda,
+                "maximo" => maxRegexSimboloMoneda,
+                "expresion_re" => regexSimboloMoneda,
+                "tabla" => "unidades_medidas",
+                "debeSerUnico" => true,
+            ],
+            [
+                "campo_valor" => $this->equivalenciaUB,
+                "formulario_nombre" => "equivalencia de la unidad base",
+                "requerido" => true,
+                "minimo" => minRegexEnteroGrande,
+                "maximo" => maxRegexEnteroGrande,
+                "expresion_re" => regexEnteroGrande,
+            ],
+        ];
+
+        $respuesta = $this->limpiar_Verificar($campos);
+        if ($respuesta !== false) {
+            return $respuesta;
+            exit();
+        } else {
+            return $this->registrarUnidadesMedidasP();
         }
     }
     public function actualizarUnidadesMedidas($id, $nombre, $simbolo, $equivalenciaUB)
@@ -256,11 +249,6 @@ class unidadesMedidasModelo extends conexion
                 "campo_marcador" => ":equivalencia",
                 "campo_valor" => $this->equivalenciaUB,
             ],
-            [
-                "campo_nombre" => "equivalencia_ub",
-                "campo_marcador" => ":equivalencia",
-                "campo_valor" => $this->equivalenciaUB,
-            ],
         ];
 
         $ultimoId = $this->guardarDatos('unidades_medidas', $datos_registro_unidades_medidas);
@@ -304,7 +292,6 @@ class unidadesMedidasModelo extends conexion
                     "campo_nombre" => "equivalencia_ub",
                     "campo_marcador" => ":equivalencia",
                     "campo_valor" => $this->equivalenciaUB,
-                ],
                 ],
                 [
                     "campo_nombre" => "equivalencia_ub",

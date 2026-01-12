@@ -115,12 +115,22 @@ switch (vista) {
     case 'id_producto':
         encabezados = {
             "id_producto": "ID",
-            "nombre_categoria": "CATEGORÍA",
+            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
             "nombre_producto": "NOMBRE",
-            "precio_producto": "PRECIO",
-            "descripcion_producto": "DESCRIPCIÓN",
-            "necesita_contornos": "¿NECESITA CONTORNOS?",
-            "necesita_rellenos": "¿NECESITA RELLENOS?",
+            "precio_producto_detal": "PRECIO AL DETAL",
+            "precio_producto_mayor": "PRECIO AL MAYOR",
+            "stock_producto": "STOCK",
+            "producto_es_fabricado": "¿ES FABRICADO?",
+        }
+        modulo = 'productos'
+        break;
+    case 'id_materia_prima':
+        encabezados = {
+            "id_materia_prima": "ID",
+            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+            "nombre_materia_prima": "NOMBRE",
+            "stock_materia_prima": "STOCK",
+            "costo_materia_prima": "COSTO",
         }
         modulo = 'productos'
         break;
@@ -382,6 +392,10 @@ export async function btnLista(modulo) {
         case 'rif_cedula_cliente':
         case 'rif_proveedor':
         case 'id_rol':
+        case 'id_servicio':
+        case 'id_materia_prima':
+        case 'id_producto':
+        case 'id_insumo':
             // if(
             //     permisos[modulo].includes('actualizar') ||
             //     permisos[modulo].includes('eliminar')
@@ -554,8 +568,6 @@ export async function ListarDataTable(instrucciones) {
     } else {
         console.warn("No hay datos iniciales ni 'encabezados' predefinidos. La tabla podría no mostrar las columnas correctamente hasta que haya datos.");
     }
-
-    console.log('key para las columnas: ', keysParaLasColumnas)
 
     //Recorremos el arreglo
     keysParaLasColumnas.forEach((key) => {
@@ -760,17 +772,21 @@ export async function enviarFormulario() {
 
     if (resultado.isConfirmed) {
 
-        if (esteFormulario.hasClass('validar')) {
-            let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
-            if (hayUnCampoInvalido) {
-                return;
-            }
-        }
+        // if (esteFormulario.hasClass('validar')) {
+        //     let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
+        //     if (hayUnCampoInvalido) {
+        //         return;
+        //     }
+        // }
 
         let metodo = $(esteFormulario).attr("method");
         let action = $(esteFormulario).attr("action");
         let data = new FormData(esteFormulario[0]);
         let encabezados = new Headers();
+
+        if(vista=='id_producto'){
+            data= JSON.stringify(procesarFormData(data, vista));
+        }
 
         let config = {
             method: metodo,
@@ -779,7 +795,6 @@ export async function enviarFormulario() {
             cache: 'no-cache',
             body: data
         };
-
         let respuesta = await fetch(action, config)
         let contentType = respuesta.headers.get("Content-Type");
 
@@ -788,13 +803,16 @@ export async function enviarFormulario() {
             const respuestaJSON = await respuesta.json();
 
             //Para refrescar las listas de dataTable
-            if (instanciasDatatable) {
-                if (instanciasDatatable.length > 0) {
-                    instanciasDatatable.forEach(instancia => {
-                        instancia.ajax.reload(null, false);
-                    });
+            if (respuestaJSON['icono'] == 'success') {
+                if (instanciasDatatable) {
+                    if (instanciasDatatable.length > 0) {
+                        instanciasDatatable.forEach(instancia => {
+                            instancia.ajax.reload(null, false);
+                        });
+                    }
                 }
             }
+
 
             if (respuestaJSON['icono'] == 'success') {
                 reiniciarSS(modulo)
@@ -809,6 +827,128 @@ export async function enviarFormulario() {
         } else {
             console.warn("Tipo de respuesta no esperado:", contentType);
         }
+    }
+}
+export function procesarFormData(dataCompleta, vista) {
+    let dataRecolectada = {};
+    let confiGrupos = {};
+
+    switch (vista) {
+        case 'id_producto':
+            confiGrupos = {
+                "materias_primas": [
+                    "id_materia_prima_producto",
+                    "id_materia_prima",
+                    "id_producto",
+                    "cantidad_materia_prima",
+                ],
+            }
+            break;
+        default:
+            break;
+    }
+    for (let [clave, valor] of dataCompleta.entries()) {
+        let esAgrupado = false;
+
+        for (const grupo in confiGrupos) {
+
+            if (confiGrupos.hasOwnProperty(grupo)) {
+
+                const regex = new RegExp(`^${grupo}\\[(\\d+)\\]\\[([a-zA-Z0-9_]+)\\](?:\\[(\\d+)\\])?(?:\\[(\\d+)\\])?(?:\\[(\\d+)\\])?`);
+                const match = clave.match(regex);
+
+                if (match) {
+                    esAgrupado = true;
+                    const indice = parseInt(match[1], 10);
+                    const campoInterno = match[2];
+
+                    if (!dataRecolectada[grupo]) {
+                        dataRecolectada[grupo] = [];
+                    }
+
+                    if (!dataRecolectada[grupo][indice]) {
+                        dataRecolectada[grupo][indice] = {};
+                    }
+
+                    let todosLosValores = dataCompleta.getAll(clave);
+                    dataRecolectada[grupo][indice][campoInterno] = todosLosValores.length > 1 ? todosLosValores : valor;
+                    
+                    break;
+                }
+            }
+        }
+        if (!esAgrupado) {
+            let todosLosValores = dataCompleta.getAll(clave);
+            dataRecolectada[clave] = todosLosValores.length > 1 ? todosLosValores : valor;
+        }
+    }
+
+    // Itera sobre los grupos en dataRecolectada para limpiar los arrays
+    for (const grupo in dataRecolectada) {
+        if (dataRecolectada.hasOwnProperty(grupo) && Array.isArray(dataRecolectada[grupo])) {
+            // Filtra el array, eliminando cualquier null o undefined
+            dataRecolectada[grupo] = dataRecolectada[grupo].filter(item => item !== null && item !== undefined);
+        }
+    }
+
+    let camposFuera = [
+        'presentaciones[]','materias_primas[][id_materia_prima]',
+        'materias_primas[][cantidad]', 'search_terms', 'modulo',
+        'costo_producto_detal_calculado','costo_producto_mayor_calculado',
+        'costo_total_materias'
+    ];
+    const nuevoObjeto = Object.keys(dataRecolectada).reduce((acumulador, clave) => {
+        let siEntra = true;
+        camposFuera.forEach(campoF => {
+            if (clave.startsWith(campoF)) {
+                siEntra = false;
+            }
+        });
+
+        if (siEntra) {
+            acumulador[clave] = dataRecolectada[clave];
+        }
+        return acumulador;
+    }, {});
+
+    dataRecolectada = nuevoObjeto;
+    return dataRecolectada;
+}
+export function obtenerSiguienteIndice(elementoContenedor, etiqueta, grupo, atributoEje) {
+    const elementosTotales = $(elementoContenedor).find(etiqueta + '[name^="' + grupo + '["][name$="][' + atributoEje + ']"]');
+    const indicesExistente = new Set();
+    elementosTotales.each((indice, elemento) => {
+
+        const nameAttr = elemento.name;
+        const regexDinamica = new RegExp(`${grupo}\\[(\\d+)\\]\\[${atributoEje}\\]`);
+        const match = nameAttr.match(regexDinamica);
+        if (match && match[1]) {
+            indicesExistente.add(parseInt(match[1], 10));
+        }
+    });
+
+    let indicePropuesto = 0;
+    while (indicesExistente.has(indicePropuesto)) {
+        indicePropuesto++;
+    }
+    return indicePropuesto;
+}
+export async function cerrarSession() {
+    let respuesta = await alertas_ajax({
+        'tipo': 'preguntar',
+        'titulo':'¿Desea cerrar la sesión?',
+        'texto':'Si cierra la sesión, deberá iniciar sesión nuevamente con su usuario y contraseña para acceder al sistema',
+    });
+    if(respuesta['isConfirmed']==true){
+        respuesta= await pedirDatosAjax({
+            'modulo':'usuarios',
+            'noGuardarLocal': true,
+            'datosPe':{
+                'accion':'cerrarSesion'
+            }
+        });
+        console.log(respuesta);
+        await alertas_ajax(respuesta);
     }
 }
 //#endregion [ENVIAR FORMULARIOS CON AJAX] FIN
@@ -944,7 +1084,7 @@ export async function alertas_ajax(alerta) {
 }
 //#endregion [ALERTAS AJAX] FIN
 
-//#region [PARA ELIMINAR REGISTROS] COMIENZO
+//#region [ PARA ELIMINAR REGISTROS ] COMIENZO
 export async function eliminarRegistro() {
     let botonEliminar = this;
 
@@ -989,9 +1129,9 @@ export async function eliminarRegistro() {
         return alertas_ajax(respuesta);
     }
 }
-//#endregion [PARA ELIMINAR REGISTROS] FIN
+//#endregion [ PARA ELIMINAR REGISTROS ] FIN
 
-//#region [PARA OBTENER DATOS A ACTUALIZAR] COMIENZO
+//#region [ PARA OBTENER DATOS A ACTUALIZAR ] COMIENZO
 export async function obtenerDatosRegistro() {
 
     //Para obtener el accion especifico del formulario a que se imprime mediante el click del usuario
@@ -1024,9 +1164,9 @@ export async function obtenerDatosRegistro() {
         }
     });
 }
-//#endregion [PARA OBTENER DATOS A ACTUALIZAR] FIN
+//#endregion [ PARA OBTENER DATOS A ACTUALIZAR ] FIN
 
-//#region [PARA HACER PETICIONES AJAX] COMIENZO
+//#region [ PARA HACER PETICIONES AJAX ] COMIENZO
 export async function pedirDatosAjax(instrucciones) {
 
     let modulosFuera = ['ventas', 'bitacora', 'notificaciones', 'metodos-pago', 'monedas', 'cambios-monedas', 'presentaciones', 'permisos'];
@@ -1034,20 +1174,21 @@ export async function pedirDatosAjax(instrucciones) {
     let moduloPe = instrucciones['modulo'];
     let accionPe = instrucciones['datosPe']['accion'];
     let listaDeIds = {
-        'clientes': 'cedula_cliente',
+        'bitacora': 'id_bitacora',
         'cambios': 'id_cambio',
-        'productos': 'id_producto',
+        'clientes': 'rif_cedula_cliente',
         'insumos': 'id_insumo',
+        'materiasPrimas': 'id_materia_prima',
         'metodos-pago': 'id_metodo_pago',
         'monedas': 'id_moneda',
-        'usuarios': 'cedula_usuario',
-        'roles': 'id_rol',
-        'permisos': 'id_rol',
-        'bitacora': 'id_bitacora',
-        'unidadesMedidas': 'id_unidad_medida',
+        'permisos': 'id_permiso',
         'presentaciones': 'id_presentacion',
-        'clientes': 'rif_cedula_cliente',
+        'productos': 'id_producto',
         'proveedores': 'rif_proveedor',
+        'roles': 'id_rol',
+        'servicios': 'id_servicio',
+        'usuarios': 'cedula_usuario',
+        'unidadesMedidas': 'id_unidad_medida',
     }
     if (moduloPe == 'SPI') {
         for (const clave in listaDeIds) {
@@ -1164,9 +1305,9 @@ export function reiniciarSS(modulo) {
         sessionStorage.removeItem(modulo);
     }
 }
-//#endregion [PARA HACER PETICIONES AJAX] FIN
+//#endregion [ PARA HACER PETICIONES AJAX ] FIN
 
-//#region [PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML] COMIENZO
+//#region [ PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML ] COMIENZO
 export async function extraerDatosAjax(instrucciones) {
 
     variableDeError = '';
@@ -1333,9 +1474,9 @@ export async function extraerDatosAjax(instrucciones) {
         c++;
     };
 }
-//#endregion [PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML] FIN
+//#endregion [ PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML ] FIN
 
-//#region [DINAMISMO DEL HTML] COMIENZO
+//#region [ DINAMISMO DEL HTML ] COMIENZO
 
 function cambiarEstadoLiSidebar() {
     if ($(this).hasClass('activa')) {
@@ -1346,7 +1487,6 @@ function cambiarEstadoLiSidebar() {
     }
 
     if (!$(this).hasClass('subMenuSidebar')) {
-        console.log(this)
         let textoOpcionSeleccionada = $(this).find('span').text();
         sessionStorage.setItem('moduloSeleccionadoSidebar', textoOpcionSeleccionada);
     }
@@ -1368,9 +1508,9 @@ function cargarModuloSeleccionaSidebar() {
         })
     }
 }
-//#endregion [DINAMISMO DEL HTML] FIN
+//#endregion [ DINAMISMO DEL HTML ] FIN
 
-//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+//#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 //Evento para la precarga datos y eventos
 $(document).on('DOMContentLoaded', async function (e) {
@@ -1396,4 +1536,10 @@ $(document).off('input blur', '.validar input, .validar select')
 $(document).on('input blur', '.validar input, .validar select', function () {
     validarEnTiempoReal(this);
 })
-//#endregion [DELEGACIÓN DE EVENTOS] FIN
+
+//Cerrar sesión
+$(document).off('click', '.btnCerrarSession')
+$(document).on('click', '.btnCerrarSession', function () {
+    cerrarSession();
+})
+//#endregion [ DELEGACIÓN DE EVENTOS ] FIN

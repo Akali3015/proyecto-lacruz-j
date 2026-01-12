@@ -32,24 +32,6 @@
                 </a>
             </li>
             <li>
-                <a href="<?php echo APP_URL ?>productos" title="Productos">
-                    <i class="fi fi-rr-box-open"></i>
-                    <span>Productos y Servicios</span>
-                </a>
-            </li>
-            <li>
-                <a href="<?php echo APP_URL ?>materiasPrimas" title="Materia Prima">
-                    <i class="fi fi-rr-flask"></i>
-                    <span>Materias Primas</span>
-                </a>
-            </li>
-            <li>
-                <a href="<?php echo APP_URL ?>proveedores" title="Proveedores">
-                    <i class="fi fi-rr-seller"></i>
-                    <span>Proveedores</span>
-                </a>
-            </li>
-            <li>
                 <a href="<?php echo APP_URL ?>compras" title="Facturas de Compra">
                     <i class="fi fi-rr-file-invoice-dollar"></i>
                     <span>Factura de Compra</span>
@@ -76,6 +58,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="<?php echo APP_URL ?>proveedores" title="Proveedores">
+                            <i class="fi fi-rr-seller"></i>
+                            <span>Proveedores</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?php echo APP_URL ?>roles">
                             <i class="fi fi-br-organization-chart"></i>
                             <span>Roles</span>
@@ -85,12 +73,6 @@
                         <a href="<?php echo APP_URL ?>cambiosIva">
                             <i class="fi fi-sr-tax-alt"></i>
                             <span>IVA</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?php echo APP_URL ?>monedas">
-                            <i class="fi fi-rr-money"></i>
-                            <span>Monedas</span>
                         </a>
                     </li>
                     <li>
@@ -123,6 +105,36 @@
                             <span>Unidades de Medida</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>monedas">
+                            <i class="fi fi-rr-money"></i>
+                            <span>Monedas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>servicios" title="Servicios">
+                            <i class="fi fi-rr-box-open"></i>
+                            <span>Servicios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>productos" title="Productos">
+                            <i class="fi fi-rr-box-open"></i>
+                            <span>Productos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>materiasPrimas" title="Materia Prima">
+                            <i class="fi fi-rr-flask"></i>
+                            <span>Materias Primas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>insumos" title="Insumos">
+                            <i class="fi fi-rr-flask"></i>
+                            <span>Insumos</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <li>
@@ -133,7 +145,7 @@
             </li>
             <li class="sidebar-divider"></li>
             <li>
-                <a class="logout-btn" href="index.php?c=loginControlador&m=logout">
+                <a class="logout-btn btnCerrarSession" href="#">
                     <i class="fi fi-rr-sign-out-alt"></i>
                     <span>Cerrar sesión</span>
                 </a>

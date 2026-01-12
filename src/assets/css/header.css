@@ -558,7 +558,14 @@ i{
 .sidebar-menu > .subMenuSidebar:not(.collapsed)::after{
     transform: rotate(90deg);
 }
-
+.card-presentacion{
+    cursor: pointer;
+}
+.card-presentacion input,.card-presentacion label,
+.card-presentacion strong,.card-presentacion span,
+.card-presentacion div{
+    cursor: pointer;
+}
 
 
 /*active ... (el resto del código CSS se mantiene igual) ... */

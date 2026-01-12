@@ -19,29 +19,29 @@ class frontController
                 $this->url = $this->url[0];
 
                 $this->controladores = [
+                    'cambiosIva',
                     'clientes', 
                     'compras', 
                     'config',
                     'cuentasCobrar',
                     'facturas',
+                    'insumos',
                     'iva',
                     'login',
                     'materiasPrimas',
+                    'metodos-pago',
+                    'monedas',
+                    'permisos',
                     'presentaciones',
                     'presupuestos',
                     'productos',
                     'proveedores',
                     'reportes',
-                    'unidadesMedidas',
-                    'materias-primas',
-                    'proveedores',
                     'recepciones',
-                    'usuarios',
                     'roles',
-                    'permisos',
-                    'cambiosIva',
-                    'metodos-pago',
-                    'monedas'
+                    'servicios',
+                    'unidadesMedidas',
+                    'usuarios',
                 ];
 
                 if (in_array($this->url, $this->controladores)) {

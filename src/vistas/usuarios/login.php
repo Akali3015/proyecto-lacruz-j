@@ -6,7 +6,7 @@
             <div class="card shadow-lg">
                 <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
-                        <img src="src/assets/images/logo.png" alt="Logo Multiservicios Lacruz" class="mb-3" style="width: 200px;">
+                        <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Logo Multiservicios Lacruz" class="mb-3" style="width: 200px;">
                     </div>
                     <form method="POST" class="formularioAjax login" action="usuarios" novalidate>
                         <input type="hidden" name="accion" value="iniciarSesion">

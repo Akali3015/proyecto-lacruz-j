@@ -73,4 +73,10 @@
     const minRegexContrasena='8';
     const maxRegexContrasena='20';
 
+    const regexEnteroGrande='^\d{1,15}$';
+    const minRegexEnteroGrande='1';
+    const maxRegexEnteroGrande='15';
+
+    
+
 ?>

@@ -201,7 +201,7 @@ class presentacionesModelo extends conexion
             return $Presentaciones;
         } else {
 
-                /*Hacemos la consulta */;
+            /*Hacemos la consulta */;
             $instruccionesBD = [
                 'campos' => '*',
                 'tabla' => 'presentaciones',
