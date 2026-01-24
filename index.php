@@ -7,3 +7,4 @@
     $controlador = new frontController;
     require_once 'src/config/inc/script.php';
 ?>
+
