@@ -216,7 +216,6 @@ class proveedoresModelo extends conexion
     }
 
     // PRIVADOS
-
     private function seleccionarProveedorP()
     {
         if ($this->rif_proveedor == null || $this->rif_proveedor == "") {

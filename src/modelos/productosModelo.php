@@ -3,6 +3,7 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\bitacoraModelo;
 use PDO;
 use PDOException;
 use Exception;
@@ -380,8 +381,7 @@ class productosModelo extends conexion
                 'campos' => '
                     p.id_producto, p.nombre_producto, 
                     um.nombre_unidad_medida, p.stock_producto, 
-                    p.precio_producto_detal, p.precio_producto_mayor, 
-                    p.producto_es_fabricado
+                    p.precio_producto_detal, p.precio_producto_mayor,
                 ',
                 'tabla' => 'productos as p',
                 'PEL' => 'p',
@@ -509,6 +509,7 @@ class productosModelo extends conexion
             ],
         ];
         $idProducto = $this->guardarDatos('productos', $datos_registro_productos);
+        $bitacoraModelo = new bitacoraModelo();
         if ($idProducto == false || $idProducto <= 0) {
             $alertaError = [
                 'tipo' => 'simple',
@@ -516,6 +517,7 @@ class productosModelo extends conexion
                 'texto' => 'El producto no ha podido ser registrado en la Base de Datos',
                 'icono' => 'error',
             ];
+            $bitacoraModelo->registrarBitacora("Productos", "Registrar", "Fallido");
             $this->rollback();
             return $alertaError;
             exit();
@@ -592,6 +594,7 @@ class productosModelo extends conexion
                 "texto" => "El producto ha sido registrado exitosamente",
                 "icono" => "success"
             ];
+            $bitacoraModelo->registrarBitacora("Productos", "Registrar", "Exito");
             $this->commit();
             return $alerta;
         } else {
@@ -701,7 +704,7 @@ class productosModelo extends conexion
                 $PRE+=1;
             }
         }
-
+        $bitacoraModelo = new bitacoraModelo();
         if ($PRD==0&& $PRE==0 && $MPR==0) {
             $this->rollback();
             $alerta=[
@@ -710,6 +713,7 @@ class productosModelo extends conexion
                 'texto'=>'No se realizaron cambios en el producto',
                 'tipo'=>'simple',
             ];
+            $bitacoraModelo->registrarBitacora("Productos", "Actualizar", "Fallido");
             $this->rollback();
             return $alerta;
         } else {
@@ -719,6 +723,7 @@ class productosModelo extends conexion
                 "texto" => "El producto ha sido actualizada exitosamente",
                 "icono" => "success",
             ];
+            $bitacoraModelo->registrarBitacora("Productos", "Actualizar", "Exito");
             $this->commit();
             return $alerta;
         }
@@ -726,6 +731,7 @@ class productosModelo extends conexion
     private function eliminarProductosP()
     {
         $producto = $this->seleccionarProductos($this->idProducto);
+        $modeloBitacora = new bitacoraModelo();
         if ($producto['producto_es_fabricado'] == 1) {
             $materiasPrimasProducto = $producto['detallesExtra']['materias_primas'];
             foreach ($materiasPrimasProducto as $mp) {
@@ -747,6 +753,7 @@ class productosModelo extends conexion
                 "texto" => "El producto ha sido eliminado con éxito",
                 "icono" => "success"
             ];
+            $modeloBitacora->registrarBitacora("Productos", "Eliminar", "Exito");
         } else {
             $alerta = [
                 "tipo" => "simple",
@@ -754,6 +761,7 @@ class productosModelo extends conexion
                 "texto" => "El producto no existe en la Base de Datos",
                 "icono" => "error"
             ];
+            $modeloBitacora->registrarBitacora("Productos", "Eliminar", "Fallido");
         }
 
         return $alerta;

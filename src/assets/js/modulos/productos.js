@@ -76,8 +76,8 @@ async function crearFilaMateriaPrima(modal, materiaPrima = null) {
     `;
 
     modal.find("#cuerpoTablaMateriasPrimas").append(html);
-    const selectMateria = modal.find("#cuerpoTablaMateriasPrimas").find("tr")
-        .last().find(".select-materia-prima");
+    const selectMateria = modal.find("#cuerpoTablaMateriasPrimas")
+        .find("tr").last().find(".select-materia-prima");
 
     await extraerDatosAjax({
         modulosPeticion: ["materiasPrimas"],

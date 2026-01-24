@@ -3,6 +3,7 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\bitacoraModelo;
 use PDO;
 use PDOException;
 use Exception;
@@ -37,7 +38,7 @@ class serviciosModelo extends conexion
             if ($respuesta !== false) {
                 return $respuesta;
                 exit();
-            }
+            } 
         }
         return $this->seleccionarServiciosP();
     }
@@ -47,7 +48,7 @@ class serviciosModelo extends conexion
             $this->idUnidadMedida = $idUnidadMedida;
             $this->nombreServicio = $nombre;
             $this->costoServicio = $costo;
-
+        
             $campos = [
                 [
                     "campo_nombre" => "id_unidad_medida",
@@ -103,55 +104,55 @@ class serviciosModelo extends conexion
         $this->costoServicio = $costo;
 
         $campos = [
-            [
-                "campo_nombre" => "id_servicio",
-                "campo_valor" => $this->idServicio,
-                "formulario_nombre" => "id del servicio",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-                "tabla" => "servicios",
-                "debeExistir" => true,
-            ],
-            [
-                "campo_nombre" => "id_unidad_medida",
-                "campo_valor" => $this->idUnidadMedida,
-                "formulario_nombre" => "id de la unidad de medida",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-                "tabla" => "unidades_medidas",
-                "debeExistir" => true,
-            ],
-            [
-                "campo_nombre" => "nombre_servicio",
-                "campo_valor" => $this->nombreServicio,
-                "formulario_nombre" => "nombre del servicio",
-                "requerido" => true,
-                "minimo" => minRegexNombreObj,
-                "maximo" => maxRegexNombreObj,
-                "expresion_re" => regexNombreObj,
-                "tabla" => "servicios",
-            ],
-            [
-                "campo_nombre" => "costo_servicio",
-                "campo_valor" => $this->costoServicio,
-                "formulario_nombre" => "costo del servicio",
-                "requerido" => true,
-                "minimo" => minRegexPrecio,
-                "maximo" => maxRegexPrecio,
-                "expresion_re" => regexPrecio,
-                "tabla" => "servicios",
-            ],
-        ];
+                [
+                    "campo_nombre" => "id_servicio",
+                    "campo_valor" => $this->idServicio,
+                    "formulario_nombre" => "id del servicio",
+                    "requerido" => true,
+                    "minimo" => minRegexId,
+                    "maximo" => maxRegexId,
+                    "expresion_re" => regexId,
+                    "tabla" => "servicios",
+                    "debeExistir" => true,
+                ],
+                [
+                    "campo_nombre" => "id_unidad_medida",
+                    "campo_valor" => $this->idUnidadMedida,
+                    "formulario_nombre" => "id de la unidad de medida",
+                    "requerido" => true,
+                    "minimo" => minRegexId,
+                    "maximo" => maxRegexId,
+                    "expresion_re" => regexId,
+                    "tabla" => "unidades_medidas",
+                    "debeExistir" => true,
+                ],
+                [
+                    "campo_nombre" => "nombre_servicio",
+                    "campo_valor" => $this->nombreServicio,
+                    "formulario_nombre" => "nombre del servicio",
+                    "requerido" => true,
+                    "minimo" => minRegexNombreObj,
+                    "maximo" => maxRegexNombreObj,
+                    "expresion_re" => regexNombreObj,
+                    "tabla" => "servicios",
+                ],
+                [
+                    "campo_nombre" => "costo_servicio",
+                    "campo_valor" => $this->costoServicio,
+                    "formulario_nombre" => "costo del servicio",
+                    "requerido" => true,
+                    "minimo" => minRegexPrecio,
+                    "maximo" => maxRegexPrecio,
+                    "expresion_re" => regexPrecio,
+                    "tabla" => "servicios",
+                ],
+            ];
 
         $respuesta = $this->limpiar_Verificar($campos);
         if ($respuesta !== false) {
             return $respuesta;
             exit();
-        } else {
+        } else{
             return $this->actualizarServiciosP();
         }
     }
@@ -195,7 +196,7 @@ class serviciosModelo extends conexion
                         "conexionLo" => "s.id_unidad_medida = um.id_unidad_medida",
                     ]
                 ]
-
+                
             ];
             $resultado = $this->seleccionarDatos($instruccionesBD);
             $Servicios = $resultado->fetchAll(PDO::FETCH_ASSOC);
@@ -249,9 +250,12 @@ class serviciosModelo extends conexion
                 "campo_marcador" => ":costo",
                 "campo_valor" => $this->costoServicio,
             ],
+            
         ];
 
         $ultimoId = $this->guardarDatos('servicios', $datos_registro_servicios);
+        $modeloBitacora = new bitacoraModelo();
+
         if ($ultimoId !== false && $ultimoId > 0) {
             $alerta = [
                 "tipo" => "limpiarYcerrar",
@@ -259,6 +263,7 @@ class serviciosModelo extends conexion
                 "texto" => "El servicio ha sido registrado exitosamente",
                 "icono" => "success"
             ];
+            $modeloBitacora->registrarBitacora("Servicios", "Registrar", "Exito");
             $this->commit();
         } else {
             $alerta = [
@@ -267,6 +272,7 @@ class serviciosModelo extends conexion
                 "texto" => "Error al registrar el servicio",
                 "icono" => "error",
             ];
+            $modeloBitacora->registrarBitacora("Servicios", "Registrar", "Fallido");
         }
         return $alerta;
     }
@@ -309,7 +315,7 @@ class serviciosModelo extends conexion
         ];
 
         $resultado = $this->actualizarDatos($instruccionesBD);
-
+        $modeloBitacora = new bitacoraModelo();
         if ($resultado == false || $resultado <= 0) {
             $alerta = [
                 "tipo" => "simple",
@@ -317,6 +323,7 @@ class serviciosModelo extends conexion
                 "texto" => "No se realizó ningún cambio en el servicio",
                 "icono" => "warning",
             ];
+            $modeloBitacora->registrarBitacora("Servicios", "Actualizar", "Fallido");
         } else {
             $alerta = [
                 "tipo" => "limpiarYcerrar",
@@ -324,6 +331,7 @@ class serviciosModelo extends conexion
                 "texto" => "El servicio ha sido actualizado exitosamente",
                 "icono" => "success",
             ];
+            $modeloBitacora->registrarBitacora("Servicios", "Actualizar", "Exito");
             $this->commit();
         }
         return $alerta;
@@ -331,6 +339,7 @@ class serviciosModelo extends conexion
     private function eliminarServiciosP()
     {
         $eliminarServicio = $this->eliminarDatos("servicios", "id_servicio", $this->idServicio);
+        $modeloBitacora = new bitacoraModelo();
         if ($eliminarServicio->rowCount() == 1) {
             $alerta = [
                 "tipo" => "simple",
@@ -338,6 +347,7 @@ class serviciosModelo extends conexion
                 "texto" => "El servico ha sido eliminado con éxito",
                 "icono" => "success"
             ];
+            $modeloBitacora->registrarBitacora("Servicios", "Eliminar", "Exito");
             $this->commit();
         } else {
             $alerta = [
@@ -346,7 +356,9 @@ class serviciosModelo extends conexion
                 "texto" => "El servicio no existe en la Base de Datos",
                 "icono" => "error"
             ];
-        }
+            $modeloBitacora->registrarBitacora("Servicios", "Eliminar", "Fallido");
+        }     
         return $alerta;
     }
+   
 }

@@ -135,6 +135,12 @@
                             <span>Insumos</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="<?php echo APP_URL ?>bitacora" title="Bitácora">
+                            <i class="fi fi-rr-flask"></i>
+                            <span>Bitácora</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <li>

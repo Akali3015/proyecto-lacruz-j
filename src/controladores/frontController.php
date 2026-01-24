@@ -19,6 +19,7 @@ class frontController
                 $this->url = $this->url[0];
 
                 $this->controladores = [
+                    'bitacora',
                     'cambiosIva',
                     'clientes', 
                     'compras', 

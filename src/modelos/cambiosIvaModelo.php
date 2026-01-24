@@ -3,6 +3,7 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\bitacoraModelo;
 use PDO;
 use PDOException;
 use Exception;
@@ -130,6 +131,7 @@ class cambiosIvaModelo extends conexion
         ];
 
         $ultimoId = $this->guardarDatos('cambios_iva', $datos_registro_cambio_iva);
+        $objetoBitacora= new bitacoraModelo();
         if ($ultimoId !== false && $ultimoId > 0) {
             $alerta = [
                 "tipo" => "limpiar",
@@ -137,8 +139,10 @@ class cambiosIvaModelo extends conexion
                 "texto" => "El valor del IVA ha sido actualizado exitosamente",
                 "icono" => "success",
             ];
+            $objetoBitacora->registrarBitacora('Cambios del IVA','registrarIva','éxito');
             $this->commit();
         } else {
+            $objetoBitacora->registrarBitacora('Cambios del IVA','registrarIva','Fallido');
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Valor no actualizado",

@@ -3,6 +3,7 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\bitacoraModelo;
 use PDO;
 use PDOException;
 use Exception;
@@ -245,6 +246,7 @@ class insumosModelo extends conexion
         ];
 
         $ultimoId = $this->guardarDatos('insumos', $datos_registro_insumos);
+        $modeloBitacora = new bitacoraModelo();
         if ($ultimoId !== false && $ultimoId > 0) {
             $alerta = [
                 "tipo" => "limpiarYcerrar",
@@ -252,6 +254,7 @@ class insumosModelo extends conexion
                 "texto" => "El insumo ha sido registrado exitosamente",
                 "icono" => "success",
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Registrar", "Exito");
             $this->commit();
         } else {
             $alerta = [
@@ -260,6 +263,7 @@ class insumosModelo extends conexion
                 "texto" => "El insumo no ha sido registrado exitosamente",
                 "icono" => "error",
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Registrar", "Fallido");
         }
         return $alerta;
     }
@@ -302,7 +306,7 @@ class insumosModelo extends conexion
             ]
         ];
         $resultado = $this->actualizarDatos($instruccionesBD);
-
+        $modeloBitacora = new bitacoraModelo();
         if ($resultado == false || $resultado <= 0) {
             $alerta = [
                 "tipo" => "simple",
@@ -310,6 +314,7 @@ class insumosModelo extends conexion
                 "texto" => "No se realizó ningún cambio en el insumo",
                 "icono" => "warning",
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Actualizar", "Fallido");
         } else {
             $alerta = [
                 "tipo" => "limpiarYcerrar",
@@ -317,6 +322,7 @@ class insumosModelo extends conexion
                 "texto" => "El insumo ha sido actualizado exitosamente",
                 "icono" => "success",
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Actualizar", "Exito");
             $this->commit();
         }
         return $alerta;
@@ -324,14 +330,15 @@ class insumosModelo extends conexion
     private function eliminarInsumosP()
     {
         $eliminarInsumo = $this->eliminarDatos("insumos", "id_insumo", $this->idInsumo);
+        $modeloBitacora = new bitacoraModelo();
         if ($eliminarInsumo->rowCount() == 1) { 
-
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Insumo eliminado",
                 "texto" => "El insumo ha sido eliminado con éxito",
                 "icono" => "success"
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Eliminar", "Exito");
             $this->commit();
         } else {
             $alerta = [
@@ -340,6 +347,7 @@ class insumosModelo extends conexion
                 "texto" => "El insumo no existe en la Base de Datos",
                 "icono" => "error"
             ];
+            $modeloBitacora->registrarBitacora("Insumos", "Eliminar", "Fallido");
         }
         return $alerta;
     }
