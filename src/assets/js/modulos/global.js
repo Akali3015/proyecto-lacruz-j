@@ -737,13 +737,12 @@ export async function enviarFormulario() {
     })
 
     if (resultado.isConfirmed) {
-
-        // if (esteFormulario.hasClass('validar')) {
-        //     let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
-        //     if (hayUnCampoInvalido) {
-        //         return;
-        //     }
-        // }
+        if (esteFormulario.hasClass('validar')) {
+            let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
+            if (hayUnCampoInvalido) {
+                return;
+            }
+        }
 
         let metodo = $(esteFormulario).attr("method");
         let action = $(esteFormulario).attr("action");
