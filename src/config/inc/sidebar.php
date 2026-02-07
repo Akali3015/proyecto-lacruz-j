@@ -8,6 +8,12 @@
                 </a>
             </li>
             <li>
+                <a href="<?php echo APP_URL ?>compras">
+                    <i class="fi fi-rr-user"></i>
+                    <span>Compras</span>
+                </a>
+            </li>
+            <li>
                 <a href="<?php echo APP_URL ?>clientes" title="Clientes">
                     <i class="fi fi-rr-users-medical"></i>
                     <span>Clientes</span>

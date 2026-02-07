@@ -381,7 +381,7 @@ class productosModelo extends conexion
                 'campos' => '
                     p.id_producto, p.nombre_producto, 
                     um.nombre_unidad_medida, p.stock_producto, 
-                    p.precio_producto_detal, p.precio_producto_mayor,
+                    p.precio_producto_detal, p.precio_producto_mayor
                 ',
                 'tabla' => 'productos as p',
                 'PEL' => 'p',
