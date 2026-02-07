@@ -43,6 +43,7 @@ class frontController
                     'servicios',
                     'unidadesMedidas',
                     'usuarios',
+                    'ventas',
                 ];
 
                 if (in_array($this->url, $this->controladores)) {

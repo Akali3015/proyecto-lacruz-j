@@ -152,6 +152,13 @@ switch (vista) {
         }
         modulo = 'presentaciones'
         break;
+    case 'id_venta':
+        encabezados = {
+            "id_venta": "ID",
+            "fecha_venta": "FECHA",
+        }
+        modulo = 'ventas'
+        break;
     default:
         break;
 }
@@ -371,16 +378,16 @@ let permisos = ''; let botonesAccion = null;
 export async function btnLista(modulo) {
 
     botonesAccion = null;
-    // if (permisos == '') {
-    //     let instruccionesPe = {
-    //         'modulo': 'permisos',
-    //         'noGuardarLocal': true,
-    //         'datosPe': {
-    //             'accion': 'listarPorRol'
-    //         },
-    //     }
-    //     permisos = await pedirDatosAjax(instruccionesPe);
-    // }
+    if (permisos == '') {
+        let instruccionesPe = {
+            'modulo': 'permisos',
+            'noGuardarLocal': true,
+            'datosPe': {
+                'accion': 'listarPorRol'
+            },
+        }
+        permisos = await pedirDatosAjax(instruccionesPe);
+    }
 
     switch (vista) {
         case 'cedula_usuario':
@@ -425,92 +432,51 @@ export async function btnLista(modulo) {
             };
             // }
             break;
-        case 'id_promocion':
-            if (
-                permisos['promociones'].includes('ver detalles de promociones') ||
-                permisos['promociones'].includes('actualizar') ||
-                permisos['promociones'].includes('eliminar')
-            ) {
-                botonesAccion = (idRegistro) => {
-                    let boton = '';
-                    boton += `<ul class="list-inline me-auto mb-0">`;
-                    if (permisos['promociones'].includes('ver detalles de promociones')) {
-                        boton += `
-                        <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver detalles">
-                            <a href="#" value="${idRegistro}" class="botonVer avtar avtar-xs btn-link-primary btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalDetalles">
-                                <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                    }
-                    if (permisos[modulo].includes('actualizar')) {
-                        boton += `
-                        <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
-                            <a href="#" value="${idRegistro}"  class="botonEditar avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalActualizar">
-                                <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                    }
-                    if (permisos[modulo].includes('eliminar')) {
-                        boton += `
-                        <li value="${idRegistro}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                            <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-                                <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                    }
-                    boton += `</ul>`;
-                    return boton;
-                }
-            }
-            break;
-        case 'id_venta':
-            if (
-                permisos['ventas'].includes('ver') ||
-                permisos['ventas'].includes('eliminar') ||
-                permisos['ventas'].includes('actualizar')
-            ) {
-                botonesAccion = (idRegistro, selectorTabla = null) => {
-                    let boton = '';
 
-                    boton += `<ul class="list-inline me-auto mb-0">`;
-                    if (permisos['ventas'].includes('actualizar') && selectorTabla == '.listaVentasSinPago') {
-                        boton += `
+        case 'id_venta':
+
+            botonesAccion = (idRegistro, selectorTabla = null) => {
+                let boton = '';
+
+                boton += `<ul class="list-inline me-auto mb-0">`;
+                // if (permisos['ventas'].includes('actualizar') && selectorTabla == '.listaVentasSinPago') {
+                boton += `
                         <li id_venta="${idRegistro}" class="botonAggPago list-inline-item align-bottom" data-bs-toggle="tooltip" title="Agregar Pago">
                             <a href="#" class=" avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalAggPago">
                                 <i class="fi fi-bs-expense fs-3 iconoCentrado"></i>
                             </a>
                         </li>`;
-                    }
-                    if (permisos['reportes'].includes('imprimir comandas') && vista == 'id_venta') {
-                        boton += `
+                // }
+                // if (permisos['reportes'].includes('imprimir comandas') && vista == 'id_venta') {
+                boton += `
                         <li class="botonImprimir list-inline-item align-bottom" value="${idRegistro}" data-bs-toggle="tooltip" title="Imprimir Comanda">
                             <a href="#"  class="avtar avtar-xs btn-link-primary btn-pc-default">
                                 <i class="fi fi-rr-receipt fs-3 iconoCentrado"></i>
                             </a>
                         </li>
                     `;
-                    }
-                    if (permisos['ventas'].includes('ver detalles de las ventas')) {
-                        boton += `
+                // }
+                // if (permisos['ventas'].includes('ver detalles de las ventas')) {
+                boton += `
                         <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver detalles">
                             <a href="#" value="${idRegistro}" class="botonVer avtar avtar-xs btn-link-primary btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalDetalles">
                                 <i class="fi fi-rr-eye fs-3 iconoCentrado"></i>
                             </a>
                         </li>`;
-                    }
-                    if (permisos['ventas'].includes('eliminar')) {
-                        boton += `
+                // }
+                // if (permisos['ventas'].includes('eliminar')) {
+                boton += `
                         <li value="${idRegistro}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
                             <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
                             <i class="fi fi-trash fs-3"></i>
                             </a>
                         </li>`;
-                    }
-                    boton += `</ul>`;
+                // }
+                boton += `</ul>`;
 
-                    return boton;
-                };
-            }
+                return boton;
+            };
+
             break;
     }
     return botonesAccion;
@@ -784,8 +750,8 @@ export async function enviarFormulario() {
         let data = new FormData(esteFormulario[0]);
         let encabezados = new Headers();
 
-        if(vista=='id_producto'){
-            data= JSON.stringify(procesarFormData(data, vista));
+        if (vista == 'id_producto') {
+            data = JSON.stringify(procesarFormData(data, vista));
         }
 
         let config = {
@@ -872,7 +838,7 @@ export function procesarFormData(dataCompleta, vista) {
 
                     let todosLosValores = dataCompleta.getAll(clave);
                     dataRecolectada[grupo][indice][campoInterno] = todosLosValores.length > 1 ? todosLosValores : valor;
-                    
+
                     break;
                 }
             }
@@ -892,9 +858,9 @@ export function procesarFormData(dataCompleta, vista) {
     }
 
     let camposFuera = [
-        'presentaciones[]','materias_primas[][id_materia_prima]',
+        'presentaciones[]', 'materias_primas[][id_materia_prima]',
         'materias_primas[][cantidad]', 'search_terms', 'modulo',
-        'costo_producto_detal_calculado','costo_producto_mayor_calculado',
+        'costo_producto_detal_calculado', 'costo_producto_mayor_calculado',
         'costo_total_materias'
     ];
     const nuevoObjeto = Object.keys(dataRecolectada).reduce((acumulador, clave) => {
@@ -936,15 +902,15 @@ export function obtenerSiguienteIndice(elementoContenedor, etiqueta, grupo, atri
 export async function cerrarSession() {
     let respuesta = await alertas_ajax({
         'tipo': 'preguntar',
-        'titulo':'¿Desea cerrar la sesión?',
-        'texto':'Si cierra la sesión, deberá iniciar sesión nuevamente con su usuario y contraseña para acceder al sistema',
+        'titulo': '¿Desea cerrar la sesión?',
+        'texto': 'Si cierra la sesión, deberá iniciar sesión nuevamente con su usuario y contraseña para acceder al sistema',
     });
-    if(respuesta['isConfirmed']==true){
-        respuesta= await pedirDatosAjax({
-            'modulo':'usuarios',
+    if (respuesta['isConfirmed'] == true) {
+        respuesta = await pedirDatosAjax({
+            'modulo': 'usuarios',
             'noGuardarLocal': true,
-            'datosPe':{
-                'accion':'cerrarSesion'
+            'datosPe': {
+                'accion': 'cerrarSesion'
             }
         });
         console.log(respuesta);

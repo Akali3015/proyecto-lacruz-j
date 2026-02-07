@@ -1,12 +1,36 @@
-<?php 
+<?php
+
 namespace src\modelos;
+
 use PDO;
 use PDOException;
 use DateTime;
 use DateTimeZone;
 use DateInterval;
+use Exception;
+use Throwable;
 
-trait traitModelo {
+
+class errorBD extends Exception
+{
+    protected $detalles;
+
+    public function __construct($mensaje, $detalles = [], $codigo = 0, Throwable $anterior)
+    {
+        parent::__construct($mensaje, $codigo, $anterior);
+        $this->detalles = $detalles;
+    }
+
+    // Método para recuperar los datos extras en el catch
+    public function getDetalles()
+    {
+        return $this->detalles;
+    }
+}
+
+
+trait traitModelo
+{
 
     private $servidorDB = DB_SERVER;
     private $nombreDB = DB_NAME;
@@ -169,7 +193,7 @@ trait traitModelo {
                         $pedirDatosDeNuevo = false;
                     }
                 }
-                
+
                 if ($pedirDatosDeNuevo) {
                     $instruccionesBD = [
                         'campos' => '*',
@@ -202,7 +226,7 @@ trait traitModelo {
                     if (
                         $registrosExis[$campo['campo_nombre']] != $campo['campo_valor'] &&
                         $registrosExis[$campo['campo_nombre']] != strtoupper($campo['campo_valor'])
-                    ){
+                    ) {
                         $instruccionesBD = [
                             'campos' => $campo['campo_nombre'],
                             'tabla' =>  $campo['tabla'],
@@ -266,11 +290,11 @@ trait traitModelo {
                         ro.id_rol, ro.nombre_rol, us.usuario_usuario, us.contrasena_usuario
                     ",
                     'tabla' =>  "usuarios as us",
-                    'PEL'=>'us',
-                    'datosJoins'=>[
+                    'PEL' => 'us',
+                    'datosJoins' => [
                         [
-                            'TablaDestino'=>'roles as ro',
-                            'conexionLo'=>'us.id_rol = ro.id_rol'
+                            'TablaDestino' => 'roles as ro',
+                            'conexionLo' => 'us.id_rol = ro.id_rol'
                         ]
                     ],
                     'WHERE' => [
@@ -374,7 +398,7 @@ trait traitModelo {
             $intervalo = new DateInterval('P' . $tiempo . 'D');
             $this->fecha = $this->fecha->sub($intervalo);
             $this->fecha = $this->fecha->format('Y-m-d');
-        }elseif($tipo=='Fecha_Normal'){
+        } elseif ($tipo == 'Fecha_Normal') {
             $this->fecha = DateTime::createFromFormat('Y-m-d', $fecha);
             $this->fecha = $this->fecha->format('d-m-Y');
         }
@@ -405,15 +429,15 @@ trait traitModelo {
     protected function guardarDatos($tabla, $datos, $condicion = null)
     {
 
-        foreach($datos as &$dato){
+        foreach ($datos as &$dato) {
             //Pasar a mayúsculas
-            if(isset($dato['ponerEnMayusculas'])){
-                $dato['campo_valor']= mb_strtoupper($dato['campo_valor']);
+            if (isset($dato['ponerEnMayusculas'])) {
+                $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
             }
 
             //Pasar la coma a punto
-            if(isset($dato['comaPunto'])){
-                $dato['campo_valor']= str_ireplace(',','.',$dato['campo_valor']);
+            if (isset($dato['comaPunto'])) {
+                $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
             }
         }
 
@@ -422,15 +446,15 @@ trait traitModelo {
     protected function actualizarDatos($instrucciones)
     {
 
-        foreach($instrucciones['datos'] as &$dato){
+        foreach ($instrucciones['datos'] as &$dato) {
             //Pasar a mayúsculas
-            if(isset($dato['ponerEnMayusculas'])){
-                $dato['campo_valor']= mb_strtoupper($dato['campo_valor']);
+            if (isset($dato['ponerEnMayusculas'])) {
+                $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
             }
 
             //Pasar la coma a punto
-            if(isset($dato['comaPunto'])){
-                $dato['campo_valor']= str_ireplace(',','.',$dato['campo_valor']);
+            if (isset($dato['comaPunto'])) {
+                $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
             }
         }
 
@@ -498,105 +522,119 @@ trait traitModelo {
     }
     private function seleccionarDatosP(array $datos)
     {
-        $this->conectar();
-        //LOS CAMPOS Y LA TABLA
-        $consulta = 'SELECT ' . $datos['campos'] . ' FROM ' . $datos['tabla'] . ' ';
+        try {
+            $this->conectar();
+            //LOS CAMPOS Y LA TABLA
+            $consulta = 'SELECT ' . $datos['campos'] . ' FROM ' . $datos['tabla'] . ' ';
 
-        //INNER JOINS
-        if (isset($datos['datosJoins'])) {
-            foreach ($datos['datosJoins'] as $join) {
-                if (is_array($join) && isset($join["TablaDestino"]) && isset($join["conexionLo"])) {
-                    if (isset($join['tipoJoin'])) {
-                        $consulta .=
-                            " " . $join['tipoJoin'] . " JOIN " . $join["TablaDestino"] .
-                            " ON " . $join["conexionLo"];
-                    } else {
-                        $consulta .=
-                            " INNER JOIN " . $join["TablaDestino"] .
-                            " ON " . $join["conexionLo"];
+            //INNER JOINS
+            if (isset($datos['datosJoins'])) {
+                foreach ($datos['datosJoins'] as $join) {
+                    if (is_array($join) && isset($join["TablaDestino"]) && isset($join["conexionLo"])) {
+                        if (isset($join['tipoJoin'])) {
+                            $consulta .=
+                                " " . $join['tipoJoin'] . " JOIN " . $join["TablaDestino"] .
+                                " ON " . $join["conexionLo"];
+                        } else {
+                            $consulta .=
+                                " INNER JOIN " . $join["TablaDestino"] .
+                                " ON " . $join["conexionLo"];
+                        }
                     }
                 }
             }
-        }
-        //CONDICIÓN DE ELIMINADO LÓGICO
-        if (isset($datos['registrosEli'])) {
-            $consulta .= ' WHERE ';
-            //Prefijo de Eliminado Lógico
-            if (isset($datos['PEL'])) {
-                $consulta .= '' . $datos['PEL'] . '.';
-            }
-            $consulta .= 'status = 0 ';
-        } elseif (isset($datos['eliminadosYVigentes'])) {
-            $consulta .= ' WHERE ';
-            if (isset($datos['PEL'])) {
-                $consulta .= '' . $datos['PEL'] . '.';
-            }
-            $consulta .= 'status > -1 ';
-        } else {
-            $consulta .= ' WHERE ';
-            if (isset($datos['PEL'])) {
-                $consulta .= '' . $datos['PEL'] . '.';
-            }
-            $consulta .= 'status != 0 ';
-        }
-
-        //CONDICIONES EXTRAS
-        if (isset($datos['WHERE'])) {
-            foreach ($datos['WHERE'] as $condicion) {
-                $consulta .= 'AND ' . $condicion['condicion_campo'] . ' ';
-                $consulta .= $condicion['comparacion'] . ' ';
-                $consulta .= $condicion['condicion_marcador'] . ' ';
-            }
-        }
-        //GROUP BY
-        if (isset($datos['GROUP']) && !empty($datos['GROUP'])) {
-            $consulta .= " GROUP BY " . $datos['GROUP'];
-        }
-        // HAVING
-        if (isset($datos['HAVING'])) {
-            $consulta .= ' HAVING ';
-            $ch = 0;
-            foreach ($datos['HAVING'] as $condicion) {
-                if ($ch > 0) {
-                    $consulta .= 'AND ';
+            //CONDICIÓN DE ELIMINADO LÓGICO
+            if (isset($datos['registrosEli'])) {
+                $consulta .= ' WHERE ';
+                //Prefijo de Eliminado Lógico
+                if (isset($datos['PEL'])) {
+                    $consulta .= '' . $datos['PEL'] . '.';
                 }
-                $consulta .= $condicion['condicion_campo'] . ' ';
-                $consulta .= $condicion['comparacion'] . ' ';
-                $consulta .= $condicion['condicion_marcador'] . ' ';
-                $ch++;
+                $consulta .= 'status = 0 ';
+            } elseif (isset($datos['eliminadosYVigentes'])) {
+                $consulta .= ' WHERE ';
+                if (isset($datos['PEL'])) {
+                    $consulta .= '' . $datos['PEL'] . '.';
+                }
+                $consulta .= 'status > -1 ';
+            } else {
+                $consulta .= ' WHERE ';
+                if (isset($datos['PEL'])) {
+                    $consulta .= '' . $datos['PEL'] . '.';
+                }
+                $consulta .= 'status != 0 ';
             }
-        }
-        //ORDER BY
-        if (isset($datos['ORDER']) && !empty($datos['ORDER'])) {
-            $consulta .= " ORDER BY " . $datos['ORDER'];
-        }
-        //LIMIT
-        if (isset($datos['LIMIT']) && !empty($datos['LIMIT'])) {
-            $consulta .= " LIMIT " . $datos['LIMIT'];
-        }
 
-        //PREPARACIÓN (ANTI-SQL-INYECTION)
-        $consulta = $this->conexion->prepare($consulta);
-
-        //HACEMOS EL BIND DE MARCADORES POR VALORES
-
-        //return $datos['WHERE'];
-        if (isset($datos['WHERE'])) {
-            foreach ($datos['WHERE'] as $condicion) {
-                $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+            //CONDICIONES EXTRAS
+            if (isset($datos['WHERE'])) {
+                foreach ($datos['WHERE'] as $condicion) {
+                    $consulta .= 'AND ' . $condicion['condicion_campo'] . ' ';
+                    $consulta .= $condicion['comparacion'] . ' ';
+                    $consulta .= $condicion['condicion_marcador'] . ' ';
+                }
             }
-        }
-        if (isset($datos['HAVING'])) {
-            foreach ($datos['HAVING'] as $condicion) {
-                $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+            //GROUP BY
+            if (isset($datos['GROUP']) && !empty($datos['GROUP'])) {
+                $consulta .= " GROUP BY " . $datos['GROUP'];
             }
+            // HAVING
+            if (isset($datos['HAVING'])) {
+                $consulta .= ' HAVING ';
+                $ch = 0;
+                foreach ($datos['HAVING'] as $condicion) {
+                    if ($ch > 0) {
+                        $consulta .= 'AND ';
+                    }
+                    $consulta .= $condicion['condicion_campo'] . ' ';
+                    $consulta .= $condicion['comparacion'] . ' ';
+                    $consulta .= $condicion['condicion_marcador'] . ' ';
+                    $ch++;
+                }
+            }
+            //ORDER BY
+            if (isset($datos['ORDER']) && !empty($datos['ORDER'])) {
+                $consulta .= " ORDER BY " . $datos['ORDER'];
+            }
+            //LIMIT
+            if (isset($datos['LIMIT']) && !empty($datos['LIMIT'])) {
+                $consulta .= " LIMIT " . $datos['LIMIT'];
+            }
+
+            //PREPARACIÓN (ANTI-SQL-INYECTION)
+            $consulta = $this->conexion->prepare($consulta);
+
+            //HACEMOS EL BIND DE MARCADORES POR VALORES
+
+            //return $datos['WHERE'];
+            if (isset($datos['WHERE'])) {
+                foreach ($datos['WHERE'] as $condicion) {
+                    $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+                }
+            }
+            if (isset($datos['HAVING'])) {
+                foreach ($datos['HAVING'] as $condicion) {
+                    $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+                }
+            }
+            // return $consulta;
+            $consulta->execute();
+            return $consulta;
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la selección',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'Rastro' => $th->getTrace(),
+                'instrucciones' => $datos
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
         }
-        // return $consulta;
-        $consulta->execute();
-        return $consulta;
     }
     private function guardarDatosP($tabla, $datos, $condicion)
     {
+        try{
         $this->conectar();
         if ($condicion != null) {
             /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
@@ -623,7 +661,7 @@ trait traitModelo {
                 //recorremos el arrays con los campos de la misma
                 $C = 0;
                 foreach ($datos as $clave) {
-                    
+
                     if ($C >= 1) {
                         $query .= ",";
                     }
@@ -631,7 +669,7 @@ trait traitModelo {
                     $C++;
                 }
 
-                $query.= ", status = 1";
+                $query .= ", status = 1";
                 $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
 
                 //la preparamos para evitar la inyeccion de sql
@@ -723,9 +761,22 @@ trait traitModelo {
             $sql->execute();
             return $this->conexion->lastInsertId();
         }
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en el guardado',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'Rastro' => $th->getTrace(),
+                'instrucciones' => $datos
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
     }
     private function actualizarDatosP($instrucciones)
     {
+        try{
         $this->conectar();
         //comenzamos la consulta SQL
         $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
@@ -781,9 +832,22 @@ trait traitModelo {
         $sql->execute(); //ejecutamos la consulta
 
         return $sql->rowCount();
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la actualización',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'Rastro' => $th->getTrace(),
+                'instrucciones' => $instrucciones
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
     }
     private function eliminarDatosP($tabla, $campo, $id, $permanente)
     {
+        try{
         $this->conectar();
         if ($permanente == true) {
             $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
@@ -793,7 +857,22 @@ trait traitModelo {
         $sql->bindParam(":id", $id);
         $sql->execute();
         return $sql;
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la eliminación',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'Rastro' => $th->getTrace(),
+                'instrucciones' => [
+                    'tabla'=>$tabla,
+                    'campo'=>$campo,
+                    'id'=>$id,
+                    'permanente'=>$permanente,
+                ]
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
     }
 }
-
-?>
