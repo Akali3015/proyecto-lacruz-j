@@ -1,3 +1,5 @@
+<input type="hidden" class="nombreVista" value="dashboard">
+
 <div class="container py-5">
     <h2 class="text-center mb-5">Bienvenido a J.Lacruz</h2>
     <div class="row g-4 justify-content-center">

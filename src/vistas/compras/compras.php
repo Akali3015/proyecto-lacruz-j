@@ -3,7 +3,7 @@ use src\config\inc\componentesModelo;
 $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_compra">
+<input type="hidden" class="nombreVista" value="compras">
 <?php
 $instruccionesLista = [
     'encabezado' => 'Gestionar Compras',

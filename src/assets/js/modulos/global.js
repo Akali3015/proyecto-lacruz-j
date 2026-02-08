@@ -3,166 +3,8 @@ export const rutaAbsoluta = window.location.origin + "/proyecto-lacruz-j/";
 export let esteFormulario;
 export let vista = $('.nombreVista').val();
 export let instanciasDatatable = [];
-export let encabezados = {};
-export let modulo = '';
 export let variableDeError = '';
 export let inputsActualizarNoRepetir = {};
-
-//#region [Lista de encabezados según la vista] COMIENZO
-export let Camposfuera = ['status'];
-switch (vista) {
-    case 'rif_cedula_cliente':
-        encabezados = {
-            //Clientes
-            "rif_cedula_cliente": "CÉDULA",
-            "razon_social_cliente": "RAZÓN SOCIAL",
-            "telefono_cliente": "TELÉFONO",
-            "correo_cliente": "CORREO ELECTRÓNICO",
-            "direccion_cliente": "DIRECCIÓN",
-        }
-        modulo = 'clientes'
-        break;
-    case 'rif_proveedor':
-        encabezados = {
-            "rif_proveedor": "RIF",
-            "razon_social_proveedor": "RAZON SOCIAL",
-            "telefono_proveedor": "TELÉFONO",
-            "correo_proveedor": "CORREO ELECTRÓNICO",
-            "direccion_proveedor": "DIRECCIÓN",
-        }
-        modulo = 'proveedores'
-        break
-    case 'id_cambio_iva':
-        encabezados = {
-            //Cambios
-            "id_cambio_iva": "ID",
-            "monto_cambio_iva": "PORCENTAJE (%)",
-            "fecha_cambio_iva": "FECHA",
-        }
-        modulo = 'cambios'
-        break;
-    case 'id_insumo':
-        encabezados = {
-            //para los insumos
-            "id_insumo": "ID",
-            "nombre_insumo": "NOMBRE",
-            "precio_unitario_insumo": "PRECIO UNITARIO",
-            "stock_insumo": "STOCK",
-        }
-        modulo = 'insumos'
-        break;
-    case 'id_metodo_pago':
-        encabezados = {
-            //para los insumos
-            "id_metodo_pago": "ID",
-            "nombre_metodo_pago": "NOMBRE",
-            "necesita_moneda": "¿NECESITA MONEDA?",
-        }
-        modulo = 'metodos-pago'
-        break;
-    case 'id_moneda':
-        encabezados = {
-            "id_moneda": "ID",
-            "nombre_moneda": "NOMBRE",
-            "simbolo_moneda": "SÍMBOLO",
-            "valor_moneda": "VALOR (Bs)",
-        }
-        modulo = 'monedas'
-        break;
-    case 'id_cambio_moneda':
-        encabezados = {
-            "id_cambio_moneda": "ID",
-            "nombre_moneda": "MONEDA",
-            "valor_cambio": "VALOR (Bs)",
-            "fecha_cambio": "FECHA",
-        }
-        modulo = 'monedas'
-        break;
-    case 'cedula_usuario':
-        encabezados = {
-            //Roles
-            "cedula_usuario": "CÉDULA",
-            "nombre_rol": "ROL",
-            "nombre_usuario": "NOMBRE",
-            "apellido_usuario": "APELLIDO",
-            "telefono_usuario": "TELÉFONO",
-            "correo_usuario": "CORREO",
-            "usuario_usuario": "USUARIO",
-        }
-        modulo = 'roles'
-        break;
-    case 'id_rol':
-        encabezados = {
-            //Roles
-            "id_rol": "ID DEL ROL",
-            "nombre_rol": "NOMBRE DEL ROL",
-        }
-        modulo = 'roles'
-        break;
-    case 'id_bitacora':
-        encabezados = {
-            "id_bitacora": "ID",
-            "usuario": "USUARIO",
-            "nombre_modulo": "MÓDULO",
-            "nombre_accion": "ACCIÓN",
-            "nombre_so": "S.O",
-            "fecha_bitacora": "FECHA",
-            "descripcion": "DET",
-            "resultado_accion_bitacora": "RESULT",
-        }
-        modulo = 'bitacora'
-        break;
-    case 'id_producto':
-        encabezados = {
-            "id_producto": "ID",
-            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
-            "nombre_producto": "NOMBRE",
-            "precio_producto_detal": "PRECIO AL DETAL",
-            "precio_producto_mayor": "PRECIO AL MAYOR",
-            "stock_producto": "STOCK",
-            "producto_es_fabricado": "¿ES FABRICADO?",
-        }
-        modulo = 'productos'
-        break;
-    case 'id_materia_prima':
-        encabezados = {
-            "id_materia_prima": "ID",
-            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
-            "nombre_materia_prima": "NOMBRE",
-            "stock_materia_prima": "STOCK",
-            "costo_materia_prima": "COSTO",
-        }
-        modulo = 'productos'
-        break;
-    case 'id_unidad_medida':
-        encabezados = {
-            "id_unidad_medida": "ID",
-            "nombre_unidad_medida": "NOMBRE",
-            "simbolo_unidad_medida": "SÍMBOLO",
-            "equivalencia_ub": "EQUIVALENCIA A UNIDAD BASE",
-        }
-        modulo = 'unidadesMedidas'
-        break;
-    case 'id_presentacion':
-        encabezados = {
-            "id_presentacion": "ID",
-            "nombre_presentacion": "NOMBRE",
-            "cantidad_pmp": "CANTIDAD",
-            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
-        }
-        modulo = 'presentaciones'
-        break;
-    case 'id_venta':
-        encabezados = {
-            "id_venta": "ID",
-            "fecha_venta": "FECHA",
-        }
-        modulo = 'ventas'
-        break;
-    default:
-        break;
-}
-//#endregion [Lista de encabezados según la vista] FIN
 
 //#region [Lenguajes] COMIENZO
 export const españolDataTable = {
@@ -196,7 +38,7 @@ export const españolDataTable = {
 //#endregion [VARIABLES O CONSTANTES GLOBALES] FIN
 
 //#region [ VALIDACIONES ] COMIENZO
-async function validarEnTiempoReal(input) {
+export async function validarEnTiempoReal(input, modulo) {
 
     input = $(input);
     let nameImput = input.attr('name')
@@ -337,11 +179,11 @@ async function validarEnTiempoReal(input) {
         }
     }
 }
-function validarTodosLosCampos() {
+export async function validarTodosLosCampos(formulario, modulo) {
 
-    let elementosForm = $(this).find('input, select');
-    elementosForm.each((indice, elemento) => {
-        validarEnTiempoReal(elemento);
+    let elementosForm = $(formulario).find('input, select');
+    elementosForm.each(async (indice, elemento) => {
+        await validarEnTiempoReal(elemento, modulo);
     });
 
     let hayUnoInvalido = false;
@@ -372,138 +214,74 @@ export function cargarInputsActualizarQNR() {
 //#endregion [ VALIDACIONES ] FIN
 
 //#region [ LISTAR CON DATATABLE ] COMIENZO
-
-//#region [Funcion para definir los botones] COMIENZO
-let permisos = ''; let botonesAccion = null;
-export async function btnLista(modulo) {
-
-    botonesAccion = null;
-    if (permisos == '') {
-        let instruccionesPe = {
-            'modulo': 'permisos',
-            'noGuardarLocal': true,
-            'datosPe': {
-                'accion': 'listarPorRol'
-            },
+export async function listarDataTable(instrucciones) {
+    const permisos = await pedirDatosAjax({
+        modulo: 'permisos',
+        noGuardarLocal: true,
+        datosPe: {
+            accion: 'listarPorRol'
         }
-        permisos = await pedirDatosAjax(instruccionesPe);
+    });
+
+    console.log(permisos)
+
+    let {
+        selectorTabla = '.tabla-ajax',
+        encabezados = null,
+        informacionPe,
+        botones = null,
+        camposFuera = [],
+        campoIdBtn,
+        infoTratoEspecial = {},
+        camposFoto = [],
+    } = instrucciones;
+    let {
+        modulo
+    } = informacionPe
+    let fotoDefault = 'default';
+    fotoDefault += (modulo !== 'usuarios') ? '2' : '';
+    let botonesCRUD = function (info) {
+        let id = info['fila'][campoIdBtn];
+        let boton = '';
+        boton += '<ul class="list-inline me-auto mb-0">';
+        if(permisos[modulo]){
+            if (permisos[modulo].includes('actualizar')) {
+                boton += `
+                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
+                        <a href="#" value="${id}"  class="botonEditar avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalActualizar">
+                        <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
+                        </a>
+                    </li>`;
+            }
+            if (permisos[modulo].includes('eliminar')) {
+                boton += `
+                    <li value="${id}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                        <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
+                        <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
+                        </a>
+                    </li>`;
+            }
+        }
+        boton += '</ul>';
+        return boton;
+    };
+    let botonesAccion;
+    if (!botones) {
+        botonesAccion = null
+    } else if (botones == 'CRUD') {
+        botonesAccion = botonesCRUD;
+    } else if (botones) {
+        botonesAccion = instrucciones.botones;
     }
-
-    switch (vista) {
-        case 'cedula_usuario':
-        case 'cedula_cliente':
-        case 'id_metodo_pago':
-        case 'id_moneda':
-        case 'id_presentacion':
-        case 'id_unidad_medida':
-        case 'rif_cedula_cliente':
-        case 'rif_proveedor':
-        case 'id_rol':
-        case 'id_servicio':
-        case 'id_materia_prima':
-        case 'id_producto':
-        case 'id_insumo':
-            // if(
-            //     permisos[modulo].includes('actualizar') ||
-            //     permisos[modulo].includes('eliminar')
-            // ) {
-            botonesAccion = (idRegistro) => {
-                let boton = '';
-                boton += `<ul class="list-inline me-auto mb-0">`;
-                // if (permisos[modulo].includes('actualizar')) {
-                boton += `
-                        <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
-                            <a href="#" value="${idRegistro}"  class="botonEditar avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalActualizar">
-                            <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                // }
-                // if (permisos[modulo].includes('eliminar')) {
-                boton += `
-                        <li value="${idRegistro}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                            <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-                            <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                // }
-                boton += `</ul>`;
-
-                return boton;
-            };
-            // }
-            break;
-
-        case 'id_venta':
-
-            botonesAccion = (idRegistro, selectorTabla = null) => {
-                let boton = '';
-
-                boton += `<ul class="list-inline me-auto mb-0">`;
-                // if (permisos['ventas'].includes('actualizar') && selectorTabla == '.listaVentasSinPago') {
-                boton += `
-                        <li id_venta="${idRegistro}" class="botonAggPago list-inline-item align-bottom" data-bs-toggle="tooltip" title="Agregar Pago">
-                            <a href="#" class=" avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalAggPago">
-                                <i class="fi fi-bs-expense fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                // }
-                // if (permisos['reportes'].includes('imprimir comandas') && vista == 'id_venta') {
-                boton += `
-                        <li class="botonImprimir list-inline-item align-bottom" value="${idRegistro}" data-bs-toggle="tooltip" title="Imprimir Comanda">
-                            <a href="#"  class="avtar avtar-xs btn-link-primary btn-pc-default">
-                                <i class="fi fi-rr-receipt fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>
-                    `;
-                // }
-                // if (permisos['ventas'].includes('ver detalles de las ventas')) {
-                boton += `
-                        <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver detalles">
-                            <a href="#" value="${idRegistro}" class="botonVer avtar avtar-xs btn-link-primary btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalDetalles">
-                                <i class="fi fi-rr-eye fs-3 iconoCentrado"></i>
-                            </a>
-                        </li>`;
-                // }
-                // if (permisos['ventas'].includes('eliminar')) {
-                boton += `
-                        <li value="${idRegistro}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                            <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-                            <i class="fi fi-trash fs-3"></i>
-                            </a>
-                        </li>`;
-                // }
-                boton += `</ul>`;
-
-                return boton;
-            };
-
-            break;
-    }
-    return botonesAccion;
-}
-//#endregion [Funcion para definir los botones] FIN
-
-//#region [Lista de los datos más generales] COMIENZO
-export async function ListarDataTable(instrucciones) {
-
-    let selector = instrucciones['selectorTabla'] ? instrucciones['selectorTabla'] : '.tabla-ajax';
-    let CEP = instrucciones['credencialesEP'] ? instrucciones['credencialesEP'] : { 'accion': 'listar' };
-    let encabezados = instrucciones['encabezados'];
-    let modulo = instrucciones['modulo'];
-    let botonesAccion = await btnLista(modulo);
 
     // Destruye cualquier instancia existente de DataTables en la tabla para evitar conflictos
-    if ($.fn.DataTable.isDataTable(selector)) {
-        $(selector).DataTable().destroy();
+    if ($.fn.DataTable.isDataTable(selectorTabla)) {
+        $(selectorTabla).DataTable().destroy();
     }
-
-    let instruccionesPe = {
-        'modulo': modulo,
-        'datosPe': CEP
-    };
-    let datos = await pedirDatosAjax(instruccionesPe);
-    let arregloColumnas = [];
-    let dynamicColumnDefs = [];
+    const data = await pedirDatosAjax(informacionPe);
+    let datos = data;
+    const arregloColumnas = [];
+    const dynamicColumnDefs = [];
     let targetsCount = 0;
     let textoEncabezados;
 
@@ -512,135 +290,81 @@ export async function ListarDataTable(instrucciones) {
         try {
             datos = await JSON.parse(datos);
         } catch (e) {
-            console.error("Error al parsear el JSON:", e);
             datos = []; // Si falla el parseo, tratamos como un arreglo vacío
         }
     }
 
-    //para construir el objeto con los nombres de los campos que vienen en los datos del servidor
+    // para construir el objeto con los nombres de los campos que vienen en los datos del servidor
     let keysParaLasColumnas = [];
-    if (datos.length >= 1) {
+    if (encabezados) {
+        keysParaLasColumnas = Object.keys(encabezados);
+    } else if (datos.length >= 1) {
         keysParaLasColumnas = Object.keys(datos[0]);
-    } else if (typeof encabezados !== 'undefined' && Object.keys(encabezados).length > 0) {
-        if (vista == 'id_venta') {
-            if (selector == '.listaVentasSinPago') {
-                keysParaLasColumnas = ['id_venta', 'CLIENTE', 'FECHA', 'DEUDA'];
-            } else {
-                keysParaLasColumnas = Object.keys(encabezados['listaGeneral']);
-            }
-        } else {
-            keysParaLasColumnas = Object.keys(encabezados);
-        }
     } else {
-        console.warn("No hay datos iniciales ni 'encabezados' predefinidos. La tabla podría no mostrar las columnas correctamente hasta que haya datos.");
+        console.error('No se pudieron encontrar encabezados para las columnas');
+        return;
     }
 
-    //Recorremos el arreglo
     keysParaLasColumnas.forEach((key) => {
-        //excluimos los campos que no deseemos mostrar al usuario
-        if (!Camposfuera.includes(key)) {
+        if (!camposFuera.includes(key)) {
 
-            //Hacemos el arreglo con los títulos que llevaran las columnas
-            textoEncabezados = encabezados[key] || (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ');
-
-            if (encabezados['listaGeneral']) {
-                if (encabezados['listaGeneral'][key]) {
-                    textoEncabezados = encabezados['listaGeneral'][key];
-                }
+            let transformar = (key) => {
+                return (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ');
             }
 
-            switch (key) {
-                case 'valor_moneda':// Lógica para campos de valor monetario
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados,
-                        render: function (data, type, row) {
-                            return `${data} bs`;
-                        }
-                    });
-                    break;
-                case 'precio_producto': // Lógica para campos de valor monetario $$
-                case 'descuento_promocion':
-                case 'precio_ruta':
-                case 'precio_unitario_insumo':
-                case 'DEUDA':
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados,
-                        render: function (data, type, row) {
-                            return `${data}$`;
-                        }
-                    });
-                    break;
-                case 'fecha_inicio_promocion': // Lógica para campos de fecha
-                case 'fecha_fin_promocion':
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados,
-                        render: function (data, type, row) {
-                            let cadenaFormateada = cambiarFormatos(data, "fecha");
-                            return `${cadenaFormateada}`;
-                        }
-                    });
-                    break;
-                case 'fecha_bitacora':
-                case 'fecha_cambio_iva':
-                case 'fecha_cambio':
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados,
-                        render: function (data, type, row) {
-                            let cadenaFormateada = cambiarFormatos(data, "fecha_hora");
-                            return `${cadenaFormateada}`;
-                        }
-                    });
-                    break;
-                case 'necesita_moneda': // Lógica para campos de booleanos
-                case 'necesita_banco_emisor':
-                case 'necesita_banco_receptor':
-                case 'necesita_referencia':
-                case 'necesita_contornos':
-                case 'necesita_rellenos':
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados,
-                        render: function (data, type, row) {
-                            if (data == 1) { return 'SI'; } else { return 'NO'; }
-                        }
-                    });
-                    break;
-                case 'estado':
-                    if (vista == 'id_venta') {
-                        arregloColumnas.push({
-                            data: key,
-                            title: '¿DESPACHADA?',
-                            render: function (data, type, row) {
-
-                                let checked = '';
-                                if (data == 2) {
-                                    checked = 'checked';
-                                }
-                                return `
-                                        <div class="d-flex justify-content-center form-check form-switch custom-switch-v1 mb-0">
-                                            <input ${checked} id_venta="${row[vista]}" type="checkbox" class="marcar_venta_despachada form-check-input input-primary">
-                                        </div>
-                                    `;
-                            }
+            textoEncabezados = encabezados ? (encabezados[key] ?? transformar(key)) : transformar(key);
+            if (infoTratoEspecial[key]) {
+                arregloColumnas.push({
+                    data: key,
+                    title: textoEncabezados,
+                    render: function (valor, type, fila) {
+                        return infoTratoEspecial[key]({
+                            valor,
+                            fila,
+                            type
                         });
                     }
-                    break;
-                default:// Lógica para el resto de campos
-                    arregloColumnas.push({
-                        data: key,
-                        title: textoEncabezados
-                    });
-                    break;
+                });
+            } else if (camposFoto.includes(key)) {
+                const subCarpetaImg = obtenerSubCarpetaImg(key);
+                arregloColumnas.push({
+                    data: key,
+                    title: textoEncabezados,
+                    render: function (data, type, row) {
+                        let rutaImagenCompleta = rutaAbsoluta + rutaImagenes
+                        rutaImagenCompleta += data ? subCarpetaImg + data : fotoDefault + '.png';
+                        return `
+                            <img 
+                                src="${rutaImagenCompleta}"
+                                class="
+                                    imagenRegistro 
+                                    img-fluid rounded-circle 
+                                    circular-image-bootstrap
+                                " 
+                                id_registro="${row[campoIdBtn]}" 
+                                campo_id="${campoIdBtn}" 
+                                campo_foto="${key}" 
+                                modulo="${modulo}" 
+                                data-bs-toggle="modal" 
+                                data-bs-target=".modalActualizarFoto" 
+                                alt="Foto de perfil" 
+                                style="width:50px; height:50px; border-radius:50%; cursor: pointer;"
+                            >
+                        `;
+                    }
+                });
+            } else {
+                arregloColumnas.push({
+                    data: key,
+                    title: textoEncabezados
+                });
             }
             // Añade la definición de clase
             dynamicColumnDefs.push({ targets: [targetsCount], className: 'dt-body-center dt-head-center' });
             targetsCount++;
         }
     });
+
     if (arregloColumnas.length === 0) {
         arregloColumnas.push({ data: null, title: 'No hay datos disponibles' });
         dynamicColumnDefs.push({ targets: [0], className: 'tabla' });
@@ -648,39 +372,48 @@ export async function ListarDataTable(instrucciones) {
     }
     if (botonesAccion != null) {
         arregloColumnas.push({
-            data: null, // Esta columna no mapea directamente a un campo de datos
+            data: null,
             title: 'ACCIONES',
             render: function (data, type, row) {
-                const idRegistro = row[vista]; // Usamos la clave primaria para obtener el ID
-                return botonesAccion(idRegistro, selector); // Genera los botones con el ID del registro
+                let info = {
+                    permisos,
+                    'fila': row,
+                }
+                return botonesAccion(info);
             }
         });
         dynamicColumnDefs.push({ orderable: false, className: 'acciones dt-body-center dt-head-center', targets: [targetsCount] });
     }
 
     // Inicializa DataTables con la configuración construida
-    let dataTableInstance = await $(selector).DataTable({
-        ajax: {
-            url: rutaAbsoluta + modulo,
-            method: 'POST',
-            data: CEP,
-            dataSrc: '' // Indica que los datos están directamente en la raíz de la respuesta JSON (un array)
+    const dataTableInstance = await $(selectorTabla).DataTable({
+        ajax: function (data, callback, settings) {
+            pedirDatosAjax(informacionPe)
+                .then(losDatos => {
+                    let datosFiltrados = losDatos.map((dato) => {
+                        Object.keys(dato).forEach(clave => {
+                            if (camposFuera.includes(clave)) {
+                                delete dato[clave];
+                            }
+                        });
+                        return dato;
+                    })
+                    callback({ data: datosFiltrados });
+                })
+                .catch(err => console.error(err));
+            return { abort: function () { } };
         },
-        order: [[0, "desc"]],
+        order: [[0, 'desc']],
         columns: arregloColumnas, // Columnas ya definidas
         autoWidth: false, // Deshabilita el auto-ajuste de ancho de columna
         columnDefs: dynamicColumnDefs, // Definiciones de columna adicionales (clases, ordenamiento)
         language: españolDataTable,
-        initComplete: function (settings, json) {
-            instanciasDatatable.push(dataTableInstance);
-        }
+        // initComplete: async function (settings, json) {
+        // }
     });
+    instanciasDatatable.push(dataTableInstance);
 };
-//#endregion [Lista de los datos más generales] FIN
-
-//#region [Función para cambiar el formato de los campos] COMIENZO
 export function cambiarFormatos(cadena, tipo) {
-
     if (tipo == "fecha_hora") {
 
         const fechaObj = new Date(cadena);
@@ -715,169 +448,182 @@ export function cambiarFormatos(cadena, tipo) {
         cadena = fechaFormateada;
     }
     return cadena;
-
 }
-//#endregion [Función para cambiar el formato de los campos] FIN
-
+export function reiniciarDataTables() {
+    if (instanciasDatatable.length > 0) {
+        instanciasDatatable.forEach(instancia => {
+            instancia.ajax.reload(null, false);
+        });
+    }
+}
 //#endregion [ LISTAR CON DATATABLE ] FIN
 
 //#region [ ENVIAR FORMULARIOS CON AJAX ] COMIENZO
-export async function enviarFormulario() {
-
-    esteFormulario = $(this);
-    let resultado = await Swal.fire({
+export async function enviarFormulario(instrucciones) {
+    let {
+        formulario,
+        modulo,
+        convertirJSON = false,
+        camposFoto = false,
+        camposFuera = false,
+    } = instrucciones
+    formulario = $(formulario)
+    const resultado = await Swal.fire({
         title: '¿Estás seguro?',
-        text: "Quieres realizar la acción solicitada",
+        text: 'Quieres realizar la acción solicitada',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Aceptar',
         cancelButtonText: 'Cancelar'
-    })
-
+    });
     if (resultado.isConfirmed) {
-        if (esteFormulario.hasClass('validar')) {
-            let hayUnCampoInvalido = validarTodosLosCampos.call(esteFormulario);
-            if (hayUnCampoInvalido) {
-                return;
+        if (formulario.hasClass('validar')) {
+            let validacion = await validarTodosLosCampos(formulario[0], modulo);
+            if (validacion != false) {
+                return alertasAjax(validacion);
             }
         }
 
-        let metodo = $(esteFormulario).attr("method");
-        let action = $(esteFormulario).attr("action");
-        let data = new FormData(esteFormulario[0]);
-        let encabezados = new Headers();
+        const metodo = formulario.attr('method');
+        const action = formulario.attr('action');
+        let data = new FormData(formulario[0]);
+        let cuerpoPeticion = new FormData();
+        const encabezados = new Headers();
+        if (convertirJSON) {
+            let elementos = formulario.find('select, input')
+            let datosTransformados = {};
+            elementos.each((i, elemento) => {
+                elemento = $(elemento);
+                let name = elemento.attr('name')
+                let type = elemento.attr('type')
+                if (!name || elemento.attr('disabled')) {
+                    return true;
+                }
+                let llaves = name.split('-');
+                let valor = elemento.val()
+                let referencia = datosTransformados;
 
-        if (vista == 'id_producto') {
-            data = JSON.stringify(procesarFormData(data, vista));
+                if (camposFuera) {
+                    let coincide = false
+                    camposFuera.forEach(campoF => {
+                        if (name.startsWith(campoF) || name == campoF) {
+                            coincide = true;
+                        }
+                    });
+                    if (coincide) {
+                        return true;
+                    }
+                }
+                if (camposFoto) {
+                    llaves.forEach(llave => {
+                        if (camposFoto.includes(llave)) {
+                            return true;
+                        }
+                    });
+                }
+
+                if (type == 'checkbox' && !elemento.is(':checked')) {
+                    return true;
+                }
+
+                for (let i = 0; i < llaves.length; i++) {
+                    const llave = llaves[i];
+                    if (!referencia[llave]) {
+                        referencia[llave] = {}
+                    }
+                    if (i == llaves.length - 1) {
+                        referencia[llave] = valor
+                    } else {
+                        referencia = referencia[llave]
+                    }
+                }
+            });
+            let huboUnCampoFoto = false;
+            if (camposFoto) {
+                camposFoto.forEach(campoFoto => {
+                    if (data.has(campoFoto)) {
+                        huboUnCampoFoto = true;
+                        const campoHTML = formulario.find('input[name="' + campoFoto + '"]');
+                        if (
+                            !campoHTML.attr('multiple') &&
+                            campoHTML.val() != undefined &&
+                            campoHTML.val() != '' &&
+                            campoHTML.val() != [] &&
+                            campoHTML.val() != null
+                        ) {
+                            cuerpoPeticion.append(campoFoto, campoHTML[0].files[0]);
+                        } else {
+                            let imagenes = campoHTML[0].files;
+                            for (let i = 0; i < imagenes.length; i++) {
+                                const imagen = imagenes[i];
+                                cuerpoPeticion.append(campoFoto + '[]', imagen);
+                            }
+                        }
+                    }
+                });
+            }
+            if (huboUnCampoFoto) {
+                cuerpoPeticion.append('metadatos', JSON.stringify(datosTransformados));
+            } else {
+                cuerpoPeticion = JSON.stringify(datosTransformados);
+            }
+        } else {
+            if (camposFuera) {
+                let nuevaData = FormData();
+                for (const [clave, valor] of data.entries()) {
+                    let sirve = true;
+                    camposFuera.forEach(campoF => {
+                        if (clave.startsWith(campoF)) {
+                            sirve = false
+                        }
+                    });
+                    if (sirve) {
+                        nuevaData.append(clave, valor)
+                    }
+                }
+                cuerpoPeticion = nuevaData
+            } else {
+                cuerpoPeticion = data;
+            }
+
         }
-
-        let config = {
+        const config = {
             method: metodo,
             headers: encabezados,
             mode: 'cors',
             cache: 'no-cache',
-            body: data
+            body: cuerpoPeticion
         };
-        let respuesta = await fetch(action, config)
-        let contentType = respuesta.headers.get("Content-Type");
+
+        const respuesta = await fetch(action, config);
+        const contentType = respuesta.headers.get('Content-Type');
 
         // Si es una respuesta JSON
-        if (contentType.includes("application/json") || contentType.includes("text/html")) {
+        if (contentType.includes('application/json') || contentType.includes('text/html')) {
             const respuestaJSON = await respuesta.json();
+            // Para reiniciar la SesionStorage y las listas DataTable's
 
-            //Para refrescar las listas de dataTable
-            if (respuestaJSON['icono'] == 'success') {
-                if (instanciasDatatable) {
-                    if (instanciasDatatable.length > 0) {
-                        instanciasDatatable.forEach(instancia => {
-                            instancia.ajax.reload(null, false);
-                        });
-                    }
+            if (respuestaJSON.icono == 'success') {
+                reiniciarDataModuloSS(modulo);
+                if (modulo == 'monedas' || modulo == 'cambios') {
+                    reiniciarDataModuloSS('monedas');
+                    reiniciarDataModuloSS('cambios');
                 }
+                reiniciarDataTables();
             }
-
-
-            if (respuestaJSON['icono'] == 'success') {
-                reiniciarSS(modulo)
-            }
-            return alertas_ajax(respuestaJSON);
-
-            // Si es un PDF
-        } else if (contentType.includes("application/pdf")) {
+            respuestaJSON.formulario = formulario
+            await alertasAjax(respuestaJSON);
+            return respuestaJSON;
+        } else if (contentType.includes('application/pdf')) {
             const pdfBlob = await respuesta.blob();
             const urlPDF = URL.createObjectURL(pdfBlob);
-            window.open(urlPDF, '_blank')
+            window.open(urlPDF, '_blank');
         } else {
-            console.warn("Tipo de respuesta no esperado:", contentType);
+            console.error('Tipo de contenido no reconocido!!!');
         }
     }
-}
-export function procesarFormData(dataCompleta, vista) {
-    let dataRecolectada = {};
-    let confiGrupos = {};
-
-    switch (vista) {
-        case 'id_producto':
-            confiGrupos = {
-                "materias_primas": [
-                    "id_materia_prima_producto",
-                    "id_materia_prima",
-                    "id_producto",
-                    "cantidad_materia_prima",
-                ],
-            }
-            break;
-        default:
-            break;
-    }
-    for (let [clave, valor] of dataCompleta.entries()) {
-        let esAgrupado = false;
-
-        for (const grupo in confiGrupos) {
-
-            if (confiGrupos.hasOwnProperty(grupo)) {
-
-                const regex = new RegExp(`^${grupo}\\[(\\d+)\\]\\[([a-zA-Z0-9_]+)\\](?:\\[(\\d+)\\])?(?:\\[(\\d+)\\])?(?:\\[(\\d+)\\])?`);
-                const match = clave.match(regex);
-
-                if (match) {
-                    esAgrupado = true;
-                    const indice = parseInt(match[1], 10);
-                    const campoInterno = match[2];
-
-                    if (!dataRecolectada[grupo]) {
-                        dataRecolectada[grupo] = [];
-                    }
-
-                    if (!dataRecolectada[grupo][indice]) {
-                        dataRecolectada[grupo][indice] = {};
-                    }
-
-                    let todosLosValores = dataCompleta.getAll(clave);
-                    dataRecolectada[grupo][indice][campoInterno] = todosLosValores.length > 1 ? todosLosValores : valor;
-
-                    break;
-                }
-            }
-        }
-        if (!esAgrupado) {
-            let todosLosValores = dataCompleta.getAll(clave);
-            dataRecolectada[clave] = todosLosValores.length > 1 ? todosLosValores : valor;
-        }
-    }
-
-    // Itera sobre los grupos en dataRecolectada para limpiar los arrays
-    for (const grupo in dataRecolectada) {
-        if (dataRecolectada.hasOwnProperty(grupo) && Array.isArray(dataRecolectada[grupo])) {
-            // Filtra el array, eliminando cualquier null o undefined
-            dataRecolectada[grupo] = dataRecolectada[grupo].filter(item => item !== null && item !== undefined);
-        }
-    }
-
-    let camposFuera = [
-        'presentaciones[]', 'materias_primas[][id_materia_prima]',
-        'materias_primas[][cantidad]', 'search_terms', 'modulo',
-        'costo_producto_detal_calculado', 'costo_producto_mayor_calculado',
-        'costo_total_materias'
-    ];
-    const nuevoObjeto = Object.keys(dataRecolectada).reduce((acumulador, clave) => {
-        let siEntra = true;
-        camposFuera.forEach(campoF => {
-            if (clave.startsWith(campoF)) {
-                siEntra = false;
-            }
-        });
-
-        if (siEntra) {
-            acumulador[clave] = dataRecolectada[clave];
-        }
-        return acumulador;
-    }, {});
-
-    dataRecolectada = nuevoObjeto;
-    return dataRecolectada;
 }
 export function obtenerSiguienteIndice(elementoContenedor, etiqueta, grupo, atributoEje) {
     const elementosTotales = $(elementoContenedor).find(etiqueta + '[name^="' + grupo + '["][name$="][' + atributoEje + ']"]');
@@ -899,7 +645,7 @@ export function obtenerSiguienteIndice(elementoContenedor, etiqueta, grupo, atri
     return indicePropuesto;
 }
 export async function cerrarSession() {
-    let respuesta = await alertas_ajax({
+    let respuesta = await alertasAjax({
         'tipo': 'preguntar',
         'titulo': '¿Desea cerrar la sesión?',
         'texto': 'Si cierra la sesión, deberá iniciar sesión nuevamente con su usuario y contraseña para acceder al sistema',
@@ -913,95 +659,77 @@ export async function cerrarSession() {
             }
         });
         console.log(respuesta);
-        await alertas_ajax(respuesta);
+        await alertasAjax(respuesta);
     }
 }
 //#endregion [ENVIAR FORMULARIOS CON AJAX] FIN
 
 //#region [ ALERTAS AJAX ] COMIENZO
-export async function alertas_ajax(alerta) {
+export async function alertasAjax(alerta) {
     let resultado = '';
-    switch (alerta.tipo) {
-        case "simple":
-            Swal.fire({
+
+    let {
+        tipo,
+        icono,
+        titulo,
+        texto,
+        formulario = null,
+
+    } = alerta
+
+    if (alerta.notifier == true) {
+        notifier.show(alerta.titulo, alerta.texto, alerta.icono, rutaAbsoluta + `/app/assets/img/${alerta.icono}Icono.png`, alerta.tiempo ?? 0);
+        return;
+    }
+    switch (tipo) {
+        case 'simple':
+            resultado = await Swal.fire({
                 icon: alerta.icono,
                 title: alerta.titulo,
                 text: alerta.texto,
                 confirmButtonText: 'Aceptar'
             });
             break;
-        case "recargar":
+        case 'recargar':
             resultado = await Swal.fire({
-                icon: alerta.icono,
-                title: alerta.titulo,
-                text: alerta.texto,
+                icon: icono,
+                title: titulo,
+                text: texto,
                 confirmButtonText: 'Aceptar'
-            })
+            });
             if (resultado.isConfirmed) {
-                location.reload();
+                window.location.reload();
             }
             break;
-        case "limpiar":
+        case 'limpiar':
             resultado = await Swal.fire({
-                icon: alerta.icono,
-                title: alerta.titulo,
-                text: alerta.texto,
+                icon: icono,
+                title: titulo,
+                text: texto,
                 confirmButtonText: 'Aceptar'
-            })
-            if (esteFormulario) {
-                esteFormulario[0].reset();
-                $(esteFormulario).find('select, input').removeClass('validado');
+            });
+            if (formulario) {
+                $(formulario)[0].reset();
             }
             break;
-        case "limpiarYcerrar":
-            await Swal.fire({
-                icon: alerta.icono,
-                title: alerta.titulo,
-                text: alerta.texto,
+        case 'limpiarYcerrar':
+            resultado = await Swal.fire({
+                icon: icono,
+                title: titulo,
+                text: texto,
                 confirmButtonText: 'Aceptar'
-            })
-            if (esteFormulario) {
-                esteFormulario[0].reset();
-                let botonCerrar = $(esteFormulario).closest('.modal.fade').find('.btn-close');
+            });
+            if (formulario) {
+                $(formulario)[0].reset();
+                const botonCerrar = $(formulario).closest('.modal').find('.btn-close');
                 botonCerrar.trigger('click');
             }
             break;
-        case "reiniciarForm":
+        case 'redireccionar':
+            window.location.href = alerta.url;
+            break;
+        case 'alertarYredireccionar':
             resultado = await Swal.fire({
-                icon: alerta.icono,
-                title: alerta.titulo,
-                text: alerta.texto,
-                confirmButtonText: 'Aceptar'
-            })
-            if (resultado.isConfirmed || resultado.isDismissed) {
-
-                esteFormulario = $(esteFormulario);
-                let botonCerrar = esteFormulario.closest('.modalActualizar').find('.btn-close');
-                if (botonCerrar.length == 0) { botonCerrar = $($('.modalActualizar2').find('.btn-close')) }
-                let botonCerrar2 = esteFormulario.find('.btn-close').last();
-
-                if (alerta.formulario == 'actualizar') {
-                    botonCerrar.trigger('click');
-                } else if (alerta.formulario == 'registrar') {
-
-                    if (vista == 'id_venta') { botonCerrar2.trigger('click'); }
-                    esteFormulario.empty();
-                    esteFormulario.append(HTMLFormReg);
-
-                    //Para cargar las opciones de nuevo
-                    if (vista == 'id_promocion') {
-                        await precargaPromociones()
-                    } else if (vista == 'id_venta') {
-                        await precargaVentas()
-                    }
-                }
-            }
-            break;
-        case "redireccionar":
-            window.location.href = alerta['url']
-            break;
-        case "alertarYredireccionar":
-            Swal.fire({
                 icon: alerta.icono,
                 title: alerta.titulo,
                 text: alerta.texto,
@@ -1009,26 +737,8 @@ export async function alertas_ajax(alerta) {
                 timer: 2000
             });
             setTimeout(() => {
-                window.location.href = alerta['url']
+                window.location.href = alerta.url;
             }, 2000);
-            break;
-        case "actualizarFoto":
-            resultado = await Swal.fire({
-                icon: alerta.icono,
-                title: alerta.titulo,
-                text: alerta.texto,
-                confirmButtonText: 'Aceptar'
-            })
-            if (resultado.isConfirmed || resultado.isDismissed) {
-                actualizarImagenPorIdRegistro(
-                    alerta['nombreClase'],
-                    alerta['idRegistroBuscado'],
-                    alerta['nuevaRutaImagen']
-                );
-                if (alerta['reiniciarPreview']) {
-                    $('.etiquetaImagenPrev ').attr('src', rutaAbsoluta + "app/assets/fotos/default.png")
-                }
-            }
             break;
         case 'preguntar':
             resultado = await Swal.fire({
@@ -1040,223 +750,203 @@ export async function alertas_ajax(alerta) {
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar',
                 cancelButtonText: 'Cancelar'
-            })
-            return resultado;
+            });
             break;
         default:
             break;
     }
+    return resultado;
 }
 //#endregion [ALERTAS AJAX] FIN
 
 //#region [ PARA ELIMINAR REGISTROS ] COMIENZO
-export async function eliminarRegistro() {
-    let botonEliminar = this;
+export async function eliminarRegistro(instrucciones) {
 
-    let resultado = await Swal.fire({
+    let {
+        campoId,
+        modulo,
+        boton
+    } = instrucciones
+
+    const resultado = await Swal.fire({
         title: '¿Estás seguro?',
-        text: "¿Estás seguro de eliminar el registro?",
+        text: '¿Estás seguro de eliminar el registro?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Aceptar',
         cancelButtonText: 'Cancelar'
-    })
-
+    });
     if (resultado.isConfirmed) {
+        const respuesta = await pedirDatosAjax({
+            noGuardarLocal: true,
+            modulo,
+            datosPe: {
+                accion: 'eliminar',
+                [campoId]: $(boton).attr('value')
+            }
+        });
 
-        let idRegistro = botonEliminar.value;
-        let nombreCampo = vista;
-
-        let instruccionesPe = {
-            'noGuardarLocal': true,
-            'modulo': 'SPI',
-            'nombreId': nombreCampo,
-            'datosPe': {
-                'accion': 'eliminar',
-                [nombreCampo]: [idRegistro]
+        // Para actualizar los listados
+        if (respuesta.icono == 'success') {
+            reiniciarDataModuloSS(modulo);
+            if (instanciasDatatable.length > 0) {
+                instanciasDatatable.forEach(instancia => {
+                    instancia.ajax.reload(null, false);
+                });
             }
         }
-        let respuesta = await pedirDatosAjax(instruccionesPe);
-
-        //Para actualizar los listados
-        if (instanciasDatatable.length > 0) {
-            instanciasDatatable.forEach(instancia => {
-                instancia.ajax.reload(null, false);
-            });
-        }
-
-        if (respuesta['icono'] == 'success') {
-            reiniciarSS(modulo)
-        }
-
-        return alertas_ajax(respuesta);
+        return alertasAjax(respuesta);
     }
 }
 //#endregion [ PARA ELIMINAR REGISTROS ] FIN
 
 //#region [ PARA OBTENER DATOS A ACTUALIZAR ] COMIENZO
-export async function obtenerDatosRegistro() {
+export async function obtenerDatosRegistro(instrucciones) {
+    let {
+        boton,
+        campoId,
+        modulo,
+    } = instrucciones
 
-    //Para obtener el accion especifico del formulario a que se imprime mediante el click del usuario
-    let claseObjetivo = $(this).attr('data-bs-target')//
-    // .modalActualizar
-    let formulario = $(claseObjetivo).find('.formularioAjax');
-    if (formulario.length == 0) {
-        formulario = $('.formularioAjax.actualizar')
-    }
-    //Para poder imprimir los datos del usuario en el modal de editar mi perfil 
-    let nombreCampoUnicoBD = vista;
-    let idRegistro = $(this).attr('value');
+    const claseModalObj = $(boton).attr('data-bs-target');
+    const claseFormulario = $(boton).attr('claseFormulario') ?? '.formularioAjax';
+    let formulario = $(claseModalObj).find(claseFormulario);
 
-    let instruccionesPe = {
-        'modulo': 'SPI',//
-        'nombreId': nombreCampoUnicoBD,
-        'datosPe': {
-            'accion': 'seleccionarUno',
-            [nombreCampoUnicoBD]: idRegistro
-        }
-    };
-    let respuesta = await pedirDatosAjax(instruccionesPe);
-    formulario.find('input, select').removeClass('validado error').closest('[class^="col-"]').find('.mensajeError').remove()
-
-    let elementosForm = formulario.find(".formularioActualizar");
-    elementosForm.each((indice, elemento) => {
-        const nombreCampo = elemento.name;
-        if (respuesta.hasOwnProperty(nombreCampo)) {
-            elemento.value = respuesta[nombreCampo]; // Le Asignamos el valor al input
+    const idRegistro = $(boton).attr('value');
+    const respuesta = await pedirDatosAjax({
+        modulo,
+        campoId,
+        datosPe: {
+            accion: 'seleccionarUno',
+            [campoId]: [idRegistro],
+        },
+        funcionBusqueda: function (registros) {
+            return registros.find(registro => registro[campoId] == idRegistro)
         }
     });
+    const datosNoAgrupados = respuesta.datosNoAgrupados ?? respuesta;
+
+    const inputs = formulario.find('.formularioActualizar');
+    inputs.each((indice, input) => {
+        const nombreCampo = input.name; // Obtener el atributo "name"
+        if (Object.prototype.hasOwnProperty.call(datosNoAgrupados, nombreCampo)) {
+            if (nombreCampo == 'fecha_inicio_promocion' || nombreCampo == 'fecha_fin_promocion') {
+                datosNoAgrupados[nombreCampo] = cambiarFormatosString(datosNoAgrupados[nombreCampo], 'fecha');
+            }
+            input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input
+        }
+    });
+
+    const datosInhab = inputs.filter('.inha');
+    datosInhab.each((indice, input) => {
+        $(input).prop('disabled', true);
+    });
+    return respuesta;
 }
 //#endregion [ PARA OBTENER DATOS A ACTUALIZAR ] FIN
 
 //#region [ PARA HACER PETICIONES AJAX ] COMIENZO
 export async function pedirDatosAjax(instrucciones) {
+    const caching = false;
+    const modulosFuera = ['ventas', 'bitacora', 'notificaciones'];
+    let {
+        datosPe,
+        url = false,
+        metodo = 'POST',
+        modulo = false,
+        JSONstring = false,
+        noJSON = false,
+        noGuardarLocal = false,
+        campoId,
+        funcionBusqueda = false
+    } = instrucciones;
+    let { accion } = datosPe;
 
-    let modulosFuera = ['ventas', 'bitacora', 'notificaciones', 'metodos-pago', 'monedas', 'cambios-monedas', 'presentaciones', 'permisos'];
-    let desactivarCaching = true;
-    let moduloPe = instrucciones['modulo'];
-    let accionPe = instrucciones['datosPe']['accion'];
-    let listaDeIds = {
-        'bitacora': 'id_bitacora',
-        'cambios': 'id_cambio',
-        'clientes': 'rif_cedula_cliente',
-        'insumos': 'id_insumo',
-        'materiasPrimas': 'id_materia_prima',
-        'metodos-pago': 'id_metodo_pago',
-        'monedas': 'id_moneda',
-        'permisos': 'id_permiso',
-        'presentaciones': 'id_presentacion',
-        'productos': 'id_producto',
-        'proveedores': 'rif_proveedor',
-        'roles': 'id_rol',
-        'servicios': 'id_servicio',
-        'usuarios': 'cedula_usuario',
-        'unidadesMedidas': 'id_unidad_medida',
+    let rutaGuardado = [modulo, accion];
+    if (datosPe[campoId]) {
+        rutaGuardado.push(campoId, datosPe[campoId])
     }
-    if (moduloPe == 'SPI') {
-        for (const clave in listaDeIds) {
-            if (Object.hasOwnProperty.call(listaDeIds, clave)) {
-                if (listaDeIds[clave] == instrucciones['nombreId']) {
-                    moduloPe = clave;
-                    break;
-                }
-            }
-        }
-    }
-    let datosModulo = sessionStorage.getItem(moduloPe) || false;
+    let datosCacheados = sessionStorage.getItem('cachingModulos')
+    datosCacheados = datosCacheados ? JSON.parse(datosCacheados) : {}
+
     let buscarDatos = true;
     let datosLocales = false;
-    let idEnviado = instrucciones['datosPe'][listaDeIds[moduloPe]] || false;
-    let idCategoriaEnviado = instrucciones['datosPe']['id_categoria'] || false;
-    let registrarElEspacio = false;
 
-    if (datosModulo) {
-        datosModulo = await JSON.parse(datosModulo);
-        if (datosModulo[accionPe]) {
-            if (accionPe == 'seleccionarUno' || accionPe == 'listarDetalles') {
-                if (datosModulo[accionPe][idEnviado]) {
-                    datosLocales = datosModulo[accionPe][idEnviado];
-                    buscarDatos = false;
-                } else {
-                    registrarElEspacio = true;
-                }
+    //Para ahorrar espacio y garantizar la optimización de la memoria
+    if (funcionBusqueda && datosCacheados != {} && caching) {
+        let datos = datosCacheados[modulo] ? (datosCacheados[modulo]['listar'] ?? false) : false
+        if (datos) {
+            datos = funcionBusqueda(datos);
+            if (datos != [] && datos != '' && datos != undefined && datos != null) {
+                buscarDatos = false;
+                datosLocales = datos;
             }
-            else if (accionPe == 'listarPorCategoria') {
-                if (datosModulo[accionPe][idCategoriaEnviado]) {
-                    datosLocales = datosModulo[accionPe][idCategoriaEnviado];
-                    buscarDatos = false;
-                } else {
-                    registrarElEspacio = true;
-                }
-            } else {
-                datosLocales = datosModulo[accionPe];
+        }
+    }
+    //Buscamos directo a la ruta si en los datos generales no estaba
+    if (buscarDatos && datosCacheados != {} && caching) {
+        let referencia = datosCacheados;
+        for (let j = 0; j < rutaGuardado.length; j++) {
+            let clave = rutaGuardado[j];
+            if (!referencia[clave]) {
+                break;
+            }
+            if (
+                j == rutaGuardado.length - 1 &&
+                referencia[clave] != '' &&
+                referencia[clave] != [] &&
+                referencia[clave] != {}
+            ) {
+                datosLocales = referencia[clave];
                 buscarDatos = false;
             }
-        } else {
-            registrarElEspacio = true;
-        }
-    } else {
-        registrarElEspacio = true
-    }
-    if (registrarElEspacio) {
-        if (!datosModulo) {
-            datosModulo = {}
-        }
-        if (!datosModulo[accionPe]) {
-            datosModulo[accionPe] = {}
-        }
-        if ((accionPe == 'seleccionarUno' || accionPe == 'listarDetalles') && !datosModulo[accionPe][idEnviado]) {
-            datosModulo[accionPe][idEnviado] = {};
-        } else if (accionPe == 'listarPorCategoria' && !datosModulo[accionPe][idCategoriaEnviado]) {
-            datosModulo[accionPe][idCategoriaEnviado] = {};
         }
     }
 
     let respuesta = '';
     if (buscarDatos) {
-
-        let headers = new Headers(); let formData = new FormData();
-        for (let [clave, valor] of Object.entries(instrucciones['datosPe'])) {
-            formData.append(clave, valor);
+        const headers = new Headers(); let formData = new FormData();
+        if (JSONstring) {
+            formData = JSON.stringify(datosPe);
+        } else {
+            for (const [clave, valor] of Object.entries(datosPe)) {
+                formData.append(clave, valor);
+            }
         }
-        respuesta = await fetch(`${rutaAbsoluta}` + moduloPe, {
-            method: 'POST',
-            headers: headers,
+
+        let endpoint = modulo ? `${rutaAbsoluta}` + modulo : url
+        respuesta = await fetch(endpoint, {
+            method: metodo,
+            headers,
             mode: 'cors',
-            body: formData,
-        })
+            body: formData
+        });
 
-        if (!instrucciones['noJSON']) {
+        if (!noJSON) {
             respuesta = await respuesta.json();
-
-            if (
-                !instrucciones['noGuardarLocal'] && desactivarCaching == false &&
-                !(moduloPe == 'permisos' && accionPe == 'listar') &&
-                !modulosFuera.includes(moduloPe)
-            ) {
-                if (typeof datosModulo == 'string') {
-                    datosModulo = await JSON.parse(datosModulo)
+        }
+        if (
+            !url && !noGuardarLocal &&
+            !modulosFuera.includes(modulo) && caching
+        ) {
+            let referencia = datosCacheados;
+            for (let i = 0; i < rutaGuardado.length; i++) {
+                const clave = rutaGuardado[i];
+                if (!referencia[clave]) {
+                    referencia[clave] = {}
                 }
-
-                if (accionPe == 'seleccionarUno' || accionPe == 'listarDetalles') {
-                    datosModulo[accionPe][idEnviado] = respuesta;
-                } else if (accionPe == 'listarPorCategoria') {
-                    datosModulo[accionPe][idCategoriaEnviado] = respuesta;
+                if (rutaGuardado.length == i + 1) {
+                    referencia[clave] = respuesta
                 } else {
-                    datosModulo[accionPe] = respuesta;
+                    referencia = referencia[clave];
                 }
-
-                let datosStringGuardar = JSON.stringify(datosModulo);
-
-                try {
-                    sessionStorage.setItem(moduloPe, datosStringGuardar);
-                    // let datoGu = sessionStorage.getItem(moduloPe)
-                    // datoGu = await JSON.parse(datoGu);
-                } catch (error) {
-                    console.error('Ocurrió un error al guardar los datos de forma local. El error es: ', error)
-                }
+            }
+            try {
+                sessionStorage.setItem('cachingModulos', JSON.stringify(datosCacheados));
+            } catch (error) {
+                console.error('Ocurrió un error: ', error)
             }
         }
     } else {
@@ -1265,178 +955,175 @@ export async function pedirDatosAjax(instrucciones) {
 
     return respuesta;
 }
-export function reiniciarSS(modulo) {
-    if (sessionStorage.getItem(modulo)) {
-        sessionStorage.removeItem(modulo);
+export function reiniciarDataModuloSS(modulo) {
+    let caching = sessionStorage.getItem('cachingModulos') ?? false;
+    if (caching) {
+        caching = JSON.parse(caching);
+        let moduloBorrar = caching[modulo] ?? false;
+        if (moduloBorrar) {
+            delete caching[modulo];
+            sessionStorage.setItem('cachingModulos', JSON.stringify(caching));
+        }
     }
 }
 //#endregion [ PARA HACER PETICIONES AJAX ] FIN
 
 //#region [ PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML ] COMIENZO
 export async function extraerDatosAjax(instrucciones) {
-
     variableDeError = '';
-    let modulos = instrucciones['modulosPeticion'];
-    let acciones = instrucciones['accionesPeticion']
-    let tipoElemento = instrucciones['tipoElemento']
-    let elementosDestino = instrucciones['elementosDestino']
-    let datosInsertar = instrucciones['datosInsertar']
+    const {
+        modulosPeticion: modulos,
+        accionesPeticion: acciones,
+        tipoElemento: tipos,
+        elementosDestino: destinos,
+        datosInsertar: datosInsercion,
+        funcionBusqueda = []
+    } = instrucciones;
 
-    let c = 0;
-    let modulo = '';
-    let accion = '';
-    let datosRecibidos = '';
-    let numeroPet = 1;
-
-    for (const [index, moduloInd] of modulos.entries()) {
-
-        if (moduloInd != modulo || accion != acciones[c]) {
-            modulo = moduloInd
-            accion = acciones[c]
-
-            let instruccionesPe = {
-                'modulo': modulo,
-                'datosPe': {}
-            }
-            for (const [clave, valor] of Object.entries(accion)) {
-                instruccionesPe['datosPe'][clave] = valor;
-            }
-            datosRecibidos = await pedirDatosAjax(instruccionesPe)
+    for (let i = 0; i < modulos.length; i++) {
+        const modulo = modulos[i];
+        const tipoElemento = tipos[i];
+        let elementoDestino = $(destinos[i]);
+        let funcionBusquedaInd = funcionBusqueda[i] ?? false
+        if (Array.isArray(destinos[i]) || destinos[i].length > 1) {
+            let elementosDom = $.map(destinos[i], function (objJq) {
+                objJq = $(objJq);
+                return objJq.toArray();
+            });
+            elementoDestino = $(elementosDom);
         }
-        if (datosRecibidos['tipo']) {
-            if (tipoElemento[c] == 'select') {
-                elementosDestino[c].empty();
-                elementosDestino[c].append(`<option value="">Sin Registros</option>`);
+        const datosInsertar = datosInsercion[i];
+        const accion = acciones[i];
+
+        const instruccionesPe = {
+            modulo,
+            datosPe: {},
+            funcionBusqueda: funcionBusquedaInd
+        };
+        for (const [clave, valor] of Object.entries(accion)) {
+            instruccionesPe.datosPe[clave] = valor;
+        }
+        let datosRecibidos = await pedirDatosAjax(instruccionesPe);
+        if (datosRecibidos.tipo) {
+            if (tipoElemento == 'select') {
+                elementoDestino.empty();
+                elementoDestino.append('<option value="">Sin Registros</option>');
                 continue;
             } else {
-                variableDeError = { 'error': 'sin registros' };
+                variableDeError = { error: 'sin registros' };
                 continue;
             }
         } else {
-            variableDeError = { 'exito': 'Con registros' };
+            variableDeError = { exito: 'Con registros' };
         }
-        if (tipoElemento[c] == 'select') {
-
-            //#region LÓGICA PARA QUE NO SE SELECCIONE DOS VECES EL MISMO ITEM
-            let elementoObtClases = elementosDestino[c];
-            if (Array.isArray(elementosDestino[c])) {
-                elementoObtClases = elementosDestino[c][1]
+        if (tipoElemento == 'select') {
+            // #region LÓGICA PARA QUE NO SE SELECCIONE DOS VECES EL MISMO ITEM
+            let elementoObtClases = elementoDestino[0][0] ?? elementoDestino[0];
+            if ($(elementoObtClases).is('option')) {
+                elementoObtClases = elementoDestino[0]
             }
+            elementoObtClases = $(elementoObtClases);
 
-            let clasesDelSelect = elementoObtClases.attr('class')
-
+            if (elementoDestino.length > 1) {
+                elementoObtClases = $(elementoDestino[0]);
+            }
+            const clasesDelSelect = elementoObtClases.attr('class');
             if (!clasesDelSelect) {
                 return;
             }
-            let arregloDeClases = clasesDelSelect.split(' ');
-            let clasesForma = clasesDelSelect.replace(/\s/g, '.');
+            const arregloDeClases = clasesDelSelect.split(' ');
+            const clasesForma = clasesDelSelect.replace(/\s/g, '.');
 
-            //para obtener todos los id's seleccionados hasta el momento
+            // para obtener todos los id's seleccionados hasta el momento
             let registrosSeleccionados = [];
             if (arregloDeClases.includes('OQNPR')) {
-
                 let selectsTotales;
-                if (Array.isArray(elementosDestino[c])) {
-                    selectsTotales = elementosDestino[c][0].closest('.contenedorDetalles').find('.' + clasesForma);
+                if (Array.isArray(elementoDestino)) {
+                    selectsTotales = elementoDestino[0].closest('.contenedorDetalles').find('.' + clasesForma);
                 } else {
-                    selectsTotales = elementosDestino[c].closest('.contenedorDetalles').find('.' + clasesForma);
+                    selectsTotales = elementoDestino.closest('.contenedorDetalles').find('.' + clasesForma);
                 }
 
-                const selects = selectsTotales.map(function () {
+                registrosSeleccionados = selectsTotales.map(function () {
                     if ($(this).val() != '') {
                         return $(this).val();
                     }
-                }).get(); //el .get() transforma el arrays de jquery a DOM
-                registrosSeleccionados = selects;
+                    return false;
+                }).get(); // el .get() transforma el arrays de jquery a DOM
             }
-            //#endregion LÓGICA PARA QUE NO SE SELECCIONE DOS VECES EL MISMO ITEN
+            // #endregion LÓGICA PARA QUE NO SE SELECCIONE DOS VECES EL MISMO ITEN
 
-            if (Array.isArray(elementosDestino[c])) {
+            let funcionRenderizarOpciones = (elemento, datosInsertar, registrosDB) => {
 
-                elementosDestino[c].forEach(elemento => {
-                    elemento.empty();
-                    if (datosInsertar[c]['textoDefault']) {
-                        elemento.append(`<option value="">${datosInsertar[c]['textoDefault']}</option>`);
-                    }
-                })
-            } else {
-                elementosDestino[c].empty();
-                if (datosInsertar[c]['textoDefault']) {
-                    elementosDestino[c].append(`<option value="">${datosInsertar[c]['textoDefault']}</option>`);
+                elemento.empty();
+                if (datosInsertar.textoDefault) {
+                    elemento.append(`<option value="">${datosInsertar.textoDefault}</option>`);
                 }
-            }
-
-            datosRecibidos.forEach(registro => {
-                const idRegistroActual = String(registro[datosInsertar[c]['value']]);
-                if (!registrosSeleccionados.includes(idRegistroActual)) {
-                    if (Array.isArray(elementosDestino[c])) {
-                        elementosDestino[c].forEach(select => {
-                            if (registro[datosInsertar[c]['value']] == datosInsertar[c]['opcionSeleccionada']) {
-                                select.append(
-                                    $('<option>', {
-                                        value: registro[datosInsertar[c]['value']],   // Asignamos el value
-                                        text: registro[datosInsertar[c]['texto']],
-                                        selected: true
-                                    })
-                                );
-                            } else {
-                                select.append(
-                                    $('<option>', {
-                                        value: registro[datosInsertar[c]['value']],   // Asignamos el value
-                                        text: registro[datosInsertar[c]['texto']] // Y el texto que tendrá dentro
-                                    })
-                                );
+                registrosDB.forEach(registroBD => {
+                    const idRegistroActual = String(registroBD[datosInsertar.value]);
+                    if (!registrosSeleccionados.includes(idRegistroActual)) {
+                        let textoOpcion = '';
+                        if (Array.isArray(datosInsertar.texto)) {
+                            for (let j = 0; j < datosInsertar.texto.length; j++) {
+                                if (i == 0) {
+                                    textoOpcion += registroBD[datosInsertar.texto[j]];
+                                } else {
+                                    textoOpcion += ' ' + registroBD[datosInsertar.texto[j]];
+                                }
                             }
-                        })
-                    } else {
-                        if (registro[datosInsertar[c]['value']] == datosInsertar[c]['opcionSeleccionada']) {
-                            elementosDestino[c].append(
-                                $('<option>', {
-                                    value: registro[datosInsertar[c]['value']],
-                                    text: registro[datosInsertar[c]['texto']],
-                                    selected: true //para que esté previamente seleccionada
-                                })
-                            );
                         } else {
-                            elementosDestino[c].append(
-                                $('<option>', {
-                                    value: registro[datosInsertar[c]['value']],   // Asignamos el value
-                                    text: registro[datosInsertar[c]['texto']] // Y el texto que tendrá dentro
-                                })
-                            );
+                            textoOpcion = registroBD[datosInsertar.texto];
                         }
+                        elemento.append(
+                            $('<option>', {
+                                value: registroBD[datosInsertar.value],
+                                text: textoOpcion,
+                                selected: registroBD[datosInsertar.value] == datosInsertar.opcionSeleccionada
+                            })
+                        );
                     }
-                }
-            });
+                });
+            }
+            if (Array.isArray(elementoDestino)) {
+                array.forEach(elementoInd => {
+                    funcionRenderizarOpciones(elementoInd, datosInsertar, datosRecibidos)
+                });
+            } else {
+                funcionRenderizarOpciones(elementoDestino, datosInsertar, datosRecibidos)
+            }
 
-            //Para validar si quedan o no opciones para mostrar
+            // Para validar si quedan o no opciones para mostrar
             let totalOptions = '';
-            if (Array.isArray(elementosDestino[c])) {
-                totalOptions = elementosDestino[c][0].find('option').length;
+            if (Array.isArray(elementoDestino)) {
+                totalOptions = elementoDestino[0].find('option').length;
             } else {
-                totalOptions = elementosDestino[c].find('option').length;
+                totalOptions = elementoDestino.find('option').length;
             }
-
             if (totalOptions == 1) {
-                elementosDestino[c].empty();
-                elementosDestino[c].append('<option class="texto-rojo">Sin más opciones</option>');
+                if (Array.isArray(elementoDestino)) {
+                    elementoDestino.forEach(elemento => {
+                        elemento.empty();
+                        elemento.append('<option class="texto-rojo">Sin más opciones</option>');
+                    });
+                } else {
+                    elementoDestino.empty();
+                    elementoDestino.append('<option class="texto-rojo">Sin más opciones</option>');
+                }
             }
-        } else if (tipoElemento[c] == 'input') {
-            if (Array.isArray(elementosDestino[c])) {
-                let c2 = 0;
-                elementosDestino[c].forEach(elemento => {
-                    elemento.val(datosRecibidos[datosInsertar[c][c2]])
-                    c2++;
+        } else if (tipoElemento == 'input') {
+            if (Array.isArray(datosInsertar)) {
+                for (let k = 0; k < elementoDestino.length; k++) {
+                    let elemento = $(elementoDestino[k]);
+                    elemento.val(datosRecibidos[datosInsertar[k]]);
                     elemento.removeClass('error');
-                    elemento.closest('.form-group').find('.error-message').remove()
-                })
+                    elemento.closest('.form-group').find('.error-message').remove();
+                }
             } else {
-                elementosDestino[c].val(datosRecibidos[datosInsertar[c]])
-                elementosDestino[c].removeClass('error');
-                elementosDestino[c].closest('.form-group').find('.error-message').remove()
+                elementoDestino.val(datosRecibidos[datosInsertar]);
+                elementoDestino.removeClass('error');
+                elementoDestino.closest('.form-group').find('.error-message').remove();
             }
         }
-        c++;
     };
 }
 //#endregion [ PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML ] FIN
@@ -1495,12 +1182,6 @@ $(document).on('DOMContentLoaded', async function (e) {
 
     cargarModuloSeleccionaSidebar();
 });
-
-//Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
-    validarEnTiempoReal(this);
-})
 
 //Cerrar sesión
 $(document).off('click', '.btnCerrarSession')

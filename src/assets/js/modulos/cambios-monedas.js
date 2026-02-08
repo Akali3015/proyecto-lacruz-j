@@ -1,18 +1,26 @@
+//#region [ IMPORTACIONES ] COMIENZO
 import {
-    ListarDataTable, enviarFormulario, extraerDatosAjax, encabezados 
+    listarDataTable, enviarFormulario, extraerDatosAjax,validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+//#endregion [ IMPORTACIONES ] FIN
 
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on('DOMContentLoaded', async function (e) {
-    let instruccionesLista = {
-        'encabezados': encabezados,
-        'modulo': 'monedas',
-        'credencialesEP':{
-            'accion':'listarCambios'
-        }
-    }
-    await ListarDataTable(instruccionesLista);
-
-    let instrucciones = {
+    listarDataTable({
+        encabezados: {
+            "id_cambio_moneda": "ID",
+            "nombre_moneda": "MONEDA",
+            "valor_moneda": "VALOR DEL CAMBIO",
+            "fecha_cambio": "FECHA DEL CAMBIO",
+        },
+        informacionPe: {
+            'modulo': 'monedas',
+            'datosPe': {
+                'accion': 'listarCambios'
+            }
+        },
+    });
+    extraerDatosAjax({
         'modulosPeticion': ['monedas'],
         'accionesPeticion': [{ 'accion': 'listar' }],
         'tipoElemento': ['select'],
@@ -24,13 +32,23 @@ $(document).on('DOMContentLoaded', async function (e) {
                 'textoDefault': 'Seleccione una moneda'
             }
         ]
-    }
-    extraerDatosAjax(instrucciones)
+    })
 })
 
 //Evento para el envío de formularios
 $(document).off('submit', '.formularioAjax');
 $(document).on('submit', '.formularioAjax', function (e) {
     e.preventDefault();
-    enviarFormulario.call(this);
+    enviarFormulario({
+        'formulario': this,
+        'modulo': 'monedas'
+    });
 });
+
+//Evento para validar en tiempo real
+$(document).off('input blur', '.validar input, .validar select')
+$(document).on('input blur', '.validar input, .validar select', function () {
+    validarEnTiempoReal(this,'monedas');
+})
+
+//#endregion [DELEGACIÓN DE EVENTOS] FIN

@@ -1,12 +1,27 @@
+//#region [ IMPORTACIONES ] COMIENZO
 import {
-    obtenerDatosRegistro, encabezados, ListarDataTable, cargarInputsActualizarQNR, extraerDatosAjax
+    listarDataTable
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+//#endregion [ IMPORTACIONES ] FIN
 
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on('DOMContentLoaded', async function (e) {
-    let instruccionesLista = {
-        'encabezados': encabezados,
-        'modulo': 'bitacora'
-    }
-    await ListarDataTable(instruccionesLista);
+    await listarDataTable({
+        encabezados: {
+            "id_bitacora": "ID",
+            "nombre_usuario": "USUARIO",
+            "nombre_modulo": "MÓDULO",
+            "nombre_accion": "ACCIÓN",
+            "fecha_bitacora": "FECHA",
+            "resultado_accion_bitacora": "RESULT",
+        },
+        informacionPe: {
+            'modulo': 'bitacora',
+            'datosPe': {
+                'accion': 'listar'
+            }
+        }
+    });
 })
+//#endregion [DELEGACIÓN DE EVENTOS] FIN
 

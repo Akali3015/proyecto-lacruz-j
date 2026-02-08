@@ -25,30 +25,6 @@
                     <span>Clientes</span>
                 </a>
             </li>
-            <li>
-                <a href="<?php echo APP_URL ?>presupuestos" title="Presupuestos">
-                    <i class="fi fi-rr-calculator"></i>
-                    <span>Presupuestos</span>
-                </a>
-            </li>
-            <li>
-                <a href="<?php echo APP_URL ?>ventas" title="Facturas">
-                    <i class="fi fi-rr-file-invoice-dollar"></i>
-                    <span>Facturación</span>
-                </a>
-            </li>
-            <li>
-                <a href="<?php echo APP_URL ?>cuentasCobrar" title="Cuentas por Cobrar">
-                    <i class="fi fi-rr-file-invoice"></i>
-                    <span>Cuentas por Cobrar</span>
-                </a>
-            </li>
-            <li>
-                <a href="<?php echo APP_URL ?>compras" title="Facturas de Compra">
-                    <i class="fi fi-rr-file-invoice-dollar"></i>
-                    <span>Factura de Compra</span>
-                </a>
-            </li>
             <li class="nav-item dropdown">
                 <a href="<?php echo APP_URL ?>reportes" title="Reportes">
                     <i class="fi fi-rr-chart-histogram"></i>

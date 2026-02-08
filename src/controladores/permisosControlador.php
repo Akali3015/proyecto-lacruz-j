@@ -1,10 +1,18 @@
 <?php
 
 use src\modelos\permisosModelo;
+use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
     $accion = $_POST["accion"];
     ob_clean();
+
+    // $modeloPermisos = new permisosModel();
+    // $resultado = $modeloPermisos->Permisos_Val('permisos', $accion);
+    // if (isset($resultado['tipo'])) {
+    //     echo json_encode($resultado);
+    //     exit();
+    // }
 
     $accion = $_POST["accion"] ?? '';
     $idRol = $_POST['id_rol'] ?? '';
@@ -32,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
             exit();
     }
 } else {
+    $componenteObj=new componentesModelo();
+    require_once "src/vistas/permisos/permisos.php";
     require_once "src/config/inc/header.php";
     require_once "src/config/inc/sidebar.php";
-    require_once "src/vistas/permisos/permisos.php";
 }

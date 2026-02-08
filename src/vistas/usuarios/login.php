@@ -1,3 +1,6 @@
+<input type="hidden" class="nombreVista" value="login">
+
+
 <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/login.css">
 <input type="hidden" class="nombreVista" value="login">
 <div class="container-fluid h-100">

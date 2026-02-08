@@ -3,7 +3,7 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_cambio_moneda">
+<input type="hidden" class="nombreVista" value="cambios-monedas">
 
 <?php 
     $instruccionesLista=[

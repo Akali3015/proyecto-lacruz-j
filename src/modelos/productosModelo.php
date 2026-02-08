@@ -379,7 +379,7 @@ class productosModelo extends conexion
         if ($this->idProducto == null || $this->idProducto == "") {
             $instruccionesBD = [
                 'campos' => '
-                    p.id_producto, p.nombre_producto, 
+                    p.id_producto, p.nombre_producto, p.producto_es_fabricado,
                     um.nombre_unidad_medida, p.stock_producto, 
                     p.precio_producto_detal, p.precio_producto_mayor
                 ',

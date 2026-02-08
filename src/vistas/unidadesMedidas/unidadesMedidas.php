@@ -3,7 +3,7 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_unidad_medida">
+<input type="hidden" class="nombreVista" value="unidadesMedida">
 
 <?php 
     $instruccionesLista=[

@@ -38,7 +38,7 @@ class serviciosModelo extends conexion
             if ($respuesta !== false) {
                 return $respuesta;
                 exit();
-            } 
+            }
         }
         return $this->seleccionarServiciosP();
     }
@@ -48,7 +48,7 @@ class serviciosModelo extends conexion
             $this->idUnidadMedida = $idUnidadMedida;
             $this->nombreServicio = $nombre;
             $this->costoServicio = $costo;
-        
+
             $campos = [
                 [
                     "campo_nombre" => "id_unidad_medida",
@@ -104,55 +104,55 @@ class serviciosModelo extends conexion
         $this->costoServicio = $costo;
 
         $campos = [
-                [
-                    "campo_nombre" => "id_servicio",
-                    "campo_valor" => $this->idServicio,
-                    "formulario_nombre" => "id del servicio",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "servicios",
-                    "debeExistir" => true,
-                ],
-                [
-                    "campo_nombre" => "id_unidad_medida",
-                    "campo_valor" => $this->idUnidadMedida,
-                    "formulario_nombre" => "id de la unidad de medida",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "unidades_medidas",
-                    "debeExistir" => true,
-                ],
-                [
-                    "campo_nombre" => "nombre_servicio",
-                    "campo_valor" => $this->nombreServicio,
-                    "formulario_nombre" => "nombre del servicio",
-                    "requerido" => true,
-                    "minimo" => minRegexNombreObj,
-                    "maximo" => maxRegexNombreObj,
-                    "expresion_re" => regexNombreObj,
-                    "tabla" => "servicios",
-                ],
-                [
-                    "campo_nombre" => "costo_servicio",
-                    "campo_valor" => $this->costoServicio,
-                    "formulario_nombre" => "costo del servicio",
-                    "requerido" => true,
-                    "minimo" => minRegexPrecio,
-                    "maximo" => maxRegexPrecio,
-                    "expresion_re" => regexPrecio,
-                    "tabla" => "servicios",
-                ],
-            ];
+            [
+                "campo_nombre" => "id_servicio",
+                "campo_valor" => $this->idServicio,
+                "formulario_nombre" => "id del servicio",
+                "requerido" => true,
+                "minimo" => minRegexId,
+                "maximo" => maxRegexId,
+                "expresion_re" => regexId,
+                "tabla" => "servicios",
+                "debeExistir" => true,
+            ],
+            [
+                "campo_nombre" => "id_unidad_medida",
+                "campo_valor" => $this->idUnidadMedida,
+                "formulario_nombre" => "id de la unidad de medida",
+                "requerido" => true,
+                "minimo" => minRegexId,
+                "maximo" => maxRegexId,
+                "expresion_re" => regexId,
+                "tabla" => "unidades_medidas",
+                "debeExistir" => true,
+            ],
+            [
+                "campo_nombre" => "nombre_servicio",
+                "campo_valor" => $this->nombreServicio,
+                "formulario_nombre" => "nombre del servicio",
+                "requerido" => true,
+                "minimo" => minRegexNombreObj,
+                "maximo" => maxRegexNombreObj,
+                "expresion_re" => regexNombreObj,
+                "tabla" => "servicios",
+            ],
+            [
+                "campo_nombre" => "costo_servicio",
+                "campo_valor" => $this->costoServicio,
+                "formulario_nombre" => "costo del servicio",
+                "requerido" => true,
+                "minimo" => minRegexPrecio,
+                "maximo" => maxRegexPrecio,
+                "expresion_re" => regexPrecio,
+                "tabla" => "servicios",
+            ],
+        ];
 
         $respuesta = $this->limpiar_Verificar($campos);
         if ($respuesta !== false) {
             return $respuesta;
             exit();
-        } else{
+        } else {
             return $this->actualizarServiciosP();
         }
     }
@@ -196,7 +196,7 @@ class serviciosModelo extends conexion
                         "conexionLo" => "s.id_unidad_medida = um.id_unidad_medida",
                     ]
                 ]
-                
+
             ];
             $resultado = $this->seleccionarDatos($instruccionesBD);
             $Servicios = $resultado->fetchAll(PDO::FETCH_ASSOC);
@@ -250,12 +250,9 @@ class serviciosModelo extends conexion
                 "campo_marcador" => ":costo",
                 "campo_valor" => $this->costoServicio,
             ],
-            
         ];
-
-        $ultimoId = $this->guardarDatos('servicios', $datos_registro_servicios);
         $modeloBitacora = new bitacoraModelo();
-
+        $ultimoId = $this->guardarDatos('servicios', $datos_registro_servicios);
         if ($ultimoId !== false && $ultimoId > 0) {
             $alerta = [
                 "tipo" => "limpiarYcerrar",
@@ -357,8 +354,7 @@ class serviciosModelo extends conexion
                 "icono" => "error"
             ];
             $modeloBitacora->registrarBitacora("Servicios", "Eliminar", "Fallido");
-        }     
+        }
         return $alerta;
     }
-   
 }

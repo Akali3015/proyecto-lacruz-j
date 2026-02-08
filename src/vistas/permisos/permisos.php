@@ -1,5 +1,5 @@
 <div class="row">
-    <div hidden class="nombreId">id_permiso</div><!--Nombre Campo Unico-->
+    <input type="hidden" class="nombreVista" value="permisos">
     <!-- [LISTA DE PERMISOS] COMIENZO -->
 
     <div class="main-content" id="mainContent">

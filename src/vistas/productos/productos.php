@@ -3,7 +3,7 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_producto">
+<input type="hidden" class="nombreVista" value="productos">
 <?php
     $instruccionesLista = [
         'encabezado' => 'Gestionar Productos',

@@ -1,22 +1,10 @@
+//#region [ IMPORTACIONES ] COMIENZO
 import {
-    ListarDataTable, encabezados,
-    pedirDatosAjax, instanciasDatatable
+    listarDataTable, pedirDatosAjax, instanciasDatatable,validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+//#endregion [ IMPORTACIONES ] FIN
 
-// Inicializar DataTable al cargar el documento
-$(document).on('DOMContentLoaded', async function (e) {
-    let instruccionesLista = {
-        'encabezados': encabezados,
-        'modulo': 'compras'
-    }
-    await ListarDataTable(instruccionesLista);
-
-    // Cargar unidades de medida
-    await cargarUnidadesMedida();
-
-    // Cargar usuarios (responsables)
-    await cargarUsuarios();
-});
+//#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
 
 // Cargar unidades de medida
 async function cargarUnidadesMedida() {
@@ -43,7 +31,6 @@ async function cargarUnidadesMedida() {
         console.error("Error al cargar unidades de medida:", error);
     }
 }
-
 // Cargar usuarios (responsables)
 async function cargarUsuarios() {
     try {
@@ -69,14 +56,6 @@ async function cargarUsuarios() {
         console.error("Error al cargar usuarios:", error);
     }
 }
-
-// Cargar proveedores al abrir el modal
-$(".modalRegistrar").on("show.bs.modal", async function () {
-    await cargarProveedores();
-    // Cargar items del tipo por defecto (Materia Prima)
-    await cargarItems("materia_prima");
-});
-
 // Cargar proveedores
 async function cargarProveedores() {
     try {
@@ -102,13 +81,6 @@ async function cargarProveedores() {
         console.error("Error al cargar proveedores:", error);
     }
 }
-
-// Cambiar items según tipo seleccionado
-$("#tipoItem").on("change", async function () {
-    const tipo = $(this).val();
-    await cargarItems(tipo);
-});
-
 // Cargar items según tipo
 async function cargarItems(tipo) {
     try {
@@ -155,7 +127,6 @@ async function cargarItems(tipo) {
         console.error("Error al cargar items:", error);
     }
 }
-
 // Actualizar DataTable
 function actualizarDataTableCompras() {
     if (instanciasDatatable && instanciasDatatable.length > 0) {
@@ -167,6 +138,96 @@ function actualizarDataTableCompras() {
         });
     }
 }
+// Cargar proveedores para modal actualizar
+async function cargarProveedoresActualizar() {
+    try {
+        const instrucciones = {
+            'modulo': 'compras',
+            'datosPe': { 'accion': 'obtenerProveedores' }
+        };
+
+        const proveedores = await pedirDatosAjax(instrucciones);
+
+        const selectProveedor = $(".selectProveedorAct");
+        selectProveedor.empty();
+        selectProveedor.append('<option value="">Seleccione Razon Social...</option>');
+
+        if (proveedores && Array.isArray(proveedores)) {
+            proveedores.forEach(proveedor => {
+                selectProveedor.append(
+                    `<option value="${proveedor.rif_proveedor}">${proveedor.razon_social_proveedor}</option>`
+                );
+            });
+        }
+    } catch (error) {
+        console.error("Error al cargar proveedores:", error);
+    }
+}
+// Cargar usuarios para modal actualizar
+async function cargarUsuariosActualizar() {
+    try {
+        const instrucciones = {
+            'modulo': 'usuarios',
+            'datosPe': { 'accion': 'listar' }
+        };
+
+        const usuarios = await pedirDatosAjax(instrucciones);
+
+        const selectResponsable = $(".selectResponsableAct");
+        selectResponsable.empty();
+        selectResponsable.append('<option value="">Seleccione responsable...</option>');
+
+        if (usuarios && Array.isArray(usuarios)) {
+            usuarios.forEach(usuario => {
+                selectResponsable.append(
+                    `<option value="${usuario.cedula_usuario}">${usuario.usuario_usuario}</option>`
+                );
+            });
+        }
+    } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+    }
+}
+//#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
+
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+
+// Inicializar DataTable al cargar el documento
+$(document).on('DOMContentLoaded', async function (e) {
+    await listarDataTable({
+        encabezados: {
+            id_banco: 'ID',
+            nombre_banco: 'NOMBRE'
+        },
+        informacionPe: {
+            'modulo': 'compras',
+            'datosPe': {
+                'accion': 'listar'
+            }
+        },
+        campoIdBtn:'id_compra',
+        botones:'CRUD',
+    });
+
+    // Cargar unidades de medida
+    await cargarUnidadesMedida();
+
+    // Cargar usuarios (responsables)
+    await cargarUsuarios();
+});
+
+// Cargar proveedores al abrir el modal
+$(".modalRegistrar").on("show.bs.modal", async function () {
+    await cargarProveedores();
+    // Cargar items del tipo por defecto (Materia Prima)
+    await cargarItems("materia_prima");
+});
+
+// Cambiar items según tipo seleccionado
+$("#tipoItem").on("change", async function () {
+    const tipo = $(this).val();
+    await cargarItems(tipo);
+});
 
 // Enviar formulario
 $(document).off('submit', '.formularioAjax');
@@ -368,58 +429,6 @@ $(document).on("click", ".botonEditar", async function (e) {
     }
 });
 
-// Cargar proveedores para modal actualizar
-async function cargarProveedoresActualizar() {
-    try {
-        const instrucciones = {
-            'modulo': 'compras',
-            'datosPe': { 'accion': 'obtenerProveedores' }
-        };
-
-        const proveedores = await pedirDatosAjax(instrucciones);
-
-        const selectProveedor = $(".selectProveedorAct");
-        selectProveedor.empty();
-        selectProveedor.append('<option value="">Seleccione Razon Social...</option>');
-
-        if (proveedores && Array.isArray(proveedores)) {
-            proveedores.forEach(proveedor => {
-                selectProveedor.append(
-                    `<option value="${proveedor.rif_proveedor}">${proveedor.razon_social_proveedor}</option>`
-                );
-            });
-        }
-    } catch (error) {
-        console.error("Error al cargar proveedores:", error);
-    }
-}
-
-// Cargar usuarios para modal actualizar
-async function cargarUsuariosActualizar() {
-    try {
-        const instrucciones = {
-            'modulo': 'usuarios',
-            'datosPe': { 'accion': 'listar' }
-        };
-
-        const usuarios = await pedirDatosAjax(instrucciones);
-
-        const selectResponsable = $(".selectResponsableAct");
-        selectResponsable.empty();
-        selectResponsable.append('<option value="">Seleccione responsable...</option>');
-
-        if (usuarios && Array.isArray(usuarios)) {
-            usuarios.forEach(usuario => {
-                selectResponsable.append(
-                    `<option value="${usuario.cedula_usuario}">${usuario.usuario_usuario}</option>`
-                );
-            });
-        }
-    } catch (error) {
-        console.error("Error al cargar usuarios:", error);
-    }
-}
-
 // Limpiar modal de actualización al cerrar
 $(".modalActualizar").on("hidden.bs.modal", function () {
     $(this).find("form")[0].reset();
@@ -472,3 +481,13 @@ $(document).on("click", ".botonEliminar", async function (e) {
         }
     }
 });
+
+//Evento para validar en tiempo real
+$(document).off('input blur', '.validar input, .validar select')
+$(document).on('input blur', '.validar input, .validar select', function () {
+    validarEnTiempoReal(this,'compras');
+})
+
+//#endregion [DELEGACIÓN DE EVENTOS] FIN
+
+

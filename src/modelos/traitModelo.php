@@ -14,8 +14,7 @@ use Throwable;
 class errorBD extends Exception
 {
     protected $detalles;
-
-    public function __construct($mensaje, $detalles = [], $codigo = 0, Throwable $anterior)
+    public function __construct($mensaje, $detalles, $codigo, Throwable $anterior)
     {
         parent::__construct($mensaje, $codigo, $anterior);
         $this->detalles = $detalles;
@@ -634,57 +633,96 @@ trait traitModelo
     }
     private function guardarDatosP($tabla, $datos, $condicion)
     {
-        try{
-        $this->conectar();
-        if ($condicion != null) {
-            /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
+        try {
+            $this->conectar();
+            if ($condicion != null) {
+                /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
 
-            $instruccionesBD = [
-                'campos' => '*',
-                'registrosEli' => true,
-                'tabla' => $tabla,
-                'WHERE' => [
-                    [
-                        'condicion_campo' => $condicion["condicion_campo"],
-                        'condicion_marcador' => ':Id',
-                        'condicion_valor' => $condicion["condicion_valor"],
-                        'comparacion' => '=',
+                $instruccionesBD = [
+                    'campos' => '*',
+                    'registrosEli' => true,
+                    'tabla' => $tabla,
+                    'WHERE' => [
+                        [
+                            'condicion_campo' => $condicion["condicion_campo"],
+                            'condicion_marcador' => ':Id',
+                            'condicion_valor' => $condicion["condicion_valor"],
+                            'comparacion' => '=',
+                        ]
                     ]
-                ]
-            ];
+                ];
 
-            $registroExistente = $this->seleccionarDatos($instruccionesBD);
-            if ($registroExistente->rowCount() > 0) {
-                //comenzamos la consulta SQL
-                $query = "UPDATE $tabla SET ";
+                $registroExistente = $this->seleccionarDatos($instruccionesBD);
+                if ($registroExistente->rowCount() > 0) {
+                    //comenzamos la consulta SQL
+                    $query = "UPDATE $tabla SET ";
 
-                //recorremos el arrays con los campos de la misma
-                $C = 0;
-                foreach ($datos as $clave) {
+                    //recorremos el arrays con los campos de la misma
+                    $C = 0;
+                    foreach ($datos as $clave) {
 
-                    if ($C >= 1) {
-                        $query .= ",";
+                        if ($C >= 1) {
+                            $query .= ",";
+                        }
+                        $query .= $clave["campo_nombre"] . "=" .  $clave["campo_marcador"];
+                        $C++;
                     }
-                    $query .= $clave["campo_nombre"] . "=" .  $clave["campo_marcador"];
-                    $C++;
+
+                    $query .= ", status = 1";
+                    $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
+
+                    //la preparamos para evitar la inyeccion de sql
+                    $sql = $this->conexion->prepare($query);
+
+                    //recorremos el array con la condicion de la misma
+                    foreach ($datos as $clave) {
+                        $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
+                        $C++;
+                    }
+
+                    $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+                    $sql->execute(); //ejecutamos la consulta
+
+                    return $sql->rowCount();
+                } else {
+                    $query = "INSERT INTO $tabla (";
+
+                    $C = 0;
+                    foreach ($datos as $clave) {
+                        if ($C >= 1) {
+                            $query .= ", ";
+                        }
+                        $query .= $clave["campo_nombre"];
+                        $C++;
+                    }
+
+                    $query .= ") VALUES (";
+
+                    $C = 0;
+                    foreach ($datos as $clave) {
+                        if ($C >= 1) {
+                            $query .= ", ";
+                        }
+                        $query .= $clave["campo_marcador"];
+                        $C++;
+                    }
+
+                    $query .= " ) ";
+                    $sql = $this->conexion->prepare($query);
+
+                    foreach ($datos as $clave) {
+                        $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
+                    }
+
+                    $sql->execute();
+
+                    //Porque el ID puede o no ser autoincremental
+                    if ($this->conexion->lastInsertId() > 0) {
+                        return $this->conexion->lastInsertId();
+                    } else {
+                        return $sql->rowCount();
+                    }
                 }
-
-                $query .= ", status = 1";
-                $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
-
-                //la preparamos para evitar la inyeccion de sql
-                $sql = $this->conexion->prepare($query);
-
-                //recorremos el array con la condicion de la misma
-                foreach ($datos as $clave) {
-                    $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
-                    $C++;
-                }
-
-                $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-                $sql->execute(); //ejecutamos la consulta
-
-                return $sql->rowCount();
             } else {
                 $query = "INSERT INTO $tabla (";
 
@@ -708,59 +746,20 @@ trait traitModelo
                     $C++;
                 }
 
-                $query .= " ) ";
+                $query .= ")";
+
+                /*conectar() retorna la conexión que preparamos con prepare para la consulta de inserción en la variable $query */
                 $sql = $this->conexion->prepare($query);
+
 
                 foreach ($datos as $clave) {
                     $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
                 }
 
+
                 $sql->execute();
-
-                //Porque el ID puede o no ser autoincremental
-                if ($this->conexion->lastInsertId() > 0) {
-                    return $this->conexion->lastInsertId();
-                } else {
-                    return $sql->rowCount();
-                }
+                return $this->conexion->lastInsertId();
             }
-        } else {
-            $query = "INSERT INTO $tabla (";
-
-            $C = 0;
-            foreach ($datos as $clave) {
-                if ($C >= 1) {
-                    $query .= ", ";
-                }
-                $query .= $clave["campo_nombre"];
-                $C++;
-            }
-
-            $query .= ") VALUES (";
-
-            $C = 0;
-            foreach ($datos as $clave) {
-                if ($C >= 1) {
-                    $query .= ", ";
-                }
-                $query .= $clave["campo_marcador"];
-                $C++;
-            }
-
-            $query .= ")";
-
-            /*conectar() retorna la conexión que preparamos con prepare para la consulta de inserción en la variable $query */
-            $sql = $this->conexion->prepare($query);
-
-
-            foreach ($datos as $clave) {
-                $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
-            }
-
-
-            $sql->execute();
-            return $this->conexion->lastInsertId();
-        }
         } catch (\Throwable $th) {
             $this->rollback();
             $error = [
@@ -776,62 +775,62 @@ trait traitModelo
     }
     private function actualizarDatosP($instrucciones)
     {
-        try{
-        $this->conectar();
-        //comenzamos la consulta SQL
-        $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
-        //recorremos el arrays con los campos de la misma
-        $C = 0;
-        //return $instrucciones['datos'];
+        try {
+            $this->conectar();
+            //comenzamos la consulta SQL
+            $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
+            //recorremos el arrays con los campos de la misma
+            $C = 0;
+            //return $instrucciones['datos'];
 
-        foreach ($instrucciones['datos'] as $clave) {
-            if ($C >= 1) {
-                $query .= ", ";
+            foreach ($instrucciones['datos'] as $clave) {
+                if ($C >= 1) {
+                    $query .= ", ";
+                }
+                $query .= $clave["campo_nombre"] . " = " .  $clave["campo_marcador"];
+                $C++;
             }
-            $query .= $clave["campo_nombre"] . " = " .  $clave["campo_marcador"];
-            $C++;
-        }
-        $query .= " WHERE ";
+            $query .= " WHERE ";
 
-        $co = 0;
-        $numeroCondi = count($instrucciones['condiciones']);
-        foreach ($instrucciones['condiciones'] as $condicion) {
+            $co = 0;
+            $numeroCondi = count($instrucciones['condiciones']);
+            foreach ($instrucciones['condiciones'] as $condicion) {
 
-            $query .= $condicion["condicion_campo"] . ' ';
-            $query .= $condicion['comparacion'] . ' ';
-            $query .= $condicion["condicion_marcador"] . ' ';
+                $query .= $condicion["condicion_campo"] . ' ';
+                $query .= $condicion['comparacion'] . ' ';
+                $query .= $condicion["condicion_marcador"] . ' ';
 
-            if ($numeroCondi > 1 && $co == 0) {
-                $query .= " AND (";
+                if ($numeroCondi > 1 && $co == 0) {
+                    $query .= " AND (";
+                }
+
+                $co++;
+
+                if ($co > 1 && $numeroCondi > 2 && $numeroCondi > $co) {
+                    $query .= " OR ";
+                }
+            }
+            if ($numeroCondi > 1) {
+                $query .= " )";
             }
 
-            $co++;
+            //return $query;
 
-            if ($co > 1 && $numeroCondi > 2 && $numeroCondi > $co) {
-                $query .= " OR ";
+            //la preparamos para evitar la inyeccion de sql
+            $sql = $this->conexion->prepare($query);
+
+            //recorremos el array con la condicion de la misma
+            foreach ($instrucciones['datos'] as $dato) {
+                $sql->bindParam($dato["campo_marcador"], $dato["campo_valor"]);
             }
-        }
-        if ($numeroCondi > 1) {
-            $query .= " )";
-        }
 
-        //return $query;
+            foreach ($instrucciones['condiciones'] as $condicion) {
+                $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+            }
 
-        //la preparamos para evitar la inyeccion de sql
-        $sql = $this->conexion->prepare($query);
+            $sql->execute(); //ejecutamos la consulta
 
-        //recorremos el array con la condicion de la misma
-        foreach ($instrucciones['datos'] as $dato) {
-            $sql->bindParam($dato["campo_marcador"], $dato["campo_valor"]);
-        }
-
-        foreach ($instrucciones['condiciones'] as $condicion) {
-            $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-        }
-
-        $sql->execute(); //ejecutamos la consulta
-
-        return $sql->rowCount();
+            return $sql->rowCount();
         } catch (\Throwable $th) {
             $this->rollback();
             $error = [
@@ -847,16 +846,16 @@ trait traitModelo
     }
     private function eliminarDatosP($tabla, $campo, $id, $permanente)
     {
-        try{
-        $this->conectar();
-        if ($permanente == true) {
-            $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
-        } else {
-            $sql = $this->conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
-        }
-        $sql->bindParam(":id", $id);
-        $sql->execute();
-        return $sql;
+        try {
+            $this->conectar();
+            if ($permanente == true) {
+                $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
+            } else {
+                $sql = $this->conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
+            }
+            $sql->bindParam(":id", $id);
+            $sql->execute();
+            return $sql;
         } catch (\Throwable $th) {
             $this->rollback();
             $error = [
@@ -866,10 +865,10 @@ trait traitModelo
                 'mensaje de error' => $th->getMessage(),
                 'Rastro' => $th->getTrace(),
                 'instrucciones' => [
-                    'tabla'=>$tabla,
-                    'campo'=>$campo,
-                    'id'=>$id,
-                    'permanente'=>$permanente,
+                    'tabla' => $tabla,
+                    'campo' => $campo,
+                    'id' => $id,
+                    'permanente' => $permanente,
                 ]
             ];
             throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);

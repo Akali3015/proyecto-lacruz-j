@@ -3,7 +3,7 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="cedula_usuario">
+<input type="hidden" class="nombreVista" value="usuarios">
 
 <?php 
     $instruccionesLista=[

@@ -1,21 +1,20 @@
+//#region [ IMPORTACIONES ] COMIENZO
 import {
     enviarFormulario, obtenerDatosRegistro,
-    ListarDataTable, cargarInputsActualizarQNR, extraerDatosAjax,
-    pedirDatosAjax, encabezados, instanciasDatatable, alertas_ajax, vista, modulo
+    listarDataTable, cargarInputsActualizarQNR, extraerDatosAjax,
+    pedirDatosAjax, instanciasDatatable, alertasAjax, reiniciarDataModuloSS,
+    reiniciarDataTables, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+//#endregion [ IMPORTACIONES ] FIN
 
+//#region [VARIABLES O CONSTANTES GLOBALES] COMIENZO
 let productosDirectos = [];
 let serviciosSeleccionados = [];
+//#endregion [VARIABLES O CONSTANTES GLOBALES] FIN
 
-/* =========================
-   FUNCIÓN DE ELIMINAR PORQUE LA DEL GLOBAL NO AGARRABA xd.
-========================= */
+//#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
 async function eliminarVentaCustom(e) {
     e.preventDefault();
-    
-    // Obtener el ID desde el atributo value del <a> (el que está en el global)
-    let idRegistro = $(this).attr('value');
-
     let resultado = await Swal.fire({
         title: '¿Estás seguro?',
         text: "¿Estás seguro de eliminar el registro?",
@@ -28,79 +27,36 @@ async function eliminarVentaCustom(e) {
     });
 
     if (resultado.isConfirmed) {
-        
-        let nombreCampo = vista; 
-
+        let idRegistro = $(this).attr('value');
         let instruccionesPe = {
             'noGuardarLocal': true,
-            'modulo': 'SPI',
-            'nombreId': nombreCampo,
+            'modulo': 'ventas',
             'datosPe': {
                 'accion': 'eliminar',
-                [nombreCampo]: idRegistro
+                'id_venta': idRegistro
             }
         };
 
         let respuesta = await pedirDatosAjax(instruccionesPe);
-
-        // Recargar DataTable
-        if (instanciasDatatable.length > 0) {
-            instanciasDatatable.forEach(instancia => {
-                instancia.ajax.reload(null, false);
-            });
-        }
-
         if (respuesta['icono'] == 'success') {
-            sessionStorage.removeItem(modulo);
+            reiniciarDataModuloSS('ventas');
         }
-
-        return alertas_ajax(respuesta);
+        // Recargar DataTable
+        reiniciarDataTables()
+        return alertasAjax(respuesta);
     }
 }
-
-/* =========================
-   FUNCIÓN PARA SOBRESCRIBIR EVENTOS DE DATATABLE
-========================= */
 function sobrescribirEventosVentas() {
     // Eliminar eventos previos del global.js
     $(document).off('click', '.botonEliminar');
-    
+
     // Agregar nuevo evento SOLO para el <a> dentro de .botonEliminar (para que no se buguee :/)
     $(document).on('click', '.botonEliminar a', eliminarVentaCustom);
 }
-
-/* =========================
-   INICIALIZAR DATATABLE
-========================= */
-$(async function () {
-
-    let instruccionesLista = {
-        encabezados: encabezados,
-        modulo: 'ventas'
-    };
-
-    await ListarDataTable(instruccionesLista);
-    await inicializarVenta();
-
-    // Sobrescribir inmediatamente después de cargar
-    sobrescribirEventosVentas();
-
-    // También sobrescribir cada vez que DataTable se redibuje
-    if (instanciasDatatable.length > 0) {
-        instanciasDatatable[0].on('draw', function() {
-            sobrescribirEventosVentas();
-        });
-    }
-
-
-});
-
-/* ========================= */
 async function inicializarVenta() {
     await cargarClientesConExtraerDatosAjax();
     setTimeout(inicializarVentaModal, 300);
 }
-
 async function cargarClientesConExtraerDatosAjax() {
     let selectCliente = $('.modalRegistrar select[name="rif_cedula_cliente"]');
 
@@ -116,7 +72,6 @@ async function cargarClientesConExtraerDatosAjax() {
         }]
     });
 }
-
 function inicializarVentaModal() {
 
     if ($('.modalRegistrar').length === 0) return;
@@ -135,10 +90,6 @@ function inicializarVentaModal() {
             );
         });
 }
-
-/* =========================
-   SELECTOR DE ITEMS
-========================= */
 async function abrirSelectorItems(e) {
 
     let esProducto = e.target.id === 'btnAgregarProductoDirecto';
@@ -199,10 +150,52 @@ async function abrirSelectorItems(e) {
 
     $('#modalSelectorItems').modal('show');
 }
+function actualizarVistas() {
+    actualizarTotalGeneral();
+}
+function actualizarTotalGeneral() {
+    let total =
+        productosDirectos.reduce((s, p) => s + p.cantidad * p.precio_unitario, 0) +
+        serviciosSeleccionados.reduce((s, p) => s + p.cantidad * p.precio_unitario, 0);
 
-/* =========================
-   AGREGAR ITEMS
-========================= */
+    $('#total_venta').val(total.toFixed(2));
+    $('#btnGuardarVenta').prop('disabled', total <= 0);
+}
+//#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
+
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+$(document).on('DOMContentLoaded', async function (e) {
+    await listarDataTable({
+        encabezados: {
+            "id_venta": "ID VENTA",
+            "CLIENTE": "CLIENTE",
+            "fecha_venta": "FECHA",
+            "TOTAL": "TOTAL",
+            "productos": "Nº de PRODUCTOS",
+            "servicios": "Nº de SERVICIOS"
+        },
+        informacionPe: {
+            'modulo': 'ventas',
+            'datosPe': {
+                'accion': 'listar'
+            }
+        },
+        campoIdBtn: 'id_venta',
+        botones: 'CRUD',
+    });
+    await inicializarVenta();
+
+    // Sobrescribir inmediatamente después de cargar
+    sobrescribirEventosVentas();
+
+    // También sobrescribir cada vez que DataTable se redibuje
+    if (instanciasDatatable.length > 0) {
+        instanciasDatatable[0].on('draw', function () {
+            sobrescribirEventosVentas();
+        });
+    }
+
+})
 $(document).on('click', '.agregarItemVenta', function () {
 
     let tipo = $(this).data('tipo');
@@ -223,33 +216,26 @@ $(document).on('click', '.agregarItemVenta', function () {
     actualizarVistas();
     $('#modalSelectorItems').modal('hide').remove();
 });
-
-/* ========================= */
-function actualizarVistas() {
-    actualizarTotalGeneral();
-}
-
-function actualizarTotalGeneral() {
-    let total =
-        productosDirectos.reduce((s, p) => s + p.cantidad * p.precio_unitario, 0) +
-        serviciosSeleccionados.reduce((s, p) => s + p.cantidad * p.precio_unitario, 0);
-
-    $('#total_venta').val(total.toFixed(2));
-    $('#btnGuardarVenta').prop('disabled', total <= 0);
-}
-
-/* =========================
-   ENVÍO DEL FORMULARIO
-========================= */
 $(document).on('submit', '.formularioAjax', async function (e) {
     e.preventDefault();
 
     $('<input>', { type: 'hidden', name: 'productos', value: JSON.stringify(productosDirectos) }).appendTo(this);
     $('<input>', { type: 'hidden', name: 'servicios', value: JSON.stringify(serviciosSeleccionados) }).appendTo(this);
 
-    await enviarFormulario.call(this);
+    await enviarFormulario({
+        'formulario': this,
+        'modulo': 'ventas'
+    })
 
     productosDirectos = [];
     serviciosSeleccionados = [];
     actualizarTotalGeneral();
 });
+
+
+//Evento para validar en tiempo real
+$(document).off('input blur', '.validar input, .validar select')
+$(document).on('input blur', '.validar input, .validar select', function () {
+    validarEnTiempoReal(this, 'ventas');
+})
+//#endregion [DELEGACIÓN DE EVENTOS] FIN

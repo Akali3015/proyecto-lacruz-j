@@ -1,10 +1,12 @@
-import{
+//#region [ IMPORTACIONES ] COMIENZO
+import {
     enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
-    encabezados, ListarDataTable, cargarInputsActualizarQNR,
-    extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice,
+    listarDataTable, cargarInputsActualizarQNR,
+    extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice,validarEnTiempoReal
 } from "/proyecto-lacruz-j/src/assets/js/modulos/global.js";
+//#endregion [ IMPORTACIONES ] FIN
 
-//#region [FUNCIONES DE PRESENTACIONES] COMIENZO
+//#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
 async function renderizarPresentaciones() {
     let presentacionesBD = await pedirDatosAjax({
         modulo: "presentaciones",
@@ -33,9 +35,6 @@ async function renderizarPresentaciones() {
     });
     $(".contenedor-presentaciones").empty().append(html);
 }
-//#endregion [FUNCIONES DE PRESENTACIONES] FIN
-
-//#region [FUNCIONES DE MATERIAS PRIMAS] COMIENZO
 async function crearFilaMateriaPrima(modal, materiaPrima = null) {
 
     let codigoUniCoFila = obtenerSiguienteIndice(
@@ -120,7 +119,7 @@ async function calcularCostosMateriasPrimas(modal) {
             totalCosto += parseFloat(subtotal);
         }
     };
-    
+
     modal.find("#totalCostoMaterias").text(`${totalCosto.toFixed(2)} Bs`);
 }
 async function inicializarModalProducto(modal) {
@@ -130,15 +129,15 @@ async function inicializarModalProducto(modal) {
             modulo: "productos",
             datosPe: { 'accion': "seleccionarUno", 'id_producto': idProducto },
         });
-        
+
         //Seleccionamos las presentaciones del producto
         const contenedorPresentaciones = modal.find(".contenedor-presentaciones");
         contenedorPresentaciones.find('.checkbox-presentacion').prop("checked", false)
-        .closest(".card-presentacion").removeClass("bg-light border-primary");
+            .closest(".card-presentacion").removeClass("bg-light border-primary");
 
         productoBD["detallesExtra"]["idsPresentaciones"].forEach(id_presentacion => {
             contenedorPresentaciones.find('.checkbox-presentacion[value="' + id_presentacion + '"]').prop("checked", true)
-            .closest(".card-presentacion").addClass("bg-light border-primary");
+                .closest(".card-presentacion").addClass("bg-light border-primary");
         });
 
         //Luego cargamos las materias primas
@@ -146,7 +145,7 @@ async function inicializarModalProducto(modal) {
         modal.find("#cuerpoTablaMateriasPrimas").empty();
         modal.find(".campos-fabricado").hide();
 
-        if(esFabricado){
+        if (esFabricado) {
             modal.find(".campos-fabricado").show();
             for (let i = 0; i < productoBD["detallesExtra"]["materias_primas"].length; i++) {
                 const materiaPrimaBD = productoBD["detallesExtra"]["materias_primas"][i];
@@ -167,13 +166,28 @@ async function inicializarModalProducto(modal) {
         `);
     }
 }
-//#endregion [FUNCIONES DE MATERIAS PRIMAS] FIN
+//#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on("DOMContentLoaded", async function () {
-    await ListarDataTable({
-        encabezados: encabezados,
-        modulo: "productos",
+    await listarDataTable({
+        encabezados: {
+            "id_producto": "ID",
+            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+            "nombre_producto": "NOMBRE",
+            "precio_producto_detal": "PRECIO AL DETAL",
+            "precio_producto_mayor": "PRECIO AL MAYOR",
+            "stock_producto": "STOCK",
+            "producto_es_fabricado": "¿ES FABRICADO?",
+        },
+        informacionPe: {
+            'modulo': 'productos',
+            'datosPe': {
+                'accion': 'listar'
+            }
+        },
+        campoIdBtn: 'id_producto',
+        botones: 'CRUD',
     });
     await extraerDatosAjax({
         modulosPeticion: ["unidadesMedidas"],
@@ -255,7 +269,11 @@ $(document).on("click", ".botonEditar", async function (e) {
     const modalTarget = $(this).attr("data-bs-target");
     const modal = $(modalTarget);
 
-    await obtenerDatosRegistro.call(this);
+    await obtenerDatosRegistro({
+        boton: this,
+        campoId: 'id_producto',
+        modulo: 'productos',
+    });
     await cargarInputsActualizarQNR.call(modal.find("form"));
     modal.attr("id_producto", idProducto);
     inicializarModalProducto(modal);
@@ -264,12 +282,25 @@ $(document).on("click", ".botonEditar", async function (e) {
 $(document).off("submit", ".formularioAjax");
 $(document).on("submit", ".formularioAjax", async function (e) {
     e.preventDefault();
-    await enviarFormulario.call(this);
+    enviarFormulario({
+        'formulario': this,
+        'modulo': 'productos'
+    })
 });
 
 $(document).off("click", ".botonEliminar");
 $(document).on("click", ".botonEliminar", async function (e) {
     e.preventDefault();
-    await eliminarRegistro.call(this);
+    eliminarRegistro({
+        boton: this,
+        campoId: 'id_producto',
+        modulo: 'productos',
+    });
 });
+
+//Evento para validar en tiempo real
+$(document).off('input blur', '.validar input, .validar select')
+$(document).on('input blur', '.validar input, .validar select', function () {
+    validarEnTiempoReal(this,'productos');
+})
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

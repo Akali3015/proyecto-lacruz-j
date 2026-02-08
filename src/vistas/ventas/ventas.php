@@ -1,4 +1,4 @@
-<input type="hidden" class="nombreVista" value="id_venta">
+<input type="hidden" class="nombreVista" value="ventas">
 <?php
     use src\config\inc\componentesModelo;
     $componente = new componentesModelo();

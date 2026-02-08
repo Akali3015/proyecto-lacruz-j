@@ -5,7 +5,7 @@ use src\config\inc\componentesModelo;
 $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="rif_cedula_cliente">
+<input type="hidden" class="nombreVista" value="clientes">
 
 <?php
 $instruccionesLista = [

@@ -5,7 +5,7 @@ use src\config\inc\componentesModelo;
 $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_moneda">
+<input type="hidden" class="nombreVista" value="monedas">
 
 <?php
 $instruccionesLista = [

@@ -3,7 +3,7 @@
     $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="id_insumo">
+<input type="hidden" class="nombreVista" value="insumos">
 
 <?php 
     $instruccionesLista=[

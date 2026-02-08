@@ -1,6 +1,7 @@
 <?php
 
 namespace src\modelos;
+
 use PDO;
 use src\modelos\rolesModelo;
 use src\config\connect\conexion;
@@ -133,7 +134,7 @@ class permisosModelo extends conexion
     }
     public function validarPermisos($modulo, $permiso)
     {
-        $this->moduloVal= $modulo;
+        $this->moduloVal = $modulo;
 
         switch ($permiso) {
             case 'listar':
@@ -145,43 +146,43 @@ class permisosModelo extends conexion
             case 'listarDespachadas':
             case 'listarSinPago':
             case 'cerrarSesion':
-                $this->permisoVal='listar';
+                $this->permisoVal = 'listar';
                 break;
             case 'actualizarFoto':
             case 'eliminarFoto':
             case 'cambiarEstado':
             case 'registrarPago':
             case 'cambiarTemaInterfaz':
-                $this->permisoVal='actualizar';
+                $this->permisoVal = 'actualizar';
                 break;
             case 'registrarToken':
-                $this->permisoVal='registrar';
+                $this->permisoVal = 'registrar';
                 break;
             case 'consultaDashboard':
-                $this->moduloVal='dashboard';
-                $this->permisoVal='ver dashboard';
+                $this->moduloVal = 'dashboard';
+                $this->permisoVal = 'ver dashboard';
                 break;
             case 'reporte_ventas':
             case 'resumen_ventas':
-                $this->permisoVal='imprimir reportes de ventas';
+                $this->permisoVal = 'imprimir reportes de ventas';
                 break;
             case 'reporte_productos':
-                $this->permisoVal='imprimir reportes de productos';
+                $this->permisoVal = 'imprimir reportes de productos';
                 break;
             case 'comanda_venta':
-                $this->permisoVal='imprimir comandas';
+                $this->permisoVal = 'imprimir comandas';
                 break;
             default:
-                $this->permisoVal= $permiso;
+                $this->permisoVal = $permiso;
                 break;
         }
         switch ($modulo) {
             case 'bitacora':
-                $this->permisoVal='ver bitácora';
-            break;
+                $this->permisoVal = 'ver bitácora';
+                break;
             default:
-                
-            break;
+
+                break;
         }
 
         $campos = [
@@ -208,7 +209,6 @@ class permisosModelo extends conexion
             exit();
         }
         return $this->validarPermisosP();
-
     }
 
     private function listarPermisosP()
@@ -240,15 +240,15 @@ class permisosModelo extends conexion
         $permisosGenerales = [];
         $permisosEspeciales = [];
         foreach ($permisosTotales as $permiso) {
-            if(
+            if (
                 $permiso['nombre_permiso'] == 'ver' ||
                 $permiso['nombre_permiso'] == 'listar' ||
                 $permiso['nombre_permiso'] == 'registrar' ||
                 $permiso['nombre_permiso'] == 'actualizar' ||
                 $permiso['nombre_permiso'] == 'eliminar'
-            ){
+            ) {
                 $permisosGenerales[] = $permiso;
-            }else{
+            } else {
                 $permisosEspeciales[] = $permiso;
             }
         }
@@ -323,7 +323,7 @@ class permisosModelo extends conexion
         con los permisos especiales*/
         $respaldoPerEsp = [
             'cambios' => ['ver historial de cambio', 'actualizar cambio de divisas'],
-            'ventas' => ['ver detalles de las ventas','ver ventas despachadas', 'ver ventas sin cancelar'],
+            'ventas' => ['ver detalles de las ventas', 'ver ventas despachadas', 'ver ventas sin cancelar'],
             'reportes' => [
                 'imprimir reportes de ventas',
             ],
@@ -674,8 +674,6 @@ class permisosModelo extends conexion
             ],
             'ORDER' => 'mo.nombre_modulo asc'
         ];
-
-
         $resultado = $this->seleccionarDatos($instruccionesBD);
 
         if ($resultado->rowCount() == 0) {
@@ -774,77 +772,51 @@ class permisosModelo extends conexion
             return $alerta;
         } else {
 
-            if ($this->cambio == 0) {
-                $eliminarUsuario = $this->eliminarDatos("accesos", "id_acceso", $idAcceso);
-                if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
-                    $alertaExito = [
-                        "tipo" => "simple",
-                        "titulo" => "Acceso actualizado",
-                        "texto" => "El acceso ha sido deshabilitado correctamente",
-                        "icono" => "success"
-                    ];
-                } else {
-                    $alertaError = [
-                        "tipo" => "simple",
-                        "titulo" => "Acceso no deshabilitado",
-                        "texto" => "El acceso no ha podido ser deshabilitado",
-                        "icono" => "error"
-                    ];
-                }
-            } else {
-                $instruccionesBD = [
-                    "tabla" => "accesos",
-                    "datos" => [
-                        [
-                            "campo_nombre" => "status",
-                            "campo_marcador" => ":status",
-                            "campo_valor" => $this->cambio
-                        ]
-                    ],
-                    "condiciones" => [
-                        [
-                            "condicion_campo" => "id_acceso",
-                            "condicion_marcador" => ":id_acceso",
-                            "condicion_valor" => $idAcceso,
-                            "comparacion" => "="
-                        ]
+            $instruccionesBD = [
+                "tabla" => "accesos",
+                "datos" => [
+                    [
+                        "campo_nombre" => "status",
+                        "campo_marcador" => ":status",
+                        "campo_valor" => $this->cambio
                     ]
+                ],
+                "condiciones" => [
+                    [
+                        "condicion_campo" => "id_acceso",
+                        "condicion_marcador" => ":id_acceso",
+                        "condicion_valor" => $idAcceso,
+                        "comparacion" => "="
+                    ]
+                ]
+            ];
+            $resultado = $this->actualizarDatos($instruccionesBD);
+
+            if ($resultado != 0) {
+                $alertaExito = [
+                    "tipo" => "simple",
+                    "titulo" => "Permiso actualizado",
+                    "texto" => "El permiso ha sido actualizado exitosamente",
+                    "icono" => "success",
                 ];
-
-                // return [
-                //     'cambio'=>$this->cambio,
-                //     'idAcceso'=>$idAcceso,
-                // ];
-                $resultado = $this->actualizarDatos($instruccionesBD);
-                if ($resultado != 0) {
-                    $alertaExito = [
-                        "tipo" => "simple",
-                        "titulo" => "Permiso actualizado",
-                        "texto" => "El permiso ha sido actualizado exitosamente",
-                        "icono" => "success",
-                    ];
-                } else {
-                    $alertaError = [
-                        "tipo" => "simple",
-                        "titulo" => "Permiso no actualizado",
-                        "texto" => "El permiso no ha sido actualizado",
-                        "icono" => "error",
-                    ];
-                }
-            }
-
-            if (isset($alertaError)) {
-                $this->rollback();
-                return $alertaError;
-            } else {
                 $this->commit();
                 return $alertaExito;
+            } else {
+                $alertaError = [
+                    "tipo" => "simple",
+                    "titulo" => "Permiso no actualizado",
+                    "texto" => "El permiso no ha sido actualizado",
+                    "icono" => "error",
+                ];
+                $this->rollback();
+                return $alertaError;
             }
         }
     }
-    private function validarPermisosP(){
-        $permisos= $this->seleccionarPermisosPorRol();
-        if(!isset($permisos[$this->moduloVal])){
+    private function validarPermisosP()
+    {
+        $permisos = $this->seleccionarPermisosPorRol();
+        if (!isset($permisos[$this->moduloVal])) {
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Acción no autorizada",
@@ -854,22 +826,21 @@ class permisosModelo extends conexion
             return $alerta;
             exit();
         }
-        
-        if(in_array($this->permisoVal, $permisos[$this->moduloVal])) {
+
+        if (in_array($this->permisoVal, $permisos[$this->moduloVal])) {
             return false;
-        }else{
+        } else {
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Acción no autorizada",
                 "texto" => "No posee permisos para realizar la acción solicitada",
                 "icono" => "error",
-                'permisos totales'=>$permisos,
-                "modulo"=>$this->moduloVal,
-                "permisos del modulo"=>$permisos[$this->moduloVal],
-                "permiso recibido"=>$this->permisoVal
+                'permisos totales' => $permisos,
+                "modulo" => $this->moduloVal,
+                "permisos del modulo" => $permisos[$this->moduloVal],
+                "permiso recibido" => $this->permisoVal
             ];
             return $alerta;
         }
     }
 }
-
