@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-01-2026 a las 21:29:39
+-- Tiempo de generación: 08-02-2026 a las 02:04:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,54 +42,207 @@ CREATE TABLE `accesos` (
 --
 
 INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status`) VALUES
-(1, 1, 6, 10, 0),
-(2, 1, 7, 10, 0),
-(3, 1, 8, 3, 0),
-(4, 1, 9, 3, 0),
-(5, 1, 10, 3, 0),
-(6, 1, 11, 11, 0),
-(7, 1, 12, 9, 0),
-(8, 1, 13, 9, 0),
-(9, 1, 14, 9, 0),
-(10, 1, 15, 9, 0),
-(11, 1, 16, 12, 0),
-(12, 2, 6, 10, 0),
-(13, 2, 7, 10, 0),
-(14, 2, 8, 3, 0),
-(15, 2, 9, 3, 0),
-(16, 2, 10, 3, 0),
-(17, 2, 11, 11, 0),
-(18, 2, 12, 9, 0),
-(19, 2, 13, 9, 0),
-(20, 2, 14, 9, 0),
-(21, 2, 15, 9, 0),
-(22, 2, 16, 12, 0),
-(23, 7, 6, 10, 0),
-(24, 7, 7, 10, 0),
-(25, 7, 8, 3, 0),
-(26, 7, 9, 3, 0),
-(27, 7, 10, 3, 0),
-(28, 7, 11, 11, 0),
-(29, 7, 12, 9, 0),
-(30, 7, 13, 9, 0),
-(31, 7, 14, 9, 0),
-(32, 7, 15, 9, 0),
-(33, 7, 16, 12, 0),
-(34, 10, 6, 10, 0),
-(35, 10, 7, 10, 0),
-(36, 10, 8, 3, 0),
-(37, 10, 9, 3, 0),
-(38, 10, 10, 3, 0),
-(39, 10, 11, 11, 0),
-(40, 10, 12, 9, 0),
-(41, 10, 13, 9, 0),
-(42, 10, 14, 9, 0),
-(43, 10, 15, 9, 0),
-(44, 10, 16, 12, 0),
-(45, 1, 1, 1, 1),
-(46, 1, 2, 1, 1),
-(47, 1, 3, 1, 1),
-(48, 1, 4, 1, 1);
+(192, 1, 6, 10, 1),
+(193, 1, 21, 10, 1),
+(194, 1, 8, 3, 1),
+(195, 1, 22, 3, 1),
+(196, 1, 10, 3, 1),
+(197, 1, 11, 11, 1),
+(198, 1, 14, 9, 1),
+(199, 1, 15, 9, 1),
+(200, 1, 16, 9, 1),
+(201, 1, 23, 9, 1),
+(202, 1, 19, 13, 1),
+(203, 1, 1, 1, 1),
+(204, 1, 2, 1, 1),
+(205, 1, 3, 1, 1),
+(206, 1, 4, 1, 1),
+(207, 2, 6, 10, 1),
+(208, 2, 21, 10, 1),
+(209, 2, 8, 3, 1),
+(210, 2, 22, 3, 1),
+(211, 2, 10, 3, 1),
+(212, 2, 11, 11, 1),
+(213, 2, 14, 9, 1),
+(214, 2, 15, 9, 1),
+(215, 2, 16, 9, 1),
+(216, 2, 23, 9, 1),
+(217, 2, 19, 13, 1),
+(218, 1, 1, 8, 1),
+(219, 1, 2, 8, 1),
+(220, 1, 3, 8, 1),
+(221, 2, 1, 1, 1),
+(222, 2, 2, 1, 1),
+(223, 2, 3, 1, 1),
+(224, 2, 4, 1, 1),
+(225, 2, 4, 8, 1),
+(226, 2, 3, 8, 1),
+(227, 2, 2, 8, 1),
+(228, 2, 1, 8, 1),
+(229, 2, 1, 6, 1),
+(230, 2, 2, 6, 1),
+(231, 2, 3, 6, 1),
+(232, 2, 4, 6, 1),
+(233, 2, 5, 6, 1),
+(234, 2, 5, 8, 1),
+(235, 2, 5, 1, 1),
+(236, 1, 4, 8, 1),
+(237, 1, 5, 1, 1),
+(238, 1, 5, 8, 1),
+(239, 1, 1, 6, 1),
+(240, 1, 2, 6, 1),
+(241, 1, 3, 6, 1),
+(242, 1, 4, 6, 1),
+(243, 1, 5, 6, 1),
+(244, 1, 5, 4, 1),
+(245, 1, 4, 4, 1),
+(246, 1, 3, 4, 1),
+(247, 1, 2, 4, 1),
+(248, 1, 1, 4, 1),
+(249, 1, 1, 15, 1),
+(250, 1, 2, 15, 1),
+(251, 1, 3, 15, 1),
+(252, 1, 4, 15, 1),
+(253, 1, 5, 15, 1),
+(254, 1, 1, 7, 1),
+(255, 1, 2, 7, 1),
+(256, 1, 3, 7, 1),
+(257, 1, 4, 7, 1),
+(258, 1, 5, 7, 1),
+(259, 1, 1, 5, 1),
+(260, 1, 2, 5, 1),
+(261, 1, 3, 5, 1),
+(262, 1, 4, 5, 1),
+(263, 1, 5, 5, 1),
+(264, 1, 5, 9, 1),
+(265, 1, 4, 9, 1),
+(266, 1, 3, 9, 1),
+(267, 1, 2, 9, 1),
+(268, 1, 1, 9, 1),
+(269, 1, 1, 3, 1),
+(270, 1, 2, 3, 1),
+(271, 1, 3, 3, 1),
+(272, 1, 4, 3, 1),
+(273, 1, 5, 3, 1),
+(274, 2, 1, 4, 1),
+(275, 2, 1, 15, 1),
+(276, 2, 1, 7, 1),
+(277, 2, 1, 5, 1),
+(278, 2, 1, 9, 1),
+(279, 2, 1, 3, 1),
+(280, 2, 2, 3, 1),
+(281, 2, 2, 9, 1),
+(282, 2, 2, 5, 1),
+(283, 2, 2, 15, 1),
+(284, 2, 2, 7, 1),
+(285, 2, 2, 4, 1),
+(286, 2, 3, 4, 1),
+(287, 2, 3, 15, 1),
+(288, 2, 3, 7, 1),
+(289, 2, 3, 5, 1),
+(290, 2, 3, 9, 1),
+(291, 2, 4, 3, 1),
+(292, 2, 4, 9, 1),
+(293, 2, 4, 5, 1),
+(294, 2, 4, 7, 1),
+(295, 2, 4, 4, 1),
+(296, 2, 4, 15, 1),
+(297, 2, 3, 3, 1),
+(298, 2, 5, 3, 1),
+(299, 2, 5, 9, 1),
+(300, 2, 5, 5, 1),
+(301, 2, 5, 7, 1),
+(302, 2, 5, 15, 1),
+(303, 2, 5, 4, 1),
+(304, 1, 1, 17, 1),
+(305, 1, 2, 17, 1),
+(306, 1, 3, 17, 1),
+(307, 1, 4, 17, 1),
+(308, 1, 5, 17, 1),
+(309, 2, 1, 17, 1),
+(310, 2, 2, 17, 1),
+(311, 2, 3, 17, 1),
+(312, 2, 4, 17, 1),
+(313, 2, 5, 17, 1),
+(314, 1, 1, 18, 1),
+(315, 1, 2, 18, 1),
+(316, 1, 3, 18, 1),
+(317, 1, 4, 18, 1),
+(318, 1, 5, 18, 1),
+(319, 1, 1, 19, 1),
+(320, 1, 2, 19, 1),
+(321, 1, 3, 19, 1),
+(322, 1, 4, 19, 1),
+(323, 1, 5, 19, 1),
+(324, 2, 1, 18, 1),
+(325, 2, 2, 18, 1),
+(326, 2, 3, 18, 1),
+(327, 2, 1, 19, 1),
+(328, 2, 3, 19, 1),
+(329, 2, 2, 19, 1),
+(330, 2, 4, 19, 1),
+(331, 2, 5, 19, 1),
+(332, 1, 1, 25, 1),
+(333, 1, 2, 25, 1),
+(334, 1, 3, 25, 1),
+(335, 1, 4, 25, 1),
+(336, 1, 5, 25, 1),
+(337, 1, 5, 24, 1),
+(338, 1, 5, 20, 1),
+(339, 1, 4, 20, 1),
+(340, 1, 4, 24, 1),
+(341, 1, 3, 24, 1),
+(342, 1, 3, 20, 1),
+(343, 1, 2, 20, 1),
+(344, 1, 2, 24, 1),
+(345, 1, 1, 24, 1),
+(346, 1, 1, 20, 1),
+(347, 1, 1, 23, 1),
+(348, 1, 1, 21, 1),
+(349, 1, 2, 21, 1),
+(350, 1, 2, 23, 1),
+(351, 1, 3, 21, 1),
+(352, 1, 3, 23, 1),
+(353, 1, 4, 23, 1),
+(354, 1, 4, 21, 1),
+(355, 1, 5, 21, 1),
+(356, 1, 5, 23, 1),
+(357, 1, 1, 22, 1),
+(358, 1, 2, 22, 1),
+(359, 1, 3, 22, 1),
+(360, 1, 4, 22, 1),
+(361, 1, 5, 22, 1),
+(362, 2, 1, 25, 1),
+(363, 2, 2, 25, 1),
+(364, 2, 1, 20, 1),
+(365, 2, 1, 24, 1),
+(366, 2, 2, 24, 1),
+(367, 2, 2, 20, 1),
+(368, 2, 3, 25, 1),
+(369, 2, 3, 20, 1),
+(370, 2, 3, 24, 1),
+(371, 2, 3, 23, 1),
+(372, 2, 2, 23, 1),
+(373, 2, 1, 23, 1),
+(374, 2, 1, 21, 1),
+(375, 2, 2, 21, 1),
+(376, 2, 3, 21, 1),
+(377, 2, 4, 21, 1),
+(378, 2, 4, 23, 1),
+(379, 2, 4, 24, 1),
+(380, 2, 4, 25, 1),
+(381, 2, 5, 25, 1),
+(382, 2, 4, 18, 1),
+(383, 2, 5, 18, 1),
+(384, 2, 5, 24, 1),
+(385, 2, 5, 20, 1),
+(386, 2, 5, 23, 1),
+(387, 2, 5, 21, 1),
+(388, 2, 1, 22, 1),
+(389, 2, 2, 22, 1),
+(390, 2, 3, 22, 1),
+(391, 2, 4, 22, 1),
+(392, 2, 5, 22, 1);
 
 -- --------------------------------------------------------
 
@@ -102,6 +255,15 @@ CREATE TABLE `acciones` (
   `nombre_accion` varchar(50) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `acciones`
+--
+
+INSERT INTO `acciones` (`id_accion`, `nombre_accion`, `status`) VALUES
+(1, 'Registrar', 1),
+(2, 'Actualizar', 1),
+(3, 'registrarIva', 1);
 
 -- --------------------------------------------------------
 
@@ -118,6 +280,23 @@ CREATE TABLE `bitacora` (
   `resultado_accion_bitacora` varchar(20) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `bitacora`
+--
+
+INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_accion`, `id_modulo`, `fecha_bitacora`, `resultado_accion_bitacora`, `status`) VALUES
+(1, 30485684, 1, 4, '2026-02-07 17:06:44', 'Exito', 1),
+(2, 30485684, 1, 4, '2026-02-07 17:07:23', 'Exito', 1),
+(3, 30485684, 1, 5, '2026-02-07 19:57:05', 'Fallido', 1),
+(4, 30485684, 1, 5, '2026-02-07 20:02:30', 'Fallido', 1),
+(5, 30485684, 1, 5, '2026-02-07 20:03:40', 'Exito', 1),
+(6, 30485684, 2, 5, '2026-02-07 20:07:32', 'Fallido', 1),
+(7, 30485684, 1, 5, '2026-02-07 20:07:46', 'Exito', 1),
+(8, 30485684, 3, 18, '2026-02-07 20:38:38', 'éxito', 1),
+(9, 30485684, 1, 20, '2026-02-07 20:54:24', 'Exito', 1),
+(10, 30485684, 1, 25, '2026-02-07 20:56:23', 'Fallido', 1),
+(11, 30485684, 1, 25, '2026-02-07 20:56:40', 'Exito', 1);
 
 -- --------------------------------------------------------
 
@@ -144,7 +323,7 @@ INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iv
 (5, 12, '2025-12-06 15:56:00', 1),
 (6, 12.01, '2025-12-06 15:56:12', 1),
 (7, 12, '2025-12-06 15:56:22', 1),
-(8, 16, '2026-01-12 16:01:14', 1);
+(8, 323, '2026-02-07 20:38:38', 1);
 
 -- --------------------------------------------------------
 
@@ -172,7 +351,7 @@ INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, 
 (5, 1, 250, '2025-12-11 18:35:07', 1),
 (6, 2, 250, '2025-12-11 19:04:46', 1),
 (7, 5, 1, '2025-12-14 16:30:34', 1),
-(8, 1, 320, '2026-01-12 16:06:47', 1);
+(8, 1, 23, '2026-02-07 20:44:34', 1);
 
 -- --------------------------------------------------------
 
@@ -194,9 +373,8 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_cliente`, `correo_cliente`, `direccion_cliente`, `status`) VALUES
-('12345678', 'ANDER', '04169484648', 'andersonfreitez@gmail.co', 'SANARES', 1),
-('30485681', 'ANDERSON', '04169484648', 'andersonfreitez@gmail.co', 'SANARE', 0),
-('30485684', 'ANDERSONEE', '04169484649', 'andersonfreitez@gmail.com', 'Sanare', 0);
+('12345678', 'ANDERSON', '04169484648', 'andersonfreitez@gmail.com', 'SANAREsws', 1),
+('123456782', 'ANDERSONA', '04169484647', 'andersonfreitz@gmail.com', 'hfgyhftgn', 0);
 
 -- --------------------------------------------------------
 
@@ -245,8 +423,7 @@ CREATE TABLE `insumos` (
 --
 
 INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `precio_insumo`, `stock_insumo`, `status`) VALUES
-(1, 'BOLSA', 1, 100, 1),
-(2, 'BOLSA 2', 2, 2, 0);
+(1, 'BOLSA', 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -296,8 +473,7 @@ CREATE TABLE `materias_primas` (
 --
 
 INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_materia_prima`, `stock_materia_prima`, `costo_materia_prima`, `status`) VALUES
-(1, 1, 'ANDER', 12, 12, 1),
-(2, 2, 'SULFURO DE SODIO', 100, 10, 1);
+(1, 2, 'SULFURO', 1000, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -331,13 +507,9 @@ CREATE TABLE `materias_primas_presentaciones` (
 --
 
 INSERT INTO `materias_primas_presentaciones` (`id_materia_prima_presentacion`, `id_materia_prima`, `id_presentacion`, `status`) VALUES
-(1, 1, 1, 0),
-(2, 1, 2, 0),
-(3, 1, 3, 0),
-(4, 2, 2, 1),
-(5, 1, 1, 1),
-(6, 1, 2, 1),
-(7, 1, 3, 1);
+(1, 1, 1, 1),
+(2, 1, 2, 1),
+(3, 1, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -352,14 +524,6 @@ CREATE TABLE `materias_primas_productos` (
   `cantidad_materia_prima` int(15) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `materias_primas_productos`
---
-
-INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materia_prima`, `id_producto`, `cantidad_materia_prima`, `status`) VALUES
-(14, 1, 10, 1, 1),
-(15, 2, 10, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -386,7 +550,7 @@ INSERT INTO `metodos_pagos` (`id_metodo_pago`, `nombre_metodo_pago`, `necesita_m
 (5, 'BINANCE', 1, 0),
 (6, 'BINANCE', 1, 1),
 (7, 'ZELLE', 1, 1),
-(8, 'PAGO MÓVIL1', 0, 0);
+(8, 'RRRR', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -406,7 +570,6 @@ CREATE TABLE `modulos` (
 
 INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (1, 'clientes', 1),
-(2, 'presupuesto', 1),
 (3, 'ventas', 1),
 (4, 'productos', 1),
 (5, 'servicios', 1),
@@ -416,7 +579,18 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (9, 'usuarios', 1),
 (10, 'cambios', 1),
 (11, 'reportes', 1),
-(12, 'bitacora', 1);
+(13, 'bitacora', 1),
+(15, 'promociones', 1),
+(16, 'imagenes', 1),
+(17, 'roles', 1),
+(18, 'cambiosIva', 1),
+(19, 'metodos-pago', 1),
+(20, 'Materias Primas', 1),
+(21, 'presentaciones', 1),
+(22, 'unidadesMedidas', 1),
+(23, 'monedas', 1),
+(24, 'materiasPrimas', 1),
+(25, 'Insumos', 1);
 
 -- --------------------------------------------------------
 
@@ -437,12 +611,11 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 320, 1),
+(1, 'DÓLAR', '$', 23, 1),
 (2, 'EURO', '€', 250, 1),
 (3, 'YUAN', '¥', 12, 1),
 (4, 'AGUACATE', '$O', 1, 0),
-(5, 'BÓLIVAR', 'BS', 1, 1),
-(6, 'DOLARN', 'D', 1, 0);
+(5, 'BÓLIVAR', 'BS', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -510,16 +683,16 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (4, 'actualizar', 1),
 (5, 'eliminar', 1),
 (6, 'ver historial de cambio', 1),
-(7, 'actualizar cambio de divisas', 1),
 (8, 'ver detalles de las ventas', 1),
-(9, 'ver ventas despachadas', 1),
 (10, 'ver ventas sin cancelar', 1),
 (11, 'imprimir reportes de ventas', 1),
-(12, 'asignar roles a usuarios', 1),
-(13, 'ver el precio del dólar', 1),
-(14, 'ver notificaciones', 1),
-(15, 'ver modal de ayuda', 1),
-(16, 'ver bitácora', 1);
+(14, 'asignar roles a usuarios', 1),
+(15, 'ver el precio del dólar', 1),
+(16, 'ver notificaciones', 1),
+(19, 'ver bitácora', 1),
+(21, 'actualizar cambio de divisas', 1),
+(22, 'ver ventas despachadas', 1),
+(23, 'ver modal de ayuda', 1);
 
 -- --------------------------------------------------------
 
@@ -542,8 +715,7 @@ CREATE TABLE `presentaciones` (
 INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_presentacion`, `cantidad_pmp`, `status`) VALUES
 (1, 2, 'PIPA', 200, 1),
 (2, 2, 'BIDÓN', 20, 1),
-(3, 2, 'GRANEL', 10, 1),
-(4, 2, 'BARRILN', 200, 0);
+(3, 2, 'GRANEL', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -579,7 +751,8 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `nombre_producto`, `precio_producto_detal`, `precio_producto_mayor`, `stock_producto`, `producto_es_fabricado`, `status`) VALUES
-(10, 2, 'JABON', 32, 25, 1, 1, 1);
+(1, 2, 'JABÓN', 100, 90, 10, 0, 1),
+(2, 2, 'CLORO', 10, 5, 1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -613,104 +786,12 @@ CREATE TABLE `productos_presentaciones` (
 --
 
 INSERT INTO `productos_presentaciones` (`id_producto_presentacion`, `id_presentacion`, `id_producto`, `status`) VALUES
-(5, 1, 10, 0),
-(6, 2, 10, 0),
-(7, 3, 10, 0),
-(8, 1, 10, 0),
-(9, 3, 10, 0),
-(10, 1, 10, 0),
-(11, 2, 10, 0),
-(12, 3, 10, 0),
-(13, 1, 10, 0),
-(14, 2, 10, 0),
-(15, 3, 10, 0),
-(16, 1, 10, 0),
-(17, 3, 10, 0),
-(18, 3, 10, 0),
-(19, 3, 10, 0),
-(20, 2, 10, 0),
-(21, 3, 10, 0),
-(22, 3, 10, 0),
-(23, 1, 10, 0),
-(24, 2, 10, 0),
-(25, 3, 10, 0),
-(26, 1, 10, 0),
-(27, 2, 10, 0),
-(28, 1, 10, 0),
-(29, 2, 10, 0),
-(30, 1, 10, 0),
-(31, 2, 10, 0),
-(32, 3, 10, 0),
-(33, 1, 10, 0),
-(34, 2, 10, 0),
-(35, 3, 10, 0),
-(36, 1, 10, 0),
-(37, 3, 10, 0),
-(38, 1, 10, 0),
-(39, 2, 10, 0),
-(40, 3, 10, 0),
-(41, 1, 10, 0),
-(42, 2, 10, 0),
-(43, 3, 10, 0),
-(44, 1, 10, 0),
-(45, 2, 10, 0),
-(46, 3, 10, 0),
-(47, 1, 10, 0),
-(48, 2, 10, 0),
-(49, 3, 10, 0),
-(50, 1, 10, 0),
-(51, 3, 10, 0),
-(52, 1, 10, 0),
-(53, 2, 10, 0),
-(54, 3, 10, 0),
-(55, 1, 10, 0),
-(56, 2, 10, 0),
-(57, 3, 10, 0),
-(58, 1, 10, 0),
-(59, 2, 10, 0),
-(60, 3, 10, 0),
-(61, 1, 10, 0),
-(62, 2, 10, 0),
-(63, 3, 10, 0),
-(64, 1, 10, 0),
-(65, 2, 10, 0),
-(66, 3, 10, 0),
-(67, 1, 10, 0),
-(68, 2, 10, 0),
-(69, 3, 10, 0),
-(70, 1, 10, 0),
-(71, 1, 10, 0),
-(72, 2, 10, 0),
-(73, 3, 10, 0),
-(74, 1, 10, 0),
-(75, 2, 10, 0),
-(76, 3, 10, 0),
-(77, 1, 10, 0),
-(78, 2, 10, 0),
-(79, 3, 10, 0),
-(80, 1, 10, 0),
-(81, 2, 10, 0),
-(82, 3, 10, 0),
-(83, 1, 10, 0),
-(84, 2, 10, 0),
-(85, 3, 10, 0),
-(86, 1, 10, 0),
-(87, 2, 10, 0),
-(88, 3, 10, 0),
-(89, 1, 10, 0),
-(90, 2, 10, 0),
-(91, 3, 10, 0),
-(92, 1, 10, 0),
-(93, 2, 10, 0),
-(94, 3, 10, 0),
-(95, 1, 10, 0),
-(96, 2, 10, 0),
-(97, 3, 10, 0),
-(98, 1, 10, 0),
-(99, 3, 10, 0),
-(100, 1, 10, 1),
-(101, 2, 10, 1),
-(102, 3, 10, 1);
+(1, 1, 1, 1),
+(2, 2, 1, 1),
+(3, 3, 1, 1),
+(4, 1, 2, 1),
+(5, 2, 2, 1),
+(6, 3, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -774,7 +855,7 @@ CREATE TABLE `proveedores` (
 --
 
 INSERT INTO `proveedores` (`rif_proveedor`, `razon_social_proveedor`, `telefono_proveedor`, `correo_proveedor`, `direccion_proveedor`, `status`) VALUES
-('123456789', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'SANARES', 0);
+('30485684', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'sxaxasas', 1);
 
 -- --------------------------------------------------------
 
@@ -797,12 +878,13 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (2, 'OFICINISTA', 1),
 (5, 'CAJERO', 0),
 (6, 'CAJEROTA', 0),
-(7, 'COCINEROS', 1),
+(7, 'COCINEROS', 0),
 (8, 'OFICINISTAI', 0),
 (9, 'CAJERO', 0),
-(10, 'JNJJ', 0),
+(10, 'JNJ', 0),
 (11, 'IJKSKKKSS', 0),
-(12, 'JWK', 0);
+(12, 'CLIENTE', 0),
+(13, 'CLIENTEASAXA', 0);
 
 -- --------------------------------------------------------
 
@@ -823,8 +905,8 @@ CREATE TABLE `servicios` (
 --
 
 INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `costo_servicio`, `status`) VALUES
-(1, 4, 'FUMIGACION', 15, 0),
-(2, 1, 'FUMIGACION2', 2, 0);
+(1, 2, 'FUMIGACION', 100, 1),
+(2, 1, 'FUMIGACIONT', 122, 1);
 
 -- --------------------------------------------------------
 
@@ -860,10 +942,7 @@ CREATE TABLE `unidades_medidas` (
 
 INSERT INTO `unidades_medidas` (`id_unidad_medida`, `nombre_unidad_medida`, `simbolo_unidad_medida`, `equivalencia_ub`, `status`) VALUES
 (1, 'KILO(S)', 'KG', 1000, 1),
-(2, 'LITRO(S)', 'L', 1000, 1),
-(3, 'LITRO(S)S', 'LSS', 1000, 0),
-(4, 'METROS CUADRADOS', 'MT2', 1000, 1),
-(5, 'ANDE', 'LN', 1000, 0);
+(2, 'LITRO(S)', 'L', 1000, 1);
 
 -- --------------------------------------------------------
 
@@ -889,11 +968,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `status`) VALUES
 (1234567, 1, 'ANDERS', 'DAVID', 'ander1234', '$2y$10$tnkCgC.SA4fIWZ1jyJ1Nc.at2Ke5PF0PpZbGwmnBxjFZAeAltJjMW', '12345678901', 'ander2@gmail.com', 1),
-(12345612, 1, 'ANDER', 'DAVID', 'ander1223', '$2y$10$PfF6nDUwP8glGtheVMQSWeLB9KljVn/hR1tyAbbgWbJMgHF5ystXi', '12345678901', 'ander3@gmail.com', 0),
-(12345678, 1, 'ANDER', 'DAVID', 'David1234', '$2y$10$XkJLaTMns3kXJSxlSrpJ.uqTjP.gzLwLGdL22zeHLRjbxIW6MLGVS', '12345678901', 'ander1@gmail.com', 0),
-(14229417, 2, 'FELIPA', 'FREITEZ', 'Feli1234', '$2y$10$371k7UOIBn5SsOQpWYvJO.39kS2tJ3Od1/5HoWrbfn7CceqWPHkiO', '04264314642', 'felipa@gmail.com', 1),
-(30485684, 2, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1),
-(123456789, 1, 'ANDERSON', 'DAVID', 'ander1234', '$2y$10$2LkOTyTXAcml2JuDnEZPXethdOI1EsrT7iQEGX/ql2hPxQ4GrPs6m', '12345678901', 'ander2@gmail.com', 0);
+(30485684, 1, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1);
 
 -- --------------------------------------------------------
 
@@ -1185,19 +1260,19 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=393;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones`
 --
 ALTER TABLE `acciones`
-  MODIFY `id_accion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_accion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
@@ -1227,7 +1302,7 @@ ALTER TABLE `detalles_pagos`
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_compras`
@@ -1245,7 +1320,7 @@ ALTER TABLE `insumos_ventas`
 -- AUTO_INCREMENT de la tabla `materias_primas`
 --
 ALTER TABLE `materias_primas`
-  MODIFY `id_materia_prima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_materia_prima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_compras`
@@ -1257,13 +1332,13 @@ ALTER TABLE `materias_primas_compras`
 -- AUTO_INCREMENT de la tabla `materias_primas_presentaciones`
 --
 ALTER TABLE `materias_primas_presentaciones`
-  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
-  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pagos`
@@ -1275,13 +1350,13 @@ ALTER TABLE `metodos_pagos`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
 --
 ALTER TABLE `monedas`
-  MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -1305,13 +1380,13 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `presentaciones`
 --
 ALTER TABLE `presentaciones`
-  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `producciones`
@@ -1323,7 +1398,7 @@ ALTER TABLE `producciones`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_compras`
@@ -1335,7 +1410,7 @@ ALTER TABLE `productos_compras`
 -- AUTO_INCREMENT de la tabla `productos_presentaciones`
 --
 ALTER TABLE `productos_presentaciones`
-  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
+  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_producciones`
@@ -1353,7 +1428,7 @@ ALTER TABLE `productos_servicios_ventas`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios`
@@ -1371,7 +1446,7 @@ ALTER TABLE `servicios_ventas`
 -- AUTO_INCREMENT de la tabla `unidades_medidas`
 --
 ALTER TABLE `unidades_medidas`
-  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
