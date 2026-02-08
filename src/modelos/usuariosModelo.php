@@ -16,6 +16,7 @@ class usuariosModelo extends conexion
     private $usuarioUsuario;
     private $contrasena1Usuario;
     private $contrasena2Usuario;
+    private $contrasena3Usuario;
     private $telefonoUsuario;
     private $correoUsuario;
 
@@ -155,17 +156,16 @@ class usuariosModelo extends conexion
             throw new Exception("Error al registrar el usuario en la base de datos: " . $e->getMessage());
         }
     }
-    public function actualizarUsuarios($cedula, $nombre, $apellido, $correo, $telefono, $rol, $usuario, $contrasena1, $contrasena2)
+    public function actualizarUsuarios($cedula, $correo, $telefono, $rol, $usuario, $contrasena1, $contrasena2, $contrasena3)
     {
         $this->cedulaUsuario = $cedula;
-        $this->nombreUsuario = $nombre;
-        $this->apellidoUsuario = $apellido;
         $this->correoUsuario = $correo;
         $this->telefonoUsuario = $telefono;
         $this->rolUsuario = $rol;
         $this->usuarioUsuario = $usuario;
         $this->contrasena1Usuario = $contrasena1;
         $this->contrasena2Usuario = $contrasena2;
+        $this->contrasena3Usuario = $contrasena3;
 
         //Arrays para las validaciones
         $campos = [
@@ -180,22 +180,6 @@ class usuariosModelo extends conexion
                 "tabla" => "usuarios",
                 "debeExistir" => true,
                 "debeSerUnico" => true
-            ],
-            [
-                "campo_valor" => $this->nombreUsuario,
-                "formulario_nombre" => "nombre",
-                "requerido" => true,
-                "minimo" => minRegexNombrePer,
-                "maximo" => maxRegexNombrePer,
-                "expresion_re" => regexNombrePer
-            ],
-            [
-                "campo_valor" => $this->apellidoUsuario,
-                "formulario_nombre" => "apellido",
-                "requerido" => true,
-                "minimo" => minRegexNombrePer,
-                "maximo" => maxRegexNombrePer,
-                "expresion_re" => regexNombrePer
             ],
             [
                 "campo_nombre" => "correo_usuario",
@@ -234,6 +218,13 @@ class usuariosModelo extends conexion
                 "maximo" => maxRegexContrasena,
                 "expresion_re" => regexContrasena,
                 "camposIguales" => $this->contrasena2Usuario
+            ],
+            [
+                "campo_valor" => $this->contrasena3Usuario,
+                "formulario_nombre" => "contraseña",
+                "minimo" => minRegexContrasena,
+                "maximo" => maxRegexContrasena,
+                "expresion_re" => regexContrasena,
             ],
             [
                 "campo_nombre" => "id_rol",
@@ -369,7 +360,7 @@ class usuariosModelo extends conexion
             return $datos; /*Devolvemos*/
         } else {
 
-            /*Hacemos la consulta */;
+                /*Hacemos la consulta */;
             $instruccionesBD = [
                 'campos' => '
                     cedula_usuario, nombre_usuario,
@@ -493,6 +484,27 @@ class usuariosModelo extends conexion
         $resultado = $this->seleccionarDatos($instruccionesBD);
         $usuariosExistente = $resultado->fetch(PDO::FETCH_ASSOC);
 
+        if ($this->contrasena3Usuario != '' &&
+            !password_verify($this->contrasena3Usuario,$usuariosExistente['contrasena_usuario'])
+        ) {
+            return [
+                'tipo' => 'simple',
+                'icono' => 'error',
+                'titulo' => 'Contraseña actual incorrecta',
+                'texto' => 'El valor introducido dentro de la contraseña actual es incorrecto',
+            ];
+        }
+        if ($this->contrasena1Usuario != '' && $this->contrasena2Usuario != '') {
+            if ($this->contrasena3Usuario == '') {
+                return [
+                    'tipo' => 'simple',
+                    'icono' => 'error',
+                    'titulo' => 'Contraseña actual incorrecta',
+                    'texto' => 'Si desea actualizar la contraseña debe introducir su actual valor',
+                ];
+            }
+        }
+
         if ($this->contrasena1Usuario == "") {
             $this->contrasena1Usuario = $usuariosExistente['contrasena_usuario'];
         };
@@ -507,18 +519,6 @@ class usuariosModelo extends conexion
                     "campo_nombre" => "cedula_usuario",
                     "campo_marcador" => ":cedula",
                     "campo_valor" => $this->cedulaUsuario
-                ],
-                [
-                    "campo_nombre" => "nombre_usuario",
-                    "campo_marcador" => ":Nombre",
-                    "campo_valor" => $this->nombreUsuario,
-                    "ponerEnMayusculas" => true
-                ],
-                [
-                    "campo_nombre" => "apellido_usuario",
-                    "campo_marcador" => ":Apellido",
-                    "campo_valor" => $this->apellidoUsuario,
-                    "ponerEnMayusculas" => true
                 ],
                 [
                     "campo_nombre" => "correo_usuario",

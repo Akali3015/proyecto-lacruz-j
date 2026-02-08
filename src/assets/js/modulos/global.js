@@ -89,11 +89,13 @@ export async function validarEnTiempoReal(input, modulo) {
         funcionEliminaError();
     }
 
+    if ((!requerido && valorIntroducido == '') || input.attr('readonly')) {
+        input.removeClass('validado error')
+        return;
+    }
+
     //Para validar el minimo del campo
     if (minimo && valorIntroducido.length < minimo) {
-        if (!requerido && valorIntroducido == '') {
-            return;
-        }
         funcionMandarError(`El valor del campo debe ser mayor o igual a ${minimo} caracteres`)
         return;
     } else {
@@ -102,9 +104,6 @@ export async function validarEnTiempoReal(input, modulo) {
 
     //Para validar el maximo del campo
     if (maximo && valorIntroducido.length > maximo) {
-        if (!requerido && valorIntroducido == '') {
-            return;
-        }
         funcionMandarError(`El valor del campo debe ser menor o igual a ${maximo} caracteres`)
         return;
     } else {
@@ -113,9 +112,6 @@ export async function validarEnTiempoReal(input, modulo) {
 
     //Para validar la contrasena de confirmación
     if (input.attr('id') == 'contrasena2_usuario') {
-        if (!requerido && valorIntroducido == '') {
-            return;
-        }
         if ($('#contrasena1_usuario').val() != $('#contrasena2_usuario').val()) {
             funcionMandarError('El valor de ambas contraseña debe coincidir');
             return;
@@ -126,9 +122,6 @@ export async function validarEnTiempoReal(input, modulo) {
 
     //Para validar el formato del campo
     if (!esValido) {
-        if (!requerido && valorIntroducido == '') {
-            return;
-        }
         funcionMandarError('El valor del campo no es valido');
         return;
     } else {
@@ -244,7 +237,7 @@ export async function listarDataTable(instrucciones) {
         let id = info['fila'][campoIdBtn];
         let boton = '';
         boton += '<ul class="list-inline me-auto mb-0">';
-        if(permisos[modulo]){
+        if (permisos[modulo]) {
             if (permisos[modulo].includes('actualizar')) {
                 boton += `
                     <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
@@ -597,7 +590,7 @@ export async function enviarFormulario(instrucciones) {
             body: cuerpoPeticion
         };
 
-        const respuesta = await fetch(action, config);
+        const respuesta = await fetch(rutaAbsoluta + modulo, config);
         const contentType = respuesta.headers.get('Content-Type');
 
         // Si es una respuesta JSON
@@ -813,7 +806,6 @@ export async function obtenerDatosRegistro(instrucciones) {
     const claseModalObj = $(boton).attr('data-bs-target');
     const claseFormulario = $(boton).attr('claseFormulario') ?? '.formularioAjax';
     let formulario = $(claseModalObj).find(claseFormulario);
-
     const idRegistro = $(boton).attr('value');
     const respuesta = await pedirDatosAjax({
         modulo,
@@ -828,13 +820,12 @@ export async function obtenerDatosRegistro(instrucciones) {
     });
     const datosNoAgrupados = respuesta.datosNoAgrupados ?? respuesta;
 
-    const inputs = formulario.find('.formularioActualizar');
+    const inputs = formulario.find('select,input');
     inputs.each((indice, input) => {
-        const nombreCampo = input.name; // Obtener el atributo "name"
+        console.log('name: ', input.name)
+        console.log('datos: ', datosNoAgrupados)
+        const nombreCampo = input.name;
         if (Object.prototype.hasOwnProperty.call(datosNoAgrupados, nombreCampo)) {
-            if (nombreCampo == 'fecha_inicio_promocion' || nombreCampo == 'fecha_fin_promocion') {
-                datosNoAgrupados[nombreCampo] = cambiarFormatosString(datosNoAgrupados[nombreCampo], 'fecha');
-            }
             input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input
         }
     });
@@ -1160,6 +1151,17 @@ function cargarModuloSeleccionaSidebar() {
         })
     }
 }
+function initNotificaciones() {
+    $('.headerPrincipal').find('.custom-dropdown').on('show.bs.dropdown', function () {
+        let that = $(this);
+        setTimeout(function () {
+            that.find('.dropdown-menu').addClass('active');
+        }, 100);
+    });
+    $('.custom-dropdown').on('hide.bs.dropdown', function () {
+        $(this).find('.dropdown-menu').removeClass('active');
+    });
+}
 //#endregion [ DINAMISMO DEL HTML ] FIN
 
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
@@ -1181,11 +1183,44 @@ $(document).on('DOMContentLoaded', async function (e) {
     })
 
     cargarModuloSeleccionaSidebar();
+    initNotificaciones();
+
+    extraerDatosAjax({
+        modulosPeticion: ['roles'],
+        accionesPeticion: [{ accion: 'listar' }],
+        tipoElemento: ['select'],
+        elementosDestino: [$('.selectRoles')],
+        datosInsertar: [{
+            texto: 'nombre_rol',
+            value: 'id_rol',
+            textoDefault: 'Seleccione una opción'
+        }]
+    });
 });
 
 //Cerrar sesión
 $(document).off('click', '.btnCerrarSession')
 $(document).on('click', '.btnCerrarSession', function () {
     cerrarSession();
+})
+
+//Formulario del perfil
+$(document).off('submit', '.formularioPerfil')
+$(document).on('submit', '.formularioPerfil', function (e) {
+    e.preventDefault();
+    enviarFormulario({
+        'formulario': this,
+        'modulo': 'usuarios'
+    });
+})
+
+//Plasmar los datos en el formulario de los usuarios
+$(document).off('click', '.btnEditarPerfil')
+$(document).on('click', '.btnEditarPerfil', function () {
+    obtenerDatosRegistro({
+        boton: this,
+        campoId: 'cedula_usuario',
+        modulo: 'usuarios',
+    });
 })
 //#endregion [ DELEGACIÓN DE EVENTOS ] FIN

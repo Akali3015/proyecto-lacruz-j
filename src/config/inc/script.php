@@ -6,12 +6,11 @@
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+<script src="/proyecto-lacruz-j/src/assets/js/plugins/chart.min.js"></script>
 
 <?php
     $directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';
-    if (
-        $_SESSION['vistaActual'] == 'login' || $_SESSION['vistaActual']==''
-    ){
+    if ($_SESSION['vistaActual'] == 'login'){
         $archivoModulo= $directorioJs.'usuarios.js';
     }else{
         $archivoModulo = $directorioJs.$_SESSION['vistaActual'].'.js';

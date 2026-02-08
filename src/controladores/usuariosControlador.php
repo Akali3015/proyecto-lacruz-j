@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
     $usuario = $_POST['usuario_usuario'] ?? "";
     $contrasena1 = $_POST['contrasena1_usuario'] ?? "";
     $contrasena2 = $_POST['contrasena2_usuario'] ?? "";
+    $contrasena3 = $_POST['contrasena3_usuario'] ?? "";
     $foto = $_FILES['foto_usuario'] ?? "";
 
     $objeto = new usuariosModelo();
@@ -48,14 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
         case "actualizar":
             $resultado = $objeto->actualizarUsuarios(
                 $cedula,
-                $nombre,
-                $apellido,
                 $correo,
                 $telefono,
                 $rol,
                 $usuario,
                 $contrasena1,
-                $contrasena2
+                $contrasena2,
+                $contrasena3,
             );
             echo json_encode($resultado);
             exit();

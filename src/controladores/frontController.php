@@ -6,6 +6,7 @@ class frontController
 {
     private $url;
     private $controladores;
+    private $vistasEstaticas;
     private $archivo;
 
     public function __construct()
@@ -21,8 +22,8 @@ class frontController
                 $this->controladores = [
                     'bitacora',
                     'cambiosIva',
-                    'clientes', 
-                    'compras', 
+                    'clientes',
+                    'compras',
                     'config',
                     'cuentasCobrar',
                     'facturas',
@@ -45,23 +46,34 @@ class frontController
                     'usuarios',
                     'ventas',
                 ];
-
+                $this->vistasEstaticas = [
+                    'dashboard',
+                    'home',
+                    '404'
+                ];
                 if (in_array($this->url, $this->controladores)) {
-                    if (is_file("src/controladores/" . $this->url . "Controlador.php")) {
-                        $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
+                    $archivo = "src/controladores/" . $this->url . "Controlador.php";
+                    if (is_file($archivo)) {
+                        $this->archivo = $archivo;
+                        $_SESSION['vistaActual'] = $this->url;
+                    }
+                }
+                if (in_array($this->url, $this->vistasEstaticas)) {
+                    $archivo = "src/controladores/othersControlador.php";
+                    if (is_file($archivo)) {
+                        $this->archivo = $archivo;
                         $_SESSION['vistaActual'] = $this->url;
                     }
                 }
             }
-
             $this->llamarArchivo();
         } elseif ($this->url == "" || $this->url == "home" || $this->url = null) {
 
             if (isset($_SESSION['cedula'])) {
                 require_once "src/config/inc/header.php";
                 require_once "src/config/inc/sidebar.php";
-                require_once "src/vistas/usuarios/dashboard.php";
-                $_SESSION['vistaActual'] = 'usuarios';
+                require_once "src/vistas/others/home.php";
+                $_SESSION['vistaActual'] = 'home';
             } else {
                 require_once "src/vistas/usuarios/login.php";
                 $_SESSION['vistaActual'] = 'login';
@@ -72,14 +84,14 @@ class frontController
     {
         if (file_exists($this->archivo)) {
             $urlActual = explode("/", $_GET['views']);
-            $url1 = isset($urlActual[0]) ? $urlActual[0] : "";
-            $url2 = isset($urlActual[1]) ? $urlActual[1] : "";
+            $url1 =  $urlActual[0] ?? "";
+            $url2 =  $urlActual[1] ?? "";
             require_once $this->archivo;
         } elseif (isset($_SESSION['cedula'])) {
             require_once "src/config/inc/header.php";
             require_once "src/config/inc/sidebar.php";
-            require_once "src/vistas/usuarios/dashboard.php";
-            $_SESSION['vistaActual'] = 'usuarios';
+            require_once "src/vistas/others/home.php";
+            $_SESSION['vistaActual'] = 'home';
         } else {
             require_once "src/vistas/usuarios/login.php";
             $_SESSION['vistaActual'] = 'login';

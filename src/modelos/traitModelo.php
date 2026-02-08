@@ -10,7 +10,6 @@ use DateInterval;
 use Exception;
 use Throwable;
 
-
 class errorBD extends Exception
 {
     protected $detalles;
@@ -19,15 +18,11 @@ class errorBD extends Exception
         parent::__construct($mensaje, $codigo, $anterior);
         $this->detalles = $detalles;
     }
-
-    // Método para recuperar los datos extras en el catch
     public function getDetalles()
     {
         return $this->detalles;
     }
 }
-
-
 trait traitModelo
 {
 
@@ -57,41 +52,6 @@ trait traitModelo
     }
     public function limpiar_Verificar($campos)
     {
-        /*Ejemplo del uso 
-            $campos=[
-                [
-                    //Para nombrar el datos
-                    "campo_nombre"=>"usuario_nombre",//nombre BD
-                    "campo_valor"=>"", //valor BD
-                    "formulario_nombre"=>"fecha", //nombre para mostrar al usuario
-                    //para validar el formato al final
-                    "expresion_re"=>'',
-                    "requerido"=>true,
-                    "minimo"=>"1",
-                    "maximo"=>"15",
-                    //para cotejar datos que no pueden estar duplicados
-                    "tabla"=>"",
-                    "debeSerUnico"=>true,
-                    //para verificar la existencia de un dato cuando se va a actualizar [para el ID]
-                    "debeExistir",true,
-                    //para verificar si dos campos son iguales [como para confirmaciones de contraseña y demás]
-                    "camposIguales"=>"this->contrasena2",
-                    "camposDiferentes"=>"30485684", //para cotejar si un dato es diferente a un valor específico
-                    "validarLogin"=> //para validar el inicio de sesion
-                        [
-                            "usuario"=>$this->usuarioUsuario,
-                            "contrasena"=> $this->contrasena1Usuario
-                        ],
-                    ]
-                    "VANRA"=> //para validar que se esté introduciendo un valor distinto en la act
-                        [
-                            "atributo"=>"valor_moneda",
-                            "valor"=> $this->valorMoneda
-                        ],
-                    ]
-                ]
-            ];
-        */
         foreach ($campos as &$campo) {
 
             //Para evitar la inyección de SQL

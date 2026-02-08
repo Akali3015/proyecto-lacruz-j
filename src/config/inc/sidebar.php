@@ -8,14 +8,20 @@
                 </a>
             </li>
             <li>
+                <a href="<?php echo APP_URL ?>dashboard" title="Dashboard">
+                    <i class="fi fi-rr-chart-pie-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
                 <a href="<?php echo APP_URL ?>ventas" title="Ventas">
-                    <i class="fi fi-rr-sell"></i>
+                    <i class="fi fi-rr-receipt"></i>
                     <span>Ventas</span>
                 </a>
             </li>
             <li>
                 <a href="<?php echo APP_URL ?>compras">
-                    <i class="fi fi-rr-user"></i>
+                    <i class="fi fi-br-shopping-cart-add"></i>
                     <span>Compras</span>
                 </a>
             </li>
@@ -101,13 +107,13 @@
                     </li>
                     <li>
                         <a href="<?php echo APP_URL ?>servicios" title="Servicios">
-                            <i class="fi fi-rr-box-open"></i>
+                            <i class="fi fi-rr-broom"></i>
                             <span>Servicios</span>
                         </a>
                     </li>
                     <li>
                         <a href="<?php echo APP_URL ?>productos" title="Productos">
-                            <i class="fi fi-rr-box-open"></i>
+                            <i class="fi fi-rr-bin-bottles"></i>
                             <span>Productos</span>
                         </a>
                     </li>
@@ -119,13 +125,13 @@
                     </li>
                     <li>
                         <a href="<?php echo APP_URL ?>insumos" title="Insumos">
-                            <i class="fi fi-rr-flask"></i>
+                            <i class="fi fi-rr-jug-bottle"></i>
                             <span>Insumos</span>
                         </a>
                     </li>
                     <li>
                         <a href="<?php echo APP_URL ?>bitacora" title="Bitácora">
-                            <i class="fi fi-rr-flask"></i>
+                            <i class="fi fi-rr-file-spreadsheet"></i>
                             <span>Bitácora</span>
                         </a>
                     </li>
