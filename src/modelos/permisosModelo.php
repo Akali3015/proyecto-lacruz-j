@@ -146,6 +146,9 @@ class permisosModelo extends conexion
             case 'listarDespachadas':
             case 'listarSinPago':
             case 'cerrarSesion':
+            case 'listarNotificaciones':
+            case 'seleccionarUnaNot':
+            case 'listarAccionesResagadas':
                 $this->permisoVal = 'listar';
                 break;
             case 'actualizarFoto':
@@ -153,10 +156,19 @@ class permisosModelo extends conexion
             case 'cambiarEstado':
             case 'registrarPago':
             case 'cambiarTemaInterfaz':
+            case 'marcarTodasNotComoLeidas':
+            case '':
                 $this->permisoVal = 'actualizar';
                 break;
             case 'registrarToken':
+            case 'registrarNoti':
                 $this->permisoVal = 'registrar';
+                break;
+            case 'eliminarTodasNot':
+                $this->permisoVal = 'eliminar';
+                break;
+            case 'eliminarAccionResagada':
+                $this->permisoVal = 'eliminar';
                 break;
             case 'consultaDashboard':
                 $this->moduloVal = 'dashboard';

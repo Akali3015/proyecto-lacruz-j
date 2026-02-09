@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/select2-bootstrap-5-theme.min.css">
     <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/sweetalert2.min.css">
+    <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/notifier.min.css">
     <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/iconos/uicons/css/all/all.css">
     <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/header.css">
 </head>

@@ -11,100 +11,22 @@
     </div>
     <div class="navbar-nav d-flex flex-row">
       <div class="dropdown custom-dropdown me-3 d-flex justify-content-center align-items-center">
-        <a href="#" data-bs-toggle="dropdown" data-bs-target="dropdown-notificaciones" class="dropdown-link" aria-haspopup="true" aria-expanded="false">
+        <a href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-target="dropdown-notificaciones" class="dropdown-link" aria-haspopup="true" aria-expanded="false">
           <span class="wrap-icon icon-notifications">
             <i class="fi fi-rs-bell fs-4"></i>
           </span>
-          <span class="number fs-6">5</span>
+          <span class="number fs-6 nroNotNoLeidas"></span>
         </a>
         <div class="dropdown-notificaciones dropdown-menu">
           <div class="title-wrap d-flex align-items-center justify-content-between">
-            <h3 class="title mb-0 ms-3 fs-5">Notificaciones</h3>
+            <h3 class="title mb-0 ms-1 fs-6">Notificaciones</h3>
             <a href="#" class="btnMTLNCL small ml-auto me-3 p-2">Marcar todas como leídas</a>
+            <span class="btnETLN" data-bs-toggle="tooltip" data-bs-placement="top" title="Vaciar">
+              <i class="fi fi-rr-trash-clock link-danger iconoCentrado"></i>
+            </span>
           </div>
 
-          <ul class="custom-notifications">
-            <li>
-              <a href="#" class="d-flex align-items-center">
-                <div class="img me-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/errorIcono.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Nueva venta registrada</strong>
-                  <p class="p-0 m-0">Se ha registrado una nueva venta</p>
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="d-flex">
-                <div class="img mr-3">
-                  <img src="<?php echo APP_URL ?>src/assets/images/logo.png" alt="Image" class="img-fluid">
-                </div>
-                <div class="text">
-                  <strong>Devin Richards</strong> mentioned you in her comment on Invoices 2 days ago
-                </div>
-              </a>
-            </li>
+          <ul class="custom-notifications contenedorNotificaciones">
           </ul>
           <!-- <p class="text-center m-0 p-0"><a href="#" class="small">Ver todo</a></p> -->
         </div>
@@ -144,7 +66,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form class="formularioPerfil validar" method="POST" action="" novalidate>
+      <form autocomplete="off" class="formularioPerfil validar" method="POST" action="" novalidate>
         <input type="hidden" name="accion" value="actualizar">
         <div class="modal-body">
           <div class="row">
@@ -189,20 +111,20 @@
               </div>
               <div class="mb-3 form-group">
                 <label for="clave_actual" class="form-label">Contraseña Actual</label>
-                <input type="password" class="form-control" name="contrasena3_usuario"
+                <input autocomplete="off"  type="password" class="form-control" name="contrasena3_usuario"
                   pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
                   maxlength="<?php echo maxRegexContrasena  ?>">
               </div>
               <div class="mb-3 form-group">
                 <label for="clave_nueva" class="form-label">Nueva Contraseña</label>
-                <input type="password" class="form-control" name="contrasena1_usuario"
+                <input autocomplete="off"  type="password" class="form-control" name="contrasena1_usuario"
                   pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
                   maxlength="<?php echo maxRegexContrasena  ?>">
                 <div class="form-text">Mínimo 6 caracteres.</div>
               </div>
               <div class="mb-3 form-group">
                 <label for="confirmar_clave" class="form-label">Confirmar Nueva Contraseña</label>
-                <input type="password" class="form-control" name="contrasena2_usuario"
+                <input autocomplete="off" type="password" class="form-control" name="contrasena2_usuario"
                   pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
                   maxlength="<?php echo maxRegexContrasena  ?>">
               </div>

@@ -1,6 +1,5 @@
 //#region [VARIABLES O CONSTANTES GLOBALES] COMIENZO
 export const rutaAbsoluta = window.location.origin + "/proyecto-lacruz-j/";
-export let esteFormulario;
 export let vista = $('.nombreVista').val();
 export let instanciasDatatable = [];
 export let variableDeError = '';
@@ -215,8 +214,6 @@ export async function listarDataTable(instrucciones) {
             accion: 'listarPorRol'
         }
     });
-
-    console.log(permisos)
 
     let {
         selectorTabla = '.tabla-ajax',
@@ -667,11 +664,10 @@ export async function alertasAjax(alerta) {
         titulo,
         texto,
         formulario = null,
-
     } = alerta
 
     if (alerta.notifier == true) {
-        notifier.show(alerta.titulo, alerta.texto, alerta.icono, rutaAbsoluta + `/app/assets/img/${alerta.icono}Icono.png`, alerta.tiempo ?? 0);
+        notifier.show(alerta.titulo, alerta.texto, alerta.icono, rutaAbsoluta + `/src/assets/images/${alerta.icono}Icono.png`, alerta.tiempo ?? 0);
         return;
     }
     switch (tipo) {
@@ -1121,6 +1117,20 @@ export async function extraerDatosAjax(instrucciones) {
 
 //#region [ DINAMISMO DEL HTML ] COMIENZO
 
+function initSidebar() {
+    const sidebar = $('#sidebar')[0];
+    const sidebarToggle = $('#sidebarToggle')[0];
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    $(document).off('click', '.sidebar-menu li')
+    $(document).on('click', '.sidebar-menu li', function (e) {
+        cambiarEstadoLiSidebar.call(this);
+    })
+}
 function cambiarEstadoLiSidebar() {
     if ($(this).hasClass('activa')) {
         return;
@@ -1162,29 +1172,355 @@ function initNotificaciones() {
         $(this).find('.dropdown-menu').removeClass('active');
     });
 }
+function eliminarAriaHidden() {
+    $('[aria-hidden="true"]').removeAttr('aria-hidden');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                const target = $(mutation.target);
+                if (target.attr('aria-hidden') === 'true') {
+                    // Lo removemos inmediatamente
+                    target.removeAttr('aria-hidden');
+                }
+            }
+        });
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['aria-hidden']
+    });
+}
+function iniciarTooltips() {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+}
 //#endregion [ DINAMISMO DEL HTML ] FIN
+
+// #region [WEBSOCKETS] COMIENZO  
+
+// #region [ CONFIGURACIONES Y FUNCIONES GENERALES ] COMIENZO  
+export let socket;
+export async function iniciarServidorWS() {
+    try {
+        let datosUsuario = await obtenerUsuarioWS();
+        socket = io(
+            'https://api-the-vina-node.onrender.com/',
+            // 'http://localhost:1234/',
+            {
+                reconnection: false,
+                auth: {
+                    datosUsuario: datosUsuario
+                }
+            }
+        )
+
+        let intervaloPollingSinc = false;
+        let intervaloReconexion = false;
+        let nroIntentosMax = 10;
+        let intentos = 0;
+        let activarPollings = () => {
+            if (!intervaloPollingSinc) {
+                intervaloPollingSinc = setInterval(() => {
+                    procesarAccionesResagadas()
+                }, 1000 * 10 * 1)
+            }
+            if (!intervaloReconexion) {
+                intervaloReconexion = setInterval(() => {
+                    if (intentos < nroIntentosMax) {
+                        try {
+                            socket.connect();
+                        } catch (error) {
+
+                        }
+                        intentos++;
+                    }
+                }, 1000 * 30 * 1)
+            }
+        }
+        let desactivarPollings = () => {
+            if (intervaloPollingSinc) {
+                clearInterval(intervaloPollingSinc);
+                intervaloPollingSinc = false;
+            }
+            if (intervaloReconexion) {
+                clearInterval(intervaloReconexion);
+                intervaloReconexion = false;
+            }
+        }
+
+        socket.on('mensajeServidor', (msj) => {
+            procesarMensajeWS(msj);
+        });
+        socket.on('connect', () => {
+            intentos = 0;
+            desactivarPollings();
+        });
+        socket.on('disconnect', () => {
+            activarPollings();
+        });
+        socket.on('connect_error', (error) => {
+            activarPollings();
+        });
+    } catch (error) {
+    }
+}
+export async function procesarMensajeWS(instruccionesMsj) {
+    if (typeof instruccionesMsj == 'string') {
+        instruccionesMsj = JSON.parse(instruccionesMsj);
+    }
+
+    let EARBD = async (msj) => { //Eliminar Accion Resagada en la BD
+        await pedirDatosAjax({
+            'noGuardarLocal': true,
+            'JSONstring': true,
+            'modulo': 'mensajesWS',
+            'datosPe': {
+                'accion': "eliminarAccionResagada",
+                'AccionMsj': msj
+            }
+        })
+    }
+    let procesarMsj = async (msj) => {
+
+        let {
+            accion,
+            modulo = false,
+            alerta = false,
+        } = msj
+
+        switch (accion) {
+            case "actDT":
+                if (modulo == modulo) {
+                    reiniciarDataTables();
+                    await EARBD(msj);
+                }
+                break;
+            case "actPrecioDolar":
+                if (!msj.precioDolar) {
+                    cargarPrecioDolar();
+                } else {
+                    $('.tipoDeDolarPrecio').empty();
+                    $('.tipoDeDolarPrecio').append(`<a href="https://www.bcv.org.ve/">Precio del BCV</a>`);
+                    $('.contenedorPrecioDolar').find('.precio_dolar').text(parseFloat(msj.precioDolar).toFixed(2));
+                    let infoDolarWS = {
+                        'precio': msj.precioDolar,
+                        'tipoPrecio': 'Precio del BCV'
+                    }
+                    sessionStorage.setItem('infoDolarWS', JSON.stringify(infoDolarWS));
+                }
+                await EARBD(msj)
+                break;
+            case "alertar":
+                alertasAjax(alerta);
+                listarNotificaciones()
+                break;
+            case "borrarDataModuloSS":
+                let caching = sessionStorage.getItem('cachingModulos') ?? false;
+                if (caching) {
+                    caching = JSON.parse(caching);
+                    let moduloBorrar = caching[modulo] ?? false;
+                    if (moduloBorrar) {
+                        delete caching[modulo];
+                        sessionStorage.setItem('cachingModulos', JSON.stringify(caching))
+                    }
+                }
+                await EARBD(msj)
+                break;
+            default:
+                console.error('Acción no reconocida');
+                break;
+        }
+    }
+
+    if (Array.isArray(instruccionesMsj)) {
+        instruccionesMsj.forEach(msjInd => {
+            procesarMsj(msjInd);
+        });
+    } else {
+        procesarMsj(instruccionesMsj);
+    }
+}
+export const obtenerUsuarioWS = async () => {
+    let header = $('header');
+    let cedula = header.find('.cedulaIS').attr('id_registro');
+    let rol = header.find('.rolIS').text();
+    let ws = {
+        emisor: {
+            cedula,
+            rol
+        }
+    };
+    return ws;
+}
+// #endregion [ CONFIGURACIONES Y FUNCIONES GENERALES ] FIN  
+
+// #region [NOTIFICACIONES DEL SISTEMA] COMIENZO
+export async function listarNotificaciones() {
+    const notificaciones = await pedirDatosAjax({
+        modulo: 'mensajesWS',
+        datosPe: {
+            accion: 'listarNotificaciones'
+        }
+    });
+    console.log('Notificaciones BD: ', notificaciones)
+    let notificacionHTML = ''; let notificacionesNoLeidas = 0;
+
+    if (!notificaciones.icono) {
+        $('.btnETLN').show()
+        $('.btnMTLNCL').addClass('link-primary').removeClass('text-muted').attr('href', '#');
+        notificaciones.forEach(notificacion => {
+
+            let {
+                tipo_notificacion,
+                fecha_creacion_notificacion,
+                status,
+                texto_notificacion,
+                titulo_notificacion,
+            } = notificacion
+
+            let fecha = cambiarFormatos(fecha_creacion_notificacion, 'fecha_hora');
+            fecha = fecha.split(' ');
+            const dia = fecha[0];
+            const hora = fecha[1] + ' ' + fecha[2];
+
+            let bgNotificacion = '';
+            switch (tipo_notificacion) {
+                case 'success':
+                    bgNotificacion = 'bg-light-success';
+                    break;
+                case 'error':
+                    bgNotificacion = 'bg-light-danger';
+                    break;
+                default:
+                    break;
+            }
+            let bgNoLeida = '';
+            if (status == 1) {
+                notificacionesNoLeidas++;
+                bgNoLeida = 'style="background-color: #f0f4fc;"';
+            }
+
+            notificacionHTML += `
+            <li ${bgNoLeida}>
+                <a href="#" class="d-flex align-items-center">
+                    <div class="img me-3 ${bgNotificacion}">
+                        <img src="http://localhost/proyecto-lacruz-j/src/assets/images/${tipo_notificacion}Icono.png" alt="Image" class="img-fluid">
+                    </div>
+                    <div class="text w-100">
+                        <span class="float-end text-muted">${hora}</span>
+                    <strong>${titulo_notificacion}</strong>
+                    <p class="p-0 m-0">${texto_notificacion}</p>
+                    <p class="p-0 m-0">${dia}</p>
+                    </div>
+                </a>
+            </li>
+        `;
+        });
+        $('.contenedorNotificaciones').empty().append(notificacionHTML);
+        $('.nroNotNoLeidas').show().text(notificacionesNoLeidas);
+    } else {
+        $('.btnETLN').hide()
+        $('.btnMTLNCL').removeClass('link-primary').addClass('text-muted').removeAttr('href');
+        $('.nroNotNoLeidas').hide();
+        $('.contenedorNotificaciones').empty().append(`<h3 class="title text-center ms-1 fs-5">SIN NOTIFICACIONES</h3>`);
+
+    }
+}
+export async function marcarNotificacionesComoLeidas() {
+    let resultado = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Seguro de marcar todas las notificaciones como leídas?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (resultado.isConfirmed) {
+        resultado = await pedirDatosAjax({
+            noGuardarLocal: true,
+            modulo: 'mensajesWS',
+            datosPe: {
+                accion: 'marcarTodasNotComoLeidas'
+            }
+        });
+        if (resultado.icono == 'success') {
+            listarNotificaciones();
+            alertasAjax(resultado);
+        } else {
+            alertasAjax(resultado);
+        }
+    }
+}
+export async function vaciarBuzonNotificaciones() {
+    let resultado = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Seguro que desea eliminar todas las notificaciones?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+    });
+    if (resultado.isConfirmed) {
+        resultado = await pedirDatosAjax({
+            noGuardarLocal: true,
+            modulo: 'mensajesWS',
+            datosPe: {
+                accion: 'eliminarTodasNot'
+            }
+        });
+        listarNotificaciones();
+        alertasAjax(resultado);
+    }
+}
+// #endregion [NOTIFICACIONES DEL SISTEMA] FIN
+
+// #region [ACCIONES RESAGADAS] COMIENZO
+export async function procesarAccionesResagadas() {
+    let acciones = await pedirDatosAjax({
+        'noGuardarLocal': true,
+        'modulo': 'mensajesWS',
+        'datosPe': {
+            'accion': 'listarAccionesResagadas'
+        }
+    });
+    const accionesMapeadas = acciones.map(
+        (
+            {
+                nombre_accion: accion,
+                nombre_modulo: modulo
+            }
+        ) => (
+            {
+                accion,
+                modulo
+            }
+        )
+    );
+    procesarMensajeWS(accionesMapeadas)
+}
+// #endregion [ACCIONES RESAGADAS] FIN
+
+// #endregion [WEBSOCKETS] FIN
 
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 //Evento para la precarga datos y eventos
 $(document).on('DOMContentLoaded', async function (e) {
-    const sidebar = document.querySelector('#sidebar');
-    const sidebarToggle = document.querySelector('#sidebarToggle');
-    if (sidebar && sidebarToggle) {
-        sidebarToggle.addEventListener('click', function () {
-            sidebar.classList.toggle('active');
-        });
-    }
-
-    $(document).off('click', '.sidebar-menu li')
-    $(document).on('click', '.sidebar-menu li', function (e) {
-        // e.preventDefault();
-        cambiarEstadoLiSidebar.call(this);
-    })
-
+    initSidebar();
     cargarModuloSeleccionaSidebar();
     initNotificaciones();
-
+    listarNotificaciones()
+    iniciarServidorWS();
+    eliminarAriaHidden();
+    iniciarTooltips()
     extraerDatosAjax({
         modulosPeticion: ['roles'],
         accionesPeticion: [{ accion: 'listar' }],
@@ -1197,6 +1533,18 @@ $(document).on('DOMContentLoaded', async function (e) {
         }]
     });
 });
+
+//Eliminar todas las notificaciones
+$(document).off('click', '.btnETLN')
+$(document).on('click', '.btnETLN', function () {
+    vaciarBuzonNotificaciones();
+})
+
+//Marcar todas las notificaciones como leidas
+$(document).off('click', '.btnMTLNCL')
+$(document).on('click', '.btnMTLNCL', function () {
+    marcarNotificacionesComoLeidas();
+})
 
 //Cerrar sesión
 $(document).off('click', '.btnCerrarSession')

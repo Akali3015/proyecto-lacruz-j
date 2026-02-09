@@ -31,6 +31,7 @@ class frontController
                     'iva',
                     'login',
                     'materiasPrimas',
+                    'mensajesWS',
                     'metodos-pago',
                     'monedas',
                     'permisos',

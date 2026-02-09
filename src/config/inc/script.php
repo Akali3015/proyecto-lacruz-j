@@ -7,6 +7,8 @@
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/jquery.dataTables.min.js"></script>
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/dataTables.bootstrap5.min.js"></script>
 <script src="/proyecto-lacruz-j/src/assets/js/plugins/chart.min.js"></script>
+<script src="/proyecto-lacruz-j/src/assets/js/plugins/notifier.min.js"></script>
+<script src="/proyecto-lacruz-j/src/assets/js/library/socket.io.min.js"></script>
 
 <?php
     $directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';

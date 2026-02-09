@@ -1,0 +1,72 @@
+{
+  "name": "proyecto-lacruz-j",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-jangely:JangelyLacruz/proyecto_lacruzj.git"
+  },
+  "author": "ANDERSON FREITEZ",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jquery": "3.5.33",
+    "esbuild": "0.27.2",
+    "standard": "17.1.2"
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "rules": {
+      "semi": [
+        2,
+        "always"
+      ],
+      "indent": [
+        "error",
+        4,
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "func-call-spacing": [
+        "error",
+        "never"
+      ],
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "keyword-spacing": [
+        "error",
+        {
+          "before": false,
+          "after": false
+        }
+      ],
+      "space-before-blocks": [
+        "error",
+        "never"
+      ],
+      "no-case-declarations": "off",
+      "eqeqeq": "off",
+      "no-constant-condition": "off",
+      "no-new": "off"
+    },
+    "globals": {
+      "$": "readonly",
+      "sessionStorage": "readonly",
+      "localStorage": "readonly",
+      "Swal": "readonly",
+      "FileReader": "readonly",
+      "DateRangePicker": "readonly",
+      "L": "readonly",
+      "jQuery": "readonly",
+      "ApexCharts": "readonly",
+      "Datepicker": "readonly",
+      "Choices": "readonly"
+    }
+  }
+}

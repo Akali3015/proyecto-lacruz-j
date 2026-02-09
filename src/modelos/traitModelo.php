@@ -834,4 +834,676 @@ trait traitModelo
             throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
         }
     }
+    public function hacerPeticionesAPIs(array $instruccionesPe)
+    {
+        $url = $instruccionesPe['url'];
+        $datosPe = $instruccionesPe['datosPe'] ?? '';
+        $metodo = $instruccionesPe['metodo'] ?? 'POST';
+        $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
+        $peticion = curl_init($url);
+        curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
+        if ($metodo == 'POST' || $metodo == 'post') {
+            if ($enviarComoJSON) {
+                $datosPe = json_encode($datosPe);
+                curl_setopt($peticion, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($datosPe)
+                ]);
+                curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
+            } else {
+                curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
+            }
+            curl_setopt($peticion, CURLOPT_POST, true);
+        }
+        $respuesta = curl_exec($peticion);
+
+        // 4. Obtener el código de estado HTTP
+        $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
+
+        if (preg_match('/2\d{2}/', $codigoEstado)) {
+            if (is_string($respuesta)) {
+                return json_decode($respuesta, true);
+            } else {
+                return $respuesta;
+            }
+        } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
+            return [
+                'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion'
+            ];
+        } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
+            return [
+                'error' => 'El o los mensajes no han sido enviados debido a un error en el servidor WebSocket'
+            ];
+        } else {
+            return [
+                'error' => 'El envio del mensaje fallo y no se reconoce el codigo de error que envía el servidor WebSocket'
+            ];
+        }
+    }
+    public function VEYSNEC($instrucciones)
+    {
+        [
+            'tabla' => $tabla,
+            'WHERE' => $WHERE,
+        ] = $instrucciones;
+        $RSEN = $instrucciones['RSEN'] ?? false;
+        $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
+        $camposRetorno = $instrucciones['campos'];
+
+        $camposArray = explode(',', $instrucciones['campos']);
+        $camposArray = array_map(function ($campo) {
+            return trim($campo);
+        }, $camposArray);
+
+        $instruccionesBD = [
+            'campos' => '*',
+            'tabla' => $tabla,
+            'WHERE' => $WHERE ?? [],
+            'eliminadosYVigentes' => $eliminadosYVigentes
+        ];
+        $resultado = $this->seleccionarDatos2($instruccionesBD);
+
+        if ($resultado->rowCount() == 0) {
+            $instruccionesRegistro = [
+                'tabla' => $tabla,
+                'datos' => []
+            ];
+            foreach ($WHERE as $clave => $valor) {
+                $instruccionesRegistro['datos'][$clave] = $valor;
+            };
+            $ultimoId = $this->guardarDatos2($instruccionesRegistro);
+            if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
+                $alerta = [
+                    "tipo" => "simple",
+                    "titulo" => "Registro automático de la tabla {$tabla} no creado",
+                    "texto" => "El Registro automático no ha podido ser creado",
+                    "icono" => "error",
+                ];
+                return $alerta;
+            }
+            $instruccionesBD = [
+                'campos' => $camposRetorno,
+                'tabla' => $tabla,
+                'WHERE' => $WHERE ?? [],
+                'eliminadosYVigentes' => $eliminadosYVigentes
+            ];
+            $resultado = $this->seleccionarDatos2($instruccionesBD);
+            if (count($camposArray) == 1) {
+                return $resultado->fetch(PDO::FETCH_COLUMN);
+            } elseif (count($camposArray) > 1) {
+                return $resultado->fetch(PDO::FETCH_ASSOC);
+            }
+        } else {
+            $info = $resultado->fetch(PDO::FETCH_ASSOC);
+            if ($RSEN == true) {
+                $estado = $info['status'];
+                if ($estado == 0) {
+                    $resultadoAct = $this->actualizarDatos2([
+                        'tabla' => $tabla,
+                        'datos' => [
+                            'status' => 1
+                        ],
+                        'condiciones' => $WHERE
+                    ]);
+                    if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
+                        return $resultadoAct;
+                    } else {
+                        $info['status'] = 1;
+                    }
+                }
+            }
+            if (count($camposArray) == 1) {
+                return $info[$camposArray[0]];
+            } elseif (count($camposArray) > 1) {
+                $resultado = array_intersect_key($info, array_flip($camposArray));
+                return $resultado;
+            }
+        }
+    }
+    public function seleccionarDatos2($instrucciones)
+    {
+        return $this->seleccionarDatosP2($instrucciones);
+    }
+    public function guardarDatos2($instrucciones)
+    {
+        return $this->guardarDatosP2($instrucciones);
+    }
+    public function actualizarDatos2($instrucciones)
+    {
+        return $this->actualizarDatosP2($instrucciones);
+    }
+    public function eliminarDatos2($instrucciones)
+    {
+        return $this->eliminarDatosP2($instrucciones);
+    }
+    private function seleccionarDatosP2($instrucciones)
+    {
+        try {
+            $this->conectar();
+            $campos = $instrucciones['campos'];
+            $tabla = trim($instrucciones['tabla']);
+            $datosJoins = $instrucciones['datosJoins'] ?? false;
+            $registrosEli = $instrucciones['registrosEli'] ?? false;
+            $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? false;
+            $WHERE = $instrucciones['WHERE'] ?? false;
+            $GROUP = $instrucciones['GROUP'] ?? false;
+            $HAVING = $instrucciones['HAVING'] ?? false;
+            $ORDER = $instrucciones['ORDER'] ?? false;
+            $LIMIT = $instrucciones['LIMIT'] ?? false;
+            $patronAS_captura = '/\b(as|AS)\b\s*(.*)/i';
+            $PEL = '';
+            if (preg_match($patronAS_captura, $tabla, $matches)) {
+                $PEL = trim($matches[2]) . '.';
+            }
+            //LOS CAMPOS Y LA TABLA
+            $consulta = 'SELECT ' . $campos . ' FROM ' . $tabla . ' ';
+
+            //INNER JOINS        
+            if ($datosJoins) {
+                foreach ($datosJoins as $tablaDestino => &$conexionLo) {
+                    $patron = '/^\b(LEFT|RIGHT|FULL|OUTER|CROSS|NATURAL)\b/i';
+                    $tipoJoin = 'INNER';
+                    if (preg_match($patron, $tablaDestino, $matches)) {
+                        $tipoJoin = $matches[0] ?? 'INNER';
+                        $palabras = ['INNER', 'LEFT', "RIGHT", "FULL", "OUTER", "CROSS", "NATURAL"];
+                        foreach ($palabras as $palabra) {
+                            $tablaDestino = str_ireplace($palabra, "", $tablaDestino);
+                        }
+                    }
+                    $consulta .= " " . $tipoJoin . " JOIN " . $tablaDestino . " ON " . $conexionLo;
+                }
+            }
+
+            //CONDICIÓN DE ELIMINADO LÓGICO
+            $consulta .= ' WHERE ' . $PEL . 'status ';
+            if ($registrosEli) {
+                $consulta .= '= 0 ';
+            } elseif ($eliminadosYVigentes == true) {
+                $consulta .= '> -1 ';
+            } else {
+                $consulta .= '!= 0 ';
+            }
+
+            $guardarMarcador = function (&$almacenamiento, $campo) {
+                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+                $marcador = ':' . str_ireplace('.', "_", $campo);
+
+                if (!isset($almacenamiento[$campo])) {
+                    $almacenamiento[$campo] = [$marcador];
+                } else {
+                    $marcador .= count($almacenamiento[$campo]);
+                    $almacenamiento[$campo][] = $marcador;
+                }
+                return $marcador;
+            };
+
+            if ($WHERE) {
+                $marcadoresWHERE = [];
+                foreach ($WHERE as $claveW1 => &$valorW1) {
+                    if (!is_array($valorW1)) {
+                        $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
+                        $operadorLo = '=';
+                        if (preg_match($patron_operador, $valorW1, $matches)) {
+                            $operadorLo = $matches[0];
+                            $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+                            foreach ($palabras as $palabra) {
+                                $valorW1 = str_ireplace($palabra, "", $valorW1);
+                            }
+                        }
+
+                        $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                        $consulta .= ' AND ' . $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+                    } else {
+                        foreach ($valorW1 as $operadorW1 => $valoresW1) {
+                            if (!is_array($valoresW1)) {
+                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                                $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                            } else {
+                                $CV = 0;
+                                $operadorW1 = trim($operadorW1);
+                                foreach ($valoresW1 as $v) {
+                                    if ($operadorW1 == '=' && $CV > 0) {
+                                        $UNION = ' OR ';
+                                    } else {
+                                        $UNION = ' AND ';
+                                    }
+                                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                                    $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                                    $CV++;
+                                }
+                            }
+                        }
+                    }
+                }
+                unset($valorW1);
+            }
+            if ($HAVING) {
+                $marcadoresHAVING = [];
+                $consulta .= ' HAVING ';
+                $ch = 0;
+                foreach ($HAVING as $claveH1 => &$valorH1) {
+                    if ($ch > 0) {
+                        $consulta .= ' AND ';
+                    }
+
+                    if (!is_array($valorH1)) {
+                        $patron_operador = '/^(<=|>=|<>|<|>|!=)/';
+                        $operadorLo = '=';
+                        if (preg_match($patron_operador, $valorH1, $matches)) {
+                            $operadorLo = $matches[0];
+                            $palabras = ["<=", ">=", "<>", "<", ">", "!="];
+                            foreach ($palabras as $palabra) {
+                                $valorH1 = str_ireplace($palabra, "", $valorH1);
+                            }
+                        }
+                        $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+                        $consulta .= $claveH1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+                    } else {
+                        foreach ($valorH1 as $operadorH1 => $valoresH1) {
+                            if (is_array($valoresH1)) {
+                                foreach ($valoresH1 as $valor) {
+                                    $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+                                    if (is_array($claveH1) || is_array($operadorH1) || is_array($marcador)) {
+                                        return ['aqui10'];
+                                    }
+                                    $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
+                                }
+                            } else {
+                                $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+                                $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
+                            }
+                        }
+                    }
+                    $ch++;
+                }
+                unset($valorH1);
+            }
+            if ($GROUP) {
+                $consulta .= " GROUP BY " . $GROUP;
+            }
+            if ($ORDER) {
+                $consulta .= " ORDER BY " . $ORDER;
+            }
+            if ($LIMIT) {
+                $consulta .= " LIMIT " . $LIMIT;
+            }
+
+            $consulta = preg_replace('/\s+/', ' ', $consulta);
+            $consulta = $this->conexion->prepare($consulta);
+            if ($WHERE) {
+                foreach ($WHERE as $claveW2 => $valorW2) {
+                    $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+                    if (!is_array($valorW2)) {
+                        $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                        $consulta->bindValue($marcador, $valorW2);
+                    } else {
+                        foreach ($valorW2 as $operadorW2 => $valoresW2) {
+                            if (is_array($valoresW2)) {
+                                foreach ($valoresW2 as $valorInd) {
+                                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                                    $consulta->bindValue($marcador, $valorInd);
+                                }
+                            } else {
+                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                                $consulta->bindValue($marcador, $valoresW2);
+                            }
+                        }
+                    }
+                }
+            }
+            if ($HAVING) {
+
+                foreach ($HAVING as $claveH2 => $valorH2) {
+                    if (!is_array($valorH2)) {
+                        $claveH2 = $this->limpiarCadena($claveH2, 'antiFuncionesSQL');
+                        $marcador = array_shift($marcadoresHAVING[$claveH2]);
+                        $consulta->bindValue($marcador, $valorH2);
+                    } else {
+                        foreach ($valorH2 as $operadorH2 => $valoresH2) {
+                            if (is_array($valoresH2)) {
+                                foreach ($valoresH2 as $valorInd) {
+                                    $marcador = array_shift($marcadoresHAVING[$claveH2]);
+                                    $consulta->bindValue($marcador, $valorInd);
+                                }
+                            } else {
+                                $marcador = array_shift($marcadoresHAVING[$claveH2]);
+                                $consulta->bindValue($marcador, $valoresH2);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $consulta->execute();
+            return $consulta;
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la selección',
+                'linea' => (int)$th->getLine(),
+                'código de error' => (int)$th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'rastro' => $th->getTrace(),
+                'instrucciones' => $instrucciones,
+                'consulta' => $consulta ?? 'Sin consulta',
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
+    }
+    private function guardarDatosP2($instrucciones)
+    {
+        try {
+            [
+                'tabla' => $tabla,
+                'datos' => $datos,
+            ] = $instrucciones;
+            $camposReciclado = $instrucciones['camposReciclado'] ?? false;
+            if (empty($datos) || !is_array($datos)) {
+                throw new \Exception("El parámetro 'datos' está vacío o no es un array en guardarDatosP.");
+            }
+            if (empty($tabla) || $tabla == '') {
+                throw new \Exception("El parámetro 'tabla' está vacío dentro del metodo de guardarDatosP");
+            }
+
+            $this->conectar();
+            $esActualizacion = false;
+            if ($camposReciclado != false) {
+                $instruccionesBD = [
+                    'campos' => '*',
+                    'registrosEli' => true,
+                    'tabla' => $tabla,
+                    'WHERE' => []
+                ];
+                foreach ($camposReciclado as $campo => &$valor) {
+                    $instruccionesBD["WHERE"][$campo] = $valor;
+                }
+                $resultado = $this->seleccionarDatos($instruccionesBD);
+
+                if ($resultado->rowCount() > 0) {
+                    $esActualizacion = true;
+                }
+            }
+            if ($esActualizacion) {
+                $instrucciones['reciclaje'] = true;
+                return $this->actualizarDatos($instrucciones);
+            } else {
+                $query = "INSERT INTO $tabla ";
+
+                $C = 0;
+                $stringCampos = '';
+                $stringMarcadores = '';
+
+                foreach ($datos as $clave => $valor) {
+                    if ($C >= 1) {
+                        $stringCampos .= ', ';
+                        $stringMarcadores .= ', ';
+                    }
+                    $stringCampos .= $clave;
+                    $marcador = ':' . str_ireplace('.', "_", $clave);
+                    $stringMarcadores .= $marcador;
+                    $C++;
+                }
+                $query .= '(' . $stringCampos . ') VALUES (' . $stringMarcadores . ')';
+                $sql = $this->conexion->prepare($query);
+
+                foreach ($datos as $clave => $valor) {
+                    $marcador = ':' . str_ireplace('.', "_", $clave);
+                    $sql->bindValue($marcador, $valor);
+                }
+                $sql->execute();
+
+                //Porque el ID puede o no ser autoincremental
+                if ($this->conexion->lastInsertId() > 0) {
+                    return $this->conexion->lastInsertId();
+                } else {
+                    return $sql->rowCount();
+                }
+            }
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la inserción',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'rastro' => $th->getTrace(),
+                'instrucciones' => $instrucciones
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
+    }
+    private function actualizarDatosP2($instrucciones)
+    {
+        try {
+            $this->conectar();
+            [
+                'tabla' => $tabla,
+                'datos' => $datos,
+            ] = $instrucciones;
+            $condiciones = $instrucciones['camposReciclado'] ?? $instrucciones['condiciones'];
+            $reciclaje = $instrucciones['reciclaje'] ?? false;
+
+            //comenzamos la consulta SQL
+            $consulta = "UPDATE $tabla SET ";
+
+            $C=0;
+            foreach ($datos as $campoClave => $campoValor) {
+                if ($C >= 1) {
+                    $consulta .= ",";
+                }
+                $marcador = ':' . str_ireplace('.', "_", $campoClave);
+                $consulta .= $campoClave . " = " . $marcador;
+                $C++;
+            }
+
+            if ($reciclaje) {
+                $consulta .= ', status = 1';
+            }
+            $consulta .= " WHERE ";
+            $guardarMarcador = function (&$almacenamiento, $campo) {
+                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+                $marcador = ':' . str_ireplace('.', "_", $campo);
+                if (!isset($almacenamiento[$campo])) {
+                    $almacenamiento[$campo] = [$marcador];
+                } else {
+                    $marcador .= count($almacenamiento[$campo]);
+                    $almacenamiento[$campo][] = $marcador;
+                }
+                return $marcador;
+            };
+
+            $marcadoresWHERE = [];
+
+            $c2 = 0;
+            foreach ($condiciones as $claveW1 => &$valorW1) {
+                if($c2!=0){
+                    $consulta .= ' AND ';
+                }
+                if (!is_array($valorW1)) {
+                    $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
+                    $operadorLo = '=';
+                    if (preg_match($patron_operador, $valorW1, $matches)) {
+                        $operadorLo = $matches[0];
+                        $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+                        foreach ($palabras as $palabra) {
+                            $valorW1 = str_ireplace($palabra, "", $valorW1);
+                        }
+                    }
+
+                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                    $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+                } else {
+                    foreach ($valorW1 as $operadorW1 => $valoresW1) {
+                        if (!is_array($valoresW1)) {
+                            $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                            $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                        } else {
+                            $CV = 0;
+                            $operadorW1 = trim($operadorW1);
+                            foreach ($valoresW1 as $v) {
+                                if ($operadorW1 == '=' && $CV > 0) {
+                                    $UNION = ' OR ';
+                                } else {
+                                    $UNION = ' AND ';
+                                }
+                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                                $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                                $CV++;
+                            }
+                        }
+                    }
+                }
+                $c2++;
+            }
+            unset($valorW1);
+            $sql = $this->conexion->prepare($consulta);
+            
+            foreach ($datos as $campoClave2 => $valorCampo2) {
+                $marcador = ':' . str_ireplace('.', "_", $campoClave2);
+                $sql->bindValue($marcador, $valorCampo2);
+            }
+
+            foreach ($condiciones as $claveW2 => $valorW2) {
+                $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+                if (!is_array($valorW2)) {
+                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                    $sql->bindValue($marcador, $valorW2);
+                } else {
+                    foreach ($valorW2 as $operadorW2 => $valoresW2) {
+                        if (is_array($valoresW2)) {
+                            foreach ($valoresW2 as $valorInd) {
+                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                                $sql->bindValue($marcador, $valorInd);
+                            }
+                        } else {
+                            $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                            $sql->bindValue($marcador, $valoresW2);
+                        }
+                    }
+                }
+            }
+
+
+            $sql->execute();
+            return $sql->rowCount();
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la actualización',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'consulta' => $consulta,
+                'rastro' => $th->getTrace(),
+                'instrucciones' => $instrucciones
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
+    }
+    private function eliminarDatosP2($instrucciones)
+    {
+        try {
+            [
+                'tabla' => $tabla,
+                'WHERE' => $WHERE,
+            ] = $instrucciones;
+            $permanentemente = $instrucciones['fisico'] ?? false;
+
+            $this->conectar();
+            $consulta = '';
+            if ($permanentemente == true) {
+                $consulta .= "DELETE FROM $tabla";
+            } else {
+                $consulta .= "UPDATE $tabla SET status = 0";
+            }
+            $consulta .= " WHERE ";
+
+            $guardarMarcador = function (&$almacenamiento, $campo) {
+                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+                $marcador = ':' . str_ireplace('.', "_", $campo);
+
+                if (!isset($almacenamiento[$campo])) {
+                    $almacenamiento[$campo] = [$marcador];
+                } else {
+                    $marcador .= count($almacenamiento[$campo]);
+                    $almacenamiento[$campo][] = $marcador;
+                }
+                return $marcador;
+            };
+
+            $marcadoresWHERE = [];
+            $c = 0;
+            foreach ($WHERE as $claveW1 => &$valorW1) {
+                if ($c > 0) {
+                    $consulta .= ' AND ';
+                }
+
+                if (!is_array($valorW1)) {
+                    $patron_operador = '/\b(<=|>=|<>|<|>|=|!==|===|!=|==)\b/';
+                    $operadorLo = '=';
+                    if (preg_match($patron_operador, $valorW1, $matches)) {
+                        $operadorLo = $matches[0];
+                        $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+                        foreach ($palabras as $palabra) {
+                            $valorW1 = str_ireplace($palabra, "", $valorW1);
+                        }
+                    }
+
+                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                    $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+                } else {
+                    foreach ($valorW1 as $operadorW1 => $valoresW1) {
+                        if (!is_array($valoresW1)) {
+                            $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                            $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                        } else {
+                            foreach ($valoresW1 as $v) {
+
+                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                                $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                            }
+                        }
+                    }
+                }
+                $c++;
+            }
+            unset($valorW1);
+
+            $consulta = preg_replace('/\s+/', ' ', $consulta);
+            $consulta = $this->conexion->prepare($consulta);
+
+            foreach ($WHERE as $claveW2 => $valorW2) {
+                $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+                if (!is_array($valorW2)) {
+                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                    $consulta->bindValue($marcador, $valorW2);
+                } else {
+                    foreach ($valorW2 as $operadorW2 => $valoresW2) {
+                        if (is_array($valoresW2)) {
+                            foreach ($valoresW2 as $valorInd) {
+                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                                $consulta->bindValue($marcador, $valorInd);
+                            }
+                        } else {
+                            $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                            $consulta->bindValue($marcador, $valoresW2);
+                        }
+                    }
+                }
+            }
+            $consulta->execute();
+            return $consulta;
+        } catch (\Throwable $th) {
+            $this->rollback();
+            $error = [
+                'titulo' => 'Error en la eliminación',
+                'linea' => $th->getLine(),
+                'código de error' => $th->getCode(),
+                'mensaje de error' => $th->getMessage(),
+                'rastro' => $th->getTrace(),
+                'instrucciones' => $instrucciones
+            ];
+            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+        }
+    }
 }

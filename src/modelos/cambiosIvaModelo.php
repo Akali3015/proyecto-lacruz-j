@@ -4,6 +4,7 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
+use src\modelos\mensajesWSModelo;
 use PDO;
 use PDOException;
 use Exception;
@@ -139,10 +140,10 @@ class cambiosIvaModelo extends conexion
                 "texto" => "El valor del IVA ha sido actualizado exitosamente",
                 "icono" => "success",
             ];
-            $objetoBitacora->registrarBitacora('Cambios del IVA','registrarIva','éxito');
+            $objetoBitacora->registrarBitacora('cambiosIva','registrarIva','éxito');
             $this->commit();
         } else {
-            $objetoBitacora->registrarBitacora('Cambios del IVA','registrarIva','Fallido');
+            $objetoBitacora->registrarBitacora('cambiosIva','registrarIva','Fallido');
             $alerta = [
                 "tipo" => "simple",
                 "titulo" => "Valor no actualizado",
@@ -150,6 +151,34 @@ class cambiosIvaModelo extends conexion
                 "icono" => "error",
             ];
         }
+        $objetoNot = new mensajesWSModelo();
+            $objetoNot->enviarMensajesWS(
+                [
+                    "receptor" => [
+                        'tipo' => 'todosSinExcepcion',
+                    ],
+                    'cuerpo' => [
+                        [
+                            'accion' => "borrarDataModuloSS",
+                            'modulo' => 'cambiosIva'
+                        ],
+                        [
+                            'accion' => "actDT",
+                            'modulo' => 'cambiosIva'
+                        ],
+                        [
+                            'accion' => 'alertar',
+                            'alerta' => [
+                                'tipo' => 'simple',
+                                'titulo' => 'Precio del IVA actualizado',
+                                'texto' => 'El precio del IVA ha sido actualizado',
+                                'icono' => 'info',
+                                'notifier' => true,
+                            ]
+                        ]
+                    ],
+                ]
+            );
         return $alerta;
     }
 }

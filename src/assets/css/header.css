@@ -673,11 +673,23 @@ i {
 }
 
 .btnMTLNCL{
-    
     border-radius: 3px;
 }
-.btnMTLNCL:hover{
+.btnMTLNCL.link-primary:hover{
     background-color:#007bff84;;
+}
+.iconoCentrado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btnETLN{
+    padding: 10px;
+}
+.btnETLN:hover{
+    border-radius: 5px;
+    background-color: rgb(255, 0, 0,0.2);
+    cursor:pointer
 }
 
 
