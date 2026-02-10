@@ -155,7 +155,6 @@ async function inicializarModalProducto(modal) {
         }
 
     } catch (error) {
-        console.error("Error al inicializar modal:", error);
         modal.find(".contenedor-presentaciones").html(`
             <div class="col-12">
                 <div class="alert alert-danger">

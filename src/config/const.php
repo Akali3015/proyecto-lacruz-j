@@ -65,6 +65,7 @@
     const minRegexCorreo='10';
     const maxRegexCorreo='255';
 
+    
     const regexUsuario='^(?=.*[0-9].*[0-9])(?=.{8,}).*$';
     const minRegexUsuario='8';
     const maxRegexUsuario='20';

@@ -1286,20 +1286,6 @@ trait traitModelo
             //comenzamos la consulta SQL
             $consulta = "UPDATE $tabla SET ";
 
-            $C=0;
-            foreach ($datos as $campoClave => $campoValor) {
-                if ($C >= 1) {
-                    $consulta .= ",";
-                }
-                $marcador = ':' . str_ireplace('.', "_", $campoClave);
-                $consulta .= $campoClave . " = " . $marcador;
-                $C++;
-            }
-
-            if ($reciclaje) {
-                $consulta .= ', status = 1';
-            }
-            $consulta .= " WHERE ";
             $guardarMarcador = function (&$almacenamiento, $campo) {
                 $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
                 $marcador = ':' . str_ireplace('.', "_", $campo);
@@ -1311,12 +1297,26 @@ trait traitModelo
                 }
                 return $marcador;
             };
+            $marcadoresConsulta = [];
 
-            $marcadoresWHERE = [];
+            $C = 0;
+            foreach ($datos as $campoClave => $campoValor) {
+                if ($C >= 1) {
+                    $consulta .= ",";
+                }
+                $marcador = $guardarMarcador($marcadoresConsulta, $campoClave);
+                $consulta .= $campoClave . " = " . $marcador;
+                $C++;
+            }
+
+            if ($reciclaje) {
+                $consulta .= ', status = 1';
+            }
+            $consulta .= " WHERE ";
 
             $c2 = 0;
             foreach ($condiciones as $claveW1 => &$valorW1) {
-                if($c2!=0){
+                if ($c2 != 0) {
                     $consulta .= ' AND ';
                 }
                 if (!is_array($valorW1)) {
@@ -1329,8 +1329,7 @@ trait traitModelo
                             $valorW1 = str_ireplace($palabra, "", $valorW1);
                         }
                     }
-
-                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                    $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
                     $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
                 } else {
                     foreach ($valorW1 as $operadorW1 => $valoresW1) {
@@ -1346,7 +1345,7 @@ trait traitModelo
                                 } else {
                                     $UNION = ' AND ';
                                 }
-                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                                $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
                                 $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
                                 $CV++;
                             }
@@ -1357,33 +1356,31 @@ trait traitModelo
             }
             unset($valorW1);
             $sql = $this->conexion->prepare($consulta);
-            
+
             foreach ($datos as $campoClave2 => $valorCampo2) {
-                $marcador = ':' . str_ireplace('.', "_", $campoClave2);
+                $marcador = array_shift($marcadoresConsulta[$campoClave2]);
                 $sql->bindValue($marcador, $valorCampo2);
             }
 
             foreach ($condiciones as $claveW2 => $valorW2) {
                 $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
                 if (!is_array($valorW2)) {
-                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                    $marcador = array_shift($marcadoresConsulta[$claveW2]);
                     $sql->bindValue($marcador, $valorW2);
                 } else {
                     foreach ($valorW2 as $operadorW2 => $valoresW2) {
                         if (is_array($valoresW2)) {
                             foreach ($valoresW2 as $valorInd) {
-                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                                $marcador = array_shift($marcadoresConsulta[$claveW2]);
                                 $sql->bindValue($marcador, $valorInd);
                             }
                         } else {
-                            $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                            $marcador = array_shift($marcadoresConsulta[$claveW2]);
                             $sql->bindValue($marcador, $valoresW2);
                         }
                     }
                 }
             }
-
-
             $sql->execute();
             return $sql->rowCount();
         } catch (\Throwable $th) {
@@ -1458,7 +1455,6 @@ trait traitModelo
                             $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
                         } else {
                             foreach ($valoresW1 as $v) {
-
                                 $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
                                 $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
                             }

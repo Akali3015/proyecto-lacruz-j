@@ -18,9 +18,12 @@ class comprasModelo extends conexion
     private $fechaCompra;
     private $detalles;
 
-    public function listarCompras()
+    public function listarCompras($tipo)
     {
-        return $this->listarComprasP();
+        if($tipo=='completo'){
+
+        }
+        return $this->listarComprasP($tipo);
     }
     public function registrarCompra($rifProveedor, $cedulaUsuario, $fechaCompra, $detalles)
     {
@@ -71,165 +74,14 @@ class comprasModelo extends conexion
             ];
         }
     }
-    // Eliminar compra (eliminación lógica)
-    public function eliminarCompra($idCompra)
+
+    private function listarComprasP($tipo)
     {
-        try {
-            $this->conectar();
+        if($tipo=='completo'){
+            // todos los datos de la BD
+        }elseif(){
 
-            // Eliminación lógica (cambiar status a 0)
-            // El 4to parámetro false = eliminación lógica, true = eliminación permanente
-            $resultado = $this->eliminarDatosP('compras', 'id_compra', $idCompra, false);
-
-            $this->commit();
-
-            if ($resultado) {
-                return [
-                    "tipo" => "recargar",
-                    "titulo" => "Compra Eliminada",
-                    "texto" => "La compra ha sido eliminada correctamente",
-                    "icono" => "success"
-                ];
-            } else {
-                return [
-                    "tipo" => "simple",
-                    "titulo" => "Error",
-                    "texto" => "No se pudo eliminar la compra",
-                    "icono" => "error"
-                ];
-            }
-        } catch (Exception $e) {
-            $this->rollback();
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al eliminar la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
         }
-    }
-    // Obtener compra por ID
-    public function obtenerCompra($idCompra)
-    {
-        try {
-            $this->conectar();
-
-            $instruccionesBD = [
-                'campos' => 'c.*, p.razon_social_proveedor',
-                'tabla' => 'compras c',
-                'PEL' => 'c',
-                'datosJoins' => [
-                    [
-                        'TablaDestino' => 'proveedores p',
-                        'conexionLo' => 'c.rif_proveedor = p.rif_proveedor'
-                    ]
-                ],
-                'WHERE' => [
-                    [
-                        'condicion_campo' => 'c.id_compra',
-                        'condicion_marcador' => ':id',
-                        'condicion_valor' => $idCompra,
-                        'comparacion' => '='
-                    ]
-                ]
-            ];
-
-            $resultado = $this->seleccionarDatos($instruccionesBD);
-            $compra = $resultado->fetch();
-
-            if ($compra) {
-                return $compra;
-            } else {
-                return [
-                    "tipo" => "simple",
-                    "titulo" => "Error",
-                    "texto" => "No se encontró la compra",
-                    "icono" => "error"
-                ];
-            }
-        } catch (Exception $e) {
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al obtener la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-    // Actualizar compra (solo información general)
-    public function actualizarCompra($idCompra, $rifProveedor, $cedulaUsuario, $fechaCompra)
-    {
-        try {
-            $this->conectar();
-
-            // Validar que la compra existe
-            $campos = [
-                [
-                    "campo_nombre" => "id_compra",
-                    "campo_valor" => $idCompra,
-                    "formulario_nombre" => "ID de compra",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "compras",
-                    "debeExistir" => true,
-                ]
-            ];
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-            }
-
-            // Actualizar los datos
-            $instrucciones = [
-                'tabla' => 'compras',
-                'datos' => [
-                    ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $rifProveedor],
-                    ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedulaUsuario],
-                    ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $fechaCompra],
-                ],
-                'condiciones' => [
-                    [
-                        "condicion_campo" => "id_compra",
-                        "condicion_marcador" => ":id",
-                        "condicion_valor" => $idCompra,
-                        "comparacion" => "="
-                    ]
-                ]
-            ];
-
-            $resultado = $this->actualizarDatos($instrucciones);
-
-            $this->commit();
-
-            // Registrar en bitácora
-            $bitacora = new bitacoraModelo();
-            $bitacora->registrarBitacora(
-                "Actualización",
-                "compras",
-                "Se actualizó la compra con ID: " . $idCompra
-            );
-
-            return [
-                "tipo" => "recargar",
-                "titulo" => "Compra Actualizada",
-                "texto" => "La compra se actualizó correctamente",
-                "icono" => "success"
-            ];
-        } catch (Exception $e) {
-            $this->rollback();
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al actualizar la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-    
-    private function listarComprasP()
-    {
         // UNION de las 3 tablas de detalles para mostrar todos los items comprados
         $sql = "
             SELECT 
@@ -285,11 +137,10 @@ class comprasModelo extends conexion
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            return [
-                'error'=>$e
-            ];
+            return [];
         }
     }
+
     private function registrarCompraP()
     {
         try {
@@ -297,13 +148,11 @@ class comprasModelo extends conexion
             // 1. Registrar la compra (cabecera)
             $datos_compra = [
                 ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $this->rifProveedor],
+                ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $this->cedulaUsuario],
                 ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $this->fechaCompra],
             ];
 
             $idCompra = $this->guardarDatos('compras', $datos_compra);
-
-            error_log("ID Compra devuelto: " . var_export($idCompra, true));
-            error_log("Datos compra: " . json_encode($datos_compra));
 
             if (!$idCompra) {
                 throw new Exception("Error al registrar la compra");
@@ -453,6 +302,7 @@ class comprasModelo extends conexion
             ];
         }
     }
+
     private function actualizarStock($tabla, $campoId, $campoStock, $id, $cantidad)
     {
         $sql = "UPDATE $tabla SET $campoStock = $campoStock + :cantidad WHERE $campoId = :id";
@@ -460,5 +310,344 @@ class comprasModelo extends conexion
         $stmt->bindParam(':cantidad', $cantidad);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+    }
+
+    // Eliminar compra (eliminación lógica)
+    public function eliminarCompra($idCompra)
+    {
+        return $this->eliminarCompraP($idCompra);
+    }
+
+    // Obtener compra por ID
+    public function obtenerCompra($idCompra)
+    {
+        try {
+            $this->conectar();
+
+            $instruccionesBD = [
+                'campos' => 'c.*, p.razon_social_proveedor',
+                'tabla' => 'compras c',
+                'PEL' => 'c',
+                'datosJoins' => [
+                    [
+                        'TablaDestino' => 'proveedores p',
+                        'conexionLo' => 'c.rif_proveedor = p.rif_proveedor'
+                    ]
+                ],
+                'WHERE' => [
+                    [
+                        'condicion_campo' => 'c.id_compra',
+                        'condicion_marcador' => ':id',
+                        'condicion_valor' => $idCompra,
+                        'comparacion' => '='
+                    ]
+                ]
+            ];
+            $resultado = $this->seleccionarDatos($instruccionesBD);
+            $compra = $resultado->fetch();
+
+            if ($compra) {
+                return $compra;
+            } else {
+                return [
+                    "tipo" => "simple",
+                    "titulo" => "Error",
+                    "texto" => "No se encontró la compra",
+                    "icono" => "error"
+                ];
+            }
+        } catch (Exception $e) {
+            return [
+                "tipo" => "simple",
+                "titulo" => "Error",
+                "texto" => "Error al obtener la compra: " . $e->getMessage(),
+                "icono" => "error"
+            ];
+        }
+    }
+
+    // Actualizar compra (solo información general)
+    public function actualizarCompra($idCompra, $rifProveedor, $cedulaUsuario, $fechaCompra)
+    {
+        try {
+            $this->conectar();
+
+            // Validar que la compra existe
+            $campos = [
+                [
+                    "campo_nombre" => "id_compra",
+                    "campo_valor" => $idCompra,
+                    "formulario_nombre" => "ID de compra",
+                    "requerido" => true,
+                    "minimo" => minRegexId,
+                    "maximo" => maxRegexId,
+                    "expresion_re" => regexId,
+                    "tabla" => "compras",
+                    "debeExistir" => true,
+                ]
+            ];
+            $respuesta = $this->limpiar_Verificar($campos);
+            if ($respuesta !== false) {
+                return $respuesta;
+            }
+
+            // Actualizar los datos
+            $instrucciones = [
+                'tabla' => 'compras',
+                'datos' => [
+                    ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $rifProveedor],
+                    ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedulaUsuario],
+                    ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $fechaCompra],
+                ],
+                'condiciones' => [
+                    [
+                        "condicion_campo" => "id_compra",
+                        "condicion_marcador" => ":id",
+                        "condicion_valor" => $idCompra,
+                        "comparacion" => "="
+                    ]
+                ]
+            ];
+
+            $resultado = $this->actualizarDatos($instrucciones);
+
+            $this->commit();
+
+            // Registrar en bitácora
+            $bitacora = new bitacoraModelo();
+            $bitacora->registrarBitacora(
+                "Actualización",
+                "compras",
+                "Se actualizó la compra con ID: " . $idCompra
+            );
+
+            return [
+                "tipo" => "recargar",
+                "titulo" => "Compra Actualizada",
+                "texto" => "La compra se actualizó correctamente",
+                "icono" => "success"
+            ];
+        } catch (Exception $e) {
+            $this->rollback();
+            return [
+                "tipo" => "simple",
+                "titulo" => "Error",
+                "texto" => "Error al actualizar la compra: " . $e->getMessage(),
+                "icono" => "error"
+            ];
+        }
+    }
+
+    /**
+     * Inserta una nueva compra en la base de datos
+     * 
+     * @param string $rifProveedor
+     * @param int $cedulaUsuario
+     * @param string $fechaCompra
+     * @return int ID de la compra insertada
+     */
+    public function insertarCompra($rifProveedor, $cedulaUsuario, $fechaCompra)
+    {
+        return $this->insertarCompraP($rifProveedor, $cedulaUsuario, $fechaCompra);
+    }
+
+    /**
+     * Inserta un detalle de producto en la compra
+     */
+    public function insertarDetalleProducto($idCompra, $idProducto, $cantidad, $idUnidadMedida)
+    {
+        return $this->insertarDetalleProductoP($idCompra, $idProducto, $cantidad, $idUnidadMedida);
+    }
+
+    /**
+     * Inserta un detalle de insumo en la compra
+     */
+    public function insertarDetalleInsumo($idCompra, $idInsumo, $cantidad, $idUnidadMedida)
+    {
+        return $this->insertarDetalleInsumoP($idCompra, $idInsumo, $cantidad, $idUnidadMedida);
+    }
+
+    /**
+     * Inserta un detalle de materia prima en la compra
+     */
+    public function insertarDetalleMateriaPrima($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida)
+    {
+        return $this->insertarDetalleMateriaPrimaP($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida);
+    }
+
+    /**
+     * Incrementa el stock de un producto
+     */
+    public function incrementarStockProducto($idProducto, $cantidad)
+    {
+        return $this->incrementarStockProductoP($idProducto, $cantidad);
+    }
+
+    /**
+     * Incrementa el stock de un insumo
+     */
+    public function incrementarStockInsumo($idInsumo, $cantidad)
+    {
+        return $this->incrementarStockInsumoP($idInsumo, $cantidad);
+    }
+
+    /**
+     * Incrementa el stock de una materia prima
+     */
+    public function incrementarStockMateriaPrima($idMateriaPrima, $cantidad)
+    {
+        return $this->incrementarStockMateriaPrimaP($idMateriaPrima, $cantidad);
+    }
+
+    /**
+     * Inicia una transacción
+     */
+    public function iniciarTransaccion()
+    {
+        $this->iniciarTransaccionP();
+    }
+
+    /**
+     * Confirma una transacción
+     */
+    public function confirmarTransaccion()
+    {
+        $this->confirmarTransaccionP();
+    }
+
+    /**
+     * Revierte una transacción
+     */
+    public function revertirTransaccion()
+    {
+        $this->revertirTransaccionP();
+    }
+
+    // ==========================================
+    // MÉTODOS PRIVADOS CON INTERACCIÓN BD
+    // ==========================================
+
+    /**
+     * Inserta una nueva compra en la base de datos (operación BD)
+     */
+    private function insertarCompraP($rifProveedor, $cedulaUsuario, $fechaCompra)
+    {
+        $this->conectar();
+
+        $datos = [
+            ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $rifProveedor],
+            ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedulaUsuario],
+            ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $fechaCompra],
+        ];
+
+        return $this->guardarDatos('compras', $datos);
+    }
+
+    /**
+     * Inserta un detalle de producto (operación BD)
+     */
+    private function insertarDetalleProductoP($idCompra, $idProducto, $cantidad, $idUnidadMedida)
+    {
+        $datos = [
+            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
+            ["campo_nombre" => "id_producto", "campo_marcador" => ":id_producto", "campo_valor" => $idProducto],
+            ["campo_nombre" => "cantidad_producto", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
+            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
+        ];
+
+        return $this->guardarDatos('productos_compras', $datos);
+    }
+
+    /**
+     * Inserta un detalle de insumo (operación BD)
+     */
+    private function insertarDetalleInsumoP($idCompra, $idInsumo, $cantidad, $idUnidadMedida)
+    {
+        $datos = [
+            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
+            ["campo_nombre" => "id_insumo", "campo_marcador" => ":id_insumo", "campo_valor" => $idInsumo],
+            ["campo_nombre" => "cantidad_insumo", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
+            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
+        ];
+
+        return $this->guardarDatos('insumos_compras', $datos);
+    }
+
+    /**
+     * Inserta un detalle de materia prima (operación BD)
+     */
+    private function insertarDetalleMateriaPrimaP($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida)
+    {
+        $datos = [
+            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
+            ["campo_nombre" => "id_materia_prima", "campo_marcador" => ":id_materia_prima", "campo_valor" => $idMateriaPrima],
+            ["campo_nombre" => "cantidad_materia_prima", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
+            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
+        ];
+
+        return $this->guardarDatos('materias_primas_compras', $datos);
+    }
+
+    /**
+     * Incrementa el stock de un producto (operación BD)
+     */
+    private function incrementarStockProductoP($idProducto, $cantidad)
+    {
+        return $this->actualizarStock('productos', 'id_producto', 'stock_producto', $idProducto, $cantidad);
+    }
+
+    /**
+     * Incrementa el stock de un insumo (operación BD)
+     */
+    private function incrementarStockInsumoP($idInsumo, $cantidad)
+    {
+        return $this->actualizarStock('insumos', 'id_insumo', 'stock_insumo', $idInsumo, $cantidad);
+    }
+
+    /**
+     * Incrementa el stock de una materia prima (operación BD)
+     */
+    private function incrementarStockMateriaPrimaP($idMateriaPrima, $cantidad)
+    {
+        return $this->actualizarStock('materias_primas', 'id_materia_prima', 'stock_materia_prima', $idMateriaPrima, $cantidad);
+    }
+
+    /**
+     * Inicia una transacción (operación BD)
+     */
+    private function iniciarTransaccionP()
+    {
+        $this->conectar();
+        // La conexión ya inicia transacción automáticamente en conectarP()
+    }
+
+    /**
+     * Confirma una transacción (operación BD)
+     */
+    private function confirmarTransaccionP()
+    {
+        $this->commit();
+    }
+
+    /**
+     * Revierte una transacción (operación BD)
+     */
+    private function revertirTransaccionP()
+    {
+        $this->rollback();
+    }
+
+    /**
+     * Elimina una compra (eliminación lógica - operación BD)
+     */
+    private function eliminarCompraP($idCompra)
+    {
+        $this->conectar();
+
+        // Eliminación lógica (cambiar status a 0)
+        // El 4to parámetro false = eliminación lógica, true = eliminación permanente
+        $resultado = $this->eliminarDatosP('compras', 'id_compra', $idCompra, false);
+
+        return $resultado;
     }
 }

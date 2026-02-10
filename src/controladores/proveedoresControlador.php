@@ -10,9 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['accion']) && isset($_S
     $telefono = $_POST['telefono_proveedor'] ?? "";
     $correo = $_POST['correo_proveedor'] ?? "";
     $direccion = $_POST['direccion_proveedor'] ?? "";
-
+// 
     $objeto = new proveedoresModelo();
-    ob_clean();
+    ob_clean(); 
     switch ($accion) {
         case 'listar':
             $resultado = $objeto->seleccionarProveedor();

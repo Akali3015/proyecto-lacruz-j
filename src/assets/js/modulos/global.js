@@ -451,12 +451,17 @@ export function reiniciarDataTables() {
 //#region [ ENVIAR FORMULARIOS CON AJAX ] COMIENZO
 export async function enviarFormulario(instrucciones) {
     let {
+
+    }=instrucciones; 
+    let {
         formulario,
         modulo,
         convertirJSON = false,
         camposFoto = false,
         camposFuera = false,
     } = instrucciones
+
+
     formulario = $(formulario)
     const resultado = await Swal.fire({
         title: '¿Estás seguro?',
@@ -616,23 +621,20 @@ export async function enviarFormulario(instrucciones) {
     }
 }
 export function obtenerSiguienteIndice(elementoContenedor, etiqueta, grupo, atributoEje) {
-    const elementosTotales = $(elementoContenedor).find(etiqueta + '[name^="' + grupo + '["][name$="][' + atributoEje + ']"]');
-    const indicesExistente = new Set();
-    elementosTotales.each((indice, elemento) => {
-
-        const nameAttr = elemento.name;
-        const regexDinamica = new RegExp(`${grupo}\\[(\\d+)\\]\\[${atributoEje}\\]`);
-        const match = nameAttr.match(regexDinamica);
-        if (match && match[1]) {
-            indicesExistente.add(parseInt(match[1], 10));
+    const elementosTotales = $(elementoContenedor).find(etiqueta+`[name^="${grupo}"`);
+    let existentes={};
+    elementosTotales.each((i,elemento)=>{
+        let name = elemento.name;
+        let arrayName= name.split('-');
+        if(!existentes[arrayName[1]]){
+            existentes[arrayName[1]]=true;
         }
     });
-
-    let indicePropuesto = 0;
-    while (indicesExistente.has(indicePropuesto)) {
-        indicePropuesto++;
+    let i=0;
+    while(existentes[i]){
+        i++;
     }
-    return indicePropuesto;
+    return i;
 }
 export async function cerrarSession() {
     let respuesta = await alertasAjax({
@@ -1365,8 +1367,8 @@ export async function listarNotificaciones() {
             accion: 'listarNotificaciones'
         }
     });
-    console.log('Notificaciones BD: ', notificaciones)
-    let notificacionHTML = ''; let notificacionesNoLeidas = 0;
+    let notificacionHTML = ''; 
+    let notificacionesNoLeidas = 0;
 
     if (!notificaciones.icono) {
         $('.btnETLN').show()
@@ -1400,7 +1402,7 @@ export async function listarNotificaciones() {
             let bgNoLeida = '';
             if (status == 1) {
                 notificacionesNoLeidas++;
-                bgNoLeida = 'style="background-color: #f0f4fc;"';
+                bgNoLeida = 'style="background-color: #4d88ff45;"';
             }
 
             notificacionHTML += `
@@ -1420,13 +1422,18 @@ export async function listarNotificaciones() {
         `;
         });
         $('.contenedorNotificaciones').empty().append(notificacionHTML);
-        $('.nroNotNoLeidas').show().text(notificacionesNoLeidas);
+        if(notificacionesNoLeidas==0){
+            $('.nroNotNoLeidas').hide();
+            $('.btnMTLNCL').hide()
+        }else{
+            $('.nroNotNoLeidas').show().text(notificacionesNoLeidas);
+            $('.btnMTLNCL').show()
+        }
     } else {
         $('.btnETLN').hide()
         $('.btnMTLNCL').removeClass('link-primary').addClass('text-muted').removeAttr('href');
         $('.nroNotNoLeidas').hide();
         $('.contenedorNotificaciones').empty().append(`<h3 class="title text-center ms-1 fs-5">SIN NOTIFICACIONES</h3>`);
-
     }
 }
 export async function marcarNotificacionesComoLeidas() {

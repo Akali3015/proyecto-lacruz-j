@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-02-2026 a las 02:04:46
+-- Tiempo de generación: 09-02-2026 a las 13:57:10
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -263,7 +263,31 @@ CREATE TABLE `acciones` (
 INSERT INTO `acciones` (`id_accion`, `nombre_accion`, `status`) VALUES
 (1, 'Registrar', 1),
 (2, 'Actualizar', 1),
-(3, 'registrarIva', 1);
+(3, 'registrarIva', 1),
+(78, 'borrarDataModuloSS', 1),
+(79, 'actDT', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `acciones_resagadas_usuarios`
+--
+
+CREATE TABLE `acciones_resagadas_usuarios` (
+  `id_accion_resagada` int(11) NOT NULL,
+  `id_accion` int(11) NOT NULL,
+  `id_modulo` int(11) NOT NULL,
+  `cedula_usuario` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `acciones_resagadas_usuarios`
+--
+
+INSERT INTO `acciones_resagadas_usuarios` (`id_accion_resagada`, `id_accion`, `id_modulo`, `cedula_usuario`, `status`) VALUES
+(130, 78, 18, 1234567, 1),
+(132, 79, 18, 1234567, 1);
 
 -- --------------------------------------------------------
 
@@ -296,7 +320,75 @@ INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_accion`, `id_modulo
 (8, 30485684, 3, 18, '2026-02-07 20:38:38', 'éxito', 1),
 (9, 30485684, 1, 20, '2026-02-07 20:54:24', 'Exito', 1),
 (10, 30485684, 1, 25, '2026-02-07 20:56:23', 'Fallido', 1),
-(11, 30485684, 1, 25, '2026-02-07 20:56:40', 'Exito', 1);
+(11, 30485684, 1, 25, '2026-02-07 20:56:40', 'Exito', 1),
+(44, 30485684, 3, 18, '2026-02-08 18:20:44', 'éxito', 1),
+(45, 30485684, 3, 18, '2026-02-08 18:20:58', 'éxito', 1),
+(46, 30485684, 3, 18, '2026-02-08 18:21:33', 'éxito', 1),
+(47, 30485684, 3, 18, '2026-02-08 18:21:48', 'éxito', 1),
+(48, 30485684, 3, 18, '2026-02-08 18:22:50', 'éxito', 1),
+(49, 30485684, 3, 18, '2026-02-08 18:23:44', 'éxito', 1),
+(50, 30485684, 3, 18, '2026-02-08 18:25:42', 'éxito', 1),
+(51, 30485684, 3, 18, '2026-02-08 18:25:48', 'éxito', 1),
+(52, 30485684, 3, 18, '2026-02-08 18:26:53', 'éxito', 1),
+(53, 30485684, 3, 18, '2026-02-08 18:27:39', 'éxito', 1),
+(54, 30485684, 3, 18, '2026-02-08 18:30:10', 'éxito', 1),
+(55, 30485684, 3, 18, '2026-02-08 18:30:33', 'éxito', 1),
+(56, 30485684, 3, 18, '2026-02-08 18:30:49', 'éxito', 1),
+(57, 30485684, 3, 18, '2026-02-08 18:31:29', 'éxito', 1),
+(58, 30485684, 3, 18, '2026-02-08 18:32:19', 'éxito', 1),
+(59, 30485684, 3, 18, '2026-02-08 18:33:16', 'éxito', 1),
+(60, 30485684, 3, 18, '2026-02-08 18:33:38', 'éxito', 1),
+(61, 30485684, 3, 18, '2026-02-08 18:34:13', 'éxito', 1),
+(62, 30485684, 3, 18, '2026-02-08 18:35:10', 'éxito', 1),
+(63, 30485684, 3, 18, '2026-02-08 18:35:45', 'éxito', 1),
+(64, 30485684, 3, 18, '2026-02-08 18:36:37', 'éxito', 1),
+(65, 30485684, 3, 18, '2026-02-08 19:30:15', 'éxito', 1),
+(66, 30485684, 3, 18, '2026-02-08 19:32:01', 'éxito', 1),
+(67, 30485684, 3, 18, '2026-02-08 19:32:07', 'éxito', 1),
+(68, 30485684, 3, 18, '2026-02-08 19:32:13', 'éxito', 1),
+(69, 30485684, 3, 18, '2026-02-08 19:32:30', 'éxito', 1),
+(70, 30485684, 3, 18, '2026-02-08 19:32:46', 'éxito', 1),
+(71, 30485684, 3, 18, '2026-02-08 19:33:00', 'éxito', 1),
+(72, 30485684, 3, 18, '2026-02-08 19:36:24', 'éxito', 1),
+(73, 30485684, 3, 18, '2026-02-08 19:42:39', 'éxito', 1),
+(74, 30485684, 3, 18, '2026-02-08 19:42:44', 'éxito', 1),
+(75, 30485684, 3, 18, '2026-02-08 19:44:45', 'éxito', 1),
+(76, 30485684, 3, 18, '2026-02-08 19:46:45', 'éxito', 1),
+(77, 30485684, 3, 18, '2026-02-08 19:53:48', 'éxito', 1),
+(78, 30485684, 3, 18, '2026-02-08 19:58:48', 'éxito', 1),
+(79, 30485684, 3, 18, '2026-02-08 19:59:03', 'éxito', 1),
+(80, 30485684, 3, 18, '2026-02-08 20:00:23', 'éxito', 1),
+(81, 30485684, 3, 18, '2026-02-08 20:00:31', 'éxito', 1),
+(82, 30485684, 3, 18, '2026-02-08 20:01:57', 'éxito', 1),
+(83, 30485684, 3, 18, '2026-02-08 20:02:03', 'éxito', 1),
+(84, 30485684, 3, 18, '2026-02-08 20:07:58', 'éxito', 1),
+(85, 30485684, 3, 18, '2026-02-08 20:23:55', 'éxito', 1),
+(86, 30485684, 3, 18, '2026-02-08 20:30:07', 'éxito', 1),
+(87, 30485684, 3, 18, '2026-02-08 20:31:23', 'éxito', 1),
+(88, 30485684, 3, 18, '2026-02-08 20:49:03', 'éxito', 1),
+(89, 30485684, 3, 18, '2026-02-08 20:55:09', 'éxito', 1),
+(90, 30485684, 3, 18, '2026-02-08 20:55:14', 'éxito', 1),
+(91, 30485684, 3, 18, '2026-02-08 20:58:27', 'éxito', 1),
+(92, 30485684, 3, 18, '2026-02-08 20:58:32', 'éxito', 1),
+(93, 30485684, 3, 18, '2026-02-08 20:58:36', 'éxito', 1),
+(94, 30485684, 3, 18, '2026-02-08 21:11:37', 'éxito', 1),
+(95, 30485684, 3, 18, '2026-02-08 21:16:50', 'éxito', 1),
+(96, 30485684, 3, 18, '2026-02-08 21:16:54', 'éxito', 1),
+(97, 30485684, 3, 18, '2026-02-08 21:23:29', 'éxito', 1),
+(98, 30485684, 3, 18, '2026-02-08 21:23:37', 'éxito', 1),
+(99, 30485684, 3, 18, '2026-02-08 21:23:56', 'éxito', 1),
+(100, 30485684, 3, 18, '2026-02-08 21:24:01', 'éxito', 1),
+(101, 30485684, 3, 18, '2026-02-08 21:29:03', 'éxito', 1),
+(102, 30485684, 3, 18, '2026-02-08 21:29:08', 'éxito', 1),
+(103, 30485684, 3, 18, '2026-02-08 21:29:39', 'éxito', 1),
+(104, 30485684, 3, 18, '2026-02-08 21:30:08', 'éxito', 1),
+(105, 30485684, 3, 18, '2026-02-08 21:44:06', 'éxito', 1),
+(106, 30485684, 3, 18, '2026-02-08 21:44:10', 'éxito', 1),
+(107, 30485684, 3, 18, '2026-02-08 21:45:55', 'éxito', 1),
+(108, 30485684, 3, 18, '2026-02-08 21:46:07', 'éxito', 1),
+(109, 30485684, 3, 18, '2026-02-08 21:46:40', 'éxito', 1),
+(110, 30485684, 3, 18, '2026-02-08 21:47:35', 'éxito', 1),
+(111, 30485684, 3, 18, '2026-02-08 21:48:07', 'éxito', 1);
 
 -- --------------------------------------------------------
 
@@ -323,7 +415,107 @@ INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iv
 (5, 12, '2025-12-06 15:56:00', 1),
 (6, 12.01, '2025-12-06 15:56:12', 1),
 (7, 12, '2025-12-06 15:56:22', 1),
-(8, 323, '2026-02-07 20:38:38', 1);
+(8, 323, '2026-02-07 20:38:38', 1),
+(9, 12, '2026-02-08 17:30:07', 1),
+(10, 12, '2026-02-08 17:30:50', 1),
+(11, 23, '2026-02-08 17:31:24', 1),
+(12, 23, '2026-02-08 17:32:06', 1),
+(13, 23, '2026-02-08 17:42:21', 1),
+(14, 23, '2026-02-08 17:42:46', 1),
+(15, 23, '2026-02-08 17:46:04', 1),
+(16, 23, '2026-02-08 17:46:38', 1),
+(17, 23, '2026-02-08 17:49:22', 1),
+(18, 23, '2026-02-08 17:52:01', 1),
+(19, 23, '2026-02-08 17:53:18', 1),
+(20, 23, '2026-02-08 17:53:58', 1),
+(21, 23, '2026-02-08 17:54:07', 1),
+(22, 23, '2026-02-08 17:55:03', 1),
+(23, 23, '2026-02-08 17:57:20', 1),
+(24, 23, '2026-02-08 17:59:27', 1),
+(25, 23, '2026-02-08 18:01:07', 1),
+(26, 23, '2026-02-08 18:03:36', 1),
+(27, 23, '2026-02-08 18:04:02', 1),
+(28, 2, '2026-02-08 18:04:13', 1),
+(29, 2, '2026-02-08 18:05:34', 1),
+(30, 2, '2026-02-08 18:06:35', 1),
+(31, 122, '2026-02-08 18:10:16', 1),
+(32, 23, '2026-02-08 18:11:16', 1),
+(33, 45, '2026-02-08 18:11:34', 1),
+(34, 67, '2026-02-08 18:13:24', 1),
+(35, 45, '2026-02-08 18:14:19', 1),
+(36, 67, '2026-02-08 18:15:26', 1),
+(37, 45, '2026-02-08 18:15:35', 1),
+(38, 23, '2026-02-08 18:16:21', 1),
+(39, 43, '2026-02-08 18:17:33', 1),
+(40, 12, '2026-02-08 18:17:55', 1),
+(41, 23, '2026-02-08 18:20:44', 1),
+(42, 23, '2026-02-08 18:20:58', 1),
+(43, 23, '2026-02-08 18:21:33', 1),
+(44, 23, '2026-02-08 18:21:48', 1),
+(45, 23, '2026-02-08 18:22:50', 1),
+(46, 23, '2026-02-08 18:23:44', 1),
+(47, 67, '2026-02-08 18:25:42', 1),
+(48, 67, '2026-02-08 18:25:48', 1),
+(49, 23, '2026-02-08 18:26:53', 1),
+(50, 67, '2026-02-08 18:27:39', 1),
+(51, 67, '2026-02-08 18:30:10', 1),
+(52, 67, '2026-02-08 18:30:33', 1),
+(53, 67, '2026-02-08 18:30:49', 1),
+(54, 67, '2026-02-08 18:31:29', 1),
+(55, 67, '2026-02-08 18:32:19', 1),
+(56, 67, '2026-02-08 18:33:16', 1),
+(57, 67, '2026-02-08 18:33:38', 1),
+(58, 67, '2026-02-08 18:34:13', 1),
+(59, 67, '2026-02-08 18:35:10', 1),
+(60, 67, '2026-02-08 18:35:45', 1),
+(61, 67, '2026-02-08 18:36:37', 1),
+(62, 67, '2026-02-08 19:30:15', 1),
+(63, 23, '2026-02-08 19:32:01', 1),
+(64, 23, '2026-02-08 19:32:07', 1),
+(65, 23, '2026-02-08 19:32:13', 1),
+(66, 23, '2026-02-08 19:32:30', 1),
+(67, 23, '2026-02-08 19:32:46', 1),
+(68, 23, '2026-02-08 19:33:00', 1),
+(69, 67, '2026-02-08 19:36:24', 1),
+(70, 67, '2026-02-08 19:42:39', 1),
+(71, 67, '2026-02-08 19:42:44', 1),
+(72, 67, '2026-02-08 19:44:45', 1),
+(73, 23, '2026-02-08 19:46:45', 1),
+(74, 23, '2026-02-08 19:53:48', 1),
+(75, 23, '2026-02-08 19:58:48', 1),
+(76, 23, '2026-02-08 19:59:03', 1),
+(77, 23, '2026-02-08 20:00:23', 1),
+(78, 45, '2026-02-08 20:00:31', 1),
+(79, 67, '2026-02-08 20:01:57', 1),
+(80, 45, '2026-02-08 20:02:03', 1),
+(81, 23, '2026-02-08 20:07:58', 1),
+(82, 23, '2026-02-08 20:23:55', 1),
+(83, 23, '2026-02-08 20:30:07', 1),
+(84, 67, '2026-02-08 20:31:23', 1),
+(85, 67, '2026-02-08 20:49:03', 1),
+(86, 23, '2026-02-08 20:55:09', 1),
+(87, 12, '2026-02-08 20:55:14', 1),
+(88, 67, '2026-02-08 20:58:27', 1),
+(89, 45, '2026-02-08 20:58:32', 1),
+(90, 16, '2026-02-08 20:58:36', 1),
+(91, 23, '2026-02-08 21:11:37', 1),
+(92, 45, '2026-02-08 21:16:50', 1),
+(93, 16, '2026-02-08 21:16:54', 1),
+(94, 45, '2026-02-08 21:23:29', 1),
+(95, 12, '2026-02-08 21:23:37', 1),
+(96, 67, '2026-02-08 21:23:56', 1),
+(97, 67, '2026-02-08 21:24:01', 1),
+(98, 67, '2026-02-08 21:29:03', 1),
+(99, 16, '2026-02-08 21:29:08', 1),
+(100, 23, '2026-02-08 21:29:39', 1),
+(101, 67, '2026-02-08 21:30:08', 1),
+(102, 23, '2026-02-08 21:44:06', 1),
+(103, 12, '2026-02-08 21:44:10', 1),
+(104, 67, '2026-02-08 21:45:55', 1),
+(105, 45, '2026-02-08 21:46:07', 1),
+(106, 67, '2026-02-08 21:46:40', 1),
+(107, 45, '2026-02-08 21:47:35', 1),
+(108, 12, '2026-02-08 21:48:07', 1);
 
 -- --------------------------------------------------------
 
@@ -629,8 +821,17 @@ CREATE TABLE `notificaciones` (
   `tipo_notificacion` varchar(30) NOT NULL,
   `tiempo_notificacion` int(10) NOT NULL,
   `icono_notificacion` varchar(50) NOT NULL,
-  `estado` tinyint(1) NOT NULL DEFAULT 1
+  `texto_notificacion` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `notificaciones`
+--
+
+INSERT INTO `notificaciones` (`id_notificacion`, `titulo_notificacion`, `tipo_notificacion`, `tiempo_notificacion`, `icono_notificacion`, `texto_notificacion`, `status`) VALUES
+(29, 'Precio del IVA actualizado', 'simple', 0, 'info', 'El precio del IVA ha sido actualizado', 1),
+(30, 'Precio del IVA actualizado', 'info', 0, 'info', 'El precio del IVA ha sido actualizado', 1);
 
 -- --------------------------------------------------------
 
@@ -643,9 +844,62 @@ CREATE TABLE `notificaciones_usuarios` (
   `cedula_usuario` int(11) NOT NULL,
   `id_notificacion` int(11) NOT NULL,
   `fecha_creacion_notificacion` datetime NOT NULL,
-  `mensaje_notificacion` varchar(255) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `notificaciones_usuarios`
+--
+
+INSERT INTO `notificaciones_usuarios` (`id_notificacion_usuario`, `cedula_usuario`, `id_notificacion`, `fecha_creacion_notificacion`, `status`) VALUES
+(103, 1234567, 30, '2026-02-08 20:49:03', 1),
+(104, 30485684, 30, '2026-02-08 20:49:03', 0),
+(105, 1234567, 30, '2026-02-08 20:55:10', 1),
+(106, 30485684, 30, '2026-02-08 20:55:10', 0),
+(107, 1234567, 30, '2026-02-08 20:55:14', 1),
+(108, 30485684, 30, '2026-02-08 20:55:14', 0),
+(109, 1234567, 30, '2026-02-08 20:58:27', 1),
+(110, 30485684, 30, '2026-02-08 20:58:27', 0),
+(111, 1234567, 30, '2026-02-08 20:58:32', 1),
+(112, 30485684, 30, '2026-02-08 20:58:32', 0),
+(113, 1234567, 30, '2026-02-08 20:58:36', 1),
+(114, 30485684, 30, '2026-02-08 20:58:36', 0),
+(115, 1234567, 30, '2026-02-08 21:11:37', 1),
+(116, 30485684, 30, '2026-02-08 21:11:37', 0),
+(117, 1234567, 30, '2026-02-08 21:16:50', 1),
+(118, 30485684, 30, '2026-02-08 21:16:50', 0),
+(119, 1234567, 30, '2026-02-08 21:16:55', 1),
+(120, 30485684, 30, '2026-02-08 21:16:55', 0),
+(121, 1234567, 30, '2026-02-08 21:23:29', 1),
+(122, 30485684, 30, '2026-02-08 21:23:29', 0),
+(123, 1234567, 30, '2026-02-08 21:23:37', 1),
+(124, 30485684, 30, '2026-02-08 21:23:37', 0),
+(125, 1234567, 30, '2026-02-08 21:23:56', 1),
+(126, 30485684, 30, '2026-02-08 21:23:56', 0),
+(127, 1234567, 30, '2026-02-08 21:24:02', 1),
+(128, 30485684, 30, '2026-02-08 21:24:02', 0),
+(129, 1234567, 30, '2026-02-08 21:29:03', 1),
+(130, 30485684, 30, '2026-02-08 21:29:03', 0),
+(131, 1234567, 30, '2026-02-08 21:29:08', 1),
+(132, 30485684, 30, '2026-02-08 21:29:08', 0),
+(133, 1234567, 30, '2026-02-08 21:29:39', 1),
+(134, 30485684, 30, '2026-02-08 21:29:39', 0),
+(135, 1234567, 30, '2026-02-08 21:30:08', 1),
+(136, 30485684, 30, '2026-02-08 21:30:08', 0),
+(137, 1234567, 30, '2026-02-08 21:44:06', 1),
+(138, 30485684, 30, '2026-02-08 21:44:06', 0),
+(139, 1234567, 30, '2026-02-08 21:44:11', 1),
+(140, 30485684, 30, '2026-02-08 21:44:11', 0),
+(141, 1234567, 30, '2026-02-08 21:45:55', 1),
+(142, 30485684, 30, '2026-02-08 21:45:55', 0),
+(143, 1234567, 30, '2026-02-08 21:46:07', 1),
+(144, 30485684, 30, '2026-02-08 21:46:07', 0),
+(145, 1234567, 30, '2026-02-08 21:46:40', 1),
+(146, 30485684, 30, '2026-02-08 21:46:40', 0),
+(147, 1234567, 30, '2026-02-08 21:47:36', 1),
+(148, 30485684, 30, '2026-02-08 21:47:36', 0),
+(149, 1234567, 30, '2026-02-08 21:48:07', 1),
+(150, 30485684, 30, '2026-02-08 21:48:07', 0);
 
 -- --------------------------------------------------------
 
@@ -1004,6 +1258,15 @@ ALTER TABLE `acciones`
   ADD PRIMARY KEY (`id_accion`);
 
 --
+-- Indices de la tabla `acciones_resagadas_usuarios`
+--
+ALTER TABLE `acciones_resagadas_usuarios`
+  ADD PRIMARY KEY (`id_accion_resagada`),
+  ADD KEY `id_accion_acciones_resagadas_fk` (`id_accion`),
+  ADD KEY `id_modulo_acciones_resagadas_fk` (`id_modulo`),
+  ADD KEY `cedula_usuario_acciones_resagadas_fk` (`cedula_usuario`);
+
+--
 -- Indices de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
@@ -1129,7 +1392,8 @@ ALTER TABLE `notificaciones`
 --
 ALTER TABLE `notificaciones_usuarios`
   ADD PRIMARY KEY (`id_notificacion_usuario`),
-  ADD KEY `cedula_usuario_notificacion_fk` (`cedula_usuario`);
+  ADD KEY `cedula_usuario_notificacion_fk` (`cedula_usuario`),
+  ADD KEY `id_notificacion_notificacion_fk` (`id_notificacion`);
 
 --
 -- Indices de la tabla `pagos`
@@ -1266,19 +1530,25 @@ ALTER TABLE `accesos`
 -- AUTO_INCREMENT de la tabla `acciones`
 --
 ALTER TABLE `acciones`
-  MODIFY `id_accion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_accion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+
+--
+-- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
+--
+ALTER TABLE `acciones_resagadas_usuarios`
+  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=228;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
 --
 ALTER TABLE `cambios_iva`
-  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
@@ -1350,7 +1620,7 @@ ALTER TABLE `metodos_pagos`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
@@ -1362,13 +1632,13 @@ ALTER TABLE `monedas`
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones_usuarios`
 --
 ALTER TABLE `notificaciones_usuarios`
-  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
@@ -1467,6 +1737,14 @@ ALTER TABLE `accesos`
   ADD CONSTRAINT `id_rol_acceso_fk` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `acciones_resagadas_usuarios`
+--
+ALTER TABLE `acciones_resagadas_usuarios`
+  ADD CONSTRAINT `cedula_usuario_acciones_resagadas_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_accion_acciones_resagadas_fk` FOREIGN KEY (`id_accion`) REFERENCES `acciones` (`id_accion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_modulo_acciones_resagadas_fk` FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
@@ -1540,7 +1818,7 @@ ALTER TABLE `materias_primas_productos`
 --
 ALTER TABLE `notificaciones_usuarios`
   ADD CONSTRAINT `cedula_usuario_notificacion_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_notificacion_notificacion_fk` FOREIGN KEY (`id_notificacion_usuario`) REFERENCES `notificaciones` (`id_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_notificacion_notificacion_fk` FOREIGN KEY (`id_notificacion`) REFERENCES `notificaciones` (`id_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `pagos`

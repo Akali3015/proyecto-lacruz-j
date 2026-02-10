@@ -12,7 +12,16 @@
             "email": "andersonfreitez6@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/pk-fr/yakpro-po"
+        }
+    ],
     "require": {
         "setasign/fpdf": "^1.8"
+    },
+    "scripts": {
+        "ofuscar": "php yakpro-po/yakpro-po.php"
     }
 }

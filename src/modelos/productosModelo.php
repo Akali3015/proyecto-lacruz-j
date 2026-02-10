@@ -8,8 +8,7 @@ use PDO;
 use PDOException;
 use Exception;
 
-class productosModelo extends conexion
-{
+class productosModelo extends conexion{
     private $idProducto;
     private $idUnidadMedida;
     private $nombreProducto;

@@ -3,7 +3,7 @@
         'name' => 'carlos/lacruz',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '02b11f92747098650b2eeda76fd887dfa86c4212',
+        'reference' => '7f3eb72c84414f43ff263410a14989401fede313',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'carlos/lacruz' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '02b11f92747098650b2eeda76fd887dfa86c4212',
+            'reference' => '7f3eb72c84414f43ff263410a14989401fede313',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
