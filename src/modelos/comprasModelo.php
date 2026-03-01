@@ -3,651 +3,582 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
-use src\modelos\bitacoraModelo;
 use PDO;
-use PDOException;
 use Exception;
+use src\modelos\productosModelo;
+use src\modelos\insumosModelo;
+use src\modelos\materiasPrimasModelo;
+use src\modelos\proveedoresModelo;
 
 class comprasModelo extends conexion
 {
-    use traitModelo;
+  use traitModelo;
+  private $id_compra;
+  private $rif_proveedor;
+  private $fecha_compra;
+  private $status;
 
-    private $idCompra;
-    private $rifProveedor;
-    private $cedulaUsuario;
-    private $fechaCompra;
-    private $detalles;
+  private $detalles = [];
 
-    public function listarCompras($tipo)
-    {
-        if($tipo=='completo'){
+  public function seleccionarCompra()
+  {
+    $resultado = $this->seleccionarCompraP();
+    return $resultado;
+  }
 
-        }
-        return $this->listarComprasP($tipo);
+  private function seleccionarCompraP()
+  {
+    // Consulta detallada para el listado general (sin filtro ID)
+    $sql = "
+      SELECT 
+          c.id_compra,
+          c.fecha_compra,
+          c.rif_proveedor,
+          p.razon_social_proveedor AS PROVEEDOR,
+          'producto' AS TIPO,
+          prod.nombre_producto AS ARTICULO,
+          prod.id_producto AS id_item,
+          det.cantidad_producto AS cantidad_raw,
+          CONCAT(det.cantidad_producto, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+          um.id_unidad_medida,
+          um.nombre_unidad_medida
+      FROM compras c
+      JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
+      JOIN productos_compras det ON c.id_compra = det.id_compra
+      JOIN productos prod ON det.id_producto = prod.id_producto
+      LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
+      WHERE c.status = 1
+
+      UNION ALL
+
+      SELECT 
+          c.id_compra,
+          c.fecha_compra,
+          c.rif_proveedor,
+          p.razon_social_proveedor AS PROVEEDOR,
+          'insumo' AS TIPO,
+          i.nombre_insumo AS ARTICULO,
+          i.id_insumo AS id_item,
+          det.cantidad_insumo AS cantidad_raw,
+          CONCAT(det.cantidad_insumo, ' UNID') AS cantidad,
+          1 AS id_unidad_medida,
+          'UNIDAD' AS nombre_unidad_medida
+      FROM compras c
+      JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
+      JOIN insumos_compras det ON c.id_compra = det.id_compra
+      JOIN insumos i ON det.id_insumo = i.id_insumo
+      WHERE c.status = 1
+
+      UNION ALL
+
+      SELECT 
+          c.id_compra,
+          c.fecha_compra,
+          c.rif_proveedor,
+          p.razon_social_proveedor AS PROVEEDOR,
+          'materia_prima' AS TIPO,
+          mp.nombre_materia_prima AS ARTICULO,
+          mp.id_materia_prima AS id_item,
+          det.cantidad_materia_prima AS cantidad_raw,
+          CONCAT(det.cantidad_materia_prima, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+          um.id_unidad_medida,
+          um.nombre_unidad_medida
+      FROM compras c
+      JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
+      JOIN materias_primas_compras det ON c.id_compra = det.id_compra
+      JOIN materias_primas mp ON det.id_materia_prima = mp.id_materia_prima
+      LEFT JOIN unidades_medidas um ON mp.id_unidad_medida = um.id_unidad_medida
+      WHERE c.status = 1
+      
+      ORDER BY fecha_compra DESC
+    ";
+
+    try {
+      $this->conectar();
+      $stmt = $this->conexion->prepare($sql);
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      return [];
     }
-    public function registrarCompra($rifProveedor, $cedulaUsuario, $fechaCompra, $detalles)
-    {
-        try {
-            $this->rifProveedor = $rifProveedor;
-            $this->cedulaUsuario = $cedulaUsuario;
-            $this->fechaCompra = $fechaCompra;
-            $this->detalles = $detalles;
+  }
 
-            // Validar proveedor
-            $campos = [
-                [
-                    "campo_nombre" => "rif_proveedor",
-                    "campo_valor" => &$this->rifProveedor,
-                    "formulario_nombre" => "RIF del proveedor",
-                    "requerido" => true,
-                    "minimo" => minRegexEnteroGrande,
-                    "maximo" => maxRegexEnteroGrande,
-                    "expresion_re" => regexEnteroGrande,
-                    "tabla" => "proveedores",
-                    "debeExistir" => true,
-                ],
-                [
-                    "campo_nombre" => "cedula_usuario",
-                    "campo_valor" => &$this->cedulaUsuario,
-                    "formulario_nombre" => "Cédula del usuario responsable",
-                    "requerido" => true,
-                    "minimo" => minRegexEnteroGrande,
-                    "maximo" => maxRegexEnteroGrande,
-                    "expresion_re" => regexEnteroGrande,
-                    "tabla" => "usuarios",
-                    "debeExistir" => true,
-                ]
-            ];
+  public function seleccionarUno($id)
+  {
+    // Sanitizar y validar: requerido, formato numérico, longitud
+    $alerta = $this->limpiar_Verificar([
+      [
+        'campo_nombre' => 'id_compra',
+        'campo_valor' => $id,
+        'formulario_nombre' => 'ID de Compra',
+        'requerido' => true,
+        'minimo' => 1,
+        'maximo' => 10,
+        'expresion_re' => '^[0-9]+$',
+      ]
+    ]);
+    if ($alerta)
+      return $alerta;
 
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-            }
+    $this->id_compra = (int) $id;
+    $resultado = $this->seleccionarUnoP();
+    return $resultado;
+  }
 
-            return $this->registrarCompraP();
-        } catch (Exception $e) {
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al registrar la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-
-    private function listarComprasP($tipo)
-    {
-        if($tipo=='completo'){
-            // todos los datos de la BD
-        }elseif(){
-
-        }
-        // UNION de las 3 tablas de detalles para mostrar todos los items comprados
-        $sql = "
+  private function seleccionarUnoP()
+  {
+    $sql = "
             SELECT 
                 c.id_compra,
                 c.fecha_compra,
-                p.razon_social_proveedor,
-                'Producto' as tipo,
-                prod.nombre_producto as articulo,
-                CONCAT(det.cantidad_producto, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) as cantidad
+                c.rif_proveedor,
+                p.razon_social_proveedor AS PROVEEDOR,
+                'producto' AS TIPO,
+                prod.nombre_producto AS ARTICULO,
+                prod.id_producto AS id_item,
+                det.cantidad_producto AS cantidad_raw,
+                CONCAT(det.cantidad_producto, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+                um.id_unidad_medida,
+                um.nombre_unidad_medida
             FROM compras c
             JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
             JOIN productos_compras det ON c.id_compra = det.id_compra
             JOIN productos prod ON det.id_producto = prod.id_producto
             LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
-            WHERE c.status = 1
+            WHERE c.status = 1 AND c.id_compra = :id
 
             UNION ALL
 
             SELECT 
                 c.id_compra,
                 c.fecha_compra,
-                p.razon_social_proveedor,
-                'Insumo' as tipo,
-                i.nombre_insumo as articulo,
-                CONCAT(det.cantidad_insumo, ' UNID') as cantidad
+                c.rif_proveedor,
+                p.razon_social_proveedor AS PROVEEDOR,
+                'insumo' AS TIPO,
+                i.nombre_insumo AS ARTICULO,
+                i.id_insumo AS id_item,
+                det.cantidad_insumo AS cantidad_raw,
+                CONCAT(det.cantidad_insumo, ' UNID') AS cantidad,
+                1 AS id_unidad_medida,
+                'UNIDAD' AS nombre_unidad_medida
             FROM compras c
             JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
             JOIN insumos_compras det ON c.id_compra = det.id_compra
             JOIN insumos i ON det.id_insumo = i.id_insumo
-            WHERE c.status = 1
+            WHERE c.status = 1 AND c.id_compra = :id
 
             UNION ALL
 
             SELECT 
                 c.id_compra,
                 c.fecha_compra,
-                p.razon_social_proveedor,
-                'Materia Prima' as tipo,
-                mp.nombre_materia_prima as articulo,
-                CONCAT(det.cantidad_materia_prima, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) as cantidad
+                c.rif_proveedor,
+                p.razon_social_proveedor AS PROVEEDOR,
+                'materia_prima' AS TIPO,
+                mp.nombre_materia_prima AS ARTICULO,
+                mp.id_materia_prima AS id_item,
+                det.cantidad_materia_prima AS cantidad_raw,
+                CONCAT(det.cantidad_materia_prima, ' ', COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+                um.id_unidad_medida,
+                um.nombre_unidad_medida
             FROM compras c
             JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
             JOIN materias_primas_compras det ON c.id_compra = det.id_compra
             JOIN materias_primas mp ON det.id_materia_prima = mp.id_materia_prima
             LEFT JOIN unidades_medidas um ON mp.id_unidad_medida = um.id_unidad_medida
-            WHERE c.status = 1
+            WHERE c.status = 1 AND c.id_compra = :id
             
             ORDER BY fecha_compra DESC
         ";
 
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
+    try {
+      $this->conectar();
+      $stmt = $this->conexion->prepare($sql);
+      $stmt->bindParam(':id', $this->id_compra, PDO::PARAM_INT);
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+      return [];
+    }
+  }
+
+  public function registrarCompra($rif_proveedor, $fecha_compra, $detalles = [])
+  {
+    // Sanitizar y validar usando las constantes del sistema
+    $alerta = $this->limpiar_Verificar([
+      [
+        'campo_nombre' => 'rif_proveedor',
+        'campo_valor' => $rif_proveedor,
+        'formulario_nombre' => 'RIF del Proveedor',
+        'requerido' => true,
+        'minimo' => minRegexNombreObj,
+        'maximo' => maxRegexNombreObj,
+        'expresion_re' => regexNombreObj,
+      ],
+      [
+        'campo_nombre' => 'fecha_compra',
+        'campo_valor' => $fecha_compra,
+        'formulario_nombre' => 'Fecha de Compra',
+        'requerido' => true,
+      ],
+    ]);
+    if ($alerta)
+      return $alerta;
+
+    $this->rif_proveedor = $rif_proveedor;
+    $this->fecha_compra = $fecha_compra;
+    $this->detalles = $detalles;
+    $this->status = 1;
+
+    if (empty($this->detalles)) {
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Debe agregar al menos un artículo",
+        "icono" => "warning"
+      ];
+    }
+
+    $resultado = $this->registrarCompraP();
+    return $resultado;
+  }
+
+  private function registrarCompraP()
+  {
+    try {
+      // Obtener cédula del usuario en sesión
+      $cedula_usuario = $_SESSION['cedula'] ?? null;
+
+      if (!$cedula_usuario) {
+        return [
+          "tipo" => "simple",
+          "titulo" => "Error de Sesión",
+          "texto" => "No se pudo identificar al usuario",
+          "icono" => "error"
+        ];
+      }
+
+      /* ---------- CREAR COMPRA ---------- */
+      $id_compra = $this->guardarDatos('compras', [
+        ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $this->rif_proveedor],
+        ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedula_usuario],
+        ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $this->fecha_compra],
+        ["campo_nombre" => "status", "campo_marcador" => ":status", "campo_valor" => $this->status]
+      ]);
+
+      if (!$id_compra || $id_compra <= 0) {
+        throw new Exception("No se pudo crear la compra principal");
+      }
+
+      /* ---------- PROCESAR DETALLES ---------- */
+      foreach ($this->detalles as $detalle) {
+        $tipo = $detalle['tipo'] ?? '';
+        $id_item = $detalle['id'] ?? 0;
+        $cantidad = $detalle['cantidad'] ?? 0;
+        $id_unidad_medida = !empty($detalle['id_unidad_medida']) ? $detalle['id_unidad_medida'] : null;
+
+        if ($cantidad <= 0) {
+          continue;
         }
-    }
 
-    private function registrarCompraP()
-    {
-        try {
-
-            // 1. Registrar la compra (cabecera)
-            $datos_compra = [
-                ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $this->rifProveedor],
-                ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $this->cedulaUsuario],
-                ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $this->fechaCompra],
-            ];
-
-            $idCompra = $this->guardarDatos('compras', $datos_compra);
-
-            if (!$idCompra) {
-                throw new Exception("Error al registrar la compra");
-            }
-
-            // 2. Procesar cada detalle
-            foreach ($this->detalles as $detalle) {
-                $tipo = $detalle['tipo'];
-                $idItem = $detalle['id'];
-                $cantidad = $detalle['cantidad'];
-                $idUnidadMedida = $detalle['id_unidad_medida'] ?? null;
-
-                // Validar cantidad
-                if (!preg_match('/' . regexCantidadItem . '/', $cantidad)) {
-                    throw new Exception("Cantidad inválida");
-                }
-
-                // Registrar en la tabla de detalles correspondiente y actualizar stock
-                switch ($tipo) {
-                    case 'producto':
-                        // Validar que el producto existe
-                        $campos_producto = [
-                            [
-                                "campo_nombre" => "id_producto",
-                                "campo_valor" => $idItem,
-                                "formulario_nombre" => "ID del producto",
-                                "requerido" => true,
-                                "minimo" => minRegexId,
-                                "maximo" => maxRegexId,
-                                "expresion_re" => regexId,
-                                "tabla" => "productos",
-                                "debeExistir" => true,
-                            ]
-                        ];
-                        $respuesta = $this->limpiar_Verificar($campos_producto);
-                        if ($respuesta !== false) {
-                            throw new Exception($respuesta['texto']);
-                        }
-
-                        // Insertar detalle
-                        $datos_detalle = [
-                            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-                            ["campo_nombre" => "id_producto", "campo_marcador" => ":id_producto", "campo_valor" => $idItem],
-                            ["campo_nombre" => "cantidad_producto", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-                            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-                        ];
-                        $this->guardarDatos('productos_compras', $datos_detalle);
-
-                        // Actualizar stock
-                        $this->actualizarStock('productos', 'id_producto', 'stock_producto', $idItem, $cantidad);
-                        break;
-
-                    case 'insumo':
-                        // Validar que el insumo existe
-                        $campos_insumo = [
-                            [
-                                "campo_nombre" => "id_insumo",
-                                "campo_valor" => $idItem,
-                                "formulario_nombre" => "ID del insumo",
-                                "requerido" => true,
-                                "minimo" => minRegexId,
-                                "maximo" => maxRegexId,
-                                "expresion_re" => regexId,
-                                "tabla" => "insumos",
-                                "debeExistir" => true,
-                            ]
-                        ];
-                        $respuesta = $this->limpiar_Verificar($campos_insumo);
-                        if ($respuesta !== false) {
-                            throw new Exception($respuesta['texto']);
-                        }
-
-                        // Insertar detalle
-                        $datos_detalle = [
-                            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-                            ["campo_nombre" => "id_insumo", "campo_marcador" => ":id_insumo", "campo_valor" => $idItem],
-                            ["campo_nombre" => "cantidad_insumo", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-                            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-                        ];
-                        $this->guardarDatos('insumos_compras', $datos_detalle);
-
-                        // Actualizar stock
-                        $this->actualizarStock('insumos', 'id_insumo', 'stock_insumo', $idItem, $cantidad);
-                        break;
-
-                    case 'materia_prima':
-                        // Validar que la materia prima existe
-                        $campos_mp = [
-                            [
-                                "campo_nombre" => "id_materia_prima",
-                                "campo_valor" => $idItem,
-                                "formulario_nombre" => "ID de la materia prima",
-                                "requerido" => true,
-                                "minimo" => minRegexId,
-                                "maximo" => maxRegexId,
-                                "expresion_re" => regexId,
-                                "tabla" => "materias_primas",
-                                "debeExistir" => true,
-                            ]
-                        ];
-                        $respuesta = $this->limpiar_Verificar($campos_mp);
-                        if ($respuesta !== false) {
-                            throw new Exception($respuesta['texto']);
-                        }
-
-                        // Insertar detalle
-                        $datos_detalle = [
-                            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-                            ["campo_nombre" => "id_materia_prima", "campo_marcador" => ":id_materia_prima", "campo_valor" => $idItem],
-                            ["campo_nombre" => "cantidad_materia_prima", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-                            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-                        ];
-                        $this->guardarDatos('materias_primas_compras', $datos_detalle);
-
-                        // Actualizar stock
-                        $this->actualizarStock('materias_primas', 'id_materia_prima', 'stock_materia_prima', $idItem, $cantidad);
-                        break;
-
-                    default:
-                        throw new Exception("Tipo de inventario inválido");
-                }
-            }
-
-            // 3. Registrar en bitácora
-            $bitacora = new bitacoraModelo();
-            $bitacora->registrarBitacora(
-                "Registro",
-                "compras",
-                "Se registró una compra con ID: " . $idCompra
-            );
-
-            // 4. IMPORTANTE: Hacer commit de la transacción para persistir los datos
-            $this->commit();
-
-            return [
-                "tipo" => "recargar",
-                "titulo" => "Compra Registrada",
-                "texto" => "La compra se registró correctamente y el stock fue actualizado",
-                "icono" => "success"
-            ];
-        } catch (Exception $e) {
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al registrar la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-
-    private function actualizarStock($tabla, $campoId, $campoStock, $id, $cantidad)
-    {
-        $sql = "UPDATE $tabla SET $campoStock = $campoStock + :cantidad WHERE $campoId = :id";
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->bindParam(':cantidad', $cantidad);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-    }
-
-    // Eliminar compra (eliminación lógica)
-    public function eliminarCompra($idCompra)
-    {
-        return $this->eliminarCompraP($idCompra);
-    }
-
-    // Obtener compra por ID
-    public function obtenerCompra($idCompra)
-    {
-        try {
-            $this->conectar();
-
-            $instruccionesBD = [
-                'campos' => 'c.*, p.razon_social_proveedor',
-                'tabla' => 'compras c',
-                'PEL' => 'c',
-                'datosJoins' => [
-                    [
-                        'TablaDestino' => 'proveedores p',
-                        'conexionLo' => 'c.rif_proveedor = p.rif_proveedor'
-                    ]
-                ],
-                'WHERE' => [
-                    [
-                        'condicion_campo' => 'c.id_compra',
-                        'condicion_marcador' => ':id',
-                        'condicion_valor' => $idCompra,
-                        'comparacion' => '='
-                    ]
-                ]
-            ];
-            $resultado = $this->seleccionarDatos($instruccionesBD);
-            $compra = $resultado->fetch();
-
-            if ($compra) {
-                return $compra;
-            } else {
-                return [
-                    "tipo" => "simple",
-                    "titulo" => "Error",
-                    "texto" => "No se encontró la compra",
-                    "icono" => "error"
-                ];
-            }
-        } catch (Exception $e) {
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al obtener la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-
-    // Actualizar compra (solo información general)
-    public function actualizarCompra($idCompra, $rifProveedor, $cedulaUsuario, $fechaCompra)
-    {
-        try {
-            $this->conectar();
-
-            // Validar que la compra existe
-            $campos = [
-                [
-                    "campo_nombre" => "id_compra",
-                    "campo_valor" => $idCompra,
-                    "formulario_nombre" => "ID de compra",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "compras",
-                    "debeExistir" => true,
-                ]
-            ];
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-            }
-
-            // Actualizar los datos
-            $instrucciones = [
-                'tabla' => 'compras',
-                'datos' => [
-                    ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $rifProveedor],
-                    ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedulaUsuario],
-                    ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $fechaCompra],
-                ],
-                'condiciones' => [
-                    [
-                        "condicion_campo" => "id_compra",
-                        "condicion_marcador" => ":id",
-                        "condicion_valor" => $idCompra,
-                        "comparacion" => "="
-                    ]
-                ]
-            ];
-
-            $resultado = $this->actualizarDatos($instrucciones);
-
-            $this->commit();
-
-            // Registrar en bitácora
-            $bitacora = new bitacoraModelo();
-            $bitacora->registrarBitacora(
-                "Actualización",
-                "compras",
-                "Se actualizó la compra con ID: " . $idCompra
-            );
-
-            return [
-                "tipo" => "recargar",
-                "titulo" => "Compra Actualizada",
-                "texto" => "La compra se actualizó correctamente",
-                "icono" => "success"
-            ];
-        } catch (Exception $e) {
-            $this->rollback();
-            return [
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Error al actualizar la compra: " . $e->getMessage(),
-                "icono" => "error"
-            ];
-        }
-    }
-
-    /**
-     * Inserta una nueva compra en la base de datos
-     * 
-     * @param string $rifProveedor
-     * @param int $cedulaUsuario
-     * @param string $fechaCompra
-     * @return int ID de la compra insertada
-     */
-    public function insertarCompra($rifProveedor, $cedulaUsuario, $fechaCompra)
-    {
-        return $this->insertarCompraP($rifProveedor, $cedulaUsuario, $fechaCompra);
-    }
-
-    /**
-     * Inserta un detalle de producto en la compra
-     */
-    public function insertarDetalleProducto($idCompra, $idProducto, $cantidad, $idUnidadMedida)
-    {
-        return $this->insertarDetalleProductoP($idCompra, $idProducto, $cantidad, $idUnidadMedida);
-    }
-
-    /**
-     * Inserta un detalle de insumo en la compra
-     */
-    public function insertarDetalleInsumo($idCompra, $idInsumo, $cantidad, $idUnidadMedida)
-    {
-        return $this->insertarDetalleInsumoP($idCompra, $idInsumo, $cantidad, $idUnidadMedida);
-    }
-
-    /**
-     * Inserta un detalle de materia prima en la compra
-     */
-    public function insertarDetalleMateriaPrima($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida)
-    {
-        return $this->insertarDetalleMateriaPrimaP($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida);
-    }
-
-    /**
-     * Incrementa el stock de un producto
-     */
-    public function incrementarStockProducto($idProducto, $cantidad)
-    {
-        return $this->incrementarStockProductoP($idProducto, $cantidad);
-    }
-
-    /**
-     * Incrementa el stock de un insumo
-     */
-    public function incrementarStockInsumo($idInsumo, $cantidad)
-    {
-        return $this->incrementarStockInsumoP($idInsumo, $cantidad);
-    }
-
-    /**
-     * Incrementa el stock de una materia prima
-     */
-    public function incrementarStockMateriaPrima($idMateriaPrima, $cantidad)
-    {
-        return $this->incrementarStockMateriaPrimaP($idMateriaPrima, $cantidad);
-    }
-
-    /**
-     * Inicia una transacción
-     */
-    public function iniciarTransaccion()
-    {
-        $this->iniciarTransaccionP();
-    }
-
-    /**
-     * Confirma una transacción
-     */
-    public function confirmarTransaccion()
-    {
-        $this->confirmarTransaccionP();
-    }
-
-    /**
-     * Revierte una transacción
-     */
-    public function revertirTransaccion()
-    {
-        $this->revertirTransaccionP();
-    }
-
-    // ==========================================
-    // MÉTODOS PRIVADOS CON INTERACCIÓN BD
-    // ==========================================
-
-    /**
-     * Inserta una nueva compra en la base de datos (operación BD)
-     */
-    private function insertarCompraP($rifProveedor, $cedulaUsuario, $fechaCompra)
-    {
         $this->conectar();
 
-        $datos = [
-            ["campo_nombre" => "rif_proveedor", "campo_marcador" => ":rif", "campo_valor" => $rifProveedor],
-            ["campo_nombre" => "cedula_usuario", "campo_marcador" => ":cedula", "campo_valor" => $cedulaUsuario],
-            ["campo_nombre" => "fecha_compra", "campo_marcador" => ":fecha", "campo_valor" => $fechaCompra],
-        ];
+        switch ($tipo) {
+          case 'producto':
+            // Insertar detalle producto
+            $stmt = $this->conexion->prepare("
+                INSERT INTO productos_compras (id_compra, id_producto, cantidad_producto, status) 
+                VALUES (:compra, :producto, :cantidad, 1)
+            ");
+            $stmt->execute([
+              ':compra' => $id_compra,
+              ':producto' => $id_item,
+              ':cantidad' => $cantidad
+            ]);
 
-        return $this->guardarDatos('compras', $datos);
+            // Actualizar stock
+            $stmt_stock = $this->conexion->prepare("
+                UPDATE productos 
+                SET stock_producto = stock_producto + :cant
+                WHERE id_producto = :id
+            ");
+            $stmt_stock->execute([
+              ':cant' => $cantidad,
+              ':id' => $id_item
+            ]);
+            break;
+
+          case 'insumo':
+            // Insertar detalle insumo
+            $stmt = $this->conexion->prepare("
+                INSERT INTO insumos_compras (id_compra, id_insumo, cantidad_insumo, status) 
+                VALUES (:compra, :insumo, :cantidad, 1)
+            ");
+            $stmt->execute([
+              ':compra' => $id_compra,
+              ':insumo' => $id_item,
+              ':cantidad' => $cantidad
+            ]);
+
+            // Actualizar stock
+            $stmt_stock = $this->conexion->prepare("
+                UPDATE insumos 
+                SET stock_insumo = stock_insumo + :cant
+                WHERE id_insumo = :id
+            ");
+            $stmt_stock->execute([
+              ':cant' => $cantidad,
+              ':id' => $id_item
+            ]);
+            break;
+
+          case 'materia_prima':
+            // Insertar detalle materia prima
+            $stmt = $this->conexion->prepare("
+                INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status) 
+                VALUES (:compra, :materia, :cantidad, 1)
+            ");
+            $stmt->execute([
+              ':compra' => $id_compra,
+              ':materia' => $id_item,
+              ':cantidad' => $cantidad
+            ]);
+
+            // Actualizar stock
+            $stmt_stock = $this->conexion->prepare("
+                UPDATE materias_primas 
+                SET stock_materia_prima = stock_materia_prima + :cant
+                WHERE id_materia_prima = :id
+            ");
+            $stmt_stock->execute([
+              ':cant' => $cantidad,
+              ':id' => $id_item
+            ]);
+            break;
+        }
+      }
+
+      $this->commit();
+
+      return [
+        "tipo" => "limpiar",
+        "titulo" => "Compra Registrada",
+        "texto" => "Compra #{$id_compra} registrada correctamente.",
+        "icono" => "success",
+        "id_compra" => $id_compra
+      ];
+    } catch (Exception $e) {
+      $this->rollback();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Error al registrar la compra: " . $e->getMessage(),
+        "icono" => "error"
+      ];
     }
+  }
 
-    /**
-     * Inserta un detalle de producto (operación BD)
-     */
-    private function insertarDetalleProductoP($idCompra, $idProducto, $cantidad, $idUnidadMedida)
-    {
-        $datos = [
-            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-            ["campo_nombre" => "id_producto", "campo_marcador" => ":id_producto", "campo_valor" => $idProducto],
-            ["campo_nombre" => "cantidad_producto", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-        ];
+  public function actualizarCompra($id_compra, $rif_proveedor, $fecha_compra, $detalles = [])
+  {
+    // Sanitizar y validar usando las constantes del sistema
+    $alerta = $this->limpiar_Verificar([
+      [
+        'campo_nombre' => 'id_compra',
+        'campo_valor' => $id_compra,
+        'formulario_nombre' => 'ID de Compra',
+        'requerido' => true,
+        'minimo' => 1,
+        'maximo' => 10,
+        'expresion_re' => '^[0-9]+$',
+      ],
+      [
+        'campo_nombre' => 'rif_proveedor',
+        'campo_valor' => $rif_proveedor,
+        'formulario_nombre' => 'RIF del Proveedor',
+        'requerido' => true,
+        'minimo' => minRegexNombreObj,
+        'maximo' => maxRegexNombreObj,
+        'expresion_re' => regexNombreObj,
+      ],
+      [
+        'campo_nombre' => 'fecha_compra',
+        'campo_valor' => $fecha_compra,
+        'formulario_nombre' => 'Fecha de Compra',
+        'requerido' => true,
+      ],
+    ]);
+    if ($alerta)
+      return $alerta;
 
-        return $this->guardarDatos('productos_compras', $datos);
+    $this->id_compra = (int) $id_compra;
+    $this->rif_proveedor = $rif_proveedor;
+    $this->fecha_compra = $fecha_compra;
+    $this->detalles = $detalles;
+
+    $resultado = $this->actualizarCompraP();
+    return $resultado;
+  }
+
+  private function actualizarCompraP()
+  {
+    try {
+      $this->conectar();
+
+
+
+      // 1. REVERTIR STOCK (Restar lo que se había sumado)
+      // Obtenemos los detalles actuales antes de borrarlos
+      // $detallesAnteriores = $this->seleccionarCompraP(); // NOTA: Esto traería TODO, no solo esta compra. usar seleccionarUnoP. 
+      // WAIT - seleccionarTodosP NO filtra por ID. Necesitamos seleccionarUnoP pero devuelve solo el que coincide.
+      // Para revertir necesitamos los detalles de ESTA compra.
+      // Entonces llamamos a seleccionarUnoP para obtener los detalles actuales.
+
+      $detallesAnteriores = $this->seleccionarUnoP();
+
+      // 0. VALIDAR STOCK DISPONIBLE PARA REVERTIR
+      // Antes de hacer nada, verificamos que el stock actual sea suficiente para restar la compra original.
+      // Si el stock actual es MENOR a lo que se compró, significa que ya se vendió parte de esa compra
+      // y no se puede revertir/editar sin dejar el stock en negativo.
+      foreach ($detallesAnteriores as $item) {
+        $stockActual = 0;
+        $itemEncontrado = null;
+
+        if ($item['TIPO'] == 'producto') {
+          $modelo = new productosModelo();
+          $itemEncontrado = $modelo->seleccionarProductos($item['id_item']);
+          // Las funciones seleccionar... devuelven un alert si no encuentran
+          // pero si encuentran, devuelven array. Verificamos si tiene la key 'stock_producto'
+          if (is_array($itemEncontrado) && isset($itemEncontrado['stock_producto'])) {
+            $stockActual = $itemEncontrado['stock_producto'];
+          }
+        } elseif ($item['TIPO'] == 'insumo') {
+          $modelo = new insumosModelo();
+          $itemEncontrado = $modelo->seleccionarInsumos($item['id_item']);
+          if (is_array($itemEncontrado) && isset($itemEncontrado['stock_insumo'])) {
+            $stockActual = $itemEncontrado['stock_insumo'];
+          }
+        } elseif ($item['TIPO'] == 'materia_prima') {
+          $modelo = new materiasPrimasModelo();
+          $itemEncontrado = $modelo->seleccionarMateriasPrimas($item['id_item']);
+          if (is_array($itemEncontrado) && isset($itemEncontrado['stock_materia_prima'])) {
+            $stockActual = $itemEncontrado['stock_materia_prima'];
+          }
+        }
+
+        // Validación común
+        if ($itemEncontrado && !isset($itemEncontrado['tipo'])) { // Si no es un array de error (los errores traen 'tipo')
+          if ($stockActual < $item['cantidad_raw']) {
+            $this->conexion->rollBack();
+            return [
+              "tipo" => "simple",
+              "titulo" => "Error de Stock",
+              "texto" => "No se puede editar. El artículo '{$item['ARTICULO']}' tiene un stock actual ($stockActual) menor a la cantidad original de esta compra ({$item['cantidad_raw']}). Ya se han consumido items.",
+              "icono" => "error"
+            ];
+          }
+        }
+      }
+
+      foreach ($detallesAnteriores as $item) {
+        $tabla = '';
+        $campoId = '';
+        $campoStock = '';
+
+        if ($item['TIPO'] == 'producto') {
+          $tabla = 'productos';
+          $campoId = 'id_producto';
+          $campoStock = 'stock_producto';
+        } elseif ($item['TIPO'] == 'insumo') {
+          $tabla = 'insumos';
+          $campoId = 'id_insumo';
+          $campoStock = 'stock_insumo';
+        } elseif ($item['TIPO'] == 'materia_prima') {
+          $tabla = 'materias_primas';
+          $campoId = 'id_materia_prima';
+          $campoStock = 'stock_materia_prima';
+        }
+
+        if ($tabla) {
+          $sqlRevertir = "UPDATE $tabla SET $campoStock = $campoStock - :cantidad WHERE $campoId = :id";
+          $stmt = $this->conexion->prepare($sqlRevertir);
+          $stmt->execute([
+            ':cantidad' => $item['cantidad_raw'],
+            ':id' => $item['id_item']
+          ]);
+        }
+      }
+
+      // 2. ELIMINAR DETALLES ANTERIORES
+      $this->conexion->exec("DELETE FROM productos_compras WHERE id_compra = {$this->id_compra}");
+      $this->conexion->exec("DELETE FROM insumos_compras WHERE id_compra = {$this->id_compra}");
+      $this->conexion->exec("DELETE FROM materias_primas_compras WHERE id_compra = {$this->id_compra}");
+
+      // 3. ACTUALIZAR CABECERA
+      $sqlCabecera = "UPDATE compras SET rif_proveedor = :rif, fecha_compra = :fecha WHERE id_compra = :id";
+      $stmtCabecera = $this->conexion->prepare($sqlCabecera);
+      $stmtCabecera->execute([
+        ':rif' => $this->rif_proveedor,
+        ':fecha' => $this->fecha_compra,
+        ':id' => $this->id_compra
+      ]);
+
+      // 4. INSERTAR NUEVOS DETALLES Y ACTUALIZAR STOCK
+      if (!empty($this->detalles)) {
+        foreach ($this->detalles as $detalle) {
+          $tipo = $detalle['tipo'] ?? '';
+          $id_item = $detalle['id'] ?? 0;
+          $cantidad = $detalle['cantidad'] ?? 0;
+          $id_unidad_medida = !empty($detalle['id_unidad_medida']) ? $detalle['id_unidad_medida'] : null;
+
+          if ($cantidad <= 0)
+            continue;
+
+          switch ($tipo) {
+            case 'producto':
+              $stmt = $this->conexion->prepare("INSERT INTO productos_compras (id_compra, id_producto, cantidad_producto, status) VALUES (:compra, :item, :cant, 1)");
+              $stmt->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cantidad]);
+
+              $stmtStock = $this->conexion->prepare("UPDATE productos SET stock_producto = stock_producto + :cant WHERE id_producto = :id");
+              $stmtStock->execute([':cant' => $cantidad, ':id' => $id_item]);
+              break;
+
+            case 'insumo':
+              $stmt = $this->conexion->prepare("INSERT INTO insumos_compras (id_compra, id_insumo, cantidad_insumo, status) VALUES (:compra, :item, :cant, 1)");
+              $stmt->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cantidad]);
+
+              $stmtStock = $this->conexion->prepare("UPDATE insumos SET stock_insumo = stock_insumo + :cant WHERE id_insumo = :id");
+              $stmtStock->execute([':cant' => $cantidad, ':id' => $id_item]);
+              break;
+
+            case 'materia_prima':
+              $stmt = $this->conexion->prepare("INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status) VALUES (:compra, :item, :cant, 1)");
+              $stmt->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cantidad]);
+
+              $stmtStock = $this->conexion->prepare("UPDATE materias_primas SET stock_materia_prima = stock_materia_prima + :cant WHERE id_materia_prima = :id");
+              $stmtStock->execute([':cant' => $cantidad, ':id' => $id_item]);
+              break;
+          }
+        }
+      }
+
+      $this->conexion->commit();
+
+      return [
+        "tipo" => "limpiar",
+        "titulo" => "Compra Actualizada",
+        "texto" => "La compra ha sido modificada correctamente.",
+        "icono" => "success"
+      ];
+    } catch (Exception $e) {
+      if ($this->conexion->inTransaction()) {
+        $this->conexion->rollBack();
+      }
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Error al actualizar la compra: " . $e->getMessage(),
+        "icono" => "error"
+      ];
     }
-
-    /**
-     * Inserta un detalle de insumo (operación BD)
-     */
-    private function insertarDetalleInsumoP($idCompra, $idInsumo, $cantidad, $idUnidadMedida)
-    {
-        $datos = [
-            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-            ["campo_nombre" => "id_insumo", "campo_marcador" => ":id_insumo", "campo_valor" => $idInsumo],
-            ["campo_nombre" => "cantidad_insumo", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-        ];
-
-        return $this->guardarDatos('insumos_compras', $datos);
-    }
-
-    /**
-     * Inserta un detalle de materia prima (operación BD)
-     */
-    private function insertarDetalleMateriaPrimaP($idCompra, $idMateriaPrima, $cantidad, $idUnidadMedida)
-    {
-        $datos = [
-            ["campo_nombre" => "id_compra", "campo_marcador" => ":id_compra", "campo_valor" => $idCompra],
-            ["campo_nombre" => "id_materia_prima", "campo_marcador" => ":id_materia_prima", "campo_valor" => $idMateriaPrima],
-            ["campo_nombre" => "cantidad_materia_prima", "campo_marcador" => ":cantidad", "campo_valor" => $cantidad],
-            ["campo_nombre" => "id_unidad_medida", "campo_marcador" => ":id_unidad_medida", "campo_valor" => $idUnidadMedida],
-        ];
-
-        return $this->guardarDatos('materias_primas_compras', $datos);
-    }
-
-    /**
-     * Incrementa el stock de un producto (operación BD)
-     */
-    private function incrementarStockProductoP($idProducto, $cantidad)
-    {
-        return $this->actualizarStock('productos', 'id_producto', 'stock_producto', $idProducto, $cantidad);
-    }
-
-    /**
-     * Incrementa el stock de un insumo (operación BD)
-     */
-    private function incrementarStockInsumoP($idInsumo, $cantidad)
-    {
-        return $this->actualizarStock('insumos', 'id_insumo', 'stock_insumo', $idInsumo, $cantidad);
-    }
-
-    /**
-     * Incrementa el stock de una materia prima (operación BD)
-     */
-    private function incrementarStockMateriaPrimaP($idMateriaPrima, $cantidad)
-    {
-        return $this->actualizarStock('materias_primas', 'id_materia_prima', 'stock_materia_prima', $idMateriaPrima, $cantidad);
-    }
-
-    /**
-     * Inicia una transacción (operación BD)
-     */
-    private function iniciarTransaccionP()
-    {
-        $this->conectar();
-        // La conexión ya inicia transacción automáticamente en conectarP()
-    }
-
-    /**
-     * Confirma una transacción (operación BD)
-     */
-    private function confirmarTransaccionP()
-    {
-        $this->commit();
-    }
-
-    /**
-     * Revierte una transacción (operación BD)
-     */
-    private function revertirTransaccionP()
-    {
-        $this->rollback();
-    }
-
-    /**
-     * Elimina una compra (eliminación lógica - operación BD)
-     */
-    private function eliminarCompraP($idCompra)
-    {
-        $this->conectar();
-
-        // Eliminación lógica (cambiar status a 0)
-        // El 4to parámetro false = eliminación lógica, true = eliminación permanente
-        $resultado = $this->eliminarDatosP('compras', 'id_compra', $idCompra, false);
-
-        return $resultado;
-    }
+  }
 }

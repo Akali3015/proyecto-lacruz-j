@@ -11,13 +11,18 @@
 <script src="/proyecto-lacruz-j/src/assets/js/library/socket.io.min.js"></script>
 
 <?php
-    $directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';
-    if ($_SESSION['vistaActual'] == 'login'){
-        $archivoModulo= $directorioJs.'usuarios.js';
-    }else{
-        $archivoModulo = $directorioJs.$_SESSION['vistaActual'].'.js';
-    }
+$directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';
+if ($_SESSION['vistaActual'] == 'login') {
+  $archivoModulo = $directorioJs . 'usuarios.js';
+} else {
+  $archivoModulo = $directorioJs . $_SESSION['vistaActual'] . '.js';
+}
 ?>
 <script type="module" src="<?php echo $archivoModulo ?>"></script>
 </body>
+
 </html>
+
+<?php
+ob_end_flush();
+?>

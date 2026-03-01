@@ -9,1497 +9,1520 @@ use DateTimeZone;
 use DateInterval;
 use Exception;
 use Throwable;
+use FPDF;
 
 class errorBD extends Exception
 {
-    protected $detalles;
-    public function __construct($mensaje, $detalles, $codigo, Throwable $anterior)
-    {
-        parent::__construct($mensaje, $codigo, $anterior);
-        $this->detalles = $detalles;
-    }
-    public function getDetalles()
-    {
-        return $this->detalles;
-    }
+  protected $detalles;
+  public function __construct($mensaje, $detalles, $codigo, Throwable $anterior)
+  {
+    parent::__construct($mensaje, $codigo, $anterior);
+    $this->detalles = $detalles;
+  }
+  public function getDetalles()
+  {
+    return $this->detalles;
+  }
 }
 trait traitModelo
 {
+  private $servidorDB = DB_SERVER;
+  private $nombreDB = DB_NAME;
+  private $userDB = DB_USER;
+  private $passwordDB = DB_PASS;
+  protected $conexion;
 
-    private $servidorDB = DB_SERVER;
-    private $nombreDB = DB_NAME;
-    private $userDB = DB_USER;
-    private $passwordDB = DB_PASS;
-    protected $conexion;
+  public function limpiarCadena($cadena, $modo = 'antiSQLInyection')
+  {
+    if ($modo == 'antiSQLInyection') {
+      $palabras = ["<script>", "</script>", "<script src", "<script type=", "SELECT * FROM", "SELECT ", " SELECT ", "DELETE FROM", "INSERT INTO", "DROP TABLE", "DROP DATABASE", "TRUNCATE TABLE", "SHOW TABLES", "SHOW DATABASES", "<?php", "?>", "--", "^", "<", ">", "==", "=", ";", "::"];
+    } elseif ('antiFuncionesSQL') {
+      $palabras = ['(', ')', 'DATE', 'CAST', 'CONVERT', 'AVG', 'SUM', 'COUNT', 'MAX', 'MIN', 'TRIM', 'LOWER', 'UPPER', 'COALESCE', 'IFNULL'];
+    }
 
-    public function limpiarCadena($cadena)
-    {
+    $cadena = trim($cadena);
+    $cadena = stripslashes($cadena);
 
-        /*Arrays con palabras no admitidas */
-        $palabras = ["<script>", "</script>", "<script src", "<script type=", "SELECT * FROM", "SELECT ", " SELECT ", "DELETE FROM", "INSERT INTO", "DROP TABLE", "DROP DATABASE", "TRUNCATE TABLE", "SHOW TABLES", "SHOW DATABASES", "<?php", "?>", "--", "^", "<", ">", "==", "=", ";", "::"];
+    foreach ($palabras as $palabra) {
+      $cadena = str_ireplace($palabra, "", $cadena);
+    }
 
-        $cadena = trim($cadena); /*Para borrar espacios en blanco*/
-        $cadena = stripslashes($cadena); /*Eliminar los paréntesis */
+    $cadena = trim($cadena);
+    $cadena = stripslashes($cadena);
 
-        foreach ($palabras as $palabra) {
-            $cadena = str_ireplace($palabra, "", $cadena); /*elimina la palabra expecificada */
+    return $cadena;
+  }
+  public function limpiar_Verificar($campos)
+  {
+    foreach ($campos as &$campo) {
+
+      //Para evitar la inyección de SQL
+      if (isset($campo['campo_valor'])) {
+        $campo['campo_valor'] = $this->limpiarCadena($campo['campo_valor']);
+      }
+
+      //Para validar campos requeridos
+      if (isset($campo['requerido'])) {
+        if (!isset($campo['campo_valor']) || $campo['campo_valor'] == "") {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Campo de " . $campo['formulario_nombre'] . " obligatorio",
+            "texto" => 'No puedes enviar el formulario sin llenar el campo de ' . $campo['formulario_nombre'] . ', por favor verifique e intente de nuevo ',
+            "icono" => "error",
+          ];
+          return ($alerta);
+          exit();
+        }
+      }
+
+      //Para validar el largo y minimo
+      if (isset($campo['maximo'])) {
+        if ($campo['campo_valor'] != "") {
+          if (mb_strlen($campo['campo_valor']) > $campo['maximo']) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy largo",
+              "texto" => "El campo de " . $campo['formulario_nombre'] . " no puede tener más de " . $campo['maximo'] . " carácteres de longitud: " . $campo['campo_valor'],
+              "icono" => "error",
+            ];
+            return ($alerta);
+            exit();
+          } elseif (mb_strlen($campo['campo_valor']) < $campo['minimo']) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy corto",
+              "texto" => "El campo de" . $campo['formulario_nombre'] . " no puede tener menos de " . $campo['minimo'] . " carácteres de longitud: " . $campo['campo_valor'],
+              "icono" => "error",
+            ];
+            return ($alerta);
+            exit();
+          }
+        }
+      }
+
+      //Para validar el formato del campo con expresiones regulares
+      if (isset($campo['expresion_re'])) {
+        if ($campo['campo_valor'] != "") {
+          if (!preg_match("/" . $campo['expresion_re'] . "/", $campo['campo_valor'])) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Formato de " . $campo['formulario_nombre'] . " inválido",
+              "texto" => "El formato del campo " . $campo['formulario_nombre'] . " no es correcto, por favor verifique e intente de nuevo.",
+              "icono" => "error",
+            ];
+            return ($alerta);
+            exit();
+          }
+        }
+      }
+
+      //Para verificar la existencia de un registro para su actualización [normalmente solo el ID del registro]
+      if (isset($campo['debeExistir'])) {
+        $instruccionesBD = [
+          'campos' => '*',
+          'tabla' =>  $campo['tabla'],
+          'WHERE' => [
+            [
+              'condicion_campo' => $campo['campo_nombre'],
+              'condicion_marcador' => ':Id',
+              'condicion_valor' => $campo['campo_valor'],
+              'comparacion' => '=',
+            ]
+          ]
+        ];
+        $registrosExistentes = $this->seleccionarDatos($instruccionesBD);
+
+        if ($registrosExistentes->rowCount() == 0 && isset($campo['requerido'])) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Dato no encontrado",
+            "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " no se encuentra registrado dentro de la base de datos del sistema, por favor verifique e intente de nuevo: " . $campo['campo_valor'],
+            "icono" => "error",
+          ];
+          return ($alerta);
+          exit();
+        } else {
+          $registrosExis = $registrosExistentes->fetch(PDO::FETCH_ASSOC);/*hacemos el arrays */
+        }
+      }
+
+      //Para verificar que no haya mas registros con ese valor
+      if (isset($campo['debeSerUnico'])) {
+        $pedirDatosDeNuevo = true;
+        if (isset($registrosExis)) {
+          if (isset($registrosExis[$campo['campo_nombre']])) {
+            $pedirDatosDeNuevo = false;
+          }
         }
 
-        $cadena = trim($cadena);
-        $cadena = stripslashes($cadena);
+        if ($pedirDatosDeNuevo) {
+          $instruccionesBD = [
+            'campos' => '*',
+            'tabla' =>  $campo['tabla'],
+            'WHERE' => [
+              [
+                'condicion_campo' => $campo['campo_nombre'],
+                'condicion_marcador' => ':Id',
+                'condicion_valor' => $campo['campo_valor'],
+                'comparacion' => '=',
+              ]
+            ]
+          ];
+          $resultado = $this->seleccionarDatos($instruccionesBD);
+          if ($resultado->rowCount() > 0) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
+              "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
+              "icono" => "error",
+            ];
+            return ($alerta);
+            exit();
+          } else {
+            $registrosExis = false;
+          }
+        }
 
-        return $cadena;
-    }
-    public function limpiar_Verificar($campos)
-    {
-        foreach ($campos as &$campo) {
-
-            //Para evitar la inyección de SQL
-            if (isset($campo['campo_valor'])) {
-                $campo['campo_valor'] = $this->limpiarCadena($campo['campo_valor']);
+        if ($registrosExis != false) {
+          if (
+            $registrosExis[$campo['campo_nombre']] != $campo['campo_valor'] &&
+            $registrosExis[$campo['campo_nombre']] != strtoupper($campo['campo_valor'])
+          ) {
+            $instruccionesBD = [
+              'campos' => $campo['campo_nombre'],
+              'tabla' =>  $campo['tabla'],
+              'WHERE' => [
+                [
+                  'condicion_campo' => $campo['campo_nombre'],
+                  'condicion_marcador' => ':Id',
+                  'condicion_valor' => $campo['campo_valor'],
+                  'comparacion' => '=',
+                ]
+              ]
+            ];
+            $checkRegistro = $this->seleccionarDatos($instruccionesBD);
+            if ($checkRegistro->rowCount() > 0) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
+                "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
+                "icono" => "error",
+              ];
+              return ($alerta);
+              exit();
             }
+          }
+        }
+      }
 
-            //Para validar campos requeridos
-            if (isset($campo['requerido'])) {
-                if (!isset($campo['campo_valor']) || $campo['campo_valor'] == "") {
-                    $alerta = [
-                        "tipo" => "simple",
-                        "titulo" => "Campo de " . $campo['formulario_nombre'] . " obligatorio",
-                        "texto" => 'No puedes enviar el formulario sin llenar el campo de ' . $campo['formulario_nombre'] . ', por favor verifique e intente de nuevo ',
-                        "icono" => "error",
-                    ];
-                    return ($alerta);
-                    exit();
-                }
-            }
+      //Para validar si dos campos son iguales
+      if (isset($campo['camposIguales'])) {
+        if ($campo['campo_valor'] != $campo['camposIguales']) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Desigualdad de valores",
+            "texto" => "El valor de ambos campos de " . $campo['formulario_nombre'] . " deben ser iguales, verifique e intente nuevamente",
+            "icono" => "error",
+          ];
+          return ($alerta);
+          exit();
+        }
+      }
 
-            //Para validar el largo y minimo
-            if (isset($campo['maximo'])) {
-                if ($campo['campo_valor'] != "") {
-                    if (mb_strlen($campo['campo_valor']) > $campo['maximo']) {
-                        $alerta = [
-                            "tipo" => "simple",
-                            "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy largo",
-                            "texto" => "El campo de " . $campo['formulario_nombre'] . " no puede tener más de " . $campo['maximo'] . " carácteres de longitud: " . $campo['campo_valor'],
-                            "icono" => "error",
-                        ];
-                        return ($alerta);
-                        exit();
-                    } elseif (mb_strlen($campo['campo_valor']) < $campo['minimo']) {
-                        $alerta = [
-                            "tipo" => "simple",
-                            "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy corto",
-                            "texto" => "El campo de" . $campo['formulario_nombre'] . " no puede tener menos de " . $campo['minimo'] . " carácteres de longitud: " . $campo['campo_valor'],
-                            "icono" => "error",
-                        ];
-                        return ($alerta);
-                        exit();
-                    }
-                }
-            }
+      //para evitar que un dato específico sea eliminado o alguna otra operación
+      if (isset($campo['camposDiferentes'])) {
+        if ($campo['campo_valor'] == $campo['camposDiferentes']) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "ERROR",
+            "texto" => "El valor de " . $campo['formulario_nombre'] . " no puede ser usado en esa transacción",
+            "icono" => "error",
+          ];
+          return ($alerta);
+          exit();
+        }
+      }
 
-            //Para validar el formato del campo con expresiones regulares
-            if (isset($campo['expresion_re'])) {
-                if ($campo['campo_valor'] != "") {
-                    if (!preg_match("/" . $campo['expresion_re'] . "/", $campo['campo_valor'])) {
-                        $alerta = [
-                            "tipo" => "simple",
-                            "titulo" => "Formato de " . $campo['formulario_nombre'] . " inválido",
-                            "texto" => "El formato del campo " . $campo['formulario_nombre'] . " no es correcto, por favor verifique e intente de nuevo.",
-                            "icono" => "error",
-                        ];
-                        return ($alerta);
-                        exit();
-                    }
-                }
-            }
-
-            //Para verificar la existencia de un registro para su actualización [normalmente solo el ID del registro]
-            if (isset($campo['debeExistir'])) {
-                $instruccionesBD = [
-                    'campos' => '*',
-                    'tabla' =>  $campo['tabla'],
-                    'WHERE' => [
-                        [
-                            'condicion_campo' => $campo['campo_nombre'],
-                            'condicion_marcador' => ':Id',
-                            'condicion_valor' => $campo['campo_valor'],
-                            'comparacion' => '=',
-                        ]
-                    ]
-                ];
-                $registrosExistentes = $this->seleccionarDatos($instruccionesBD);
-
-                if ($registrosExistentes->rowCount() == 0 && isset($campo['requerido'])) {
-                    $alerta = [
-                        "tipo" => "simple",
-                        "titulo" => "Dato no encontrado",
-                        "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " no se encuentra registrado dentro de la base de datos del sistema, por favor verifique e intente de nuevo: " . $campo['campo_valor'],
-                        "icono" => "error",
-                    ];
-                    return ($alerta);
-                    exit();
-                } else {
-                    $registrosExis = $registrosExistentes->fetch(PDO::FETCH_ASSOC);/*hacemos el arrays */
-                }
-            }
-
-            //Para verificar que no haya mas registros con ese valor
-            if (isset($campo['debeSerUnico'])) {
-                $pedirDatosDeNuevo = true;
-                if (isset($registrosExis)) {
-                    if (isset($registrosExis[$campo['campo_nombre']])) {
-                        $pedirDatosDeNuevo = false;
-                    }
-                }
-
-                if ($pedirDatosDeNuevo) {
-                    $instruccionesBD = [
-                        'campos' => '*',
-                        'tabla' =>  $campo['tabla'],
-                        'WHERE' => [
-                            [
-                                'condicion_campo' => $campo['campo_nombre'],
-                                'condicion_marcador' => ':Id',
-                                'condicion_valor' => $campo['campo_valor'],
-                                'comparacion' => '=',
-                            ]
-                        ]
-                    ];
-                    $resultado = $this->seleccionarDatos($instruccionesBD);
-                    if ($resultado->rowCount() > 0) {
-                        $alerta = [
-                            "tipo" => "simple",
-                            "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
-                            "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
-                            "icono" => "error",
-                        ];
-                        return ($alerta);
-                        exit();
-                    } else {
-                        $registrosExis = false;
-                    }
-                }
-
-                if ($registrosExis != false) {
-                    if (
-                        $registrosExis[$campo['campo_nombre']] != $campo['campo_valor'] &&
-                        $registrosExis[$campo['campo_nombre']] != strtoupper($campo['campo_valor'])
-                    ) {
-                        $instruccionesBD = [
-                            'campos' => $campo['campo_nombre'],
-                            'tabla' =>  $campo['tabla'],
-                            'WHERE' => [
-                                [
-                                    'condicion_campo' => $campo['campo_nombre'],
-                                    'condicion_marcador' => ':Id',
-                                    'condicion_valor' => $campo['campo_valor'],
-                                    'comparacion' => '=',
-                                ]
-                            ]
-                        ];
-                        $checkRegistro = $this->seleccionarDatos($instruccionesBD);
-                        if ($checkRegistro->rowCount() > 0) {
-                            $alerta = [
-                                "tipo" => "simple",
-                                "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
-                                "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
-                                "icono" => "error",
-                            ];
-                            return ($alerta);
-                            exit();
-                        }
-                    }
-                }
-            }
-
-            //Para validar si dos campos son iguales
-            if (isset($campo['camposIguales'])) {
-                if ($campo['campo_valor'] != $campo['camposIguales']) {
-                    $alerta = [
-                        "tipo" => "simple",
-                        "titulo" => "Desigualdad de valores",
-                        "texto" => "El valor de ambos campos de " . $campo['formulario_nombre'] . " deben ser iguales, verifique e intente nuevamente",
-                        "icono" => "error",
-                    ];
-                    return ($alerta);
-                    exit();
-                }
-            }
-
-            //para evitar que un dato específico sea eliminado o alguna otra operación
-            if (isset($campo['camposDiferentes'])) {
-                if ($campo['campo_valor'] == $campo['camposDiferentes']) {
-                    $alerta = [
-                        "tipo" => "simple",
-                        "titulo" => "ERROR",
-                        "texto" => "El valor de " . $campo['formulario_nombre'] . " no puede ser usado en esa transacción",
-                        "icono" => "error",
-                    ];
-                    return ($alerta);
-                    exit();
-                }
-            }
-
-            //para validar el usuario y contraseña del login
-            if (isset($campo['validarLogin'])) {
-                $instruccionesBD = [
-                    'campos' => "
+      //para validar el usuario y contraseña del login
+      if (isset($campo['validarLogin'])) {
+        $instruccionesBD = [
+          'campos' => "
                         us.cedula_usuario, us.nombre_usuario, us.apellido_usuario,
                         ro.id_rol, ro.nombre_rol, us.usuario_usuario, us.contrasena_usuario
                     ",
-                    'tabla' =>  "usuarios as us",
-                    'PEL' => 'us',
-                    'datosJoins' => [
-                        [
-                            'TablaDestino' => 'roles as ro',
-                            'conexionLo' => 'us.id_rol = ro.id_rol'
-                        ]
-                    ],
-                    'WHERE' => [
-                        [
-                            'condicion_campo' => "us.usuario_usuario",
-                            'condicion_marcador' => ':usuario_usuario',
-                            'condicion_valor' => $campo['validarLogin']['usuario'],
-                            'comparacion' => '=',
-                        ]
-                    ]
-                ];
-                $check_usuario = $this->seleccionarDatos($instruccionesBD);
+          'tabla' =>  "usuarios as us",
+          'PEL' => 'us',
+          'datosJoins' => [
+            [
+              'TablaDestino' => 'roles as ro',
+              'conexionLo' => 'us.id_rol = ro.id_rol'
+            ]
+          ],
+          'WHERE' => [
+            [
+              'condicion_campo' => "us.usuario_usuario",
+              'condicion_marcador' => ':usuario_usuario',
+              'condicion_valor' => $campo['validarLogin']['usuario'],
+              'comparacion' => '=',
+            ]
+          ]
+        ];
+        $check_usuario = $this->seleccionarDatos($instruccionesBD);
 
-                if ($check_usuario->rowCount() == 1) {
+        if ($check_usuario->rowCount() == 1) {
 
-                    $check_usuario = $check_usuario->fetch(); /*Para hacer un arrays con los datos que coincidieron en la BD */
+          $check_usuario = $check_usuario->fetch(); /*Para hacer un arrays con los datos que coincidieron en la BD */
 
-                    if (
-                        ($campo['validarLogin']['usuario'] != $check_usuario['usuario_usuario']) ||
-                        (!password_verify($campo['validarLogin']['contrasena'], $check_usuario['contrasena_usuario']))
-                    ) {
-                        $alerta = [
-                            "tipo" => "simple",
-                            "titulo" => "Contraseña incorrecta",
-                            "texto" => "La contraseña que ha introducido es incorrecta, por favor verifique e intente nuevamente",
-                            "icono" => "error",
-                        ];
-                        return ($alerta);
-                        exit();
-                    } else {
-                        /*Creamos las variables de sesión */
-                        $_SESSION['cedula'] = $check_usuario['cedula_usuario'];
-                        $_SESSION['nombre'] = $check_usuario['nombre_usuario'];
-                        $_SESSION['apellido'] = $check_usuario['apellido_usuario'];
-                        $_SESSION['usuario'] = $check_usuario['usuario_usuario'];
-                        $_SESSION['rol'] = $check_usuario['id_rol'];
-                        $_SESSION['nombreRol'] = $check_usuario['nombre_rol'];
-                    }
-                }
-            }
-
-            //Valor de Atributo No Repetible del registro a Actualizar
-            if (isset($campo['VANRA'])) {
-
-                $instruccionesBD = [
-                    'campos' => "*",
-                    'tabla' =>  $campo['tabla'],
-                    'WHERE' => [
-                        [
-                            'condicion_campo' => $campo['campo_nombre'],
-                            'condicion_marcador' => ':ID',
-                            'condicion_valor' => $campo['campo_valor'],
-                            'comparacion' => '=',
-                        ]
-                    ]
-                ];
-                $checkRegistro = $this->seleccionarDatos($instruccionesBD);
-                //Para verificar que el valor no es igual al que ya posee
-                $valorCheck = $checkRegistro->fetch(PDO::FETCH_ASSOC);
-                if ($valorCheck[$campo['VANRA']['atributo']] == $campo['VANRA']['valor']) {
-                    $alerta = [
-                        "tipo" => "simple",
-                        "titulo" => "Valor ya registrado",
-                        "texto" => "El valor de " . $campo['formulario_nombre'] . " introducido es igual al actual, por favor verifique e intente de nuevo",
-                        "icono" => "error",
-                    ];
-                    return ($alerta);
-                    exit();
-                }
-            }
-        }
-        return false;
-    }
-    public function FechaHora_Sel($tipo, $fecha = null, $tiempo = null)
-    {
-        if ($tipo === 'Fecha_hora_foto') {
-            $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas')); // Especifica la zona horaria de Venezuela
-            $this->fecha = $this->fecha->format('Y-m-d H:i:s');
-            $this->fecha = str_replace(' ', '_', $this->fecha);
-            $this->fecha = str_replace(':', '_', $this->fecha);
-        } elseif ($tipo === 'fecha_hora_BD') {
-
-            $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
-            $this->fecha = $this->fecha->format('Y-m-d H:i:s');
-        } elseif ($tipo == 'fecha_BD') {
-            $this->fecha = str_replace('-', '/', $this->fecha);
-            $this->fecha = str_replace(':', '/', $this->fecha);
-            $this->fecha = DateTime::createFromFormat('d-m-Y', $fecha);
-            $this->fecha = $this->fecha->format('Y-m-d');
-        } elseif ($tipo == 'Fecha_Actual_BD') {
-            $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
-            $this->fecha = $this->fecha->format('Y-m-d');
-        } elseif ($tipo == 'Fecha_Hora_Actual') {
-            $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
-            $this->fecha = $this->fecha->format('d-m-Y h:i A');
-        } elseif ($tipo == 'fecha_hora_AM_PM') {
-            $timestamp = strtotime($fecha);
-            $this->fecha = date('d-m-Y h:i A', $timestamp);
-        } elseif ($tipo == 'tiempo_antes_BD') {
-            $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
-            $intervalo = new DateInterval('P' . $tiempo . 'D');
-            $this->fecha = $this->fecha->sub($intervalo);
-            $this->fecha = $this->fecha->format('Y-m-d');
-        } elseif ($tipo == 'Fecha_Normal') {
-            $this->fecha = DateTime::createFromFormat('Y-m-d', $fecha);
-            $this->fecha = $this->fecha->format('d-m-Y');
-        }
-        return $this->fecha;
-    }
-    public function __destruct()
-    {
-        $this->conexion = null;
-    }
-
-    //Métodos protegidos para el encapsulamiento
-    protected function conectar()
-    {
-        return $this->conectarP();
-    }
-    protected function commit()
-    {
-        return $this->commitP();
-    }
-    protected function rollback()
-    {
-        return $this->rollbackP();
-    }
-    protected function seleccionarDatos(array $datos)
-    {
-        return $this->seleccionarDatosP($datos);
-    }
-    protected function guardarDatos($tabla, $datos, $condicion = null)
-    {
-
-        foreach ($datos as &$dato) {
-            //Pasar a mayúsculas
-            if (isset($dato['ponerEnMayusculas'])) {
-                $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
-            }
-
-            //Pasar la coma a punto
-            if (isset($dato['comaPunto'])) {
-                $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
-            }
-        }
-
-        return $this->guardarDatosP($tabla, $datos, $condicion);
-    }
-    protected function actualizarDatos($instrucciones)
-    {
-
-        foreach ($instrucciones['datos'] as &$dato) {
-            //Pasar a mayúsculas
-            if (isset($dato['ponerEnMayusculas'])) {
-                $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
-            }
-
-            //Pasar la coma a punto
-            if (isset($dato['comaPunto'])) {
-                $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
-            }
-        }
-
-        return $this->actualizarDatosP($instrucciones);
-    }
-    protected function eliminarDatos($tabla, $campo, $id, $permanente = null)
-    {
-        return $this->eliminarDatosP($tabla, $campo, $id, $permanente);
-    }
-
-    /*Métodos privados para el manejo de datos con la BD*/
-    protected function conectarP()
-    {
-        if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
-            return;
-        }
-        if ($this->conexion == null) {
-            try {
-                $this->conexion = new PDO(
-                    "mysql:host=" . $this->servidorDB . ";dbname=" . $this->nombreDB,
-                    $this->userDB,
-                    $this->passwordDB,
-                    [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                        //PDO::ATTR_EMULATE_PREPARES => false, // Mejor seguridad y rendimiento
-                    ]
-                );
-                $this->conexion->exec("SET CHARACTER SET utf8");
-            } catch (PDOException $e) {
-                // Para obtener el error
-                throw new PDOException("Error al establecer la conexión con la base de datos: " . $e->getMessage(), " Código de error: " . $e->getCode());
-            }
-        }
-        if (!$this->conexion->inTransaction()) {
-            try {
-                $this->conexion->beginTransaction();
-            } catch (PDOException $e) {
-                throw new PDOException("Error al iniciar la transacción: " . $e->getMessage(), " Este es el código: " . $e->getCode());
-            }
-        }
-        return $this->conexion;
-    }
-    protected function commitP()
-    {
-        //verificamos que la conexión esté abierta y esté en una transacción
-        if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
-            try {
-                $this->conexion->commit();
-            } catch (PDOException $e) {
-                throw new PDOException("Error al confirmar la transacción (COMMIT): " . $e->getMessage(), (int)$e->getCode());
-            }
-        }
-    }
-    protected function rollbackP()
-    {
-        //aqui verificamos igual que en el commit
-        if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
-            try {
-                $this->conexion->rollBack();
-            } catch (PDOException $e) {
-                throw new PDOException("Error al revertir la transacción (ROLLBACK): " . $e->getMessage(), (int)$e->getCode());
-            }
-        }
-    }
-    private function seleccionarDatosP(array $datos)
-    {
-        try {
-            $this->conectar();
-            //LOS CAMPOS Y LA TABLA
-            $consulta = 'SELECT ' . $datos['campos'] . ' FROM ' . $datos['tabla'] . ' ';
-
-            //INNER JOINS
-            if (isset($datos['datosJoins'])) {
-                foreach ($datos['datosJoins'] as $join) {
-                    if (is_array($join) && isset($join["TablaDestino"]) && isset($join["conexionLo"])) {
-                        if (isset($join['tipoJoin'])) {
-                            $consulta .=
-                                " " . $join['tipoJoin'] . " JOIN " . $join["TablaDestino"] .
-                                " ON " . $join["conexionLo"];
-                        } else {
-                            $consulta .=
-                                " INNER JOIN " . $join["TablaDestino"] .
-                                " ON " . $join["conexionLo"];
-                        }
-                    }
-                }
-            }
-            //CONDICIÓN DE ELIMINADO LÓGICO
-            if (isset($datos['registrosEli'])) {
-                $consulta .= ' WHERE ';
-                //Prefijo de Eliminado Lógico
-                if (isset($datos['PEL'])) {
-                    $consulta .= '' . $datos['PEL'] . '.';
-                }
-                $consulta .= 'status = 0 ';
-            } elseif (isset($datos['eliminadosYVigentes'])) {
-                $consulta .= ' WHERE ';
-                if (isset($datos['PEL'])) {
-                    $consulta .= '' . $datos['PEL'] . '.';
-                }
-                $consulta .= 'status > -1 ';
-            } else {
-                $consulta .= ' WHERE ';
-                if (isset($datos['PEL'])) {
-                    $consulta .= '' . $datos['PEL'] . '.';
-                }
-                $consulta .= 'status != 0 ';
-            }
-
-            //CONDICIONES EXTRAS
-            if (isset($datos['WHERE'])) {
-                foreach ($datos['WHERE'] as $condicion) {
-                    $consulta .= 'AND ' . $condicion['condicion_campo'] . ' ';
-                    $consulta .= $condicion['comparacion'] . ' ';
-                    $consulta .= $condicion['condicion_marcador'] . ' ';
-                }
-            }
-            //GROUP BY
-            if (isset($datos['GROUP']) && !empty($datos['GROUP'])) {
-                $consulta .= " GROUP BY " . $datos['GROUP'];
-            }
-            // HAVING
-            if (isset($datos['HAVING'])) {
-                $consulta .= ' HAVING ';
-                $ch = 0;
-                foreach ($datos['HAVING'] as $condicion) {
-                    if ($ch > 0) {
-                        $consulta .= 'AND ';
-                    }
-                    $consulta .= $condicion['condicion_campo'] . ' ';
-                    $consulta .= $condicion['comparacion'] . ' ';
-                    $consulta .= $condicion['condicion_marcador'] . ' ';
-                    $ch++;
-                }
-            }
-            //ORDER BY
-            if (isset($datos['ORDER']) && !empty($datos['ORDER'])) {
-                $consulta .= " ORDER BY " . $datos['ORDER'];
-            }
-            //LIMIT
-            if (isset($datos['LIMIT']) && !empty($datos['LIMIT'])) {
-                $consulta .= " LIMIT " . $datos['LIMIT'];
-            }
-
-            //PREPARACIÓN (ANTI-SQL-INYECTION)
-            $consulta = $this->conexion->prepare($consulta);
-
-            //HACEMOS EL BIND DE MARCADORES POR VALORES
-
-            //return $datos['WHERE'];
-            if (isset($datos['WHERE'])) {
-                foreach ($datos['WHERE'] as $condicion) {
-                    $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-                }
-            }
-            if (isset($datos['HAVING'])) {
-                foreach ($datos['HAVING'] as $condicion) {
-                    $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-                }
-            }
-            // return $consulta;
-            $consulta->execute();
-            return $consulta;
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la selección',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'Rastro' => $th->getTrace(),
-                'instrucciones' => $datos
+          if (
+            ($campo['validarLogin']['usuario'] != $check_usuario['usuario_usuario']) ||
+            (!password_verify($campo['validarLogin']['contrasena'], $check_usuario['contrasena_usuario']))
+          ) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Contraseña incorrecta",
+              "texto" => "La contraseña que ha introducido es incorrecta, por favor verifique e intente nuevamente",
+              "icono" => "error",
             ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+            return ($alerta);
+            exit();
+          } else {
+            /*Creamos las variables de sesión */
+            $_SESSION['cedula'] = $check_usuario['cedula_usuario'];
+            $_SESSION['nombre'] = $check_usuario['nombre_usuario'];
+            $_SESSION['apellido'] = $check_usuario['apellido_usuario'];
+            $_SESSION['usuario'] = $check_usuario['usuario_usuario'];
+            $_SESSION['rol'] = $check_usuario['id_rol'];
+            $_SESSION['nombreRol'] = $check_usuario['nombre_rol'];
+            $_SESSION['TOKEN_CSRF'] = bin2hex(random_bytes(32));
+          }
         }
-    }
-    private function guardarDatosP($tabla, $datos, $condicion)
-    {
-        try {
-            $this->conectar();
-            if ($condicion != null) {
-                /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
+      }
 
-                $instruccionesBD = [
-                    'campos' => '*',
-                    'registrosEli' => true,
-                    'tabla' => $tabla,
-                    'WHERE' => [
-                        [
-                            'condicion_campo' => $condicion["condicion_campo"],
-                            'condicion_marcador' => ':Id',
-                            'condicion_valor' => $condicion["condicion_valor"],
-                            'comparacion' => '=',
-                        ]
-                    ]
-                ];
-
-                $registroExistente = $this->seleccionarDatos($instruccionesBD);
-                if ($registroExistente->rowCount() > 0) {
-                    //comenzamos la consulta SQL
-                    $query = "UPDATE $tabla SET ";
-
-                    //recorremos el arrays con los campos de la misma
-                    $C = 0;
-                    foreach ($datos as $clave) {
-
-                        if ($C >= 1) {
-                            $query .= ",";
-                        }
-                        $query .= $clave["campo_nombre"] . "=" .  $clave["campo_marcador"];
-                        $C++;
-                    }
-
-                    $query .= ", status = 1";
-                    $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
-
-                    //la preparamos para evitar la inyeccion de sql
-                    $sql = $this->conexion->prepare($query);
-
-                    //recorremos el array con la condicion de la misma
-                    foreach ($datos as $clave) {
-                        $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
-                        $C++;
-                    }
-
-                    $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-                    $sql->execute(); //ejecutamos la consulta
-
-                    return $sql->rowCount();
-                } else {
-                    $query = "INSERT INTO $tabla (";
-
-                    $C = 0;
-                    foreach ($datos as $clave) {
-                        if ($C >= 1) {
-                            $query .= ", ";
-                        }
-                        $query .= $clave["campo_nombre"];
-                        $C++;
-                    }
-
-                    $query .= ") VALUES (";
-
-                    $C = 0;
-                    foreach ($datos as $clave) {
-                        if ($C >= 1) {
-                            $query .= ", ";
-                        }
-                        $query .= $clave["campo_marcador"];
-                        $C++;
-                    }
-
-                    $query .= " ) ";
-                    $sql = $this->conexion->prepare($query);
-
-                    foreach ($datos as $clave) {
-                        $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
-                    }
-
-                    $sql->execute();
-
-                    //Porque el ID puede o no ser autoincremental
-                    if ($this->conexion->lastInsertId() > 0) {
-                        return $this->conexion->lastInsertId();
-                    } else {
-                        return $sql->rowCount();
-                    }
-                }
-            } else {
-                $query = "INSERT INTO $tabla (";
-
-                $C = 0;
-                foreach ($datos as $clave) {
-                    if ($C >= 1) {
-                        $query .= ", ";
-                    }
-                    $query .= $clave["campo_nombre"];
-                    $C++;
-                }
-
-                $query .= ") VALUES (";
-
-                $C = 0;
-                foreach ($datos as $clave) {
-                    if ($C >= 1) {
-                        $query .= ", ";
-                    }
-                    $query .= $clave["campo_marcador"];
-                    $C++;
-                }
-
-                $query .= ")";
-
-                /*conectar() retorna la conexión que preparamos con prepare para la consulta de inserción en la variable $query */
-                $sql = $this->conexion->prepare($query);
-
-
-                foreach ($datos as $clave) {
-                    $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
-                }
-
-
-                $sql->execute();
-                return $this->conexion->lastInsertId();
-            }
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en el guardado',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'Rastro' => $th->getTrace(),
-                'instrucciones' => $datos
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
-        }
-    }
-    private function actualizarDatosP($instrucciones)
-    {
-        try {
-            $this->conectar();
-            //comenzamos la consulta SQL
-            $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
-            //recorremos el arrays con los campos de la misma
-            $C = 0;
-            //return $instrucciones['datos'];
-
-            foreach ($instrucciones['datos'] as $clave) {
-                if ($C >= 1) {
-                    $query .= ", ";
-                }
-                $query .= $clave["campo_nombre"] . " = " .  $clave["campo_marcador"];
-                $C++;
-            }
-            $query .= " WHERE ";
-
-            $co = 0;
-            $numeroCondi = count($instrucciones['condiciones']);
-            foreach ($instrucciones['condiciones'] as $condicion) {
-
-                $query .= $condicion["condicion_campo"] . ' ';
-                $query .= $condicion['comparacion'] . ' ';
-                $query .= $condicion["condicion_marcador"] . ' ';
-
-                if ($numeroCondi > 1 && $co == 0) {
-                    $query .= " AND (";
-                }
-
-                $co++;
-
-                if ($co > 1 && $numeroCondi > 2 && $numeroCondi > $co) {
-                    $query .= " OR ";
-                }
-            }
-            if ($numeroCondi > 1) {
-                $query .= " )";
-            }
-
-            //return $query;
-
-            //la preparamos para evitar la inyeccion de sql
-            $sql = $this->conexion->prepare($query);
-
-            //recorremos el array con la condicion de la misma
-            foreach ($instrucciones['datos'] as $dato) {
-                $sql->bindParam($dato["campo_marcador"], $dato["campo_valor"]);
-            }
-
-            foreach ($instrucciones['condiciones'] as $condicion) {
-                $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
-            }
-
-            $sql->execute(); //ejecutamos la consulta
-
-            return $sql->rowCount();
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la actualización',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'Rastro' => $th->getTrace(),
-                'instrucciones' => $instrucciones
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
-        }
-    }
-    private function eliminarDatosP($tabla, $campo, $id, $permanente)
-    {
-        try {
-            $this->conectar();
-            if ($permanente == true) {
-                $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
-            } else {
-                $sql = $this->conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
-            }
-            $sql->bindParam(":id", $id);
-            $sql->execute();
-            return $sql;
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la eliminación',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'Rastro' => $th->getTrace(),
-                'instrucciones' => [
-                    'tabla' => $tabla,
-                    'campo' => $campo,
-                    'id' => $id,
-                    'permanente' => $permanente,
-                ]
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
-        }
-    }
-    public function hacerPeticionesAPIs(array $instruccionesPe)
-    {
-        $url = $instruccionesPe['url'];
-        $datosPe = $instruccionesPe['datosPe'] ?? '';
-        $metodo = $instruccionesPe['metodo'] ?? 'POST';
-        $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
-        $peticion = curl_init($url);
-        curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
-        if ($metodo == 'POST' || $metodo == 'post') {
-            if ($enviarComoJSON) {
-                $datosPe = json_encode($datosPe);
-                curl_setopt($peticion, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($datosPe)
-                ]);
-                curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
-            } else {
-                curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
-            }
-            curl_setopt($peticion, CURLOPT_POST, true);
-        }
-        $respuesta = curl_exec($peticion);
-
-        // 4. Obtener el código de estado HTTP
-        $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
-
-        if (preg_match('/2\d{2}/', $codigoEstado)) {
-            if (is_string($respuesta)) {
-                return json_decode($respuesta, true);
-            } else {
-                return $respuesta;
-            }
-        } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
-            return [
-                'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion'
-            ];
-        } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
-            return [
-                'error' => 'El o los mensajes no han sido enviados debido a un error en el servidor WebSocket'
-            ];
-        } else {
-            return [
-                'error' => 'El envio del mensaje fallo y no se reconoce el codigo de error que envía el servidor WebSocket'
-            ];
-        }
-    }
-    public function VEYSNEC($instrucciones)
-    {
-        [
-            'tabla' => $tabla,
-            'WHERE' => $WHERE,
-        ] = $instrucciones;
-        $RSEN = $instrucciones['RSEN'] ?? false;
-        $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
-        $camposRetorno = $instrucciones['campos'];
-
-        $camposArray = explode(',', $instrucciones['campos']);
-        $camposArray = array_map(function ($campo) {
-            return trim($campo);
-        }, $camposArray);
+      //Valor de Atributo No Repetible del registro a Actualizar
+      if (isset($campo['VANRA'])) {
 
         $instruccionesBD = [
-            'campos' => '*',
-            'tabla' => $tabla,
-            'WHERE' => $WHERE ?? [],
-            'eliminadosYVigentes' => $eliminadosYVigentes
+          'campos' => "*",
+          'tabla' =>  $campo['tabla'],
+          'WHERE' => [
+            [
+              'condicion_campo' => $campo['campo_nombre'],
+              'condicion_marcador' => ':ID',
+              'condicion_valor' => $campo['campo_valor'],
+              'comparacion' => '=',
+            ]
+          ]
         ];
-        $resultado = $this->seleccionarDatos2($instruccionesBD);
+        $checkRegistro = $this->seleccionarDatos($instruccionesBD);
+        //Para verificar que el valor no es igual al que ya posee
+        $valorCheck = $checkRegistro->fetch(PDO::FETCH_ASSOC);
+        if ($valorCheck[$campo['VANRA']['atributo']] == $campo['VANRA']['valor']) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Valor ya registrado",
+            "texto" => "El valor de " . $campo['formulario_nombre'] . " introducido es igual al actual, por favor verifique e intente de nuevo",
+            "icono" => "error",
+          ];
+          return ($alerta);
+          exit();
+        }
+      }
+    }
+    return false;
+  }
+  public function FechaHora_Sel($tipo, $fecha = null, $tiempo = null)
+  {
+    if ($tipo === 'Fecha_hora_foto') {
+      $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas')); // Especifica la zona horaria de Venezuela
+      $this->fecha = $this->fecha->format('Y-m-d H:i:s');
+      $this->fecha = str_replace(' ', '_', $this->fecha);
+      $this->fecha = str_replace(':', '_', $this->fecha);
+    } elseif ($tipo === 'fecha_hora_BD') {
 
-        if ($resultado->rowCount() == 0) {
-            $instruccionesRegistro = [
-                'tabla' => $tabla,
-                'datos' => []
-            ];
-            foreach ($WHERE as $clave => $valor) {
-                $instruccionesRegistro['datos'][$clave] = $valor;
-            };
-            $ultimoId = $this->guardarDatos2($instruccionesRegistro);
-            if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
-                $alerta = [
-                    "tipo" => "simple",
-                    "titulo" => "Registro automático de la tabla {$tabla} no creado",
-                    "texto" => "El Registro automático no ha podido ser creado",
-                    "icono" => "error",
-                ];
-                return $alerta;
+      $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $this->fecha = $this->fecha->format('Y-m-d H:i:s');
+    } elseif ($tipo == 'fecha_BD') {
+      $this->fecha = str_replace('-', '/', $this->fecha);
+      $this->fecha = str_replace(':', '/', $this->fecha);
+      $this->fecha = DateTime::createFromFormat('d-m-Y', $fecha);
+      $this->fecha = $this->fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Actual_BD') {
+      $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $this->fecha = $this->fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Hora_Actual') {
+      $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $this->fecha = $this->fecha->format('d-m-Y h:i A');
+    } elseif ($tipo == 'fecha_hora_AM_PM') {
+      $timestamp = strtotime($fecha);
+      $this->fecha = date('d-m-Y h:i A', $timestamp);
+    } elseif ($tipo == 'tiempo_antes_BD') {
+      $this->fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $intervalo = new DateInterval('P' . $tiempo . 'D');
+      $this->fecha = $this->fecha->sub($intervalo);
+      $this->fecha = $this->fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Normal') {
+      $this->fecha = DateTime::createFromFormat('Y-m-d', $fecha);
+      $this->fecha = $this->fecha->format('d-m-Y');
+    }
+    return $this->fecha;
+  }
+  public function __destruct()
+  {
+    $this->conexion = null;
+  }
+
+  //Métodos protegidos para el encapsulamiento
+  protected function conectar()
+  {
+    return $this->conectarP();
+  }
+  protected function commit()
+  {
+    return $this->commitP();
+  }
+  protected function rollback()
+  {
+    return $this->rollbackP();
+  }
+  protected function seleccionarDatos(array $datos)
+  {
+    return $this->seleccionarDatosP($datos);
+  }
+  protected function guardarDatos($tabla, $datos, $condicion = null)
+  {
+
+    foreach ($datos as &$dato) {
+      //Pasar a mayúsculas
+      if (isset($dato['ponerEnMayusculas'])) {
+        $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
+      }
+
+      //Pasar la coma a punto
+      if (isset($dato['comaPunto'])) {
+        $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
+      }
+    }
+
+    return $this->guardarDatosP($tabla, $datos, $condicion);
+  }
+  protected function actualizarDatos($instrucciones)
+  {
+
+    foreach ($instrucciones['datos'] as &$dato) {
+      //Pasar a mayúsculas
+      if (isset($dato['ponerEnMayusculas'])) {
+        $dato['campo_valor'] = mb_strtoupper($dato['campo_valor']);
+      }
+
+      //Pasar la coma a punto
+      if (isset($dato['comaPunto'])) {
+        $dato['campo_valor'] = str_ireplace(',', '.', $dato['campo_valor']);
+      }
+    }
+
+    return $this->actualizarDatosP($instrucciones);
+  }
+  protected function eliminarDatos($tabla, $campo, $id, $permanente = null)
+  {
+    return $this->eliminarDatosP($tabla, $campo, $id, $permanente);
+  }
+
+  /*Métodos privados para el manejo de datos con la BD*/
+  protected function conectarP()
+  {
+    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
+      return;
+    }
+    if ($this->conexion == null) {
+      try {
+        $this->conexion = new PDO(
+          "mysql:host=" . $this->servidorDB . ";dbname=" . $this->nombreDB,
+          $this->userDB,
+          $this->passwordDB,
+          [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            //PDO::ATTR_EMULATE_PREPARES => false, // Mejor seguridad y rendimiento
+          ]
+        );
+        $this->conexion->exec("SET CHARACTER SET utf8");
+      } catch (PDOException $e) {
+        // Para obtener el error
+        throw new PDOException("Error al establecer la conexión con la base de datos: " . $e->getMessage(), " Código de error: " . $e->getCode());
+      }
+    }
+    if (!$this->conexion->inTransaction()) {
+      try {
+        $this->conexion->beginTransaction();
+      } catch (PDOException $e) {
+        throw new PDOException("Error al iniciar la transacción: " . $e->getMessage(), " Este es el código: " . $e->getCode());
+      }
+    }
+    return $this->conexion;
+  }
+  protected function commitP()
+  {
+    //verificamos que la conexión esté abierta y esté en una transacción
+    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
+      try {
+        $this->conexion->commit();
+      } catch (PDOException $e) {
+        throw new PDOException("Error al confirmar la transacción (COMMIT): " . $e->getMessage(), (int)$e->getCode());
+      }
+    }
+  }
+  protected function rollbackP()
+  {
+    //aqui verificamos igual que en el commit
+    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
+      try {
+        $this->conexion->rollBack();
+      } catch (PDOException $e) {
+        throw new PDOException("Error al revertir la transacción (ROLLBACK): " . $e->getMessage(), (int)$e->getCode());
+      }
+    }
+  }
+  private function seleccionarDatosP($datos)
+  {
+    try {
+      $this->conectar();
+      //LOS CAMPOS Y LA TABLA
+      $consulta = 'SELECT ' . $datos['campos'] . ' FROM ' . $datos['tabla'] . ' ';
+
+      //INNER JOINS
+      if (isset($datos['datosJoins'])) {
+        foreach ($datos['datosJoins'] as $join) {
+          if (is_array($join) && isset($join["TablaDestino"]) && isset($join["conexionLo"])) {
+            if (isset($join['tipoJoin'])) {
+              $consulta .=
+                " " . $join['tipoJoin'] . " JOIN " . $join["TablaDestino"] .
+                " ON " . $join["conexionLo"];
+            } else {
+              $consulta .=
+                " INNER JOIN " . $join["TablaDestino"] .
+                " ON " . $join["conexionLo"];
             }
-            $instruccionesBD = [
-                'campos' => $camposRetorno,
-                'tabla' => $tabla,
-                'WHERE' => $WHERE ?? [],
-                'eliminadosYVigentes' => $eliminadosYVigentes
-            ];
-            $resultado = $this->seleccionarDatos2($instruccionesBD);
-            if (count($camposArray) == 1) {
-                return $resultado->fetch(PDO::FETCH_COLUMN);
-            } elseif (count($camposArray) > 1) {
-                return $resultado->fetch(PDO::FETCH_ASSOC);
+          }
+        }
+      }
+      //CONDICIÓN DE ELIMINADO LÓGICO
+      if (isset($datos['registrosEli'])) {
+        $consulta .= ' WHERE ';
+        //Prefijo de Eliminado Lógico
+        if (isset($datos['PEL'])) {
+          $consulta .= '' . $datos['PEL'] . '.';
+        }
+        $consulta .= 'status = 0 ';
+      } elseif (isset($datos['eliminadosYVigentes'])) {
+        $consulta .= ' WHERE ';
+        if (isset($datos['PEL'])) {
+          $consulta .= '' . $datos['PEL'] . '.';
+        }
+        $consulta .= 'status > -1 ';
+      } else {
+        $consulta .= ' WHERE ';
+        if (isset($datos['PEL'])) {
+          $consulta .= '' . $datos['PEL'] . '.';
+        }
+        $consulta .= 'status != 0 ';
+      }
+
+      //CONDICIONES EXTRAS
+      if (isset($datos['WHERE'])) {
+        foreach ($datos['WHERE'] as $condicion) {
+          $consulta .= 'AND ' . $condicion['condicion_campo'] . ' ';
+          $consulta .= $condicion['comparacion'] . ' ';
+          $consulta .= $condicion['condicion_marcador'] . ' ';
+        }
+      }
+      //GROUP BY
+      if (isset($datos['GROUP']) && !empty($datos['GROUP'])) {
+        $consulta .= " GROUP BY " . $datos['GROUP'];
+      }
+      // HAVING
+      if (isset($datos['HAVING'])) {
+        $consulta .= ' HAVING ';
+        $ch = 0;
+        foreach ($datos['HAVING'] as $condicion) {
+          if ($ch > 0) {
+            $consulta .= 'AND ';
+          }
+          $consulta .= $condicion['condicion_campo'] . ' ';
+          $consulta .= $condicion['comparacion'] . ' ';
+          $consulta .= $condicion['condicion_marcador'] . ' ';
+          $ch++;
+        }
+      }
+      //ORDER BY
+      if (isset($datos['ORDER']) && !empty($datos['ORDER'])) {
+        $consulta .= " ORDER BY " . $datos['ORDER'];
+      }
+      //LIMIT
+      if (isset($datos['LIMIT']) && !empty($datos['LIMIT'])) {
+        $consulta .= " LIMIT " . $datos['LIMIT'];
+      }
+
+      //PREPARACIÓN (ANTI-SQL-INYECTION)
+      $consulta = $this->conexion->prepare($consulta);
+
+      //HACEMOS EL BIND DE MARCADORES POR VALORES
+
+      //return $datos['WHERE'];
+      if (isset($datos['WHERE'])) {
+        foreach ($datos['WHERE'] as $condicion) {
+          $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+        }
+      }
+      if (isset($datos['HAVING'])) {
+        foreach ($datos['HAVING'] as $condicion) {
+          $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+        }
+      }
+      $consulta->execute();
+      return $consulta;
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la selección',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'Rastro' => $th->getTrace(),
+        'instrucciones' => $datos
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  private function guardarDatosP($tabla, $datos, $condicion)
+  {
+    try {
+      $this->conectar();
+      if ($condicion != null) {
+        /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
+
+        $instruccionesBD = [
+          'campos' => '*',
+          'registrosEli' => true,
+          'tabla' => $tabla,
+          'WHERE' => [
+            [
+              'condicion_campo' => $condicion["condicion_campo"],
+              'condicion_marcador' => ':Id',
+              'condicion_valor' => $condicion["condicion_valor"],
+              'comparacion' => '=',
+            ]
+          ]
+        ];
+
+        $registroExistente = $this->seleccionarDatos($instruccionesBD);
+        if ($registroExistente->rowCount() > 0) {
+          //comenzamos la consulta SQL
+          $query = "UPDATE $tabla SET ";
+
+          //recorremos el arrays con los campos de la misma
+          $C = 0;
+          foreach ($datos as $clave) {
+
+            if ($C >= 1) {
+              $query .= ",";
             }
+            $query .= $clave["campo_nombre"] . "=" .  $clave["campo_marcador"];
+            $C++;
+          }
+
+          $query .= ", status = 1";
+          $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
+
+          //la preparamos para evitar la inyeccion de sql
+          $sql = $this->conexion->prepare($query);
+
+          //recorremos el array con la condicion de la misma
+          foreach ($datos as $clave) {
+            $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
+            $C++;
+          }
+
+          $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+          $sql->execute(); //ejecutamos la consulta
+
+          return $sql->rowCount();
         } else {
-            $info = $resultado->fetch(PDO::FETCH_ASSOC);
-            if ($RSEN == true) {
-                $estado = $info['status'];
-                if ($estado == 0) {
-                    $resultadoAct = $this->actualizarDatos2([
-                        'tabla' => $tabla,
-                        'datos' => [
-                            'status' => 1
-                        ],
-                        'condiciones' => $WHERE
-                    ]);
-                    if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
-                        return $resultadoAct;
-                    } else {
-                        $info['status'] = 1;
-                    }
-                }
+          $query = "INSERT INTO $tabla (";
+
+          $C = 0;
+          foreach ($datos as $clave) {
+            if ($C >= 1) {
+              $query .= ", ";
             }
-            if (count($camposArray) == 1) {
-                return $info[$camposArray[0]];
-            } elseif (count($camposArray) > 1) {
-                $resultado = array_intersect_key($info, array_flip($camposArray));
-                return $resultado;
+            $query .= $clave["campo_nombre"];
+            $C++;
+          }
+
+          $query .= ") VALUES (";
+
+          $C = 0;
+          foreach ($datos as $clave) {
+            if ($C >= 1) {
+              $query .= ", ";
             }
-        }
-    }
-    public function seleccionarDatos2($instrucciones)
-    {
-        return $this->seleccionarDatosP2($instrucciones);
-    }
-    public function guardarDatos2($instrucciones)
-    {
-        return $this->guardarDatosP2($instrucciones);
-    }
-    public function actualizarDatos2($instrucciones)
-    {
-        return $this->actualizarDatosP2($instrucciones);
-    }
-    public function eliminarDatos2($instrucciones)
-    {
-        return $this->eliminarDatosP2($instrucciones);
-    }
-    private function seleccionarDatosP2($instrucciones)
-    {
-        try {
-            $this->conectar();
-            $campos = $instrucciones['campos'];
-            $tabla = trim($instrucciones['tabla']);
-            $datosJoins = $instrucciones['datosJoins'] ?? false;
-            $registrosEli = $instrucciones['registrosEli'] ?? false;
-            $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? false;
-            $WHERE = $instrucciones['WHERE'] ?? false;
-            $GROUP = $instrucciones['GROUP'] ?? false;
-            $HAVING = $instrucciones['HAVING'] ?? false;
-            $ORDER = $instrucciones['ORDER'] ?? false;
-            $LIMIT = $instrucciones['LIMIT'] ?? false;
-            $patronAS_captura = '/\b(as|AS)\b\s*(.*)/i';
-            $PEL = '';
-            if (preg_match($patronAS_captura, $tabla, $matches)) {
-                $PEL = trim($matches[2]) . '.';
-            }
-            //LOS CAMPOS Y LA TABLA
-            $consulta = 'SELECT ' . $campos . ' FROM ' . $tabla . ' ';
+            $query .= $clave["campo_marcador"];
+            $C++;
+          }
 
-            //INNER JOINS        
-            if ($datosJoins) {
-                foreach ($datosJoins as $tablaDestino => &$conexionLo) {
-                    $patron = '/^\b(LEFT|RIGHT|FULL|OUTER|CROSS|NATURAL)\b/i';
-                    $tipoJoin = 'INNER';
-                    if (preg_match($patron, $tablaDestino, $matches)) {
-                        $tipoJoin = $matches[0] ?? 'INNER';
-                        $palabras = ['INNER', 'LEFT', "RIGHT", "FULL", "OUTER", "CROSS", "NATURAL"];
-                        foreach ($palabras as $palabra) {
-                            $tablaDestino = str_ireplace($palabra, "", $tablaDestino);
-                        }
-                    }
-                    $consulta .= " " . $tipoJoin . " JOIN " . $tablaDestino . " ON " . $conexionLo;
-                }
-            }
+          $query .= " ) ";
+          $sql = $this->conexion->prepare($query);
 
-            //CONDICIÓN DE ELIMINADO LÓGICO
-            $consulta .= ' WHERE ' . $PEL . 'status ';
-            if ($registrosEli) {
-                $consulta .= '= 0 ';
-            } elseif ($eliminadosYVigentes == true) {
-                $consulta .= '> -1 ';
-            } else {
-                $consulta .= '!= 0 ';
-            }
+          foreach ($datos as $clave) {
+            $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
+          }
 
-            $guardarMarcador = function (&$almacenamiento, $campo) {
-                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
-                $marcador = ':' . str_ireplace('.', "_", $campo);
+          $sql->execute();
 
-                if (!isset($almacenamiento[$campo])) {
-                    $almacenamiento[$campo] = [$marcador];
-                } else {
-                    $marcador .= count($almacenamiento[$campo]);
-                    $almacenamiento[$campo][] = $marcador;
-                }
-                return $marcador;
-            };
-
-            if ($WHERE) {
-                $marcadoresWHERE = [];
-                foreach ($WHERE as $claveW1 => &$valorW1) {
-                    if (!is_array($valorW1)) {
-                        $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
-                        $operadorLo = '=';
-                        if (preg_match($patron_operador, $valorW1, $matches)) {
-                            $operadorLo = $matches[0];
-                            $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
-                            foreach ($palabras as $palabra) {
-                                $valorW1 = str_ireplace($palabra, "", $valorW1);
-                            }
-                        }
-
-                        $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                        $consulta .= ' AND ' . $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
-                    } else {
-                        foreach ($valorW1 as $operadorW1 => $valoresW1) {
-                            if (!is_array($valoresW1)) {
-                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                                $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                            } else {
-                                $CV = 0;
-                                $operadorW1 = trim($operadorW1);
-                                foreach ($valoresW1 as $v) {
-                                    if ($operadorW1 == '=' && $CV > 0) {
-                                        $UNION = ' OR ';
-                                    } else {
-                                        $UNION = ' AND ';
-                                    }
-                                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                                    $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                                    $CV++;
-                                }
-                            }
-                        }
-                    }
-                }
-                unset($valorW1);
-            }
-            if ($HAVING) {
-                $marcadoresHAVING = [];
-                $consulta .= ' HAVING ';
-                $ch = 0;
-                foreach ($HAVING as $claveH1 => &$valorH1) {
-                    if ($ch > 0) {
-                        $consulta .= ' AND ';
-                    }
-
-                    if (!is_array($valorH1)) {
-                        $patron_operador = '/^(<=|>=|<>|<|>|!=)/';
-                        $operadorLo = '=';
-                        if (preg_match($patron_operador, $valorH1, $matches)) {
-                            $operadorLo = $matches[0];
-                            $palabras = ["<=", ">=", "<>", "<", ">", "!="];
-                            foreach ($palabras as $palabra) {
-                                $valorH1 = str_ireplace($palabra, "", $valorH1);
-                            }
-                        }
-                        $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
-                        $consulta .= $claveH1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
-                    } else {
-                        foreach ($valorH1 as $operadorH1 => $valoresH1) {
-                            if (is_array($valoresH1)) {
-                                foreach ($valoresH1 as $valor) {
-                                    $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
-                                    if (is_array($claveH1) || is_array($operadorH1) || is_array($marcador)) {
-                                        return ['aqui10'];
-                                    }
-                                    $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
-                                }
-                            } else {
-                                $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
-                                $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
-                            }
-                        }
-                    }
-                    $ch++;
-                }
-                unset($valorH1);
-            }
-            if ($GROUP) {
-                $consulta .= " GROUP BY " . $GROUP;
-            }
-            if ($ORDER) {
-                $consulta .= " ORDER BY " . $ORDER;
-            }
-            if ($LIMIT) {
-                $consulta .= " LIMIT " . $LIMIT;
-            }
-
-            $consulta = preg_replace('/\s+/', ' ', $consulta);
-            $consulta = $this->conexion->prepare($consulta);
-            if ($WHERE) {
-                foreach ($WHERE as $claveW2 => $valorW2) {
-                    $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
-                    if (!is_array($valorW2)) {
-                        $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                        $consulta->bindValue($marcador, $valorW2);
-                    } else {
-                        foreach ($valorW2 as $operadorW2 => $valoresW2) {
-                            if (is_array($valoresW2)) {
-                                foreach ($valoresW2 as $valorInd) {
-                                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                                    $consulta->bindValue($marcador, $valorInd);
-                                }
-                            } else {
-                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                                $consulta->bindValue($marcador, $valoresW2);
-                            }
-                        }
-                    }
-                }
-            }
-            if ($HAVING) {
-
-                foreach ($HAVING as $claveH2 => $valorH2) {
-                    if (!is_array($valorH2)) {
-                        $claveH2 = $this->limpiarCadena($claveH2, 'antiFuncionesSQL');
-                        $marcador = array_shift($marcadoresHAVING[$claveH2]);
-                        $consulta->bindValue($marcador, $valorH2);
-                    } else {
-                        foreach ($valorH2 as $operadorH2 => $valoresH2) {
-                            if (is_array($valoresH2)) {
-                                foreach ($valoresH2 as $valorInd) {
-                                    $marcador = array_shift($marcadoresHAVING[$claveH2]);
-                                    $consulta->bindValue($marcador, $valorInd);
-                                }
-                            } else {
-                                $marcador = array_shift($marcadoresHAVING[$claveH2]);
-                                $consulta->bindValue($marcador, $valoresH2);
-                            }
-                        }
-                    }
-                }
-            }
-
-            $consulta->execute();
-            return $consulta;
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la selección',
-                'linea' => (int)$th->getLine(),
-                'código de error' => (int)$th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'rastro' => $th->getTrace(),
-                'instrucciones' => $instrucciones,
-                'consulta' => $consulta ?? 'Sin consulta',
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
-        }
-    }
-    private function guardarDatosP2($instrucciones)
-    {
-        try {
-            [
-                'tabla' => $tabla,
-                'datos' => $datos,
-            ] = $instrucciones;
-            $camposReciclado = $instrucciones['camposReciclado'] ?? false;
-            if (empty($datos) || !is_array($datos)) {
-                throw new \Exception("El parámetro 'datos' está vacío o no es un array en guardarDatosP.");
-            }
-            if (empty($tabla) || $tabla == '') {
-                throw new \Exception("El parámetro 'tabla' está vacío dentro del metodo de guardarDatosP");
-            }
-
-            $this->conectar();
-            $esActualizacion = false;
-            if ($camposReciclado != false) {
-                $instruccionesBD = [
-                    'campos' => '*',
-                    'registrosEli' => true,
-                    'tabla' => $tabla,
-                    'WHERE' => []
-                ];
-                foreach ($camposReciclado as $campo => &$valor) {
-                    $instruccionesBD["WHERE"][$campo] = $valor;
-                }
-                $resultado = $this->seleccionarDatos($instruccionesBD);
-
-                if ($resultado->rowCount() > 0) {
-                    $esActualizacion = true;
-                }
-            }
-            if ($esActualizacion) {
-                $instrucciones['reciclaje'] = true;
-                return $this->actualizarDatos($instrucciones);
-            } else {
-                $query = "INSERT INTO $tabla ";
-
-                $C = 0;
-                $stringCampos = '';
-                $stringMarcadores = '';
-
-                foreach ($datos as $clave => $valor) {
-                    if ($C >= 1) {
-                        $stringCampos .= ', ';
-                        $stringMarcadores .= ', ';
-                    }
-                    $stringCampos .= $clave;
-                    $marcador = ':' . str_ireplace('.', "_", $clave);
-                    $stringMarcadores .= $marcador;
-                    $C++;
-                }
-                $query .= '(' . $stringCampos . ') VALUES (' . $stringMarcadores . ')';
-                $sql = $this->conexion->prepare($query);
-
-                foreach ($datos as $clave => $valor) {
-                    $marcador = ':' . str_ireplace('.', "_", $clave);
-                    $sql->bindValue($marcador, $valor);
-                }
-                $sql->execute();
-
-                //Porque el ID puede o no ser autoincremental
-                if ($this->conexion->lastInsertId() > 0) {
-                    return $this->conexion->lastInsertId();
-                } else {
-                    return $sql->rowCount();
-                }
-            }
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la inserción',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'rastro' => $th->getTrace(),
-                'instrucciones' => $instrucciones
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
-        }
-    }
-    private function actualizarDatosP2($instrucciones)
-    {
-        try {
-            $this->conectar();
-            [
-                'tabla' => $tabla,
-                'datos' => $datos,
-            ] = $instrucciones;
-            $condiciones = $instrucciones['camposReciclado'] ?? $instrucciones['condiciones'];
-            $reciclaje = $instrucciones['reciclaje'] ?? false;
-
-            //comenzamos la consulta SQL
-            $consulta = "UPDATE $tabla SET ";
-
-            $guardarMarcador = function (&$almacenamiento, $campo) {
-                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
-                $marcador = ':' . str_ireplace('.', "_", $campo);
-                if (!isset($almacenamiento[$campo])) {
-                    $almacenamiento[$campo] = [$marcador];
-                } else {
-                    $marcador .= count($almacenamiento[$campo]);
-                    $almacenamiento[$campo][] = $marcador;
-                }
-                return $marcador;
-            };
-            $marcadoresConsulta = [];
-
-            $C = 0;
-            foreach ($datos as $campoClave => $campoValor) {
-                if ($C >= 1) {
-                    $consulta .= ",";
-                }
-                $marcador = $guardarMarcador($marcadoresConsulta, $campoClave);
-                $consulta .= $campoClave . " = " . $marcador;
-                $C++;
-            }
-
-            if ($reciclaje) {
-                $consulta .= ', status = 1';
-            }
-            $consulta .= " WHERE ";
-
-            $c2 = 0;
-            foreach ($condiciones as $claveW1 => &$valorW1) {
-                if ($c2 != 0) {
-                    $consulta .= ' AND ';
-                }
-                if (!is_array($valorW1)) {
-                    $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
-                    $operadorLo = '=';
-                    if (preg_match($patron_operador, $valorW1, $matches)) {
-                        $operadorLo = $matches[0];
-                        $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
-                        foreach ($palabras as $palabra) {
-                            $valorW1 = str_ireplace($palabra, "", $valorW1);
-                        }
-                    }
-                    $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
-                    $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
-                } else {
-                    foreach ($valorW1 as $operadorW1 => $valoresW1) {
-                        if (!is_array($valoresW1)) {
-                            $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                            $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                        } else {
-                            $CV = 0;
-                            $operadorW1 = trim($operadorW1);
-                            foreach ($valoresW1 as $v) {
-                                if ($operadorW1 == '=' && $CV > 0) {
-                                    $UNION = ' OR ';
-                                } else {
-                                    $UNION = ' AND ';
-                                }
-                                $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
-                                $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                                $CV++;
-                            }
-                        }
-                    }
-                }
-                $c2++;
-            }
-            unset($valorW1);
-            $sql = $this->conexion->prepare($consulta);
-
-            foreach ($datos as $campoClave2 => $valorCampo2) {
-                $marcador = array_shift($marcadoresConsulta[$campoClave2]);
-                $sql->bindValue($marcador, $valorCampo2);
-            }
-
-            foreach ($condiciones as $claveW2 => $valorW2) {
-                $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
-                if (!is_array($valorW2)) {
-                    $marcador = array_shift($marcadoresConsulta[$claveW2]);
-                    $sql->bindValue($marcador, $valorW2);
-                } else {
-                    foreach ($valorW2 as $operadorW2 => $valoresW2) {
-                        if (is_array($valoresW2)) {
-                            foreach ($valoresW2 as $valorInd) {
-                                $marcador = array_shift($marcadoresConsulta[$claveW2]);
-                                $sql->bindValue($marcador, $valorInd);
-                            }
-                        } else {
-                            $marcador = array_shift($marcadoresConsulta[$claveW2]);
-                            $sql->bindValue($marcador, $valoresW2);
-                        }
-                    }
-                }
-            }
-            $sql->execute();
+          //Porque el ID puede o no ser autoincremental
+          if ($this->conexion->lastInsertId() > 0) {
+            return $this->conexion->lastInsertId();
+          } else {
             return $sql->rowCount();
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la actualización',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'consulta' => $consulta,
-                'rastro' => $th->getTrace(),
-                'instrucciones' => $instrucciones
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+          }
         }
-    }
-    private function eliminarDatosP2($instrucciones)
-    {
-        try {
-            [
-                'tabla' => $tabla,
-                'WHERE' => $WHERE,
-            ] = $instrucciones;
-            $permanentemente = $instrucciones['fisico'] ?? false;
+      } else {
+        $query = "INSERT INTO $tabla (";
 
-            $this->conectar();
-            $consulta = '';
-            if ($permanentemente == true) {
-                $consulta .= "DELETE FROM $tabla";
+        $C = 0;
+        foreach ($datos as $clave) {
+          if ($C >= 1) {
+            $query .= ", ";
+          }
+          $query .= $clave["campo_nombre"];
+          $C++;
+        }
+
+        $query .= ") VALUES (";
+
+        $C = 0;
+        foreach ($datos as $clave) {
+          if ($C >= 1) {
+            $query .= ", ";
+          }
+          $query .= $clave["campo_marcador"];
+          $C++;
+        }
+
+        $query .= ")";
+
+        /*conectar() retorna la conexión que preparamos con prepare para la consulta de inserción en la variable $query */
+        $sql = $this->conexion->prepare($query);
+
+
+        foreach ($datos as $clave) {
+          $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
+        }
+
+
+        $sql->execute();
+        return $this->conexion->lastInsertId();
+      }
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en el guardado',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'Rastro' => $th->getTrace(),
+        'instrucciones' => $datos
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  private function actualizarDatosP($instrucciones)
+  {
+    try {
+      $this->conectar();
+      //comenzamos la consulta SQL
+      $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
+      //recorremos el arrays con los campos de la misma
+      $C = 0;
+      //return $instrucciones['datos'];
+
+      foreach ($instrucciones['datos'] as $clave) {
+        if ($C >= 1) {
+          $query .= ", ";
+        }
+        $query .= $clave["campo_nombre"] . " = " .  $clave["campo_marcador"];
+        $C++;
+      }
+      $query .= " WHERE ";
+
+      $co = 0;
+      $numeroCondi = count($instrucciones['condiciones']);
+      foreach ($instrucciones['condiciones'] as $condicion) {
+
+        $query .= $condicion["condicion_campo"] . ' ';
+        $query .= $condicion['comparacion'] . ' ';
+        $query .= $condicion["condicion_marcador"] . ' ';
+
+        if ($numeroCondi > 1 && $co == 0) {
+          $query .= " AND (";
+        }
+
+        $co++;
+
+        if ($co > 1 && $numeroCondi > 2 && $numeroCondi > $co) {
+          $query .= " OR ";
+        }
+      }
+      if ($numeroCondi > 1) {
+        $query .= " )";
+      }
+
+      //return $query;
+
+      //la preparamos para evitar la inyeccion de sql
+      $sql = $this->conexion->prepare($query);
+
+      //recorremos el array con la condicion de la misma
+      foreach ($instrucciones['datos'] as $dato) {
+        $sql->bindParam($dato["campo_marcador"], $dato["campo_valor"]);
+      }
+
+      foreach ($instrucciones['condiciones'] as $condicion) {
+        $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
+      }
+
+      $sql->execute(); //ejecutamos la consulta
+
+      return $sql->rowCount();
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la actualización',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'Rastro' => $th->getTrace(),
+        'instrucciones' => $instrucciones
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  private function eliminarDatosP($tabla, $campo, $id, $permanente)
+  {
+    try {
+      $this->conectar();
+      if ($permanente == true) {
+        $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
+      } else {
+        $sql = $this->conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
+      }
+      $sql->bindParam(":id", $id);
+      $sql->execute();
+      return $sql;
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la eliminación',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'Rastro' => $th->getTrace(),
+        'instrucciones' => [
+          'tabla' => $tabla,
+          'campo' => $campo,
+          'id' => $id,
+          'permanente' => $permanente,
+        ]
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  public function hacerPeticionesAPIs(array $instruccionesPe)
+  {
+    $url = $instruccionesPe['url'];
+    $datosPe = $instruccionesPe['datosPe'] ?? '';
+    $metodo = $instruccionesPe['metodo'] ?? 'POST';
+    $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
+    $peticion = curl_init($url);
+    curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
+    if ($metodo == 'POST' || $metodo == 'post') {
+      if ($enviarComoJSON) {
+        $datosPe = json_encode($datosPe);
+        curl_setopt($peticion, CURLOPT_HTTPHEADER, [
+          'Content-Type: application/json',
+          'Content-Length: ' . strlen($datosPe)
+        ]);
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
+      } else {
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
+      }
+      curl_setopt($peticion, CURLOPT_POST, true);
+    }
+    $respuesta = curl_exec($peticion);
+
+    // 4. Obtener el código de estado HTTP
+    $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
+
+    if (preg_match('/2\d{2}/', $codigoEstado)) {
+      if (is_string($respuesta)) {
+        return json_decode($respuesta, true);
+      } else {
+        return $respuesta;
+      }
+    } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion'
+      ];
+    } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'El o los mensajes no han sido enviados debido a un error en el servidor WebSocket'
+      ];
+    } else {
+      return [
+        'error' => 'El envio del mensaje fallo y no se reconoce el codigo de error que envía el servidor WebSocket'
+      ];
+    }
+  }
+  public function seleccionarDatos2($instrucciones)
+  {
+    return $this->seleccionarDatosP2($instrucciones);
+  }
+  public function guardarDatos2($instrucciones)
+  {
+    return $this->guardarDatosP2($instrucciones);
+  }
+  public function actualizarDatos2($instrucciones)
+  {
+    return $this->actualizarDatosP2($instrucciones);
+  }
+  public function eliminarDatos2($instrucciones)
+  {
+    return $this->eliminarDatosP2($instrucciones);
+  }
+  private function seleccionarDatosP2($instrucciones)
+  {
+    try {
+      $this->conectar();
+      $campos = $instrucciones['campos'];
+      $tabla = trim($instrucciones['tabla']);
+      $datosJoins = $instrucciones['datosJoins'] ?? false;
+      $registrosEli = $instrucciones['registrosEli'] ?? false;
+      $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? false;
+      $WHERE = $instrucciones['WHERE'] ?? false;
+      $GROUP = $instrucciones['GROUP'] ?? false;
+      $HAVING = $instrucciones['HAVING'] ?? false;
+      $ORDER = $instrucciones['ORDER'] ?? false;
+      $LIMIT = $instrucciones['LIMIT'] ?? false;
+      $patronAS_captura = '/\b(as|AS)\b\s*(.*)/i';
+      $PEL = '';
+      if (preg_match($patronAS_captura, $tabla, $matches)) {
+        $PEL = trim($matches[2]) . '.';
+      }
+      //LOS CAMPOS Y LA TABLA
+      $consulta = 'SELECT ' . $campos . ' FROM ' . $tabla . ' ';
+
+      //INNER JOINS        
+      if ($datosJoins) {
+        foreach ($datosJoins as $tablaDestino => &$conexionLo) {
+          $patron = '/^\b(LEFT|RIGHT|FULL|OUTER|CROSS|NATURAL)\b/i';
+          $tipoJoin = 'INNER';
+          if (preg_match($patron, $tablaDestino, $matches)) {
+            $tipoJoin = $matches[0] ?? 'INNER';
+            $palabras = ['INNER', 'LEFT', "RIGHT", "FULL", "OUTER", "CROSS", "NATURAL"];
+            foreach ($palabras as $palabra) {
+              $tablaDestino = str_ireplace($palabra, "", $tablaDestino);
+            }
+          }
+          $consulta .= " " . $tipoJoin . " JOIN " . $tablaDestino . " ON " . $conexionLo;
+        }
+      }
+
+      //CONDICIÓN DE ELIMINADO LÓGICO
+      $consulta .= ' WHERE ' . $PEL . 'status ';
+      if ($registrosEli) {
+        $consulta .= '= 0 ';
+      } elseif ($eliminadosYVigentes == true) {
+        $consulta .= '> -1 ';
+      } else {
+        $consulta .= '!= 0 ';
+      }
+
+      $guardarMarcador = function (&$almacenamiento, $campo) {
+        $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+        $marcador = ':' . str_ireplace('.', "_", $campo);
+
+        if (!isset($almacenamiento[$campo])) {
+          $almacenamiento[$campo] = [$marcador];
+        } else {
+          $marcador .= count($almacenamiento[$campo]);
+          $almacenamiento[$campo][] = $marcador;
+        }
+        return $marcador;
+      };
+
+      if ($WHERE) {
+        $marcadoresWHERE = [];
+        foreach ($WHERE as $claveW1 => &$valorW1) {
+          if (!is_array($valorW1)) {
+            $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
+            $operadorLo = '=';
+            if (preg_match($patron_operador, $valorW1, $matches)) {
+              $operadorLo = $matches[0];
+              $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+              foreach ($palabras as $palabra) {
+                $valorW1 = str_ireplace($palabra, "", $valorW1);
+              }
+            }
+
+            $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+            $consulta .= ' AND ' . $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+          } else {
+            foreach ($valorW1 as $operadorW1 => $valoresW1) {
+              if (!is_array($valoresW1)) {
+                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+              } else {
+                $CV = 0;
+                $operadorW1 = trim($operadorW1);
+                foreach ($valoresW1 as $v) {
+                  if ($operadorW1 == '=' && $CV > 0) {
+                    $UNION = ' OR ';
+                  } else {
+                    $UNION = ' AND ';
+                  }
+                  $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                  $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                  $CV++;
+                }
+              }
+            }
+          }
+        }
+        unset($valorW1);
+      }
+      if ($HAVING) {
+        $marcadoresHAVING = [];
+        $consulta .= ' HAVING ';
+        $ch = 0;
+        foreach ($HAVING as $claveH1 => &$valorH1) {
+          if ($ch > 0) {
+            $consulta .= ' AND ';
+          }
+
+          if (!is_array($valorH1)) {
+            $patron_operador = '/^(<=|>=|<>|<|>|!=)/';
+            $operadorLo = '=';
+            if (preg_match($patron_operador, $valorH1, $matches)) {
+              $operadorLo = $matches[0];
+              $palabras = ["<=", ">=", "<>", "<", ">", "!="];
+              foreach ($palabras as $palabra) {
+                $valorH1 = str_ireplace($palabra, "", $valorH1);
+              }
+            }
+            $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+            $consulta .= $claveH1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+          } else {
+            foreach ($valorH1 as $operadorH1 => $valoresH1) {
+              if (is_array($valoresH1)) {
+                foreach ($valoresH1 as $valor) {
+                  $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+                  if (is_array($claveH1) || is_array($operadorH1) || is_array($marcador)) {
+                    return ['aqui10'];
+                  }
+                  $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
+                }
+              } else {
+                $marcador = $guardarMarcador($marcadoresHAVING, $claveH1);
+                $consulta .= ' AND ' . $claveH1 . ' ' . $operadorH1 . ' ' . $marcador . ' ';
+              }
+            }
+          }
+          $ch++;
+        }
+        unset($valorH1);
+      }
+      if ($GROUP) {
+        $consulta .= " GROUP BY " . $GROUP;
+      }
+      if ($ORDER) {
+        $consulta .= " ORDER BY " . $ORDER;
+      }
+      if ($LIMIT) {
+        $consulta .= " LIMIT " . $LIMIT;
+      }
+
+      $consulta = preg_replace('/\s+/', ' ', $consulta);
+
+      $consulta = $this->conexion->prepare($consulta);
+      if ($WHERE) {
+        foreach ($WHERE as $claveW2 => $valorW2) {
+          $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+          if (!is_array($valorW2)) {
+            $marcador = array_shift($marcadoresWHERE[$claveW2]);
+            $consulta->bindValue($marcador, $valorW2);
+          } else {
+            foreach ($valorW2 as $operadorW2 => $valoresW2) {
+              if (is_array($valoresW2)) {
+
+                foreach ($valoresW2 as $valorInd) {
+
+
+                  $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                  $consulta->bindValue($marcador, $valorInd);
+                }
+              } else {
+                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                $consulta->bindValue($marcador, $valoresW2);
+              }
+            }
+          }
+        }
+      }
+      if ($HAVING) {
+
+        foreach ($HAVING as $claveH2 => $valorH2) {
+          if (!is_array($valorH2)) {
+            $claveH2 = $this->limpiarCadena($claveH2, 'antiFuncionesSQL');
+            $marcador = array_shift($marcadoresHAVING[$claveH2]);
+            $consulta->bindValue($marcador, $valorH2);
+          } else {
+            foreach ($valorH2 as $operadorH2 => $valoresH2) {
+              if (is_array($valoresH2)) {
+                foreach ($valoresH2 as $valorInd) {
+                  $marcador = array_shift($marcadoresHAVING[$claveH2]);
+                  $consulta->bindValue($marcador, $valorInd);
+                }
+              } else {
+                $marcador = array_shift($marcadoresHAVING[$claveH2]);
+                $consulta->bindValue($marcador, $valoresH2);
+              }
+            }
+          }
+        }
+      }
+      $consulta->execute();
+      return $consulta;
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la selección',
+        'linea' => (int)$th->getLine(),
+        'código de error' => (int)$th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'rastro' => $th->getTrace(),
+        'instrucciones' => $instrucciones,
+        'consulta' => $consulta ?? 'Sin consulta',
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  private function guardarDatosP2($instrucciones)
+  {
+    try {
+      [
+        'tabla' => $tabla,
+        'datos' => $datos,
+      ] = $instrucciones;
+      $camposReciclado = $instrucciones['camposReciclado'] ?? false;
+      if (empty($datos) || !is_array($datos)) {
+        throw new \Exception("El parámetro 'datos' está vacío o no es un array en guardarDatosP.");
+      }
+      if (empty($tabla) || $tabla == '') {
+        throw new \Exception("El parámetro 'tabla' está vacío dentro del metodo de guardarDatosP");
+      }
+
+      $this->conectar();
+      $esActualizacion = false;
+      if ($camposReciclado != false) {
+        $instruccionesBD = [
+          'campos' => '*',
+          'registrosEli' => true,
+          'tabla' => $tabla,
+          'WHERE' => []
+        ];
+        foreach ($camposReciclado as $campo => &$valor) {
+          $instruccionesBD["WHERE"][$campo] = $valor;
+        }
+        $resultado = $this->seleccionarDatos($instruccionesBD);
+
+        if ($resultado->rowCount() > 0) {
+          $esActualizacion = true;
+        }
+      }
+      if ($esActualizacion) {
+        $instrucciones['reciclaje'] = true;
+        return $this->actualizarDatos($instrucciones);
+      } else {
+        $query = "INSERT INTO $tabla ";
+
+        $C = 0;
+        $stringCampos = '';
+        $stringMarcadores = '';
+
+        foreach ($datos as $clave => $valor) {
+          if ($C >= 1) {
+            $stringCampos .= ', ';
+            $stringMarcadores .= ', ';
+          }
+          $stringCampos .= $clave;
+          $marcador = ':' . str_ireplace('.', "_", $clave);
+          $stringMarcadores .= $marcador;
+          $C++;
+        }
+        $query .= '(' . $stringCampos . ') VALUES (' . $stringMarcadores . ')';
+        $sql = $this->conexion->prepare($query);
+
+        foreach ($datos as $clave => $valor) {
+          $marcador = ':' . str_ireplace('.', "_", $clave);
+          $sql->bindValue($marcador, $valor);
+        }
+        $sql->execute();
+
+        //Porque el ID puede o no ser autoincremental
+        if ($this->conexion->lastInsertId() > 0) {
+          return $this->conexion->lastInsertId();
+        } else {
+          return $sql->rowCount();
+        }
+      }
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la inserción',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'rastro' => $th->getTrace(),
+        'instrucciones' => $instrucciones
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  private function actualizarDatosP2($instrucciones)
+  {
+    try {
+      $this->conectar();
+      [
+        'tabla' => $tabla,
+        'datos' => $datos,
+      ] = $instrucciones;
+      $condiciones = $instrucciones['camposReciclado'] ?? $instrucciones['condiciones'];
+      $reciclaje = $instrucciones['reciclaje'] ?? false;
+
+      //comenzamos la consulta SQL
+      $consulta = "UPDATE $tabla SET ";
+
+      $guardarMarcador = function (&$almacenamiento, $campo) {
+        $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+        $marcador = ':' . str_ireplace('.', "_", $campo);
+        if (!isset($almacenamiento[$campo])) {
+          $almacenamiento[$campo] = [$marcador];
+        } else {
+          $marcador .= count($almacenamiento[$campo]);
+          $almacenamiento[$campo][] = $marcador;
+        }
+        return $marcador;
+      };
+      $marcadoresConsulta = [];
+
+      $C = 0;
+      foreach ($datos as $campoClave => $campoValor) {
+        if ($C >= 1) {
+          $consulta .= ",";
+        }
+        $marcador = $guardarMarcador($marcadoresConsulta, $campoClave);
+        $consulta .= $campoClave . " = " . $marcador;
+        $C++;
+      }
+
+      if ($reciclaje) {
+        $consulta .= ', status = 1';
+      }
+      $consulta .= " WHERE ";
+
+      $c2 = 0;
+      foreach ($condiciones as $claveW1 => &$valorW1) {
+        if ($c2 != 0) {
+          $consulta .= ' AND ';
+        }
+        if (!is_array($valorW1)) {
+          $patron_operador = '/^(<=|>=|<>|<|>|!==|===|!=)/';
+          $operadorLo = '=';
+          if (preg_match($patron_operador, $valorW1, $matches)) {
+            $operadorLo = $matches[0];
+            $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+            foreach ($palabras as $palabra) {
+              $valorW1 = str_ireplace($palabra, "", $valorW1);
+            }
+          }
+          $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
+          $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+        } else {
+          foreach ($valorW1 as $operadorW1 => $valoresW1) {
+            if (!is_array($valoresW1)) {
+              $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+              $consulta .= ' AND ' . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
             } else {
-                $consulta .= "UPDATE $tabla SET status = 0";
-            }
-            $consulta .= " WHERE ";
-
-            $guardarMarcador = function (&$almacenamiento, $campo) {
-                $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
-                $marcador = ':' . str_ireplace('.', "_", $campo);
-
-                if (!isset($almacenamiento[$campo])) {
-                    $almacenamiento[$campo] = [$marcador];
+              $CV = 0;
+              $operadorW1 = trim($operadorW1);
+              foreach ($valoresW1 as $v) {
+                if ($operadorW1 == '=' && $CV > 0) {
+                  $UNION = ' OR ';
                 } else {
-                    $marcador .= count($almacenamiento[$campo]);
-                    $almacenamiento[$campo][] = $marcador;
+                  $UNION = ' AND ';
                 }
-                return $marcador;
-            };
-
-            $marcadoresWHERE = [];
-            $c = 0;
-            foreach ($WHERE as $claveW1 => &$valorW1) {
-                if ($c > 0) {
-                    $consulta .= ' AND ';
-                }
-
-                if (!is_array($valorW1)) {
-                    $patron_operador = '/\b(<=|>=|<>|<|>|=|!==|===|!=|==)\b/';
-                    $operadorLo = '=';
-                    if (preg_match($patron_operador, $valorW1, $matches)) {
-                        $operadorLo = $matches[0];
-                        $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
-                        foreach ($palabras as $palabra) {
-                            $valorW1 = str_ireplace($palabra, "", $valorW1);
-                        }
-                    }
-
-                    $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                    $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
-                } else {
-                    foreach ($valorW1 as $operadorW1 => $valoresW1) {
-                        if (!is_array($valoresW1)) {
-                            $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                            $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                        } else {
-                            foreach ($valoresW1 as $v) {
-                                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
-                                $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
-                            }
-                        }
-                    }
-                }
-                $c++;
+                $marcador = $guardarMarcador($marcadoresConsulta, $claveW1);
+                $consulta .= $UNION . $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+                $CV++;
+              }
             }
-            unset($valorW1);
-
-            $consulta = preg_replace('/\s+/', ' ', $consulta);
-            $consulta = $this->conexion->prepare($consulta);
-
-            foreach ($WHERE as $claveW2 => $valorW2) {
-                $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
-                if (!is_array($valorW2)) {
-                    $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                    $consulta->bindValue($marcador, $valorW2);
-                } else {
-                    foreach ($valorW2 as $operadorW2 => $valoresW2) {
-                        if (is_array($valoresW2)) {
-                            foreach ($valoresW2 as $valorInd) {
-                                $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                                $consulta->bindValue($marcador, $valorInd);
-                            }
-                        } else {
-                            $marcador = array_shift($marcadoresWHERE[$claveW2]);
-                            $consulta->bindValue($marcador, $valoresW2);
-                        }
-                    }
-                }
-            }
-            $consulta->execute();
-            return $consulta;
-        } catch (\Throwable $th) {
-            $this->rollback();
-            $error = [
-                'titulo' => 'Error en la eliminación',
-                'linea' => $th->getLine(),
-                'código de error' => $th->getCode(),
-                'mensaje de error' => $th->getMessage(),
-                'rastro' => $th->getTrace(),
-                'instrucciones' => $instrucciones
-            ];
-            throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+          }
         }
+        $c2++;
+      }
+      unset($valorW1);
+      $sql = $this->conexion->prepare($consulta);
+
+      foreach ($datos as $campoClave2 => $valorCampo2) {
+        $marcador = array_shift($marcadoresConsulta[$campoClave2]);
+        $sql->bindValue($marcador, $valorCampo2);
+      }
+
+      foreach ($condiciones as $claveW2 => $valorW2) {
+        $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+        if (!is_array($valorW2)) {
+          $marcador = array_shift($marcadoresConsulta[$claveW2]);
+          $sql->bindValue($marcador, $valorW2);
+        } else {
+          foreach ($valorW2 as $operadorW2 => $valoresW2) {
+            if (is_array($valoresW2)) {
+              foreach ($valoresW2 as $valorInd) {
+                $marcador = array_shift($marcadoresConsulta[$claveW2]);
+                $sql->bindValue($marcador, $valorInd);
+              }
+            } else {
+              $marcador = array_shift($marcadoresConsulta[$claveW2]);
+              $sql->bindValue($marcador, $valoresW2);
+            }
+          }
+        }
+      }
+      $sql->execute();
+      return $sql->rowCount();
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la actualización',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'consulta' => $consulta,
+        'rastro' => $th->getTrace(),
+        'instrucciones' => $instrucciones
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
     }
+  }
+  private function eliminarDatosP2($instrucciones)
+  {
+    try {
+      [
+        'tabla' => $tabla,
+        'WHERE' => $WHERE,
+      ] = $instrucciones;
+      $permanentemente = $instrucciones['fisico'] ?? false;
+
+      $this->conectar();
+      $consulta = '';
+      if ($permanentemente == true) {
+        $consulta .= "DELETE FROM $tabla";
+      } else {
+        $consulta .= "UPDATE $tabla SET status = 0";
+      }
+      $consulta .= " WHERE ";
+
+      $guardarMarcador = function (&$almacenamiento, $campo) {
+        $campo = $this->limpiarCadena($campo, 'antiFuncionesSQL');
+        $marcador = ':' . str_ireplace('.', "_", $campo);
+
+        if (!isset($almacenamiento[$campo])) {
+          $almacenamiento[$campo] = [$marcador];
+        } else {
+          $marcador .= count($almacenamiento[$campo]);
+          $almacenamiento[$campo][] = $marcador;
+        }
+        return $marcador;
+      };
+
+      $marcadoresWHERE = [];
+      $c = 0;
+      foreach ($WHERE as $claveW1 => &$valorW1) {
+        if ($c > 0) {
+          $consulta .= ' AND ';
+        }
+
+        if (!is_array($valorW1)) {
+          $patron_operador = '/\b(<=|>=|<>|<|>|=|!==|===|!=|==)\b/';
+          $operadorLo = '=';
+          if (preg_match($patron_operador, $valorW1, $matches)) {
+            $operadorLo = $matches[0];
+            $palabras = ["<=", ">=", "<>", "<", ">", "=", "!==", "===", "!=", "==", "!"];
+            foreach ($palabras as $palabra) {
+              $valorW1 = str_ireplace($palabra, "", $valorW1);
+            }
+          }
+
+          $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+          $consulta .= $claveW1 . ' ' . $operadorLo . ' ' . $marcador . ' ';
+        } else {
+          foreach ($valorW1 as $operadorW1 => $valoresW1) {
+            if (!is_array($valoresW1)) {
+              $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+              $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+            } else {
+              foreach ($valoresW1 as $v) {
+                $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
+                $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
+              }
+            }
+          }
+        }
+        $c++;
+      }
+      unset($valorW1);
+
+      $consulta = preg_replace('/\s+/', ' ', $consulta);
+      $consulta = $this->conexion->prepare($consulta);
+
+      foreach ($WHERE as $claveW2 => $valorW2) {
+        $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
+        if (!is_array($valorW2)) {
+          $marcador = array_shift($marcadoresWHERE[$claveW2]);
+          $consulta->bindValue($marcador, $valorW2);
+        } else {
+          foreach ($valorW2 as $operadorW2 => $valoresW2) {
+            if (is_array($valoresW2)) {
+              foreach ($valoresW2 as $valorInd) {
+                $marcador = array_shift($marcadoresWHERE[$claveW2]);
+                $consulta->bindValue($marcador, $valorInd);
+              }
+            } else {
+              $marcador = array_shift($marcadoresWHERE[$claveW2]);
+              $consulta->bindValue($marcador, $valoresW2);
+            }
+          }
+        }
+      }
+      $consulta->execute();
+      return $consulta;
+    } catch (\Throwable $th) {
+      $this->rollback();
+      $error = [
+        'titulo' => 'Error en la eliminación',
+        'linea' => $th->getLine(),
+        'código de error' => $th->getCode(),
+        'mensaje de error' => $th->getMessage(),
+        'rastro' => $th->getTrace(),
+        'instrucciones' => $instrucciones
+      ];
+      throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
+    }
+  }
+  public function VEYSNEC($instrucciones)
+  {
+    [
+      'tabla' => $tabla,
+      'WHERE' => $WHERE,
+    ] = $instrucciones;
+    $RSEN = $instrucciones['RSEN'] ?? false;
+    $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
+    $camposRetorno = $instrucciones['campos'];
+
+    $camposArray = explode(',', $instrucciones['campos']);
+    $camposArray = array_map(function ($campo) {
+      return trim($campo);
+    }, $camposArray);
+
+    $instruccionesBD = [
+      'campos' => '*',
+      'tabla' => $tabla,
+      'WHERE' => $WHERE ?? [],
+      'eliminadosYVigentes' => $eliminadosYVigentes
+    ];
+    $resultado = $this->seleccionarDatos2($instruccionesBD);
+
+    if ($resultado->rowCount() == 0) {
+      $instruccionesRegistro = [
+        'tabla' => $tabla,
+        'datos' => []
+      ];
+      foreach ($WHERE as $clave => $valor) {
+        $instruccionesRegistro['datos'][$clave] = $valor;
+      };
+      $ultimoId = $this->guardarDatos2($instruccionesRegistro);
+      if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Registro automático de la tabla {$tabla} no creado",
+          "texto" => "El Registro automático no ha podido ser creado",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+      $instruccionesBD = [
+        'campos' => $camposRetorno,
+        'tabla' => $tabla,
+        'WHERE' => $WHERE ?? [],
+        'eliminadosYVigentes' => $eliminadosYVigentes
+      ];
+      $resultado = $this->seleccionarDatos2($instruccionesBD);
+      if (count($camposArray) == 1) {
+        return $resultado->fetch(PDO::FETCH_COLUMN);
+      } elseif (count($camposArray) > 1) {
+        return $resultado->fetch(PDO::FETCH_ASSOC);
+      }
+    } else {
+      $info = $resultado->fetch(PDO::FETCH_ASSOC);
+      if ($RSEN == true) {
+        $estado = $info['status'];
+        if ($estado == 0) {
+          $resultadoAct = $this->actualizarDatos2([
+            'tabla' => $tabla,
+            'datos' => [
+              'status' => 1
+            ],
+            'condiciones' => $WHERE
+          ]);
+          if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
+            return $resultadoAct;
+          } else {
+            $info['status'] = 1;
+          }
+        }
+      }
+      if (count($camposArray) == 1) {
+        return $info[$camposArray[0]];
+      } elseif (count($camposArray) > 1) {
+        $resultado = array_intersect_key($info, array_flip($camposArray));
+        return $resultado;
+      }
+    }
+  }
+  public function DECORE($respuesta)
+  {
+    if ($respuesta instanceof FPDF) {
+      $_SESSION['codigoRequest'] = 200;
+      $respuesta->Output('I', 'Reporte');
+      return;
+    }
+
+    if (($respuesta['icono'] ?? '') == 'error') {
+      $codigoEstado = 400;
+    } else {
+      $codigoEstado = $respuesta['codigoRequest'] ?? 200;
+    }
+
+    $_SESSION['codigoRequest'] = $codigoEstado;
+    http_response_code($codigoEstado);
+    echo json_encode($respuesta);
+  }
 }

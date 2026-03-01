@@ -1,7 +1,7 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
     enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
-    listarDataTable, cargarInputsActualizarQNR,validarEnTiempoReal
+    listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -20,7 +20,7 @@ $(document).on('DOMContentLoaded', async function (e) {
                 'accion': 'listar'
             }
         },
-        campoIdBtn: 'id_insumo',
+        campoIdBtn:'id_insumo',
         botones: 'CRUD',
     });
 })
@@ -58,6 +58,6 @@ $(document).on('click', '.botonEditar', async function (e) {
 //Evento para validar en tiempo real
 $(document).off('input blur', '.validar input, .validar select')
 $(document).on('input blur', '.validar input, .validar select', function () {
-    validarEnTiempoReal(this,'insumos');
+    validarEnTiempoReal(this, 'insumos');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

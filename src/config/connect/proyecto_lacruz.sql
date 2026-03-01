@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-02-2026 a las 13:57:10
+-- Tiempo de generación: 01-03-2026 a las 14:35:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -42,207 +42,128 @@ CREATE TABLE `accesos` (
 --
 
 INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status`) VALUES
-(192, 1, 6, 10, 1),
-(193, 1, 21, 10, 1),
-(194, 1, 8, 3, 1),
-(195, 1, 22, 3, 1),
-(196, 1, 10, 3, 1),
-(197, 1, 11, 11, 1),
-(198, 1, 14, 9, 1),
-(199, 1, 15, 9, 1),
-(200, 1, 16, 9, 1),
-(201, 1, 23, 9, 1),
-(202, 1, 19, 13, 1),
-(203, 1, 1, 1, 1),
-(204, 1, 2, 1, 1),
-(205, 1, 3, 1, 1),
-(206, 1, 4, 1, 1),
-(207, 2, 6, 10, 1),
-(208, 2, 21, 10, 1),
-(209, 2, 8, 3, 1),
-(210, 2, 22, 3, 1),
-(211, 2, 10, 3, 1),
-(212, 2, 11, 11, 1),
-(213, 2, 14, 9, 1),
-(214, 2, 15, 9, 1),
-(215, 2, 16, 9, 1),
-(216, 2, 23, 9, 1),
-(217, 2, 19, 13, 1),
-(218, 1, 1, 8, 1),
-(219, 1, 2, 8, 1),
-(220, 1, 3, 8, 1),
-(221, 2, 1, 1, 1),
-(222, 2, 2, 1, 1),
-(223, 2, 3, 1, 1),
-(224, 2, 4, 1, 1),
-(225, 2, 4, 8, 1),
-(226, 2, 3, 8, 1),
-(227, 2, 2, 8, 1),
-(228, 2, 1, 8, 1),
-(229, 2, 1, 6, 1),
-(230, 2, 2, 6, 1),
-(231, 2, 3, 6, 1),
-(232, 2, 4, 6, 1),
-(233, 2, 5, 6, 1),
-(234, 2, 5, 8, 1),
-(235, 2, 5, 1, 1),
-(236, 1, 4, 8, 1),
-(237, 1, 5, 1, 1),
-(238, 1, 5, 8, 1),
-(239, 1, 1, 6, 1),
-(240, 1, 2, 6, 1),
-(241, 1, 3, 6, 1),
-(242, 1, 4, 6, 1),
-(243, 1, 5, 6, 1),
-(244, 1, 5, 4, 1),
-(245, 1, 4, 4, 1),
-(246, 1, 3, 4, 1),
-(247, 1, 2, 4, 1),
-(248, 1, 1, 4, 1),
-(249, 1, 1, 15, 1),
-(250, 1, 2, 15, 1),
-(251, 1, 3, 15, 1),
-(252, 1, 4, 15, 1),
-(253, 1, 5, 15, 1),
-(254, 1, 1, 7, 1),
-(255, 1, 2, 7, 1),
-(256, 1, 3, 7, 1),
-(257, 1, 4, 7, 1),
-(258, 1, 5, 7, 1),
-(259, 1, 1, 5, 1),
-(260, 1, 2, 5, 1),
-(261, 1, 3, 5, 1),
-(262, 1, 4, 5, 1),
-(263, 1, 5, 5, 1),
-(264, 1, 5, 9, 1),
-(265, 1, 4, 9, 1),
-(266, 1, 3, 9, 1),
-(267, 1, 2, 9, 1),
-(268, 1, 1, 9, 1),
-(269, 1, 1, 3, 1),
-(270, 1, 2, 3, 1),
-(271, 1, 3, 3, 1),
-(272, 1, 4, 3, 1),
-(273, 1, 5, 3, 1),
-(274, 2, 1, 4, 1),
-(275, 2, 1, 15, 1),
-(276, 2, 1, 7, 1),
-(277, 2, 1, 5, 1),
-(278, 2, 1, 9, 1),
-(279, 2, 1, 3, 1),
-(280, 2, 2, 3, 1),
-(281, 2, 2, 9, 1),
-(282, 2, 2, 5, 1),
-(283, 2, 2, 15, 1),
-(284, 2, 2, 7, 1),
-(285, 2, 2, 4, 1),
-(286, 2, 3, 4, 1),
-(287, 2, 3, 15, 1),
-(288, 2, 3, 7, 1),
-(289, 2, 3, 5, 1),
-(290, 2, 3, 9, 1),
-(291, 2, 4, 3, 1),
-(292, 2, 4, 9, 1),
-(293, 2, 4, 5, 1),
-(294, 2, 4, 7, 1),
-(295, 2, 4, 4, 1),
-(296, 2, 4, 15, 1),
-(297, 2, 3, 3, 1),
-(298, 2, 5, 3, 1),
-(299, 2, 5, 9, 1),
-(300, 2, 5, 5, 1),
-(301, 2, 5, 7, 1),
-(302, 2, 5, 15, 1),
-(303, 2, 5, 4, 1),
-(304, 1, 1, 17, 1),
-(305, 1, 2, 17, 1),
-(306, 1, 3, 17, 1),
-(307, 1, 4, 17, 1),
-(308, 1, 5, 17, 1),
-(309, 2, 1, 17, 1),
-(310, 2, 2, 17, 1),
-(311, 2, 3, 17, 1),
-(312, 2, 4, 17, 1),
-(313, 2, 5, 17, 1),
-(314, 1, 1, 18, 1),
-(315, 1, 2, 18, 1),
-(316, 1, 3, 18, 1),
-(317, 1, 4, 18, 1),
-(318, 1, 5, 18, 1),
-(319, 1, 1, 19, 1),
-(320, 1, 2, 19, 1),
-(321, 1, 3, 19, 1),
-(322, 1, 4, 19, 1),
-(323, 1, 5, 19, 1),
-(324, 2, 1, 18, 1),
-(325, 2, 2, 18, 1),
-(326, 2, 3, 18, 1),
-(327, 2, 1, 19, 1),
-(328, 2, 3, 19, 1),
-(329, 2, 2, 19, 1),
-(330, 2, 4, 19, 1),
-(331, 2, 5, 19, 1),
-(332, 1, 1, 25, 1),
-(333, 1, 2, 25, 1),
-(334, 1, 3, 25, 1),
-(335, 1, 4, 25, 1),
-(336, 1, 5, 25, 1),
-(337, 1, 5, 24, 1),
-(338, 1, 5, 20, 1),
-(339, 1, 4, 20, 1),
-(340, 1, 4, 24, 1),
-(341, 1, 3, 24, 1),
-(342, 1, 3, 20, 1),
-(343, 1, 2, 20, 1),
-(344, 1, 2, 24, 1),
-(345, 1, 1, 24, 1),
-(346, 1, 1, 20, 1),
-(347, 1, 1, 23, 1),
-(348, 1, 1, 21, 1),
-(349, 1, 2, 21, 1),
-(350, 1, 2, 23, 1),
-(351, 1, 3, 21, 1),
-(352, 1, 3, 23, 1),
-(353, 1, 4, 23, 1),
-(354, 1, 4, 21, 1),
-(355, 1, 5, 21, 1),
-(356, 1, 5, 23, 1),
-(357, 1, 1, 22, 1),
-(358, 1, 2, 22, 1),
-(359, 1, 3, 22, 1),
-(360, 1, 4, 22, 1),
-(361, 1, 5, 22, 1),
-(362, 2, 1, 25, 1),
-(363, 2, 2, 25, 1),
-(364, 2, 1, 20, 1),
-(365, 2, 1, 24, 1),
-(366, 2, 2, 24, 1),
-(367, 2, 2, 20, 1),
-(368, 2, 3, 25, 1),
-(369, 2, 3, 20, 1),
-(370, 2, 3, 24, 1),
-(371, 2, 3, 23, 1),
-(372, 2, 2, 23, 1),
-(373, 2, 1, 23, 1),
-(374, 2, 1, 21, 1),
-(375, 2, 2, 21, 1),
-(376, 2, 3, 21, 1),
-(377, 2, 4, 21, 1),
-(378, 2, 4, 23, 1),
-(379, 2, 4, 24, 1),
-(380, 2, 4, 25, 1),
-(381, 2, 5, 25, 1),
-(382, 2, 4, 18, 1),
-(383, 2, 5, 18, 1),
-(384, 2, 5, 24, 1),
-(385, 2, 5, 20, 1),
-(386, 2, 5, 23, 1),
-(387, 2, 5, 21, 1),
-(388, 2, 1, 22, 1),
-(389, 2, 2, 22, 1),
-(390, 2, 3, 22, 1),
-(391, 2, 4, 22, 1),
-(392, 2, 5, 22, 1);
+(397, 1, 1, 29, 1),
+(398, 1, 1, 28, 1),
+(399, 1, 1, 9, 1),
+(400, 1, 1, 18, 1),
+(401, 1, 2, 18, 1),
+(402, 1, 3, 18, 1),
+(403, 1, 4, 18, 1),
+(404, 1, 5, 18, 1),
+(405, 1, 1, 1, 1),
+(406, 1, 2, 1, 1),
+(407, 1, 3, 1, 1),
+(408, 1, 4, 1, 1),
+(409, 1, 5, 1, 1),
+(410, 1, 1, 8, 1),
+(411, 1, 2, 8, 1),
+(412, 1, 3, 8, 1),
+(413, 1, 4, 8, 1),
+(414, 1, 5, 8, 1),
+(415, 1, 1, 25, 1),
+(416, 1, 2, 25, 1),
+(417, 1, 3, 25, 1),
+(418, 1, 4, 25, 1),
+(419, 1, 5, 25, 1),
+(420, 1, 1, 6, 1),
+(421, 1, 2, 6, 1),
+(422, 1, 1, 20, 1),
+(423, 1, 2, 20, 1),
+(424, 1, 3, 6, 1),
+(425, 1, 3, 20, 1),
+(426, 1, 4, 20, 1),
+(427, 1, 4, 6, 1),
+(428, 1, 5, 6, 1),
+(429, 1, 5, 20, 1),
+(430, 1, 1, 24, 1),
+(431, 1, 1, 19, 1),
+(432, 1, 2, 24, 1),
+(433, 1, 2, 19, 1),
+(434, 1, 3, 19, 1),
+(435, 1, 4, 24, 1),
+(436, 1, 3, 24, 1),
+(437, 1, 4, 19, 1),
+(438, 1, 5, 24, 1),
+(439, 1, 5, 19, 1),
+(440, 1, 1, 23, 1),
+(441, 1, 2, 23, 1),
+(442, 1, 2, 28, 1),
+(443, 1, 3, 28, 1),
+(444, 1, 3, 23, 1),
+(445, 1, 4, 23, 1),
+(446, 1, 4, 28, 1),
+(447, 1, 5, 28, 1),
+(448, 1, 5, 23, 1),
+(449, 1, 1, 21, 1),
+(450, 1, 2, 21, 1),
+(451, 1, 3, 21, 1),
+(452, 1, 4, 21, 1),
+(453, 1, 5, 21, 1),
+(454, 1, 1, 4, 1),
+(455, 1, 2, 4, 1),
+(456, 1, 3, 4, 1),
+(457, 1, 4, 4, 1),
+(458, 1, 5, 4, 1),
+(459, 1, 5, 15, 1),
+(460, 1, 4, 15, 1),
+(461, 1, 3, 15, 1),
+(462, 1, 2, 15, 1),
+(463, 1, 1, 15, 1),
+(464, 1, 1, 7, 1),
+(465, 1, 2, 7, 1),
+(466, 1, 3, 7, 1),
+(467, 1, 4, 7, 1),
+(468, 1, 5, 7, 1),
+(469, 1, 5, 17, 1),
+(470, 1, 4, 17, 1),
+(471, 1, 3, 17, 1),
+(472, 1, 2, 17, 1),
+(473, 1, 1, 17, 1),
+(474, 1, 1, 5, 1),
+(475, 1, 1, 22, 1),
+(476, 1, 2, 22, 1),
+(477, 1, 2, 5, 1),
+(478, 1, 3, 5, 1),
+(479, 1, 3, 22, 1),
+(480, 1, 4, 22, 1),
+(481, 1, 4, 5, 1),
+(482, 1, 5, 5, 1),
+(483, 1, 5, 22, 1),
+(484, 1, 2, 9, 1),
+(485, 1, 2, 3, 1),
+(486, 1, 1, 3, 1),
+(487, 1, 3, 3, 1),
+(488, 1, 4, 9, 1),
+(489, 1, 3, 9, 1),
+(490, 1, 4, 3, 1),
+(491, 1, 5, 3, 1),
+(492, 1, 5, 9, 1),
+(493, 1, 31, 3, 1),
+(494, 1, 22, 3, 1),
+(495, 1, 21, 10, 1),
+(496, 1, 33, 3, 1),
+(497, 1, 11, 11, 1),
+(498, 1, 37, 11, 1),
+(499, 1, 15, 9, 1),
+(500, 1, 23, 9, 1),
+(501, 1, 43, 15, 1),
+(502, 1, 45, 16, 1),
+(503, 1, 19, 13, 1),
+(504, 1, 42, 9, 1),
+(505, 1, 16, 9, 1),
+(506, 1, 14, 9, 1),
+(507, 1, 36, 11, 1),
+(508, 1, 34, 11, 1),
+(509, 1, 10, 3, 1),
+(510, 1, 32, 3, 1),
+(511, 1, 24, 29, 1),
+(512, 1, 8, 3, 1),
+(513, 1, 6, 10, 1),
+(514, 1, 1, 246, 1),
+(515, 1, 2, 246, 1),
+(516, 1, 3, 246, 1),
+(517, 1, 4, 246, 1),
+(518, 1, 5, 246, 1);
 
 -- --------------------------------------------------------
 
@@ -388,7 +309,24 @@ INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_accion`, `id_modulo
 (108, 30485684, 3, 18, '2026-02-08 21:46:07', 'éxito', 1),
 (109, 30485684, 3, 18, '2026-02-08 21:46:40', 'éxito', 1),
 (110, 30485684, 3, 18, '2026-02-08 21:47:35', 'éxito', 1),
-(111, 30485684, 3, 18, '2026-02-08 21:48:07', 'éxito', 1);
+(111, 30485684, 3, 18, '2026-02-08 21:48:07', 'éxito', 1),
+(112, 30485684, 3, 18, '2026-02-09 08:58:10', 'éxito', 1),
+(113, 30485684, 3, 18, '2026-02-09 09:08:28', 'éxito', 1),
+(114, 30485684, 3, 18, '2026-02-09 09:08:37', 'éxito', 1),
+(115, 30485684, 3, 18, '2026-02-09 09:08:44', 'éxito', 1),
+(116, 30485684, 3, 18, '2026-02-09 09:08:53', 'éxito', 1),
+(117, 30485684, 3, 18, '2026-02-09 09:11:21', 'éxito', 1),
+(118, 30485684, 3, 18, '2026-02-09 09:20:39', 'éxito', 1),
+(119, 30485684, 3, 18, '2026-02-09 09:26:57', 'éxito', 1),
+(120, 30485684, 3, 18, '2026-02-09 09:27:20', 'éxito', 1),
+(121, 30485684, 3, 18, '2026-02-09 09:27:41', 'éxito', 1),
+(122, 30485684, 3, 18, '2026-02-09 21:11:01', 'éxito', 1),
+(123, 30485684, 3, 18, '2026-02-09 21:11:34', 'éxito', 1),
+(124, 30485684, 3, 18, '2026-02-09 21:11:45', 'éxito', 1),
+(125, 30485684, 1, 25, '2026-02-18 19:05:50', 'Exito', 1),
+(126, 30485684, 1, 5, '2026-02-23 10:36:12', 'Exito', 1),
+(127, 30485684, 2, 4, '2026-02-25 17:32:04', 'Exito', 1),
+(128, 30485684, 2, 4, '2026-02-25 17:33:36', 'Exito', 1);
 
 -- --------------------------------------------------------
 
@@ -515,7 +453,20 @@ INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iv
 (105, 45, '2026-02-08 21:46:07', 1),
 (106, 67, '2026-02-08 21:46:40', 1),
 (107, 45, '2026-02-08 21:47:35', 1),
-(108, 12, '2026-02-08 21:48:07', 1);
+(108, 12, '2026-02-08 21:48:07', 1),
+(109, 67, '2026-02-09 08:58:10', 1),
+(110, 67, '2026-02-09 09:08:28', 1),
+(111, 12, '2026-02-09 09:08:37', 1),
+(112, 16, '2026-02-09 09:08:44', 1),
+(113, 23, '2026-02-09 09:08:53', 1),
+(114, 12, '2026-02-09 09:11:21', 1),
+(115, 12, '2026-02-09 09:20:39', 1),
+(116, 23, '2026-02-09 09:26:57', 1),
+(117, 23, '2026-02-09 09:27:19', 1),
+(118, 23, '2026-02-09 09:27:41', 1),
+(119, 12, '2026-02-09 21:11:01', 1),
+(120, 12, '2026-02-09 21:11:34', 1),
+(121, 23, '2026-02-09 21:11:45', 1);
 
 -- --------------------------------------------------------
 
@@ -543,7 +494,9 @@ INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, 
 (5, 1, 250, '2025-12-11 18:35:07', 1),
 (6, 2, 250, '2025-12-11 19:04:46', 1),
 (7, 5, 1, '2025-12-14 16:30:34', 1),
-(8, 1, 23, '2026-02-07 20:44:34', 1);
+(8, 1, 23, '2026-02-07 20:44:34', 1),
+(9, 1, 12, '2026-02-09 20:46:09', 1),
+(10, 1, 250, '2026-02-09 20:46:55', 1);
 
 -- --------------------------------------------------------
 
@@ -577,9 +530,22 @@ INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_
 CREATE TABLE `compras` (
   `id_compra` int(11) NOT NULL,
   `rif_proveedor` varchar(20) NOT NULL,
+  `cedula_usuario` int(11) NOT NULL,
   `fecha_compra` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `compras`
+--
+
+INSERT INTO `compras` (`id_compra`, `rif_proveedor`, `cedula_usuario`, `fecha_compra`, `status`) VALUES
+(4, '30485684', 30485684, '2026-02-15 15:02:00', 1),
+(5, '30485684', 30485684, '2026-02-15 15:08:00', 1),
+(7, '30485684', 30485684, '2026-02-18 20:56:00', 1),
+(8, '30485684', 30485684, '2026-02-18 20:59:00', 1),
+(9, '30485684', 30485684, '2026-02-18 20:59:00', 1),
+(10, '30485684', 30485684, '2026-02-18 21:04:00', 1);
 
 -- --------------------------------------------------------
 
@@ -615,7 +581,8 @@ CREATE TABLE `insumos` (
 --
 
 INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `precio_insumo`, `stock_insumo`, `status`) VALUES
-(1, 'BOLSA', 1, 1, 1);
+(1, 'BOLSA', 1, 2, 1),
+(2, 'BOLSASS', 233, 34, 1);
 
 -- --------------------------------------------------------
 
@@ -630,6 +597,14 @@ CREATE TABLE `insumos_compras` (
   `cantidad_insumo` int(15) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `insumos_compras`
+--
+
+INSERT INTO `insumos_compras` (`id_insumo_compra`, `id_compra`, `id_insumo`, `cantidad_insumo`, `status`) VALUES
+(3, 10, 1, 1, 1),
+(4, 10, 2, 12, 1);
 
 -- --------------------------------------------------------
 
@@ -665,7 +640,7 @@ CREATE TABLE `materias_primas` (
 --
 
 INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_materia_prima`, `stock_materia_prima`, `costo_materia_prima`, `status`) VALUES
-(1, 2, 'SULFURO', 1000, 10, 1);
+(1, 2, 'SULFURO', 870, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -680,6 +655,13 @@ CREATE TABLE `materias_primas_compras` (
   `cantidad_materia_prima` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `materias_primas_compras`
+--
+
+INSERT INTO `materias_primas_compras` (`id_materia_prima_compra`, `id_compra`, `id_materia_prima`, `cantidad_materia_prima`, `status`) VALUES
+(1, 7, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -716,6 +698,13 @@ CREATE TABLE `materias_primas_productos` (
   `cantidad_materia_prima` int(15) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `materias_primas_productos`
+--
+
+INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materia_prima`, `id_producto`, `cantidad_materia_prima`, `status`) VALUES
+(1, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -782,7 +771,10 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (22, 'unidadesMedidas', 1),
 (23, 'monedas', 1),
 (24, 'materiasPrimas', 1),
-(25, 'Insumos', 1);
+(25, 'Insumos', 1),
+(28, 'permisos', 1),
+(29, 'dashboard', 1),
+(246, 'producciones', 1);
 
 -- --------------------------------------------------------
 
@@ -803,7 +795,7 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 23, 1),
+(1, 'DÓLAR', '$', 250, 1),
 (2, 'EURO', '€', 250, 1),
 (3, 'YUAN', '¥', 12, 1),
 (4, 'AGUACATE', '$O', 1, 0),
@@ -899,7 +891,33 @@ INSERT INTO `notificaciones_usuarios` (`id_notificacion_usuario`, `cedula_usuari
 (147, 1234567, 30, '2026-02-08 21:47:36', 1),
 (148, 30485684, 30, '2026-02-08 21:47:36', 0),
 (149, 1234567, 30, '2026-02-08 21:48:07', 1),
-(150, 30485684, 30, '2026-02-08 21:48:07', 0);
+(150, 30485684, 30, '2026-02-08 21:48:07', 0),
+(151, 1234567, 30, '2026-02-09 08:58:10', 1),
+(152, 30485684, 30, '2026-02-09 08:58:10', 0),
+(153, 1234567, 30, '2026-02-09 09:08:28', 1),
+(154, 30485684, 30, '2026-02-09 09:08:28', 0),
+(155, 1234567, 30, '2026-02-09 09:08:37', 1),
+(156, 30485684, 30, '2026-02-09 09:08:37', 0),
+(157, 1234567, 30, '2026-02-09 09:08:44', 1),
+(158, 30485684, 30, '2026-02-09 09:08:44', 0),
+(159, 1234567, 30, '2026-02-09 09:08:53', 1),
+(160, 30485684, 30, '2026-02-09 09:08:53', 0),
+(161, 1234567, 30, '2026-02-09 09:11:21', 1),
+(162, 30485684, 30, '2026-02-09 09:11:21', 0),
+(163, 1234567, 30, '2026-02-09 09:20:39', 1),
+(164, 30485684, 30, '2026-02-09 09:20:39', 0),
+(165, 1234567, 30, '2026-02-09 09:26:57', 1),
+(166, 30485684, 30, '2026-02-09 09:26:57', 0),
+(167, 1234567, 30, '2026-02-09 09:27:20', 1),
+(168, 30485684, 30, '2026-02-09 09:27:20', 0),
+(169, 1234567, 30, '2026-02-09 09:27:41', 1),
+(170, 30485684, 30, '2026-02-09 09:27:41', 0),
+(171, 1234567, 30, '2026-02-09 21:11:01', 1),
+(172, 30485684, 30, '2026-02-09 21:11:01', 0),
+(173, 1234567, 30, '2026-02-09 21:11:34', 1),
+(174, 30485684, 30, '2026-02-09 21:11:34', 0),
+(175, 1234567, 30, '2026-02-09 21:11:45', 1),
+(176, 30485684, 30, '2026-02-09 21:11:45', 0);
 
 -- --------------------------------------------------------
 
@@ -946,7 +964,575 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (19, 'ver bitácora', 1),
 (21, 'actualizar cambio de divisas', 1),
 (22, 'ver ventas despachadas', 1),
-(23, 'ver modal de ayuda', 1);
+(23, 'ver modal de ayuda', 1),
+(24, 'ver dashboard', 1),
+(25, 'ver dashboard', 0),
+(26, 'ver historial de cambio', 0),
+(27, 'actualizar cambio de divisas', 0),
+(28, 'ver detalles de las ventas', 0),
+(29, 'ver ventas despachadas', 0),
+(30, 'ver ventas sin cancelar', 0),
+(31, 'ver pedidos en espera', 1),
+(32, 'ver pedidos rechazados', 1),
+(33, 'gestionar ventas', 1),
+(34, 'ver reportes', 1),
+(35, 'imprimir reportes de ventas', 0),
+(36, 'imprimir reportes de productos', 1),
+(37, 'imprimir comandas', 1),
+(38, 'asignar roles a usuarios', 0),
+(39, 'ver el precio del dólar', 0),
+(40, 'ver notificaciones', 0),
+(41, 'ver modal de ayuda', 0),
+(42, 'ver carrito de compra', 1),
+(43, 'ver detalles de promociones', 1),
+(44, 'ver bitácora', 0),
+(45, 'transformar imagenes', 1),
+(46, 'ver dashboard', 0),
+(47, 'ver historial de cambio', 0),
+(48, 'actualizar cambio de divisas', 0),
+(49, 'ver detalles de las ventas', 0),
+(50, 'ver ventas despachadas', 0),
+(51, 'ver ventas sin cancelar', 0),
+(52, 'ver pedidos en espera', 1),
+(53, 'ver pedidos rechazados', 1),
+(54, 'gestionar ventas', 1),
+(55, 'ver reportes', 1),
+(56, 'imprimir reportes de ventas', 0),
+(57, 'imprimir reportes de productos', 1),
+(58, 'imprimir comandas', 1),
+(59, 'asignar roles a usuarios', 0),
+(60, 'ver el precio del dólar', 0),
+(61, 'ver notificaciones', 0),
+(62, 'ver modal de ayuda', 0),
+(63, 'ver carrito de compra', 1),
+(64, 'ver detalles de promociones', 1),
+(65, 'ver bitácora', 0),
+(66, 'transformar imagenes', 1),
+(67, 'ver dashboard', 0),
+(68, 'ver historial de cambio', 0),
+(69, 'actualizar cambio de divisas', 0),
+(70, 'ver detalles de las ventas', 0),
+(71, 'ver ventas despachadas', 0),
+(72, 'ver ventas sin cancelar', 0),
+(73, 'ver pedidos en espera', 1),
+(74, 'ver pedidos rechazados', 1),
+(75, 'gestionar ventas', 1),
+(76, 'ver reportes', 1),
+(77, 'imprimir reportes de ventas', 0),
+(78, 'imprimir reportes de productos', 1),
+(79, 'imprimir comandas', 1),
+(80, 'asignar roles a usuarios', 0),
+(81, 'ver el precio del dólar', 0),
+(82, 'ver notificaciones', 0),
+(83, 'ver modal de ayuda', 0),
+(84, 'ver carrito de compra', 1),
+(85, 'ver detalles de promociones', 1),
+(86, 'ver bitácora', 0),
+(87, 'transformar imagenes', 1),
+(88, 'ver dashboard', 0),
+(89, 'ver historial de cambio', 0),
+(90, 'actualizar cambio de divisas', 0),
+(91, 'ver detalles de las ventas', 0),
+(92, 'ver ventas despachadas', 0),
+(93, 'ver ventas sin cancelar', 0),
+(94, 'ver pedidos en espera', 1),
+(95, 'ver pedidos rechazados', 1),
+(96, 'gestionar ventas', 1),
+(97, 'ver reportes', 1),
+(98, 'imprimir reportes de ventas', 0),
+(99, 'imprimir reportes de productos', 1),
+(100, 'imprimir comandas', 1),
+(101, 'asignar roles a usuarios', 0),
+(102, 'ver el precio del dólar', 0),
+(103, 'ver notificaciones', 0),
+(104, 'ver modal de ayuda', 0),
+(105, 'ver carrito de compra', 1),
+(106, 'ver detalles de promociones', 1),
+(107, 'ver bitácora', 0),
+(108, 'transformar imagenes', 1),
+(109, 'ver dashboard', 0),
+(110, 'ver historial de cambio', 0),
+(111, 'actualizar cambio de divisas', 0),
+(112, 'ver detalles de las ventas', 0),
+(113, 'ver ventas despachadas', 0),
+(114, 'ver ventas sin cancelar', 0),
+(115, 'ver pedidos en espera', 1),
+(116, 'ver pedidos rechazados', 1),
+(117, 'gestionar ventas', 1),
+(118, 'ver reportes', 1),
+(119, 'imprimir reportes de ventas', 0),
+(120, 'imprimir reportes de productos', 1),
+(121, 'imprimir comandas', 1),
+(122, 'asignar roles a usuarios', 0),
+(123, 'ver el precio del dólar', 0),
+(124, 'ver notificaciones', 0),
+(125, 'ver modal de ayuda', 0),
+(126, 'ver carrito de compra', 1),
+(127, 'ver detalles de promociones', 1),
+(128, 'ver bitácora', 0),
+(129, 'transformar imagenes', 1),
+(130, 'ver dashboard', 0),
+(131, 'ver historial de cambio', 0),
+(132, 'actualizar cambio de divisas', 0),
+(133, 'ver detalles de las ventas', 0),
+(134, 'ver ventas despachadas', 0),
+(135, 'ver ventas sin cancelar', 0),
+(136, 'ver pedidos en espera', 1),
+(137, 'ver pedidos rechazados', 1),
+(138, 'gestionar ventas', 1),
+(139, 'ver reportes', 1),
+(140, 'imprimir reportes de ventas', 0),
+(141, 'imprimir reportes de productos', 1),
+(142, 'imprimir comandas', 1),
+(143, 'asignar roles a usuarios', 0),
+(144, 'ver el precio del dólar', 0),
+(145, 'ver notificaciones', 0),
+(146, 'ver modal de ayuda', 0),
+(147, 'ver carrito de compra', 1),
+(148, 'ver detalles de promociones', 1),
+(149, 'ver bitácora', 0),
+(150, 'transformar imagenes', 1),
+(151, 'ver dashboard', 0),
+(152, 'ver historial de cambio', 0),
+(153, 'actualizar cambio de divisas', 0),
+(154, 'ver detalles de las ventas', 0),
+(155, 'ver ventas despachadas', 0),
+(156, 'ver ventas sin cancelar', 0),
+(157, 'ver pedidos en espera', 1),
+(158, 'ver pedidos rechazados', 1),
+(159, 'gestionar ventas', 1),
+(160, 'ver reportes', 1),
+(161, 'imprimir reportes de ventas', 0),
+(162, 'imprimir reportes de productos', 1),
+(163, 'imprimir comandas', 1),
+(164, 'asignar roles a usuarios', 0),
+(165, 'ver el precio del dólar', 0),
+(166, 'ver notificaciones', 0),
+(167, 'ver modal de ayuda', 0),
+(168, 'ver carrito de compra', 1),
+(169, 'ver detalles de promociones', 1),
+(170, 'ver bitácora', 0),
+(171, 'transformar imagenes', 1),
+(172, 'ver dashboard', 0),
+(173, 'ver historial de cambio', 0),
+(174, 'actualizar cambio de divisas', 0),
+(175, 'ver detalles de las ventas', 0),
+(176, 'ver ventas despachadas', 0),
+(177, 'ver ventas sin cancelar', 0),
+(178, 'ver pedidos en espera', 1),
+(179, 'ver pedidos rechazados', 1),
+(180, 'gestionar ventas', 1),
+(181, 'ver reportes', 1),
+(182, 'imprimir reportes de ventas', 0),
+(183, 'imprimir reportes de productos', 1),
+(184, 'imprimir comandas', 1),
+(185, 'asignar roles a usuarios', 0),
+(186, 'ver el precio del dólar', 0),
+(187, 'ver notificaciones', 0),
+(188, 'ver modal de ayuda', 0),
+(189, 'ver carrito de compra', 1),
+(190, 'ver detalles de promociones', 1),
+(191, 'ver bitácora', 0),
+(192, 'transformar imagenes', 1),
+(193, 'ver dashboard', 0),
+(194, 'ver historial de cambio', 0),
+(195, 'actualizar cambio de divisas', 0),
+(196, 'ver detalles de las ventas', 0),
+(197, 'ver ventas despachadas', 0),
+(198, 'ver ventas sin cancelar', 0),
+(199, 'ver pedidos en espera', 1),
+(200, 'ver pedidos rechazados', 1),
+(201, 'gestionar ventas', 1),
+(202, 'ver reportes', 1),
+(203, 'imprimir reportes de ventas', 0),
+(204, 'imprimir reportes de productos', 1),
+(205, 'imprimir comandas', 1),
+(206, 'asignar roles a usuarios', 0),
+(207, 'ver el precio del dólar', 0),
+(208, 'ver notificaciones', 0),
+(209, 'ver modal de ayuda', 0),
+(210, 'ver carrito de compra', 1),
+(211, 'ver detalles de promociones', 1),
+(212, 'ver bitácora', 0),
+(213, 'transformar imagenes', 1),
+(214, 'ver dashboard', 0),
+(215, 'ver historial de cambio', 0),
+(216, 'actualizar cambio de divisas', 0),
+(217, 'ver detalles de las ventas', 0),
+(218, 'ver ventas despachadas', 0),
+(219, 'ver ventas sin cancelar', 0),
+(220, 'ver pedidos en espera', 1),
+(221, 'ver pedidos rechazados', 1),
+(222, 'gestionar ventas', 1),
+(223, 'ver reportes', 1),
+(224, 'imprimir reportes de ventas', 0),
+(225, 'imprimir reportes de productos', 1),
+(226, 'imprimir comandas', 1),
+(227, 'asignar roles a usuarios', 0),
+(228, 'ver el precio del dólar', 0),
+(229, 'ver notificaciones', 0),
+(230, 'ver modal de ayuda', 0),
+(231, 'ver carrito de compra', 1),
+(232, 'ver detalles de promociones', 1),
+(233, 'ver bitácora', 0),
+(234, 'transformar imagenes', 1),
+(235, 'ver dashboard', 0),
+(236, 'ver historial de cambio', 0),
+(237, 'actualizar cambio de divisas', 0),
+(238, 'ver detalles de las ventas', 0),
+(239, 'ver ventas despachadas', 0),
+(240, 'ver ventas sin cancelar', 0),
+(241, 'ver pedidos en espera', 1),
+(242, 'ver pedidos rechazados', 1),
+(243, 'gestionar ventas', 1),
+(244, 'ver reportes', 1),
+(245, 'imprimir reportes de ventas', 0),
+(246, 'imprimir reportes de productos', 1),
+(247, 'imprimir comandas', 1),
+(248, 'asignar roles a usuarios', 0),
+(249, 'ver el precio del dólar', 0),
+(250, 'ver notificaciones', 0),
+(251, 'ver modal de ayuda', 0),
+(252, 'ver carrito de compra', 1),
+(253, 'ver detalles de promociones', 1),
+(254, 'ver bitácora', 0),
+(255, 'transformar imagenes', 1),
+(256, 'ver dashboard', 0),
+(257, 'ver historial de cambio', 0),
+(258, 'actualizar cambio de divisas', 0),
+(259, 'ver detalles de las ventas', 0),
+(260, 'ver ventas despachadas', 0),
+(261, 'ver ventas sin cancelar', 0),
+(262, 'ver pedidos en espera', 1),
+(263, 'ver pedidos rechazados', 1),
+(264, 'gestionar ventas', 1),
+(265, 'ver reportes', 1),
+(266, 'imprimir reportes de ventas', 0),
+(267, 'imprimir reportes de productos', 1),
+(268, 'imprimir comandas', 1),
+(269, 'asignar roles a usuarios', 0),
+(270, 'ver el precio del dólar', 0),
+(271, 'ver notificaciones', 0),
+(272, 'ver modal de ayuda', 0),
+(273, 'ver carrito de compra', 1),
+(274, 'ver detalles de promociones', 1),
+(275, 'ver bitácora', 0),
+(276, 'transformar imagenes', 1),
+(277, 'ver dashboard', 0),
+(278, 'ver historial de cambio', 0),
+(279, 'actualizar cambio de divisas', 0),
+(280, 'ver detalles de las ventas', 0),
+(281, 'ver ventas despachadas', 0),
+(282, 'ver ventas sin cancelar', 0),
+(283, 'ver pedidos en espera', 1),
+(284, 'ver pedidos rechazados', 1),
+(285, 'gestionar ventas', 1),
+(286, 'ver reportes', 1),
+(287, 'imprimir reportes de ventas', 0),
+(288, 'imprimir reportes de productos', 1),
+(289, 'imprimir comandas', 1),
+(290, 'asignar roles a usuarios', 0),
+(291, 'ver el precio del dólar', 0),
+(292, 'ver notificaciones', 0),
+(293, 'ver modal de ayuda', 0),
+(294, 'ver carrito de compra', 1),
+(295, 'ver detalles de promociones', 1),
+(296, 'ver bitácora', 0),
+(297, 'transformar imagenes', 1),
+(298, 'ver dashboard', 0),
+(299, 'ver historial de cambio', 0),
+(300, 'actualizar cambio de divisas', 0),
+(301, 'ver detalles de las ventas', 0),
+(302, 'ver ventas despachadas', 0),
+(303, 'ver ventas sin cancelar', 0),
+(304, 'ver pedidos en espera', 1),
+(305, 'ver pedidos rechazados', 1),
+(306, 'gestionar ventas', 1),
+(307, 'ver reportes', 1),
+(308, 'imprimir reportes de ventas', 0),
+(309, 'imprimir reportes de productos', 1),
+(310, 'imprimir comandas', 1),
+(311, 'asignar roles a usuarios', 0),
+(312, 'ver el precio del dólar', 0),
+(313, 'ver notificaciones', 0),
+(314, 'ver modal de ayuda', 0),
+(315, 'ver carrito de compra', 1),
+(316, 'ver detalles de promociones', 1),
+(317, 'ver bitácora', 0),
+(318, 'transformar imagenes', 1),
+(319, 'ver dashboard', 0),
+(320, 'ver historial de cambio', 0),
+(321, 'actualizar cambio de divisas', 0),
+(322, 'ver detalles de las ventas', 0),
+(323, 'ver ventas despachadas', 0),
+(324, 'ver ventas sin cancelar', 0),
+(325, 'ver pedidos en espera', 1),
+(326, 'ver pedidos rechazados', 1),
+(327, 'gestionar ventas', 1),
+(328, 'ver reportes', 1),
+(329, 'imprimir reportes de ventas', 0),
+(330, 'imprimir reportes de productos', 1),
+(331, 'imprimir comandas', 1),
+(332, 'asignar roles a usuarios', 0),
+(333, 'ver el precio del dólar', 0),
+(334, 'ver notificaciones', 0),
+(335, 'ver modal de ayuda', 0),
+(336, 'ver carrito de compra', 1),
+(337, 'ver detalles de promociones', 1),
+(338, 'ver bitácora', 0),
+(339, 'transformar imagenes', 1),
+(340, 'ver dashboard', 0),
+(341, 'ver historial de cambio', 0),
+(342, 'actualizar cambio de divisas', 0),
+(343, 'ver detalles de las ventas', 0),
+(344, 'ver ventas despachadas', 0),
+(345, 'ver ventas sin cancelar', 0),
+(346, 'ver pedidos en espera', 1),
+(347, 'ver pedidos rechazados', 1),
+(348, 'gestionar ventas', 1),
+(349, 'ver reportes', 1),
+(350, 'imprimir reportes de ventas', 0),
+(351, 'imprimir reportes de productos', 1),
+(352, 'imprimir comandas', 1),
+(353, 'asignar roles a usuarios', 0),
+(354, 'ver el precio del dólar', 0),
+(355, 'ver notificaciones', 0),
+(356, 'ver modal de ayuda', 0),
+(357, 'ver carrito de compra', 1),
+(358, 'ver detalles de promociones', 1),
+(359, 'ver bitácora', 0),
+(360, 'transformar imagenes', 1),
+(361, 'ver dashboard', 0),
+(362, 'ver historial de cambio', 0),
+(363, 'actualizar cambio de divisas', 0),
+(364, 'ver detalles de las ventas', 0),
+(365, 'ver ventas despachadas', 0),
+(366, 'ver ventas sin cancelar', 0),
+(367, 'ver pedidos en espera', 1),
+(368, 'ver pedidos rechazados', 1),
+(369, 'gestionar ventas', 1),
+(370, 'ver reportes', 1),
+(371, 'imprimir reportes de ventas', 0),
+(372, 'imprimir reportes de productos', 1),
+(373, 'imprimir comandas', 1),
+(374, 'asignar roles a usuarios', 0),
+(375, 'ver el precio del dólar', 0),
+(376, 'ver notificaciones', 0),
+(377, 'ver modal de ayuda', 0),
+(378, 'ver carrito de compra', 1),
+(379, 'ver detalles de promociones', 1),
+(380, 'ver bitácora', 0),
+(381, 'transformar imagenes', 1),
+(382, 'ver dashboard', 0),
+(383, 'ver historial de cambio', 0),
+(384, 'actualizar cambio de divisas', 0),
+(385, 'ver detalles de las ventas', 0),
+(386, 'ver ventas despachadas', 0),
+(387, 'ver ventas sin cancelar', 0),
+(388, 'ver pedidos en espera', 1),
+(389, 'ver pedidos rechazados', 1),
+(390, 'gestionar ventas', 1),
+(391, 'ver reportes', 1),
+(392, 'imprimir reportes de ventas', 0),
+(393, 'imprimir reportes de productos', 1),
+(394, 'imprimir comandas', 1),
+(395, 'asignar roles a usuarios', 0),
+(396, 'ver el precio del dólar', 0),
+(397, 'ver notificaciones', 0),
+(398, 'ver modal de ayuda', 0),
+(399, 'ver carrito de compra', 1),
+(400, 'ver detalles de promociones', 1),
+(401, 'ver bitácora', 0),
+(402, 'transformar imagenes', 1),
+(403, 'ver dashboard', 0),
+(404, 'ver historial de cambio', 0),
+(405, 'actualizar cambio de divisas', 0),
+(406, 'ver detalles de las ventas', 0),
+(407, 'ver ventas despachadas', 0),
+(408, 'ver ventas sin cancelar', 0),
+(409, 'ver pedidos en espera', 1),
+(410, 'ver pedidos rechazados', 1),
+(411, 'gestionar ventas', 1),
+(412, 'ver reportes', 1),
+(413, 'imprimir reportes de ventas', 0),
+(414, 'imprimir reportes de productos', 1),
+(415, 'imprimir comandas', 1),
+(416, 'asignar roles a usuarios', 0),
+(417, 'ver el precio del dólar', 0),
+(418, 'ver notificaciones', 0),
+(419, 'ver modal de ayuda', 0),
+(420, 'ver carrito de compra', 1),
+(421, 'ver detalles de promociones', 1),
+(422, 'ver bitácora', 0),
+(423, 'transformar imagenes', 1),
+(424, 'ver dashboard', 0),
+(425, 'ver historial de cambio', 0),
+(426, 'actualizar cambio de divisas', 0),
+(427, 'ver detalles de las ventas', 0),
+(428, 'ver ventas despachadas', 0),
+(429, 'ver ventas sin cancelar', 0),
+(430, 'ver pedidos en espera', 1),
+(431, 'ver pedidos rechazados', 1),
+(432, 'gestionar ventas', 1),
+(433, 'ver reportes', 1),
+(434, 'imprimir reportes de ventas', 0),
+(435, 'imprimir reportes de productos', 1),
+(436, 'imprimir comandas', 1),
+(437, 'asignar roles a usuarios', 0),
+(438, 'ver el precio del dólar', 0),
+(439, 'ver notificaciones', 0),
+(440, 'ver modal de ayuda', 0),
+(441, 'ver carrito de compra', 1),
+(442, 'ver detalles de promociones', 1),
+(443, 'ver bitácora', 0),
+(444, 'transformar imagenes', 1),
+(445, 'ver dashboard', 0),
+(446, 'ver historial de cambio', 0),
+(447, 'actualizar cambio de divisas', 0),
+(448, 'ver detalles de las ventas', 0),
+(449, 'ver ventas despachadas', 0),
+(450, 'ver ventas sin cancelar', 0),
+(451, 'ver pedidos en espera', 1),
+(452, 'ver pedidos rechazados', 1),
+(453, 'gestionar ventas', 1),
+(454, 'ver reportes', 1),
+(455, 'imprimir reportes de ventas', 0),
+(456, 'imprimir reportes de productos', 1),
+(457, 'imprimir comandas', 1),
+(458, 'asignar roles a usuarios', 0),
+(459, 'ver el precio del dólar', 0),
+(460, 'ver notificaciones', 0),
+(461, 'ver modal de ayuda', 0),
+(462, 'ver carrito de compra', 1),
+(463, 'ver detalles de promociones', 1),
+(464, 'ver bitácora', 0),
+(465, 'transformar imagenes', 1),
+(466, 'ver dashboard', 0),
+(467, 'ver historial de cambio', 0),
+(468, 'actualizar cambio de divisas', 0),
+(469, 'ver detalles de las ventas', 0),
+(470, 'ver ventas despachadas', 0),
+(471, 'ver ventas sin cancelar', 0),
+(472, 'ver pedidos en espera', 1),
+(473, 'ver pedidos rechazados', 1),
+(474, 'gestionar ventas', 1),
+(475, 'ver reportes', 1),
+(476, 'imprimir reportes de ventas', 0),
+(477, 'imprimir reportes de productos', 1),
+(478, 'imprimir comandas', 1),
+(479, 'asignar roles a usuarios', 0),
+(480, 'ver el precio del dólar', 0),
+(481, 'ver notificaciones', 0),
+(482, 'ver modal de ayuda', 0),
+(483, 'ver carrito de compra', 1),
+(484, 'ver detalles de promociones', 1),
+(485, 'ver bitácora', 0),
+(486, 'transformar imagenes', 1),
+(487, 'ver dashboard', 0),
+(488, 'ver historial de cambio', 0),
+(489, 'actualizar cambio de divisas', 0),
+(490, 'ver detalles de las ventas', 0),
+(491, 'ver ventas despachadas', 0),
+(492, 'ver ventas sin cancelar', 0),
+(493, 'ver pedidos en espera', 1),
+(494, 'ver pedidos rechazados', 1),
+(495, 'gestionar ventas', 1),
+(496, 'ver reportes', 1),
+(497, 'imprimir reportes de ventas', 0),
+(498, 'imprimir reportes de productos', 1),
+(499, 'imprimir comandas', 1),
+(500, 'asignar roles a usuarios', 0),
+(501, 'ver el precio del dólar', 0),
+(502, 'ver notificaciones', 0),
+(503, 'ver modal de ayuda', 0),
+(504, 'ver carrito de compra', 1),
+(505, 'ver detalles de promociones', 1),
+(506, 'ver bitácora', 0),
+(507, 'transformar imagenes', 1),
+(508, 'ver dashboard', 0),
+(509, 'ver historial de cambio', 0),
+(510, 'actualizar cambio de divisas', 0),
+(511, 'ver detalles de las ventas', 0),
+(512, 'ver ventas despachadas', 0),
+(513, 'ver ventas sin cancelar', 0),
+(514, 'ver pedidos en espera', 1),
+(515, 'ver pedidos rechazados', 1),
+(516, 'gestionar ventas', 1),
+(517, 'ver reportes', 1),
+(518, 'imprimir reportes de ventas', 0),
+(519, 'imprimir reportes de productos', 1),
+(520, 'imprimir comandas', 1),
+(521, 'asignar roles a usuarios', 0),
+(522, 'ver el precio del dólar', 0),
+(523, 'ver notificaciones', 0),
+(524, 'ver modal de ayuda', 0),
+(525, 'ver carrito de compra', 1),
+(526, 'ver detalles de promociones', 1),
+(527, 'ver bitácora', 0),
+(528, 'transformar imagenes', 1),
+(529, 'ver dashboard', 0),
+(530, 'ver historial de cambio', 0),
+(531, 'actualizar cambio de divisas', 0),
+(532, 'ver detalles de las ventas', 0),
+(533, 'ver ventas despachadas', 0),
+(534, 'ver ventas sin cancelar', 0),
+(535, 'ver pedidos en espera', 1),
+(536, 'ver pedidos rechazados', 1),
+(537, 'gestionar ventas', 1),
+(538, 'ver reportes', 1),
+(539, 'imprimir reportes de ventas', 0),
+(540, 'imprimir reportes de productos', 1),
+(541, 'imprimir comandas', 1),
+(542, 'asignar roles a usuarios', 0),
+(543, 'ver el precio del dólar', 0),
+(544, 'ver notificaciones', 0),
+(545, 'ver modal de ayuda', 0),
+(546, 'ver carrito de compra', 1),
+(547, 'ver detalles de promociones', 1),
+(548, 'ver bitácora', 0),
+(549, 'transformar imagenes', 1),
+(550, 'ver dashboard', 0),
+(551, 'ver historial de cambio', 0),
+(552, 'actualizar cambio de divisas', 0),
+(553, 'ver detalles de las ventas', 0),
+(554, 'ver ventas despachadas', 0),
+(555, 'ver ventas sin cancelar', 0),
+(556, 'ver pedidos en espera', 1),
+(557, 'ver pedidos rechazados', 1),
+(558, 'gestionar ventas', 1),
+(559, 'ver reportes', 1),
+(560, 'imprimir reportes de ventas', 0),
+(561, 'imprimir reportes de productos', 1),
+(562, 'imprimir comandas', 1),
+(563, 'asignar roles a usuarios', 0),
+(564, 'ver el precio del dólar', 0),
+(565, 'ver notificaciones', 0),
+(566, 'ver modal de ayuda', 0),
+(567, 'ver carrito de compra', 1),
+(568, 'ver detalles de promociones', 1),
+(569, 'ver bitácora', 0),
+(570, 'transformar imagenes', 1),
+(571, 'ver dashboard', 0),
+(572, 'ver historial de cambio', 0),
+(573, 'actualizar cambio de divisas', 0),
+(574, 'ver detalles de las ventas', 0),
+(575, 'ver ventas despachadas', 0),
+(576, 'ver ventas sin cancelar', 0),
+(577, 'ver pedidos en espera', 1),
+(578, 'ver pedidos rechazados', 1),
+(579, 'gestionar ventas', 1),
+(580, 'ver reportes', 1),
+(581, 'imprimir reportes de ventas', 0),
+(582, 'imprimir reportes de productos', 1),
+(583, 'imprimir comandas', 1),
+(584, 'asignar roles a usuarios', 0),
+(585, 'ver el precio del dólar', 0),
+(586, 'ver notificaciones', 0),
+(587, 'ver modal de ayuda', 0),
+(588, 'ver carrito de compra', 1),
+(589, 'ver detalles de promociones', 1),
+(590, 'ver bitácora', 0),
+(591, 'transformar imagenes', 1);
 
 -- --------------------------------------------------------
 
@@ -983,6 +1569,21 @@ CREATE TABLE `producciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `producciones`
+--
+
+INSERT INTO `producciones` (`id_produccion`, `fecha_produccion`, `status`) VALUES
+(26, '2026-02-25 18:10:13', 1),
+(27, '2026-02-25 18:10:55', 1),
+(28, '2026-02-25 18:11:29', 1),
+(29, '2026-02-25 18:28:00', 1),
+(30, '2026-03-01 08:15:32', 1),
+(31, '2026-03-01 08:16:17', 1),
+(32, '2026-03-01 08:44:57', 1),
+(34, '2026-03-01 09:00:33', 1),
+(35, '2026-03-01 09:32:25', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -1005,8 +1606,8 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `nombre_producto`, `precio_producto_detal`, `precio_producto_mayor`, `stock_producto`, `producto_es_fabricado`, `status`) VALUES
-(1, 2, 'JABÓN', 100, 90, 10, 0, 1),
-(2, 2, 'CLORO', 10, 5, 1, 0, 1);
+(1, 2, 'JABÓN', 100, 90, 192, 1, 1),
+(2, 2, 'CLORO', 10, 5, 20, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -1021,6 +1622,19 @@ CREATE TABLE `productos_compras` (
   `cantidad_producto` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `productos_compras`
+--
+
+INSERT INTO `productos_compras` (`id_producto_compra`, `id_producto`, `id_compra`, `cantidad_producto`, `status`) VALUES
+(1, 1, 4, 1, 1),
+(2, 1, 5, 1, 1),
+(3, 1, 7, 22, 1),
+(4, 2, 8, 1, 1),
+(5, 2, 8, 1, 1),
+(9, 1, 9, 15, 1),
+(10, 1, 10, 12, 1);
 
 -- --------------------------------------------------------
 
@@ -1040,12 +1654,14 @@ CREATE TABLE `productos_presentaciones` (
 --
 
 INSERT INTO `productos_presentaciones` (`id_producto_presentacion`, `id_presentacion`, `id_producto`, `status`) VALUES
-(1, 1, 1, 1),
-(2, 2, 1, 1),
-(3, 3, 1, 1),
+(1, 1, 1, 0),
+(2, 2, 1, 0),
+(3, 3, 1, 0),
 (4, 1, 2, 1),
 (5, 2, 2, 1),
-(6, 3, 2, 1);
+(6, 3, 2, 1),
+(7, 3, 1, 0),
+(8, 3, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -1060,6 +1676,28 @@ CREATE TABLE `productos_producciones` (
   `cantidad_producida` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `productos_producciones`
+--
+
+INSERT INTO `productos_producciones` (`id_producto_produccion`, `id_produccion`, `id_producto`, `cantidad_producida`, `status`) VALUES
+(25, 26, 1, 1, 1),
+(26, 27, 1, 1, 1),
+(27, 28, 1, 100, 1),
+(28, 29, 1, 1, 0),
+(29, 29, 1, 6, 0),
+(31, 29, 1, 12, 1),
+(32, 29, 2, 12, 1),
+(33, 30, 2, 1, 1),
+(34, 30, 1, 1, 1),
+(35, 30, 1, 1, 1),
+(36, 31, 2, 1, 1),
+(37, 31, 1, 1, 1),
+(38, 32, 1, 1, 1),
+(41, 34, 1, 10, 1),
+(42, 35, 1, 3, 1),
+(43, 35, 2, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -1129,16 +1767,7 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (1, 'ADMINISTRADOR', 1),
-(2, 'OFICINISTA', 1),
-(5, 'CAJERO', 0),
-(6, 'CAJEROTA', 0),
-(7, 'COCINEROS', 0),
-(8, 'OFICINISTAI', 0),
-(9, 'CAJERO', 0),
-(10, 'JNJ', 0),
-(11, 'IJKSKKKSS', 0),
-(12, 'CLIENTE', 0),
-(13, 'CLIENTEASAXA', 0);
+(2, 'OFICINISTA', 1);
 
 -- --------------------------------------------------------
 
@@ -1160,7 +1789,8 @@ CREATE TABLE `servicios` (
 
 INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `costo_servicio`, `status`) VALUES
 (1, 2, 'FUMIGACION', 100, 1),
-(2, 1, 'FUMIGACIONT', 122, 1);
+(2, 1, 'FUMIGACIONT', 122, 1),
+(3, 2, 'FUMIGACION 2', 12, 1);
 
 -- --------------------------------------------------------
 
@@ -1222,7 +1852,8 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `status`) VALUES
 (1234567, 1, 'ANDERS', 'DAVID', 'ander1234', '$2y$10$tnkCgC.SA4fIWZ1jyJ1Nc.at2Ke5PF0PpZbGwmnBxjFZAeAltJjMW', '12345678901', 'ander2@gmail.com', 1),
-(30485684, 1, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1);
+(30485684, 1, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1),
+(30485685, 1, 'ANDERSON', 'APELLIDO', 'Ander4321', '$2y$10$dZ.w3dX5fWLZgwRx1KOaz.kop/X/Qjb.oiHikcChNvFVbGypxkMT6', '04169484649', 'andersonfreitez16@gmail.com', 1);
 
 -- --------------------------------------------------------
 
@@ -1524,7 +2155,7 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=393;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=519;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones`
@@ -1536,31 +2167,31 @@ ALTER TABLE `acciones`
 -- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
 --
 ALTER TABLE `acciones_resagadas_usuarios`
-  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=228;
+  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=254;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
 --
 ALTER TABLE `cambios_iva`
-  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
+  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
 --
 ALTER TABLE `cambios_monedas`
-  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `compras`
 --
 ALTER TABLE `compras`
-  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_pagos`
@@ -1572,13 +2203,13 @@ ALTER TABLE `detalles_pagos`
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_compras`
 --
 ALTER TABLE `insumos_compras`
-  MODIFY `id_insumo_compra` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_insumo_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_ventas`
@@ -1596,7 +2227,7 @@ ALTER TABLE `materias_primas`
 -- AUTO_INCREMENT de la tabla `materias_primas_compras`
 --
 ALTER TABLE `materias_primas_compras`
-  MODIFY `id_materia_prima_compra` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_materia_prima_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_presentaciones`
@@ -1608,7 +2239,7 @@ ALTER TABLE `materias_primas_presentaciones`
 -- AUTO_INCREMENT de la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
-  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pagos`
@@ -1620,7 +2251,7 @@ ALTER TABLE `metodos_pagos`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=247;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
@@ -1638,7 +2269,7 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `notificaciones_usuarios`
 --
 ALTER TABLE `notificaciones_usuarios`
-  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
+  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
@@ -1650,7 +2281,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=592;
 
 --
 -- AUTO_INCREMENT de la tabla `presentaciones`
@@ -1662,7 +2293,7 @@ ALTER TABLE `presentaciones`
 -- AUTO_INCREMENT de la tabla `producciones`
 --
 ALTER TABLE `producciones`
-  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -1674,25 +2305,31 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `productos_compras`
 --
 ALTER TABLE `productos_compras`
-  MODIFY `id_producto_compra` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_producto_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_presentaciones`
 --
 ALTER TABLE `productos_presentaciones`
-  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_producciones`
 --
 ALTER TABLE `productos_producciones`
-  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_servicios_ventas`
 --
 ALTER TABLE `productos_servicios_ventas`
   MODIFY `id_producto_servicio_venta` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `productos_ventas`
+--
+ALTER TABLE `productos_ventas`
+  MODIFY `id_producto_venta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -1704,7 +2341,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `servicios`
 --
 ALTER TABLE `servicios`
-  MODIFY `id_servicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_servicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios_ventas`

@@ -1,126 +1,177 @@
 <?php
+ob_start();
 
-// PRODUCCIÓN: Errores NO se muestran al usuario
-// Solo se registran en logs para debugging
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
+use src\modelos\comprasModelo;
 
-use src\servicios\comprasServicio;
-use src\modelos\proveedoresModelo;
-use src\modelos\productosModelo;
-use src\modelos\insumosModelo;
-use src\modelos\materiasPrimasModelo;
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
+  $accion = $_POST["accion"];
+  $objetoCompras = new comprasModelo();
+  ob_clean();
+  $id_compra = $_POST['id_compra'] ?? "";
+  switch ($accion) {
+    case 'listar':
+      $resultado = $objetoCompras->seleccionarCompra();
+      $objetoCompras->DECORE($resultado);
+      break;
+    case 'seleccionarUno':
 
-    // Leer datos JSON si existen, sino usar $_POST
-    $datos = file_get_contents('php://input');
-    $datosJson = json_decode($datos, true);
-
-    // Determinar la fuente de datos
-    if ($datosJson && isset($datosJson['accion'])) {
-        $accion = $datosJson["accion"];
-        $rifProveedor = $datosJson['rif_proveedor'] ?? "";
-        $fechaCompra = $datosJson['fecha_compra'] ?? "";
-        $detalles = $datosJson['detalles'] ?? [];
-        $tipoItem = $datosJson['tipo'] ?? "";
-    } else {
-        $accion = $_POST['accion'] ?? "";
-        $rifProveedor = $_POST['rif_proveedor'] ?? "";
-        $fechaCompra = $_POST['fecha_compra'] ?? "";
-        $detalles = $_POST['detalles'] ?? [];
-        // Si detalles es un string JSON, decodificarlo
-        if (is_string($detalles)) {
-            $detalles = json_decode($detalles, true) ?? [];
-        }
-        $tipoItem = $_POST['tipo'] ?? "";
-    }
-
-    // Obtener cédula del usuario en sesión
-    $cedulaUsuario = $_SESSION['cedula'] ?? null;
-
-    if (!$cedulaUsuario) {
-        echo json_encode([
-            "tipo" => "simple",
-            "titulo" => "Error de Sesión",
-            "texto" => "No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.",
-            "icono" => "error"
+      if (empty($id_compra)) {
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "Error",
+          "texto" => "ID de compra requerido",
+          "icono" => "error"
         ]);
-        exit();
-    }
+      }
+      responderSolicitud($objetoCompras->seleccionarUno($id_compra));
+      break;
 
-    $servicio = new comprasServicio();
-    ob_clean();
+    case 'registrar':
+      $fecha_compra = $_POST['fecha_compra'] ?? '';
+      $detalles = json_decode($_POST['detalles'] ?? '[]', true);
 
-    switch ($accion) {
-        case "listar":
-            $resultado = $servicio->listarCompras();
-            echo json_encode($resultado);
-            exit();
+      if (empty($detalles)) {
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "Error",
+          "texto" => "Debe agregar al menos un artículo",
+          "icono" => "warning"
+        ]);
+      }
 
-        case "registrar":
-            $resultado = $servicio->registrarCompra($rifProveedor, $cedulaUsuario, $fechaCompra, $detalles);
-            echo json_encode($resultado);
-            exit();
+      // Agrupar items por proveedor
+      $compras_por_proveedor = [];
+      $post_rif_proveedor = trim($_POST['rif_proveedor'] ?? '');
 
-        case "obtenerProveedores":
-            $proveedoresModelo = new proveedoresModelo();
-            $resultado = $proveedoresModelo->seleccionarProveedor();
-            echo json_encode($resultado);
-            exit();
+      foreach ($detalles as $detalle) {
+        // Usar ID del item o el general del POST como fallback
+        $prov_id = $detalle['proveedorId'] ?? $post_rif_proveedor;
 
-        case "obtenerItems":
-            switch ($tipoItem) {
-                case 'producto':
-                    $productosModelo = new productosModelo();
-                    $resultado = $productosModelo->seleccionarProductos();
-                    break;
+        if (empty($prov_id)) {
+          continue;
+        }
 
-                case 'insumo':
-                    $insumosModelo = new insumosModelo();
-                    $resultado = $insumosModelo->seleccionarInsumos();
-                    break;
+        if (!isset($compras_por_proveedor[$prov_id])) {
+          $compras_por_proveedor[$prov_id] = [];
+        }
+        $compras_por_proveedor[$prov_id][] = $detalle;
+      }
 
-                case 'materia_prima':
-                    $materiasPrimasModelo = new materiasPrimasModelo();
-                    $resultado = $materiasPrimasModelo->seleccionarMateriasPrimas();
-                    break;
+      if (empty($compras_por_proveedor)) {
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "Error",
+          "texto" => "No se detectaron proveedores válidos en los artículos",
+          "icono" => "error"
+        ]);
+      }
 
-                default:
-                    $resultado = [];
-            }
-            echo json_encode($resultado);
-            exit();
+      $exitos = 0;
+      $errores = 0;
+      $mensajes_error = [];
+      $ultimo_resultado = [];
 
-        case "eliminar":
-            $idCompra = $datosJson['id_compra'] ?? ($_POST['id_compra'] ?? "");
-            $resultado = $servicio->eliminarCompra($idCompra);
-            echo json_encode($resultado);
-            exit();
+      // Registrar una compra por cada proveedor
+      foreach ($compras_por_proveedor as $rif_prov => $items) {
+        $resultado = $objetoCompras->registrarCompra($rif_prov, $fecha_compra, $items);
 
-        case "obtener":
-            $idCompra = $datosJson['id_compra'] ?? ($_POST['id_compra'] ?? "");
-            $resultado = $servicio->obtenerCompra($idCompra);
-            echo json_encode($resultado);
-            exit();
+        // Verificar si fue exitoso (generalmente devuelve un array con tipo 'exito' o 'limpiar')
+        if (isset($resultado['tipo']) && ($resultado['tipo'] == 'exito' || $resultado['tipo'] == 'limpiar')) {
+          $exitos++;
+          $ultimo_resultado = $resultado;
+        } else {
+          $errores++;
+          if (isset($resultado['texto'])) {
+            $mensajes_error[] = $resultado['texto'];
+          }
+        }
+      }
 
-        case "actualizar":
-            $idCompra = $datosJson['id_compra'] ?? ($_POST['id_compra'] ?? "");
-            $resultado = $servicio->actualizarCompra($idCompra, $rifProveedor, $cedulaUsuario, $fechaCompra);
-            echo json_encode($resultado);
-            exit();
+      if ($errores == 0) {
+        // Si todo salió bien, devolvemos éxito
+        if ($exitos == 1) {
+          responderSolicitud($ultimo_resultado);
+        } else {
+          responderSolicitud([
+            "tipo" => "exito",
+            "titulo" => "Éxito",
+            "texto" => "$exitos compras registradas correctamente",
+            "icono" => "success"
+          ]);
+        }
+      } else {
+        // Si hubo errores parciales o totales
+        $msg = "$exitos registradas, $errores fallaron.";
+        if (!empty($mensajes_error)) {
+          $msg .= " Errores: " . implode(", ", $mensajes_error);
+        }
 
-        default:
-            echo json_encode([
-                "tipo" => "simple",
-                "titulo" => "Error",
-                "texto" => "Acción no válida",
-                "icono" => "error"
-            ]);
-            exit();
-    }
-} elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-    require_once "src/config/inc/header.php";
-    require_once "src/config/inc/sidebar.php";
-    require_once "src/vistas/compras/compras.php";
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "Proceso Finalizado",
+          "texto" => $msg,
+          "icono" => $exitos > 0 ? "warning" : "error"
+        ]);
+      }
+      break;
+
+    case 'actualizar':
+      $id_compra = $_POST['id_compra'] ?? "";
+      $rif_proveedor = trim($_POST['rif_proveedor'] ?? '');
+      $fecha_compra = $_POST['fecha_compra'] ?? '';
+
+      $detalles = json_decode($_POST['detalles'] ?? '[]', true);
+
+      if (empty($id_compra)) {
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "Error",
+          "texto" => "ID requerido",
+          "icono" => "error"
+        ]);
+      }
+
+      // Validar Rol (Solo Super Usuario: 1)
+      if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 1) {
+        responderSolicitud([
+          "tipo" => "simple",
+          "titulo" => "No Autorizado",
+          "texto" => "Solo el Super Usuario puede editar compras.",
+          "icono" => "error"
+        ]);
+      }
+
+      $resultado = $objetoCompras->actualizarCompra($id_compra, $rif_proveedor, $fecha_compra, $detalles);
+      responderSolicitud($resultado);
+      break;
+
+    default:
+      responderSolicitud([
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Acción no válida",
+        "icono" => "error"
+      ]);
+  }
+} elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
+  require_once "src/config/inc/header.php";
+  require_once "src/config/inc/sidebar.php";
+  require_once "src/vistas/compras/compras.php";
+} else {
+  responderSolicitud([
+    "tipo" => "simple",
+    "titulo" => "Error",
+    "texto" => "Método no permitido",
+    "icono" => "error"
+  ], 405);
+}
+
+function responderSolicitud($respuesta, $codigo = 200)
+{
+  if ($codigo !== 200) {
+    http_response_code($codigo);
+  }
+  echo json_encode($respuesta);
+  exit();
 }

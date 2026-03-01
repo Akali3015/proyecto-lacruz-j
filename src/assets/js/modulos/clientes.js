@@ -32,7 +32,8 @@ $(document).on('submit', '.formularioAjax', function (e) {
     e.preventDefault();
     enviarFormulario({
         'formulario': this,
-        'modulo': 'clientes'
+        'modulo': 'clientes',
+        'convertirJSON':true
     });
 });
 

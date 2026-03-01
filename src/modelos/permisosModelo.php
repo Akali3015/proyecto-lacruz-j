@@ -3,856 +3,489 @@
 namespace src\modelos;
 
 use PDO;
-use src\modelos\rolesModelo;
 use src\config\connect\conexion;
+use src\modelos\rolesModelo;
 
 class permisosModelo extends conexion
 {
-    private $idPermiso;
-    private $idRol;
-    private $idModulo;
-    private $cambio;
-    private $moduloVal;
-    private $permisoVal;
+  private $idPermiso;
+  private $idRol;
+  private $idModulo;
+  private $cambio;
+  private $moduloVal;
+  private $permisoVal;
 
-    public function listarPermisos($idRol)
-    {
+  public function listarPermisos($idRol)
+  {
+    $this->idRol = $idRol;
+    if ($this->idRol != '') {
+      $campos = [
+        [
+          "campo_nombre" => "id_rol",
+          "campo_valor" => &$this->idRol,
+          "formulario_nombre" => "id del rol",
+          "requerido" => true,
+          "minimo" => minRegexId,
+          "maximo" => maxRegexId,
+          "expresion_re" => regexId,
+          "tabla" => "roles",
+          "debeExistir" => true
+        ]
+      ];
+      $respuesta = $this->limpiar_Verificar($campos);
+      if ($respuesta !== false) {
+        return $respuesta;
+        exit();
+      }
+    } else {
+      $objRoles = new rolesModelo();
+      $this->idRol = $objRoles->seleccionarRoles()[0]['id_rol'];
+    }
+    return $this->listarPermisosP();
+  }
+  public function seleccionarPermisosPorRol()
+  {
+    $this->idRol = $_SESSION['rol'] ?? 6;
 
-        $this->idRol = $idRol;
-        if ($this->idRol != '') {
-            $campos = [
-                [
-                    "campo_nombre" => "id_rol",
-                    "campo_valor" => $this->idRol,
-                    "formulario_nombre" => "id del rol",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "roles",
-                    "debeExistir" => true
-                ]
-            ];
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-                exit();
-            }
+    if ($this->idRol != "") {
+      $campos = [
+        [
+          "campo_nombre" => "id_rol",
+          "campo_valor" => &$this->idRol,
+          "formulario_nombre" => "id del rol",
+          "requerido" => true,
+          "minimo" => minRegexId,
+          "maximo" => maxRegexId,
+          "expresion_re" => regexId,
+          "tabla" => "roles",
+          "debeExistir" => true
+        ]
+      ];
+      $respuesta = $this->limpiar_Verificar($campos);
+      if ($respuesta !== false) {
+        return $respuesta;
+        exit();
+      }
+    }
+    return $this->seleccionarPermisosPorRolP();
+  }
+  public function actualizarPermisos($rol, $modulo, $permiso, $cambio)
+  {
+    $this->idRol = $rol;
+    $this->idModulo = $modulo;
+    $this->idPermiso = $permiso;
+    $this->cambio = $cambio;
+
+    $campos = [
+      [
+        "campo_nombre" => "id_rol",
+        "campo_valor" => &$this->idRol,
+        "formulario_nombre" => "id del rol",
+        "requerido" => true,
+        "minimo" => minRegexId,
+        "maximo" => maxRegexId,
+        "expresion_re" => regexId,
+        "tabla" => "roles",
+        "debeExistir" => true
+      ],
+      [
+        "campo_nombre" => "id_modulo",
+        "campo_valor" => &$this->idModulo,
+        "formulario_nombre" => "id del módulo",
+        "requerido" => true,
+        "minimo" => minRegexId,
+        "maximo" => maxRegexId,
+        "expresion_re" => regexId,
+        "tabla" => "modulos",
+        "debeExistir" => true
+      ],
+      [
+        "campo_nombre" => "id_permiso",
+        "campo_valor" => &$this->idPermiso,
+        "formulario_nombre" => "id del permiso",
+        "requerido" => true,
+        "minimo" => minRegexId,
+        "maximo" => maxRegexId,
+        "expresion_re" => regexId,
+        "tabla" => "permisos",
+        "debeExistir" => true
+      ],
+      [
+        "campo_valor" => &$this->cambio,
+        "formulario_nombre" => "cambio del permiso",
+        "requerido" => true,
+        "minimo" => minRegexId,
+        "maximo" => maxRegexId,
+        "expresion_re" => regexId,
+      ],
+    ];
+
+    $respuesta = $this->limpiar_Verificar($campos);
+    if ($respuesta !== false) {
+      return $respuesta;
+      exit();
+    }
+    return $this->actualizarPermisosP();
+  }
+  public function validarPermisos($modulo, $permiso)
+  {
+    $this->moduloVal = $modulo;
+
+    switch ($permiso) {
+      case 'listar':
+      case 'seleccionarUno':
+      case 'seleccionarDeuda':
+      case 'listarPorRol':
+      case 'listarPorCategoria':
+      case 'listarDetalles':
+      case 'listarDespachadas':
+      case 'listarSinPago':
+      case 'listarPedidosEnEspera':
+      case 'listarPedidosRechazados':
+      case 'cerrarSesion':
+      case 'listarParaPedido':
+      case 'calcularInsumosDelivery':
+      case 'seleccionarTasaActual':
+      case 'listarPedidosCliente':
+      case 'listarNotificaciones':
+      case 'listarAccionesResagadas':
+      case 'listarPedidosRechazadosDelCliente':
+        $this->permisoVal = 'listar';
+        break;
+      case 'actualizarFoto':
+      case 'eliminarFoto':
+      case 'cambiarEstado':
+      case 'eliminarAccionResagada':
+      case 'registrarPago':
+      case 'cambiarTemaInterfaz':
+      case 'confirmarPedido':
+      case 'rechazarPedido':
+      case 'marcarTodasNotComoLeidas':
+        $this->permisoVal = 'actualizar';
+        break;
+      case 'registrarToken':
+      case 'registrarPedido':
+        $this->permisoVal = 'registrar';
+        break;
+      case 'consultaDashboard':
+        $this->moduloVal = 'dashboard';
+        $this->permisoVal = 'ver dashboard';
+        break;
+      case 'reporte_materia_prima':
+      case 'reporte_productos':
+      case 'reporte_servicios':
+      case 'reporte_cierre':
+      case 'reporte_compras':
+      case 'reporte_ventas':
+      case 'reporte_cierre_caja':
+        $this->permisoVal = 'imprimir reportes de ventas';
+        break;
+      case 'reporte_productos':
+        $this->permisoVal = 'imprimir reportes de productos';
+        break;
+      case 'comanda_venta':
+        $this->permisoVal = 'imprimir comandas';
+        break;
+      default:
+        $this->permisoVal = $permiso;
+        break;
+    }
+    switch ($modulo) {
+      case 'bitacora':
+        $this->permisoVal = 'ver bitácora';
+        break;
+      case 'reportes':
+        $this->permisoVal = 'ver reportes';
+        break;
+      case 'cambios':
+        $this->permisoVal = 'ver historial de cambio';
+        break;
+      case 'reportes':
+        $this->permisoVal = 'ver reportes';
+        break;
+      default:
+
+        break;
+    }
+
+    $campos = [
+      [
+        "campo_valor" => &$this->moduloVal,
+        "formulario_nombre" => "modulo a validar",
+        "requerido" => true,
+        "minimo" => minRegexNombreObj,
+        "maximo" => maxRegexNombreObj,
+        "expresion_re" => regexNombreObj,
+      ],
+      [
+        "campo_valor" => &$this->permisoVal,
+        "formulario_nombre" => "permiso a validar",
+        "requerido" => true,
+        "minimo" => minRegexDescripcion,
+        "maximo" => maxRegexDescripcion,
+        "expresion_re" => regexDescripcion,
+      ],
+    ];
+    $respuesta = $this->limpiar_Verificar($campos);
+    if ($respuesta !== false) {
+      return $respuesta;
+      exit();
+    }
+    return $this->validarPermisosP();
+  }
+
+  private function listarPermisosP()
+  {
+    if ($this->idRol == '') {
+      $this->idRol = 1;
+    }
+    // Los permisos del rol
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'id_permiso, id_modulo',
+      'tabla' => 'accesos',
+      'WHERE' => [
+        "id_rol" => $this->idRol,
+      ],
+    ]);
+
+    $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
+    $permisosRolIndexados = [];
+    foreach ($permisosRol as $permiso) {
+      $permisosRolIndexados[$permiso['id_permiso']] = $permiso;
+    }
+    $arrayConfirmacion = [];
+    foreach ($permisosRol as $permiso) {
+      ksort($permiso);
+      $llave1 = json_encode($permiso);
+      $arrayConfirmacion[$llave1] = true;
+    }
+    //Backup automatico de los permisos especiales
+    $respaldoPerEsp = [
+      'dashboard' => ['ver dashboard'],
+      'cambios' => [
+        'ver historial de cambio',
+        'actualizar cambio de divisas'
+      ],
+      'ventas' => [
+        'ver detalles de las ventas',
+        'ver ventas despachadas',
+        'ver ventas sin cancelar',
+        'ver pedidos en espera',
+        'ver pedidos rechazados',
+        'gestionar ventas',
+      ],
+      'reportes' => [
+        'ver reportes',
+        'imprimir reportes de ventas',
+        'imprimir reportes de productos',
+        'imprimir comandas',
+      ],
+      'usuarios' => [
+        'asignar roles a usuarios',
+        'ver el precio del dólar',
+        'ver notificaciones',
+        'ver modal de ayuda',
+        'ver carrito de compra',
+      ],
+      'promociones' => ['ver detalles de promociones'],
+      'bitacora' => ['ver bitácora'],
+      'imagenes' => ['transformar imagenes']
+    ];
+    $permisosEspecialesRol = [];
+    foreach ($respaldoPerEsp as $modulo => $permisos) {
+      $idModulo = $this->VEYSNEC([
+        'RSEN' => true,
+        'campos' => 'id_modulo',
+        'tabla' => 'modulos',
+        'WHERE' => [
+          'nombre_modulo' => $modulo
+        ]
+      ]);
+      if (isset($idModulo['error'])) {
+        return $idModulo;
+      }
+      foreach ($permisos as $permiso) {
+        $idPermiso = $this->VEYSNEC([
+          'RSEN' => true,
+          'campos' => 'id_permiso',
+          'tabla' => 'permisos',
+          'WHERE' => [
+            'nombre_permiso' => $permiso
+          ]
+        ]);
+        if (isset($idPermiso['error'])) {
+          return $idModulo;
+        }
+
+        $permisosEspecialesRol[] = [
+          'id_modulo' => $idModulo,
+          'id_permiso' => $idPermiso,
+          'nombre_permiso' => $permiso,
+          'status' => isset($permisosRolIndexados[$idPermiso]) ? 1 : 0
+        ];
+      }
+      $this->commit();
+    }
+
+    //Obtenemos todos los modulos
+    $resultado = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'modulos',
+    ]);
+
+    $modulosTotales = $resultado->fetchAll(PDO::FETCH_ASSOC);
+
+    //Todos los permisos generales
+    $resultado = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'permisos',
+      'WHERE' => [
+        'id_permiso' => [
+          '=' => [1, 2, 3, 4, 5],
+        ]
+      ]
+    ]);
+    $permisosGenerales = $resultado->fetchAll(PDO::FETCH_ASSOC);
+
+    $arrayPermisosDef = [
+      'generales' => [],
+      'especiales' => $permisosEspecialesRol,
+    ];
+    $modulosFuera = ['dashboard', 'reportes', 'cambios', 'bitacora', 'imagenes'];
+    foreach ($modulosTotales as $modulo) {
+      if (!in_array($modulo['nombre_modulo'], $modulosFuera)) {
+        $permisos = [];
+        foreach ($permisosGenerales as $permiso) {
+          $llave2 = [
+            'id_modulo' => $modulo['id_modulo'],
+            'id_permiso' => $permiso['id_permiso']
+          ];
+          ksort($llave2);
+          $llave2 = json_encode($llave2);
+          $permisos[] = [
+            'id' => $permiso['id_permiso'],
+            'nombre' => $permiso['nombre_permiso'],
+            'activo' => isset($arrayConfirmacion[$llave2]) ? true : false
+          ];
+        }
+        $arrayPermisosDef['generales'][] = [
+          'modulo' => [
+            'id' => $modulo['id_modulo'],
+            'nombre' => $modulo['nombre_modulo']
+          ],
+          'permisos' => $permisos
+        ];
+      }
+    }
+    return $arrayPermisosDef;
+  }
+  private function seleccionarPermisosPorRolP()
+  {
+    //Obtenemos los permisos totales del rol en todos los modulos
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'ro.nombre_rol, mo.nombre_modulo, pe.nombre_permiso',
+      'tabla' => 'accesos as ac',
+      'datosJoins' => [
+        'roles as ro' => 'ac.id_rol = ro.id_rol',
+        'permisos as pe' => 'ac.id_permiso = pe.id_permiso',
+        'modulos as mo' => 'ac.id_modulo = mo.id_modulo',
+      ],
+      'WHERE' => [
+        'ro.id_rol' => $this->idRol
+      ],
+      'ORDER' => 'mo.nombre_modulo asc'
+    ]);
+
+    if ($resultado->rowCount() == 0) {
+      $permisosRol = [];
+      $ArrayPermisos = [];
+    } else {
+      $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
+
+      //Construimos la estructura sintetizada
+      $ArrayPermisos = [];
+      $nombreModulo = '';
+      foreach ($permisosRol as $permiso) {
+        if ($permiso['nombre_modulo'] != $nombreModulo) {
+          $ArrayPermisos[$permiso['nombre_modulo']] = [$permiso['nombre_permiso']];
+          $nombreModulo = $permiso['nombre_modulo'];
         } else {
-            $modeloRoles = new rolesModelo();
-            $roles = $modeloRoles->seleccionarRoles();
-            $primerRol = $roles[0]['id_rol'];
-            $this->idRol = $primerRol;
+          $ArrayPermisos[$permiso['nombre_modulo']][] = $permiso['nombre_permiso'];
         }
-        return $this->listarPermisosP();
+      }
     }
-    public function seleccionarPermisosPorRol()
-    {
-        $this->idRol = $_SESSION['rol'];
+    return $ArrayPermisos;
+  }
+  private function actualizarPermisosP()
+  {
+    $acceso = $this->VEYSNEC([
+      'eliminadosYVigentes' => true,
+      'campos' => 'status, id_acceso',
+      'tabla' => 'accesos',
+      'WHERE' => [
+        "id_rol" => $this->idRol,
+        "id_modulo" => $this->idModulo,
+        "id_permiso" => $this->idPermiso,
+      ],
+    ]);
+    $estado = $acceso['status'];
+    $idAcceso = $acceso['id_acceso'];
+    $resultado = $this->actualizarDatos2([
+      "tabla" => "accesos",
+      "datos" => [
+        "status" => $this->cambio
+      ],
+      "condiciones" => [
+        "id_acceso" => $idAcceso,
+      ]
+    ]);
 
-        if ($this->idRol != "") {
-            $campos = [
-                [
-                    "campo_nombre" => "id_rol",
-                    "campo_valor" => $this->idRol,
-                    "formulario_nombre" => "id del rol",
-                    "requerido" => true,
-                    "minimo" => minRegexId,
-                    "maximo" => maxRegexId,
-                    "expresion_re" => regexId,
-                    "tabla" => "roles",
-                    "debeExistir" => true
-                ]
-            ];
-            $respuesta = $this->limpiar_Verificar($campos);
-            if ($respuesta !== false) {
-                return $respuesta;
-                exit();
-            }
-        }
-        return $this->seleccionarPermisosPorRolP();
+    if (($estado == $this->cambio) || ($resultado != false && $resultado >= 1)) {
+      $this->commit();
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Acceso actualizado',
+        'texto' => 'El permiso ha sido actualizado',
+        'icono' => 'success',
+      ];
+    } else {
+      $this->rollback();
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Acceso no actualizado',
+        'texto' => 'El permiso no ha sido actualizado',
+        'icono' => 'error',
+      ];
     }
-    public function actualizarPermisos($rol, $modulo, $permiso, $cambio)
-    {
-
-        $this->idRol = $rol;
-        $this->idModulo = $modulo;
-        $this->idPermiso = $permiso;
-        $this->cambio = $cambio;
-
-        $campos = [
-            [
-                "campo_nombre" => "id_rol",
-                "campo_valor" => $this->idRol,
-                "formulario_nombre" => "id del rol",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-                "tabla" => "roles",
-                "debeExistir" => true
-            ],
-            [
-                "campo_nombre" => "id_modulo",
-                "campo_valor" => $this->idModulo,
-                "formulario_nombre" => "id del módulo",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-                "tabla" => "modulos",
-                "debeExistir" => true
-            ],
-            [
-                "campo_nombre" => "id_permiso",
-                "campo_valor" => $this->idPermiso,
-                "formulario_nombre" => "id del permiso",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-                "tabla" => "permisos",
-                "debeExistir" => true
-            ],
-            [
-                "campo_valor" => $this->cambio,
-                "formulario_nombre" => "cambio del permiso",
-                "requerido" => true,
-                "minimo" => minRegexId,
-                "maximo" => maxRegexId,
-                "expresion_re" => regexId,
-            ],
-        ];
-
-        $respuesta = $this->limpiar_Verificar($campos);
-        if ($respuesta !== false) {
-            return $respuesta;
-            exit();
-        }
-
-        return $this->actualizarPermisosP();
-    }
-    public function validarPermisos($modulo, $permiso)
-    {
-        $this->moduloVal = $modulo;
-
-        switch ($permiso) {
-            case 'listar':
-            case 'seleccionarUno':
-            case 'seleccionarDeuda':
-            case 'listarPorRol':
-            case 'listarPorCategoria':
-            case 'listarDetalles':
-            case 'listarDespachadas':
-            case 'listarSinPago':
-            case 'cerrarSesion':
-            case 'listarNotificaciones':
-            case 'seleccionarUnaNot':
-            case 'listarAccionesResagadas':
-                $this->permisoVal = 'listar';
-                break;
-            case 'actualizarFoto':
-            case 'eliminarFoto':
-            case 'cambiarEstado':
-            case 'registrarPago':
-            case 'cambiarTemaInterfaz':
-            case 'marcarTodasNotComoLeidas':
-            case '':
-                $this->permisoVal = 'actualizar';
-                break;
-            case 'registrarToken':
-            case 'registrarNoti':
-                $this->permisoVal = 'registrar';
-                break;
-            case 'eliminarTodasNot':
-                $this->permisoVal = 'eliminar';
-                break;
-            case 'eliminarAccionResagada':
-                $this->permisoVal = 'eliminar';
-                break;
-            case 'consultaDashboard':
-                $this->moduloVal = 'dashboard';
-                $this->permisoVal = 'ver dashboard';
-                break;
-            case 'reporte_ventas':
-            case 'resumen_ventas':
-                $this->permisoVal = 'imprimir reportes de ventas';
-                break;
-            case 'reporte_productos':
-                $this->permisoVal = 'imprimir reportes de productos';
-                break;
-            case 'comanda_venta':
-                $this->permisoVal = 'imprimir comandas';
-                break;
-            default:
-                $this->permisoVal = $permiso;
-                break;
-        }
-        switch ($modulo) {
-            case 'bitacora':
-                $this->permisoVal = 'ver bitácora';
-                break;
-            default:
-
-                break;
-        }
-
-        $campos = [
-            [
-                "campo_valor" => $this->moduloVal,
-                "formulario_nombre" => "modulo a validar",
-                "requerido" => true,
-                "minimo" => minRegexNombreObj,
-                "maximo" => maxRegexNombreObj,
-                "expresion_re" => regexNombreObj,
-            ],
-            [
-                "campo_valor" => $this->permisoVal,
-                "formulario_nombre" => "permiso a validar",
-                "requerido" => true,
-                "minimo" => minRegexDescripcion,
-                "maximo" => maxRegexDescripcion,
-                "expresion_re" => regexDescripcion,
-            ],
-        ];
-        $respuesta = $this->limpiar_Verificar($campos);
-        if ($respuesta !== false) {
-            return $respuesta;
-            exit();
-        }
-        return $this->validarPermisosP();
+  }
+  private function validarPermisosP()
+  {
+    $permisos = $this->seleccionarPermisosPorRol();
+    if (!isset($permisos[$this->moduloVal])) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Acción no autorizada",
+        "texto" => "No posee permisos para realizar la acción solicitada",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
     }
 
-    private function listarPermisosP()
-    {
-        if ($this->idRol == '') {
-            $this->idRol = 1;
-        }
-        //Obtenemos todos los modulos
-        $instruccionesBD = [
-            'campos' => '*',
-            'tabla' => 'modulos',
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-        if ($resultado->rowCount() > 0) {
-            $modulosTotales = $resultado->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        //Todos los permisos generales
-        $instruccionesBD = [
-            'campos' => '*',
-            'tabla' => 'permisos',
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-        if ($resultado->rowCount() > 0) {
-            $permisosTotales = $resultado->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        //separamos los permisos generales de los especiales
-        $permisosGenerales = [];
-        $permisosEspeciales = [];
-        foreach ($permisosTotales as $permiso) {
-            if (
-                $permiso['nombre_permiso'] == 'ver' ||
-                $permiso['nombre_permiso'] == 'listar' ||
-                $permiso['nombre_permiso'] == 'registrar' ||
-                $permiso['nombre_permiso'] == 'actualizar' ||
-                $permiso['nombre_permiso'] == 'eliminar'
-            ) {
-                $permisosGenerales[] = $permiso;
-            } else {
-                $permisosEspeciales[] = $permiso;
-            }
-        }
-
-        //permisos que tiene el rol
-        $instruccionesBD = [
-            'campos' => 'id_permiso, id_modulo',
-            'tabla' => 'accesos',
-            'WHERE' => [
-                [
-                    "condicion_campo" => "id_rol",
-                    "condicion_marcador" => ":id",
-                    "condicion_valor" => $this->idRol,
-                    "comparacion" => "="
-                ]
-            ],
-            'ORDER' => 'id_modulo ASC'
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-        if ($resultado->rowCount() > 0) {
-            $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            $permisosRol = [];
-        }
-
-        /*Para agrupar los permisos del rol por modulo*/
-        $idModulo = 0;
-        $nuevosArrPerRol = [];
-        foreach ($permisosRol as $permiso) {
-            if ($idModulo !== $permiso['id_modulo']) {
-                $nuevosArrPerRol[$permiso['id_modulo']][] = $permiso['id_permiso'];
-            } else {
-                $idModulo = $permiso['id_modulo'];
-                $nuevosArrPerRol[$permiso['id_modulo']] = $permiso['id_permiso'];
-            }
-        }
-
-        /*Función para armar la estructura completa de la permisologia
-        con los permisos generales*/
-        foreach ($modulosTotales as $modulo) {
-            $idModulo = $modulo['id_modulo'];
-            $permisosAsignados = $nuevosArrPerRol[$idModulo] ?? [];
-
-            $permisosDelModulo = [];
-            foreach ($permisosGenerales as $permiso) {
-                $permisosDelModulo[] = [
-                    "id" => $permiso['id_permiso'],
-                    "nombre" => $permiso['nombre_permiso'],
-                    // Verifica si el id_permiso está en los permisos asignados
-                    "activo" => in_array($permiso['id_permiso'], $permisosAsignados)
-                ];
-            }
-
-            if (
-                $modulo['nombre_modulo'] != 'dashboard' &&
-                $modulo['nombre_modulo'] != 'reportes' &&
-                $modulo['nombre_modulo'] != 'bitacora' &&
-                $modulo['nombre_modulo'] != 'cambios' &&
-                $modulo['nombre_modulo'] != 'imagenes'
-            ) {
-                $totalidadPermisos[] = [
-                    "modulo" => [
-                        "id" => $idModulo,
-                        "nombre" => $modulo['nombre_modulo']
-                    ],
-                    "permisos" => $permisosDelModulo
-                ];
-            }
-        }
-
-        /*Función para armar la estructura completa de la permisologia
-        con los permisos especiales*/
-        $respaldoPerEsp = [
-            'cambios' => ['ver historial de cambio', 'actualizar cambio de divisas'],
-            'ventas' => ['ver detalles de las ventas', 'ver ventas despachadas', 'ver ventas sin cancelar'],
-            'reportes' => [
-                'imprimir reportes de ventas',
-            ],
-            'usuarios' => [
-                'asignar roles a usuarios',
-                'ver el precio del dólar',
-                'ver notificaciones',
-                'ver modal de ayuda'
-            ],
-            'bitacora' => ['ver bitácora'],
-        ];
-
-        $NTPE = 0;
-        foreach ($respaldoPerEsp as $modulo => $permisos) {
-            $NTPE += count($permisos);
-        }
-
-        $instruccionesBD = [
-            'campos' => '
-                ac.id_permiso, pe.nombre_permiso, ac.id_modulo,
-                mo.nombre_modulo,ac.status
-            ',
-            'tabla' => 'accesos as ac',
-            'PEL' => 'ac',
-            'eliminadosYVigentes' => true,
-            'datosJoins' => [
-                [
-                    'TablaDestino' => 'permisos as pe',
-                    'conexionLo' => 'ac.id_permiso = pe.id_permiso',
-                ],
-                [
-                    'TablaDestino' => 'modulos as mo',
-                    'conexionLo' => 'ac.id_modulo = mo.id_modulo',
-                ],
-            ],
-            'WHERE' => [
-                [
-                    "condicion_campo" => "ac.id_rol",
-                    "condicion_marcador" => ":id",
-                    "condicion_valor" => $this->idRol,
-                    "comparacion" => "="
-                ],
-                [
-                    "condicion_campo" => "ac.id_permiso",
-                    "condicion_marcador" => ":idPermiso1",
-                    "condicion_valor" => 1,
-                    "comparacion" => "!="
-                ],
-                [
-                    "condicion_campo" => "ac.id_permiso",
-                    "condicion_marcador" => ":idPermiso2",
-                    "condicion_valor" => 2,
-                    "comparacion" => "!="
-                ],
-                [
-                    "condicion_campo" => "ac.id_permiso",
-                    "condicion_marcador" => ":idPermiso3",
-                    "condicion_valor" => 3,
-                    "comparacion" => "!="
-                ],
-                [
-                    "condicion_campo" => "ac.id_permiso",
-                    "condicion_marcador" => ":idPermiso4",
-                    "condicion_valor" => 4,
-                    "comparacion" => "!="
-                ],
-                [
-                    "condicion_campo" => "ac.id_permiso",
-                    "condicion_marcador" => ":idPermiso5",
-                    "condicion_valor" => 5,
-                    "comparacion" => "!="
-                ],
-            ],
-            'ORDER' => 'id_modulo ASC'
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-        $permisosEspRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
-
-
-        $CR = 0;
-        $huboRespaldado = false;
-        //comprobar que estén los permisos asi sea eliminados lógicamente
-        if (count($permisosEspRol) < $NTPE) {
-            foreach ($respaldoPerEsp as $modulo => $permisos) {
-
-                //CONSULTAMOS EL ID DEL MODULO
-                $instruccionesBD = [
-                    'campos' => 'id_modulo',
-                    'tabla' => 'modulos',
-                    'WHERE' => [
-                        [
-                            "condicion_campo" => "nombre_modulo",
-                            "condicion_marcador" => ":nombre",
-                            "condicion_valor" => $modulo,
-                            "comparacion" => "="
-                        ],
-                    ],
-                    'LIMIT' => 1
-                ];
-                $resultado = $this->seleccionarDatos($instruccionesBD);
-                //SI EXISTE LO TOMAMOS Y SI NO LO CREAMOS
-                if ($resultado->rowCount() == 1) {
-                    $idModulo = $resultado->fetch(PDO::FETCH_COLUMN);
-                } else {
-                    $datos_registro_modulo = [
-                        [
-                            "campo_nombre" => "nombre_modulo",
-                            "campo_marcador" => ":nombre",
-                            "campo_valor" => $modulo
-                        ],
-                        [
-                            "campo_nombre" => "status",
-                            "campo_marcador" => ":status",
-                            "campo_valor" => "1"
-                        ],
-                    ];
-                    $ultimoId = $this->guardarDatos('modulos', $datos_registro_modulo);
-                    if ($ultimoId !== false && $ultimoId > 0) {
-                        $idModulo = $ultimoId;
-                    }
-                }
-
-                //CONSULTAMOS EL ID DE LOS PERMISOS 
-                foreach ($permisos as $permiso) {
-                    $instruccionesBD = [
-                        'campos' => 'id_permiso',
-                        'tabla' => 'permisos',
-                        'WHERE' => [
-                            [
-                                "condicion_campo" => "nombre_permiso",
-                                "condicion_marcador" => ":nombre",
-                                "condicion_valor" => $permiso,
-                                "comparacion" => "="
-                            ],
-                        ],
-                        'LIMIT' => 1
-                    ];
-                    $resultado = $this->seleccionarDatos($instruccionesBD);
-                    //SI EXISTE LO TOMAMOS Y SI NO LO CREAMOS
-                    if ($resultado->rowCount() == 1) {
-                        $idPermiso = $resultado->fetch(PDO::FETCH_COLUMN);
-                    } else {
-                        $datos_registro_permiso = [
-                            [
-                                "campo_nombre" => "nombre_permiso",
-                                "campo_marcador" => ":nombre",
-                                "campo_valor" => $permiso
-                            ],
-                            [
-                                "campo_nombre" => "status",
-                                "campo_marcador" => ":status",
-                                "campo_valor" => "1"
-                            ],
-                        ];
-                        $ultimoId = $this->guardarDatos('permisos', $datos_registro_permiso);
-                        if ($ultimoId !== false && $ultimoId > 0) {
-                            $idPermiso = $ultimoId;
-                        }
-                    }
-
-                    /*AHORA VERIFICAMOS QUE EL PERMISO ESTE O 
-                    NO REGISTRADO AL ROL EN LOS ACCESOS*/
-
-                    $instruccionesBD = [
-                        'campos' => 'id_acceso',
-                        'tabla' => 'accesos',
-                        'eliminadosYVigentes' => true,
-                        'WHERE' => [
-                            [
-                                "condicion_campo" => "id_modulo",
-                                "condicion_marcador" => ":modulo",
-                                "condicion_valor" => $idModulo,
-                                "comparacion" => "="
-                            ],
-                            [
-                                "condicion_campo" => "id_permiso",
-                                "condicion_marcador" => ":permiso",
-                                "condicion_valor" => $idPermiso,
-                                "comparacion" => "="
-                            ],
-                            [
-                                "condicion_campo" => "id_rol",
-                                "condicion_marcador" => ":rol",
-                                "condicion_valor" => $this->idRol,
-                                "comparacion" => "="
-                            ],
-                        ],
-                    ];
-                    $resultado = $this->seleccionarDatos($instruccionesBD);
-
-                    $datos = [
-                        'id_rol' => $this->idRol,
-                        'id_modulo' => $idModulo,
-                        'id_permiso' => $idPermiso,
-                        'resultado Consulta' => $resultado->rowCount(),
-                    ];
-                    //return $datos;
-
-                    if ($resultado->rowCount() == 0) {
-                        $datos_registro_acceso = [
-                            [
-                                "campo_nombre" => "id_permiso",
-                                "campo_marcador" => ":permiso",
-                                "campo_valor" => $idPermiso
-                            ],
-                            [
-                                "campo_nombre" => "id_modulo",
-                                "campo_marcador" => ":modulo",
-                                "campo_valor" => $idModulo
-                            ],
-                            [
-                                "campo_nombre" => "id_rol",
-                                "campo_marcador" => ":rol",
-                                "campo_valor" => $this->idRol
-                            ],
-                            [
-                                "campo_nombre" => "status",
-                                "campo_marcador" => ":status",
-                                "campo_valor" => "0"
-                            ],
-                        ];
-                        $ultimoId = $this->guardarDatos('accesos', $datos_registro_acceso);
-                        if ($ultimoId !== false && $ultimoId > 0) {
-                            $this->commit();
-                            $CR++;
-                        } else {
-                            $alerta = [
-                                'tipo' => 'simple',
-                                'icono' => 'error',
-                                'texto' => 'hubo un error al guardar el acceso',
-                                'titulo' => 'No se guardo el acceso',
-                            ];
-                            $this->rollback();
-                            return $alerta;
-                        }
-                    }
-                }
-            }
-            $huboRespaldado = true;
-        }
-
-        $permisosConRespaldo = false;
-        if ($huboRespaldado) {
-            $instruccionesBD = [
-                'campos' => '
-                    ac.id_permiso, pe.nombre_permiso, ac.id_modulo,
-                    mo.nombre_modulo, ac.status
-                ',
-                'tabla' => 'accesos as ac',
-                'PEL' => 'ac',
-                'eliminadosYVigentes' => true,
-                'datosJoins' => [
-                    [
-                        'TablaDestino' => 'permisos as pe',
-                        'conexionLo' => 'ac.id_permiso = pe.id_permiso',
-                    ],
-                    [
-                        'TablaDestino' => 'modulos as mo',
-                        'conexionLo' => 'ac.id_modulo = mo.id_modulo',
-                    ],
-                ],
-                'WHERE' => [
-                    [
-                        "condicion_campo" => "ac.id_rol",
-                        "condicion_marcador" => ":id",
-                        "condicion_valor" => $this->idRol,
-                        "comparacion" => "="
-                    ],
-                    [
-                        "condicion_campo" => "ac.id_permiso",
-                        "condicion_marcador" => ":idPermiso1",
-                        "condicion_valor" => 1,
-                        "comparacion" => "!="
-                    ],
-                    [
-                        "condicion_campo" => "ac.id_permiso",
-                        "condicion_marcador" => ":idPermiso2",
-                        "condicion_valor" => 2,
-                        "comparacion" => "!="
-                    ],
-                    [
-                        "condicion_campo" => "ac.id_permiso",
-                        "condicion_marcador" => ":idPermiso3",
-                        "condicion_valor" => 3,
-                        "comparacion" => "!="
-                    ],
-                    [
-                        "condicion_campo" => "ac.id_permiso",
-                        "condicion_marcador" => ":idPermiso4",
-                        "condicion_valor" => 4,
-                        "comparacion" => "!="
-                    ],
-                    [
-                        "condicion_campo" => "ac.id_permiso",
-                        "condicion_marcador" => ":idPermiso5",
-                        "condicion_valor" => 5,
-                        "comparacion" => "!="
-                    ],
-                ],
-                'ORDER' => 'id_modulo ASC'
-            ];
-            $resultado = $this->seleccionarDatos($instruccionesBD);
-            $permisosConRespaldo = $resultado->fetchAll(PDO::FETCH_ASSOC);
-            $permisosEspRol = $permisosConRespaldo;
-        }
-
-        // return [
-        //     'hubo respaldo' => $huboRespaldado,
-        //     'contador de registros de accesos' => $CR,
-        //     'permisos del especiales del rol' => $permisosEspRol,
-        //     'permisos del especiales del rol con respaldado' => $permisosConRespaldo,
-        // ];
-
-        $permisos = [
-            'generales' => $totalidadPermisos,
-            'especiales' => $permisosEspRol
-        ];
-        return $permisos;
+    if (!in_array($this->permisoVal, $permisos[$this->moduloVal])) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Acción no autorizada",
+        "texto" => "No posee permisos para realizar la acción solicitada",
+        "icono" => "error",
+        'permisos totales' => $permisos,
+        "modulo" => $this->moduloVal,
+        "permisos del modulo" => $permisos[$this->moduloVal],
+        "permiso recibido" => $this->permisoVal
+      ];
+      return $alerta;
+    } else {
+      return false;
     }
-    private function seleccionarPermisosPorRolP()
-    {
-        //Obtenemos los permisos totales del rol en todos los modulos
-        $instruccionesBD = [
-            'campos' => 'ro.nombre_rol, mo.nombre_modulo, pe.nombre_permiso',
-            'tabla' => 'accesos as ac',
-            'PEL' => 'ac',
-            'datosJoins' => [
-                [
-                    "TablaDestino" => 'roles as ro',
-                    "conexionLo" => 'ac.id_rol = ro.id_rol'
-                ],
-                [
-                    "TablaDestino" => 'permisos as pe',
-                    "conexionLo" => 'ac.id_permiso = pe.id_permiso'
-                ],
-                [
-                    "TablaDestino" => 'modulos as mo',
-                    "conexionLo" => 'ac.id_modulo = mo.id_modulo'
-                ]
-            ],
-            'WHERE' => [
-                [
-                    'condicion_campo' => 'ro.id_rol',
-                    'condicion_valor' => $this->idRol,
-                    'condicion_marcador' => ':id_rol',
-                    'comparacion' => '=',
-                ]
-            ],
-            'ORDER' => 'mo.nombre_modulo asc'
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-
-        if ($resultado->rowCount() == 0) {
-            $permisosRol = [];
-            $ArrayPermisos = [];
-        } else {
-            $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
-
-            //Construimos la estructura sintetizada
-            $ArrayPermisos = [];
-            $nombreModulo = '';
-            foreach ($permisosRol as $permiso) {
-                if ($permiso['nombre_modulo'] != $nombreModulo) {
-                    $ArrayPermisos[$permiso['nombre_modulo']] = [$permiso['nombre_permiso']];
-                    $nombreModulo = $permiso['nombre_modulo'];
-                } else {
-                    $ArrayPermisos[$permiso['nombre_modulo']][] = $permiso['nombre_permiso'];
-                }
-            }
-        }
-        return $ArrayPermisos;
-    }
-    private function actualizarPermisosP()
-    {
-        $instruccionesBD = [
-            'campos' => '*',
-            'tabla' => 'accesos',
-            'eliminadosYVigentes' => true,
-            'WHERE' => [
-                [
-                    "condicion_campo" => "id_rol",
-                    "condicion_marcador" => ":rol",
-                    "condicion_valor" => $this->idRol,
-                    "comparacion" => "="
-                ],
-                [
-                    "condicion_campo" => "id_modulo",
-                    "condicion_marcador" => ":modulo",
-                    "condicion_valor" => $this->idModulo,
-                    "comparacion" => "="
-                ],
-                [
-                    "condicion_campo" => "id_permiso",
-                    "condicion_marcador" => ":permiso",
-                    "condicion_valor" => $this->idPermiso,
-                    "comparacion" => "="
-                ],
-            ],
-        ];
-        $resultado = $this->seleccionarDatos($instruccionesBD);
-        if ($resultado->rowCount() <= 0) {
-            $existePermiso = false;
-        } else {
-            $existePermiso = true;
-            $registroAcceso = $resultado->fetch(PDO::FETCH_ASSOC);
-            $idAcceso = $registroAcceso['id_acceso'];
-        }
-        //return $existePermiso;
-
-        if (!$existePermiso) {
-            $datos_registro_acceso = [
-                [
-                    "campo_nombre" => "id_rol",
-                    "campo_marcador" => ":rol",
-                    "campo_valor" => $this->idRol
-                ],
-                [
-                    "campo_nombre" => "id_modulo",
-                    "campo_marcador" => ":modulo",
-                    "campo_valor" => $this->idModulo
-                ],
-                [
-                    "campo_nombre" => "id_permiso",
-                    "campo_marcador" => ":permiso",
-                    "campo_valor" => $this->idPermiso
-                ],
-            ];
-            $ultimoId = $this->guardarDatos('accesos', $datos_registro_acceso);
-            if ($ultimoId !== false && $ultimoId > 0) {
-                $alerta = [
-                    "tipo" => "simple",
-                    "titulo" => "Acceso registrado",
-                    "texto" => "El acceso ha sido registrado exitosamente",
-                    "icono" => "success",
-                ];
-                $this->commit();
-            } else {
-                $alerta = [
-                    "tipo" => "simple",
-                    "titulo" => "Acceso no registrado",
-                    "texto" => "El acceso no ha sido registrado exitosamente",
-                    "icono" => "error",
-                ];
-                $this->rollback();
-            }
-            return $alerta;
-        } else {
-
-            $instruccionesBD = [
-                "tabla" => "accesos",
-                "datos" => [
-                    [
-                        "campo_nombre" => "status",
-                        "campo_marcador" => ":status",
-                        "campo_valor" => $this->cambio
-                    ]
-                ],
-                "condiciones" => [
-                    [
-                        "condicion_campo" => "id_acceso",
-                        "condicion_marcador" => ":id_acceso",
-                        "condicion_valor" => $idAcceso,
-                        "comparacion" => "="
-                    ]
-                ]
-            ];
-            $resultado = $this->actualizarDatos($instruccionesBD);
-
-            if ($resultado != 0) {
-                $alertaExito = [
-                    "tipo" => "simple",
-                    "titulo" => "Permiso actualizado",
-                    "texto" => "El permiso ha sido actualizado exitosamente",
-                    "icono" => "success",
-                ];
-                $this->commit();
-                return $alertaExito;
-            } else {
-                $alertaError = [
-                    "tipo" => "simple",
-                    "titulo" => "Permiso no actualizado",
-                    "texto" => "El permiso no ha sido actualizado",
-                    "icono" => "error",
-                ];
-                $this->rollback();
-                return $alertaError;
-            }
-        }
-    }
-    private function validarPermisosP()
-    {
-        $permisos = $this->seleccionarPermisosPorRol();
-        if (!isset($permisos[$this->moduloVal])) {
-            $alerta = [
-                "tipo" => "simple",
-                "titulo" => "Acción no autorizada",
-                "texto" => "No posee permisos para realizar la acción solicitada",
-                "icono" => "error"
-            ];
-            return $alerta;
-            exit();
-        }
-
-        if (in_array($this->permisoVal, $permisos[$this->moduloVal])) {
-            return false;
-        } else {
-            $alerta = [
-                "tipo" => "simple",
-                "titulo" => "Acción no autorizada",
-                "texto" => "No posee permisos para realizar la acción solicitada",
-                "icono" => "error",
-                'permisos totales' => $permisos,
-                "modulo" => $this->moduloVal,
-                "permisos del modulo" => $permisos[$this->moduloVal],
-                "permiso recibido" => $this->permisoVal
-            ];
-            return $alerta;
-        }
-    }
+  }
 }
