@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
       exit();
   }
 } else {
-  $componenteObj = new componentesModelo();
-  require_once "src/vistas/permisos/permisos.php";
+  $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
-  require_once "src/config/inc/sidebar.php";
+  echo $objComponentes->sidebar();
+  require_once "src/vistas/permisos/permisos.php";
 }

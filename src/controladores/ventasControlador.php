@@ -1,6 +1,7 @@
 <?php
 
 use src\modelos\ventasModelo;
+use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
@@ -90,8 +91,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"]) && isset($_
       exit();
   }
 } elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
+  $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
-  require_once "src/config/inc/sidebar.php";
+  echo $objComponentes->sidebar();
   require_once "src/vistas/ventas/ventas.php";
 } else {
   http_response_code(405);

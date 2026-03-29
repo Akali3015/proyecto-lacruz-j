@@ -114,6 +114,7 @@ class produccionesModelo extends conexion
     $this->detalles = $detalles;
     return $this->actualizarProduccionP($idProduccion, $detalles);
   }
+
   private function seleccionarProduccionP()
   {
     if ($this->idProduccion == null || $this->idProduccion == "") {
@@ -289,10 +290,10 @@ class produccionesModelo extends conexion
     }
     $this->commit();
     return [
+      'tipo' => 'limpiarYcerrar',
       'icono' => 'success',
       'titulo' => 'Exito en el registro',
       'texto' => 'Se registró correctamente la producción',
-      'tipo' => 'simple'
     ];
   }
   private function actualizarProduccionP($idProduccion, $detalles)

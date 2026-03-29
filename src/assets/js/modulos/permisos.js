@@ -11,6 +11,7 @@ async function listarPermisos(idRol) {
   if (idRol == rolListado) {
     return;
   }
+
   let permisos = await pedirDatosAjax({
     modulo: 'permisos',
     datosPe: {
@@ -31,6 +32,7 @@ async function listarPermisos(idRol) {
     generales = [generales];
   }
 
+  // PERMISOS GENERALES
   const selector = '.listaPermisos';
   if (!$.fn.DataTable.isDataTable(selector)) {
     const arregloColumnas = [];
@@ -43,8 +45,7 @@ async function listarPermisos(idRol) {
       title: 'Módulo',
       render: function (data, type, row) {
         const modulo = data.toUpperCase().replace('_', ' ');
-        return `${modulo}<input type="hidden" class="id_modulo" value="${row.modulo.id}">
-            `;
+        return `${modulo}<input type="hidden" class="id_modulo" value="${row.modulo.id}">`;
       }
     });
     dynamicColumnDefs.push({
@@ -52,7 +53,6 @@ async function listarPermisos(idRol) {
       className: 'dt-head-center'
     });
     targetsCount++;
-
     const nombresPermisos = [
       'ver',
       'listar',
@@ -60,7 +60,6 @@ async function listarPermisos(idRol) {
       'actualizar',
       'eliminar'
     ];
-
     nombresPermisos.forEach((nombrePermiso) => {
       arregloColumnas.push({
         data: null,
@@ -69,9 +68,9 @@ async function listarPermisos(idRol) {
           const permiso = row.permisos.find((p) => p.nombre === nombrePermiso);
           let activo = permiso.activo === true ? 'checked' : '';
           return `
-                        <div class="d-flex justify-content-center form-check form-switch custom-switch-v1 mb-0">
-                            <input type="checkbox" class="permiso_checkbox form-check-input input-primary" idPermiso="${permiso.id}" ${activo} >
-                        </div>`
+            <div class="d-flex justify-content-center form-check form-switch custom-switch-v1 mb-0">
+                <input type="checkbox" class="permiso_checkbox form-check-input input-primary" idPermiso="${permiso.id}" ${activo} >
+            </div>`
             ;
         }
       });
@@ -104,8 +103,9 @@ async function listarPermisos(idRol) {
   } else {
     $(selector).DataTable().clear().rows.add(generales).draw();
   }
-  rolListado = idRol;
 
+  // PERMISOS ESPECIALES
+  rolListado = idRol;
   let CP = 2;
   let permisosEspHTML = '';
   especiales.forEach((permiso) => {
@@ -114,23 +114,22 @@ async function listarPermisos(idRol) {
         <div class="input-group">
       `;
     }
-
     const nombrePermiso = permiso.nombre_permiso.toUpperCase();
     const checked = permiso.status == 1 ? 'checked' : '';
 
     permisosEspHTML += `
-      <span class="form-control bg-blanco">${nombrePermiso}</span>
-      <div class="input-group-text">
-          <div class="form-check form-switch p-0">
-              <input idModulo="${permiso.id_modulo}" idPermiso="${permiso.id_permiso}" class="permiso_checkbox m-0 form-check-input h5 position-relative input-primary" type="checkbox" role="switch" ${checked}>
-          </div>
-      </div>
-  `;
+        <span class="form-control bg-blanco">${nombrePermiso}</span>
+        <div class="input-group-text">
+            <div class="form-check form-switch p-0">
+                <input idModulo="${permiso.id_modulo}" idPermiso="${permiso.id_permiso}" class="permiso_checkbox m-0 form-check-input h5 position-relative input-primary" type="checkbox" role="switch" ${checked}>
+            </div>
+        </div>
+    `;
 
     if (CP % 2 == 1) {
       permisosEspHTML += `
-            </div>
-            `;
+        </div>
+      `;
     }
 
     CP++;
@@ -139,6 +138,8 @@ async function listarPermisos(idRol) {
   $('.containerPermEspe').empty().append(permisosEspHTML);
 }
 async function cambioPermisos() {
+
+  console.log('this: ', this)
   const cambioP = this.checked ? 1 : 0;
   const idRol = $(this)
     .closest('.contenedorPanel')
@@ -149,7 +150,9 @@ async function cambioPermisos() {
   const idModulo =
     $(this).attr('idModulo') != undefined
       ? $(this).attr('idModulo')
-      : $(this).closest('tr').find('.id_modulo').val();
+      : $(this)
+        .closest('tr')
+        .find('.id_modulo').val();
   const idPermiso = $(this).attr('idPermiso');
 
   const respuesta = await pedirDatosAjax({
@@ -186,27 +189,29 @@ $(document).on('DOMContentLoaded', async function (e) {
 
   let i = 0;
   let opcionRol = '';
-  console.log(roles)
+  console.log('roles: ', roles);
   roles.forEach((rol) => {
     const nombreRol = rol.nombre_rol.toUpperCase();
     if (i == 0) {
       opcionRol = `
-                <li class="opcionesRoles" idRol='${rol.id_rol}'>
-                    <a class="nav-link active" href="#">${nombreRol}</a>
-                </li>`;
+        <li class="opcionesRoles" idRol='${rol.id_rol}'>
+          <a class="nav-link active" href="#">${nombreRol}</a>
+        </li>
+      `;
     } else {
       opcionRol = `
-                <li class="opcionesRoles" idRol='${rol.id_rol}'>
-                    <a class="nav-link" href="#">${nombreRol}</a>
-                </li>`;
+        <li class="opcionesRoles" idRol='${rol.id_rol}'>
+          <a class="nav-link" href="#">${nombreRol}</a>
+        </li>
+      `;
     }
     i++;
-
     $('.selectRolesPermisos').append(opcionRol);
   });
   let id_rol = $('.selectRolesPermisos').find('.opcionesRoles').first().attr('idRol');
   await listarPermisos(id_rol);
 });
+
 // Para cambiar los colores del menu de opciones de los roles de usuario
 $('.selectRolesPermisos').off('click', 'li');
 $('.selectRolesPermisos').on('click', 'li', function (e) {

@@ -236,9 +236,6 @@ class permisosModelo extends conexion
 
   private function listarPermisosP()
   {
-    if ($this->idRol == '') {
-      $this->idRol = 1;
-    }
     // Los permisos del rol
     $resultado = $this->seleccionarDatos2([
       'campos' => 'id_permiso, id_modulo',
@@ -247,8 +244,10 @@ class permisosModelo extends conexion
         "id_rol" => $this->idRol,
       ],
     ]);
-
     $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
+
+
+    // INDEXACIÓN PARA LA BUSQUEDA DE PERMISOS SI ESTÁN O NO HABILITADOS PARA EL ROL
     $permisosRolIndexados = [];
     foreach ($permisosRol as $permiso) {
       $permisosRolIndexados[$permiso['id_permiso']] = $permiso;
@@ -259,12 +258,19 @@ class permisosModelo extends conexion
       $llave1 = json_encode($permiso);
       $arrayConfirmacion[$llave1] = true;
     }
+
     //Backup automatico de los permisos especiales
     $respaldoPerEsp = [
-      'dashboard' => ['ver dashboard'],
+      'dashboard' => [
+        'ver dashboard'
+      ],
       'cambios' => [
         'ver historial de cambio',
         'actualizar cambio de divisas'
+      ],
+      'cambiosIva' => [
+        'ver historial de cambio del iva',
+        'actualizar cambio del iva'
       ],
       'ventas' => [
         'ver detalles de las ventas',
@@ -289,7 +295,6 @@ class permisosModelo extends conexion
       ],
       'promociones' => ['ver detalles de promociones'],
       'bitacora' => ['ver bitácora'],
-      'imagenes' => ['transformar imagenes']
     ];
     $permisosEspecialesRol = [];
     foreach ($respaldoPerEsp as $modulo => $permisos) {
@@ -316,7 +321,6 @@ class permisosModelo extends conexion
         if (isset($idPermiso['error'])) {
           return $idModulo;
         }
-
         $permisosEspecialesRol[] = [
           'id_modulo' => $idModulo,
           'id_permiso' => $idPermiso,
@@ -324,7 +328,6 @@ class permisosModelo extends conexion
           'status' => isset($permisosRolIndexados[$idPermiso]) ? 1 : 0
         ];
       }
-      $this->commit();
     }
 
     //Obtenemos todos los modulos
@@ -332,7 +335,6 @@ class permisosModelo extends conexion
       'campos' => '*',
       'tabla' => 'modulos',
     ]);
-
     $modulosTotales = $resultado->fetchAll(PDO::FETCH_ASSOC);
 
     //Todos los permisos generales
@@ -346,7 +348,6 @@ class permisosModelo extends conexion
       ]
     ]);
     $permisosGenerales = $resultado->fetchAll(PDO::FETCH_ASSOC);
-
     $arrayPermisosDef = [
       'generales' => [],
       'especiales' => $permisosEspecialesRol,
@@ -377,6 +378,7 @@ class permisosModelo extends conexion
         ];
       }
     }
+    $this->commit();
     return $arrayPermisosDef;
   }
   private function seleccionarPermisosPorRolP()

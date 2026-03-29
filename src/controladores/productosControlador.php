@@ -1,87 +1,77 @@
 <?php
 
 use src\modelos\productosModelo;
-
+use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
 
-    $datos = file_get_contents('php://input');
-    $datos= json_decode($datos, true);
-    $accion = $datos["accion"] ?? $_POST['accion'] ?? "";
+  $datos = file_get_contents('php://input');
+  $datos = json_decode($datos, true);
+  $accion = $datos["accion"] ?? $_POST['accion'] ?? "";
 
-    $id = $datos["id_producto"] ?? $_POST['id_producto'] ?? "";
-    $idUnidadMedida = $datos['id_unidad_medida'] ?? "";
-    $nombre = $datos['nombre_producto'] ?? "";
-    $precioDetal = $datos['precio_producto_detal'] ?? "";
-    $precioMayor = $datos['precio_producto_mayor'] ?? "";
-    $stock = $datos['stock_producto'] ?? "0";
-    $fabricado = $datos['producto_es_fabricado'] ?? "0";
-    $presentaciones = $datos['presentaciones'] ?? [];
-    $materiasPrimas = $datos['materias_primas'] ?? [];
+  $id = $datos["id_producto"] ?? $_POST['id_producto'] ?? "";
+  $idUnidadMedida = $datos['id_unidad_medida'] ?? "";
+  $nombre = $datos['nombre_producto'] ?? "";
+  $precioDetal = $datos['precio_producto_detal'] ?? "";
+  $precioMayor = $datos['precio_producto_mayor'] ?? "";
+  $stock = $datos['stock_producto'] ?? "0";
+  $fabricado = $datos['producto_es_fabricado'] ?? "0";
+  $presentaciones = $datos['presentaciones'] ?? [];
+  $materiasPrimas = $datos['materias_primas'] ?? [];
 
-    $objeto = new productosModelo();
-    ob_clean();
-    switch ($accion){
-        case "listar":
-            $resultado = $objeto->seleccionarProductos();
-            echo json_encode($resultado);
-            exit();
-            
-        case "seleccionarUno":
-            $resultado = $objeto->seleccionarProductos($id);
-            echo json_encode($resultado);
-            exit();
-            
-        case "listarPresentaciones":
-            $resultado = $objeto->obtenerPresentacionesProductos($id);
-            echo json_encode($resultado);
-            exit();
-            
-        case "listarMateriasPrimas":
-            $resultado = $objeto->obtenerMateriasPrimasProductos($id);
-            echo json_encode($resultado);
-            exit();
-            
-        case "registrar":
-            $resultado = $objeto->registrarProductos(
-                $idUnidadMedida, 
-                $nombre,
-                $precioDetal, 
-                $precioMayor, 
-                $stock, 
-                $fabricado, 
-                $presentaciones,
-                $materiasPrimas
-            );
-            echo json_encode($resultado);
-            exit();
-            
-        case "actualizar":
-            $resultado = $objeto->actualizarProductos(
-                $id, 
-                $idUnidadMedida, 
-                $nombre, 
-                $precioDetal, 
-                $precioMayor, 
-                $stock, 
-                $fabricado, 
-                $presentaciones, 
-                $materiasPrimas
-            );
-            echo json_encode($resultado);
-            exit();
-            
-        case "eliminar":
-            $resultado = $objeto->eliminarProductos($id);
-            echo json_encode($resultado);
-            exit();
-            
-        default:
-            echo json_encode(["error" => "Acción no reconocida"]);
-            exit();
-    }
+  $objeto = new productosModelo();
+  ob_clean();
+  switch ($accion) {
+    case "listar":
+      $resultado = $objeto->seleccionarProductos();
+      echo json_encode($resultado);
+      exit();
+
+    case "seleccionarUno":
+      $resultado = $objeto->seleccionarProductos($id);
+      echo json_encode($resultado);
+      exit();
+    case "registrar":
+      $resultado = $objeto->registrarProductos(
+        $idUnidadMedida,
+        $nombre,
+        $precioDetal,
+        $precioMayor,
+        $stock,
+        $fabricado,
+        $presentaciones,
+        $materiasPrimas
+      );
+      echo json_encode($resultado);
+      exit();
+
+    case "actualizar":
+      $resultado = $objeto->actualizarProductos(
+        $id,
+        $idUnidadMedida,
+        $nombre,
+        $precioDetal,
+        $precioMayor,
+        $stock,
+        $fabricado,
+        $presentaciones,
+        $materiasPrimas
+      );
+      echo json_encode($resultado);
+      exit();
+
+    case "eliminar":
+      $resultado = $objeto->eliminarProductos($id);
+      echo json_encode($resultado);
+      exit();
+
+    default:
+      echo json_encode(["error" => "Acción no reconocida"]);
+      exit();
+  }
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-    require_once "src/config/inc/header.php";
-    require_once "src/config/inc/sidebar.php";
-    require_once "src/vistas/productos/productos.php";
+  $objComponentes = new componentesModelo();
+  require_once "src/config/inc/header.php";
+  echo $objComponentes->sidebar();
+  require_once "src/vistas/productos/productos.php";
 }

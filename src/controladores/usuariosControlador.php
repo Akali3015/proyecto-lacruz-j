@@ -1,6 +1,7 @@
 <?php
 
 use src\modelos\usuariosModelo;
+use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -104,8 +105,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (isset($url2) && $url2 != "") {
     if (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
       if ($url2 == "dashboard" && isset($_SESSION['rol'])) {
+        $objComponentes = new componentesModelo();
         require_once "src/config/inc/header.php";
-        require_once "src/config/inc/sidebar.php";
+        echo $objComponentes->sidebar();
         require_once "src/vistas/usuarios/" . $url2 . ".php";
       } else {
         require_once "src/vistas/usuarios/" . $url2 . ".php";
@@ -116,9 +118,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $_SESSION['vistaActual'] = '';
     }
   } elseif (isset($_SESSION['cedula'])) {
-    //Cuando el usuario ya inicio sesión y va al modulo de usuarios
+    $objComponentes = new componentesModelo();
     require_once "src/config/inc/header.php";
-    require_once "src/config/inc/sidebar.php";
+    echo $objComponentes->sidebar();
     require_once "src/vistas/usuarios/usuarios.php";
     $_SESSION['vistaActual'] = 'usuarios';
   } else {

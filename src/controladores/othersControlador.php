@@ -1,5 +1,7 @@
 <?php
 
+use src\config\inc\componentesModelo;
+
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
   $archivo = "src/vistas/others/";
   if (isset($url1) && $url1 != "") {
@@ -8,7 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
       $_SESSION['vistaActual'] = $url1;
     }
   }
+  $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
-  require_once "src/config/inc/sidebar.php";
+  echo $objComponentes->sidebar();
   require_once $archivo;
 }

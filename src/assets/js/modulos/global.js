@@ -39,6 +39,44 @@ export const españolDataTable = {
 //#endregion [VARIABLES O CONSTANTES GLOBALES] FIN
 
 //#region [ VALIDACIONES ] COMIENZO
+export function funcionAlertaError(input,texto) {
+  if ($(input).closest('form').hasClass('login')) {
+    return `
+        <div class="mensajeError d-flex alert alert-danger alert-dismissible fade show mt-3">
+            <i class="fi fi-rr-triangle-warning me-2"></i>
+            ${texto}
+        </div>
+      `;
+  } else {
+    return `<div class="mensajeError text-danger small mt-1">${texto}</div>`;
+  }
+};
+export function funcionMandarError(input, mensaje) {
+  input =$(input);
+  let mensajeHTML = funcionAlertaError(input, mensaje);
+  let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
+  input.removeClass('validado').addClass('error');
+
+  if (contenedorGI.find('.msjError').length > 0) {
+    contenedorGI.find('.msjError').find('.mensajeError').remove();
+    contenedorGI.find('.msjError').append(mensajeHTML)
+  } else {
+    contenedorGI.find('.mensajeError').remove();
+    contenedorGI.append(mensajeHTML)
+  }
+}
+export function funcionEliminaError(input) {
+  input =$(input);
+  input.addClass('validado').removeClass('error');
+  let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
+  contenedorGI.find('.mensajeError').remove();
+}
+export function reiniciarCampo(input){
+  input =$(input);
+  input.removeClass('error validado');
+  let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
+  contenedorGI.find('.mensajeError').remove();
+}
 export async function validarEnTiempoReal(input, modulo) {
 
   input = $(input);
@@ -50,44 +88,12 @@ export async function validarEnTiempoReal(input, modulo) {
   let requerido = input.attr('required') || false;
   let esValido = expresionRegular.test(valorIntroducido);
 
-  let funcionAlertaError = (texto) => {
-    return `<div class="mensajeError text-danger small mt-1">${texto}</div>`;
-  };
-  if ($(input).closest('form').hasClass('login')) {
-    funcionAlertaError = (texto) => {
-      return `
-                <div class="mensajeError d-flex alert alert-danger alert-dismissible fade show mt-3">
-                    <i class="fi fi-rr-triangle-warning me-2"></i>
-                    ${texto}
-                </div>
-            `;
-    }
-  }
-  let funcionMandarError = (mensaje) => {
-    let mensajeHTML = funcionAlertaError(mensaje);
-    let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
-    input.removeClass('validado').addClass('error');
-
-    if (contenedorGI.find('.msjError').length > 0) {
-      contenedorGI.find('.msjError').find('.mensajeError').remove();
-      contenedorGI.find('.msjError').append(mensajeHTML)
-    } else {
-      contenedorGI.find('.mensajeError').remove();
-      contenedorGI.append(mensajeHTML)
-    }
-  }
-  let funcionEliminaError = () => {
-    input.addClass('validado').removeClass('error');
-    let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
-    contenedorGI.find('.mensajeError').remove();
-  }
-
   //Validar si es requerido
   if (requerido && valorIntroducido == '') {
-    funcionMandarError('Este campo es obligatorio!!!');
+    funcionMandarError(input,'Este campo es obligatorio!!!');
     return;
   } else {
-    funcionEliminaError();
+    funcionEliminaError(input);
   }
 
   if ((!requerido && valorIntroducido == '') || input.attr('readonly')) {
@@ -97,36 +103,36 @@ export async function validarEnTiempoReal(input, modulo) {
 
   //Para validar el minimo del campo
   if (minimo && valorIntroducido.length < minimo) {
-    funcionMandarError(`El valor del campo debe ser mayor o igual a ${minimo} caracteres`)
+    funcionMandarError(input,`El valor del campo debe ser mayor o igual a ${minimo} caracteres`)
     return;
   } else {
-    funcionEliminaError();
+    funcionEliminaError(input);
   }
 
   //Para validar el maximo del campo
   if (maximo && valorIntroducido.length > maximo) {
-    funcionMandarError(`El valor del campo debe ser menor o igual a ${maximo} caracteres`)
+    funcionMandarError(input,`El valor del campo debe ser menor o igual a ${maximo} caracteres`)
     return;
   } else {
-    funcionEliminaError()
+    funcionEliminaError(input)
   }
 
   //Para validar la contrasena de confirmación
   if (input.attr('id') == 'contrasena2_usuario') {
     if ($('#contrasena1_usuario').val() != $('#contrasena2_usuario').val()) {
-      funcionMandarError('El valor de ambas contraseña debe coincidir');
+      funcionMandarError(input,'El valor de ambas contraseña debe coincidir');
       return;
     } else {
-      funcionEliminaError();
+      funcionEliminaError(input);
     }
   }
 
   //Para validar el formato del campo
   if (!esValido) {
-    funcionMandarError('El valor del campo no es valido');
+    funcionMandarError(input,'El valor del campo no es valido');
     return;
   } else {
-    funcionEliminaError();
+    funcionEliminaError(input);
   }
 
   //Para validar campos que deben tener valores únicos
@@ -167,9 +173,9 @@ export async function validarEnTiempoReal(input, modulo) {
       }
     }
     if (mandaAlerta) {
-      funcionMandarError('El dato ingresado ya se encuentra registrado')
+      funcionMandarError(input,'El dato ingresado ya se encuentra registrado')
     } else {
-      funcionEliminaError();
+      funcionEliminaError(input);
     }
   }
 }
@@ -464,7 +470,6 @@ export async function enviarFormulario(instrucciones) {
     camposFuera = false,
   } = instrucciones
 
-
   formulario = $(formulario)
   const resultado = await Swal.fire({
     title: '¿Estás seguro?',
@@ -490,7 +495,7 @@ export async function enviarFormulario(instrucciones) {
     let cuerpoPeticion = new FormData();
 
     if (convertirJSON) {
-      let elementos = formulario.find('select, input')
+      let elementos = formulario.find('select, input, textarea')
       let datosTransformados = {};
       elementos.each((i, elemento) => {
         elemento = $(elemento);
@@ -705,6 +710,9 @@ export async function alertasAjax(alerta) {
       });
       if (formulario) {
         $(formulario)[0].reset();
+        $(formulario).find('input,select,textarea').removeClass('error').each((i,elemento)=>{
+          reiniciarCampo(elemento);
+        });
       }
       break;
     case 'limpiarYcerrar':
@@ -716,6 +724,9 @@ export async function alertasAjax(alerta) {
       });
       if (formulario) {
         $(formulario)[0].reset();
+        $(formulario).find('input,select,textarea').removeClass('error').each((i,elemento)=>{
+          reiniciarCampo(elemento);
+        });
         const botonCerrar = $(formulario).closest('.modal').find('.btn-close');
         botonCerrar.trigger('click');
       }
@@ -822,10 +833,8 @@ export async function obtenerDatosRegistro(instrucciones) {
   });
   const datosNoAgrupados = respuesta.datosNoAgrupados ?? respuesta;
 
-  const inputs = formulario.find('select,input');
+  const inputs = formulario.find('select,input,textarea');
   inputs.each((indice, input) => {
-    console.log('name: ', input.name)
-    console.log('datos: ', datosNoAgrupados)
     const nombreCampo = input.name;
     if (Object.prototype.hasOwnProperty.call(datosNoAgrupados, nombreCampo)) {
       input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input

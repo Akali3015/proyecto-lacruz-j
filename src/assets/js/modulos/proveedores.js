@@ -60,8 +60,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input blur', '.validar input, .validar select, .validar textarea')
+$(document).on('input blur', '.validar input, .validar select, .validar textarea', function () {
     validarEnTiempoReal(this,'proveedores');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

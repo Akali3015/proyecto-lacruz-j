@@ -206,7 +206,7 @@ class metodosPagoModelo extends conexion
         $ultimoId = $this->guardarDatos('metodos_pagos', $datos_registro_metodo_pago);
         if ($ultimoId !== false && $ultimoId > 0) {
             $alerta = [
-                "tipo" => "limpiar",
+                "tipo" => "limpiarYcerrar",
                 "titulo" => "Metodo de pago registrado",
                 "texto" => "El método de pago ha sido registrada exitosamente",
                 "icono" => "success",

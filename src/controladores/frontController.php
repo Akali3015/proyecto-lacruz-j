@@ -65,10 +65,10 @@ class frontController
         } else {
           $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
         }
-        // if (isset($validacion['icono'])) {
-        //   $this->redireccionarUsuario();
-        //   return;
-        // }
+        if (isset($validacion['icono'])) {
+          $this->redireccionarUsuario();
+          return;
+        }
 
         $vistasNoFuSe = [
           'login',
@@ -91,10 +91,12 @@ class frontController
         $_SESSION['vistaActual'] = $this->url;
       } elseif (in_array($this->url, $salidasFueraDeSesion) && $accion == 'listar') {
         $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
-      } elseif (isset($_SESSION['cedula'])) {
+      } 
+      elseif (isset($_SESSION['cedula'])) {
         $this->redireccionarUsuario();
         return;
-      } elseif (
+      } 
+      elseif (
         $_SESSION['vistaActual'] == 'usuarios' && (
           $accion == 'iniciarSesion' ||
           $accion == 'obtenerUrlOPG' ||
@@ -109,9 +111,9 @@ class frontController
         $this->archivo = "src/vistas/usuarios/login.php";
         $_SESSION['vistaActual'] = 'login';
       }
-    } else {
-      $this->archivo = "src/vistas/usuarios/login.php";
-      $_SESSION['vistaActual'] = 'login';
+    } else{
+      $this->redireccionarUsuario();
+      exit();
     }
     $this->llamarArchivo();
   }
@@ -183,11 +185,11 @@ class frontController
   }
   private function validarTokens()
   {
-    $tokenCSRFRecibido = $_SERVER['HTTP_X_TOKEN_CSRF'] ?? '';
-    $tokenCSRFSesion = $_SESSION['TOKEN_CSRF'] ?? '';
-    if (empty($tokenCSRFSesion) || !hash_equals($tokenCSRFSesion, $tokenCSRFRecibido)) {
-      $this->redireccionarUsuario();
-      exit;
-    }
+    // $tokenCSRFRecibido = $_SERVER['HTTP_X_TOKEN_CSRF'] ?? '';
+    // $tokenCSRFSesion = $_SESSION['TOKEN_CSRF'] ?? '';
+    // if (empty($tokenCSRFSesion) || !hash_equals($tokenCSRFSesion, $tokenCSRFRecibido)) {
+    //   $this->redireccionarUsuario();
+    //   exit;
+    // }
   }
 }

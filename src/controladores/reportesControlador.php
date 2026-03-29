@@ -1,6 +1,7 @@
 <?php
 
 use src\modelos\reportesModelo;
+use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $datos = file_get_contents('php://input');
@@ -79,7 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       exit();
   }
 } else {
+  $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
-  require_once "src/config/inc/sidebar.php";
+  echo $objComponentes->sidebar();
   require_once "src/vistas/reportes/reportes.php";
 }

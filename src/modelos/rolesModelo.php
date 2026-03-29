@@ -191,7 +191,7 @@ class rolesModelo extends conexion
     $ultimoId = $this->guardarDatos('roles', $datos_registro_roles);
     if ($ultimoId !== false && $ultimoId > 0) {
       $alerta = [
-        "tipo" => "limpiar",
+        "tipo" => "limpiarYcerrar",
         "titulo" => "Rol registrado",
         "texto" => "El rol ha sido registrado exitosamente",
         "icono" => "success",

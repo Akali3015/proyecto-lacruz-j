@@ -16,6 +16,7 @@
     }
     define('APP_URL', $PROTOCOLO . $_SERVER['HTTP_HOST']."/proyecto-lacruz-j/");
     
+    
     const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
     const APP_SESSION_NAME = "JLACRUZ";
     date_default_timezone_set("America/Caracas");
@@ -32,6 +33,10 @@
     const regexCedula = '^\d{7,9}$';
     const minRegexCedula = '7';
     const maxRegexCedula = '9';
+
+    const regexRif = '^\d{7,10}$';
+    const minRegexRif = '7';
+    const maxRegexRif = '10';
 
     const regexNombreObj='^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% ]{3,50}$';
     const minRegexNombreObj='3';

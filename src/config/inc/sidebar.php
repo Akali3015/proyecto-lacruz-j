@@ -2,7 +2,7 @@
   <nav>
     <ul class="sidebar-menu">
       <li>
-        <a href="<?php echo APP_URL ?>" title="Inicio">
+        <a href="<?php echo APP_URL ?>home" title="Inicio">
           <i class="fi fi-rr-home"></i>
           <span>Inicio</span>
         </a>

@@ -3,7 +3,7 @@ import {
   enviarFormulario, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR,
   pedirDatosAjax, validarEnTiempoReal,
-  obtenerSiguienteIndice
+  obtenerSiguienteIndice, cambiarFormatos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -84,28 +84,57 @@ function actualizarSelectFila($select) {
     }, 100);
   }
 }
-function agregarFilaProducto(contenedorId, esActualizar = false) {
+async function agregarFilaProducto(contenedorId, esActualizar = false, detallesActualizar = null) {
   const $contenedor = $(`#${contenedorId}`);
   const template = $('#templateProductoFila').html();
 
-  const siguienteIndice = obtenerSiguienteIndice(
-    $contenedor,
-    'input',
-    'productos'
-  );
-  let nuevaFilaHtml = template.replace(/\[INDICE\]/g, siguienteIndice);
-  const $nuevaFila = $(nuevaFilaHtml);
-  $nuevaFila.attr('data-indice', siguienteIndice);
-  $contenedor.append($nuevaFila);
+  if (!esActualizar) {
+    const siguienteIndice = obtenerSiguienteIndice(
+      $contenedor,
+      'input',
+      'productos'
+    );
+    let nuevaFilaHtml = template.replace(/\[INDICE\]/g, siguienteIndice);
+    const $nuevaFila = $(nuevaFilaHtml);
+    $nuevaFila.attr('data-indice', siguienteIndice);
+    $contenedor.append($nuevaFila);
+    const $selectProducto = $nuevaFila.find('.selectProductos');
+    actualizarSelectFila($selectProducto);
+  } else {
+    for (let i = 0; i < detallesActualizar.length; i++) {
+      let detalleBD = detallesActualizar[i];
 
-  const $selectProducto = $nuevaFila.find('.selectProductos');
-  actualizarSelectFila($selectProducto);
+      let nuevaFilaHtml = template.replace(/\[INDICE\]/g, i);
+      const $nuevaFila = $(nuevaFilaHtml);
+      $nuevaFila.attr('data-indice', i);
+      $contenedor.append($nuevaFila);
 
-  if (esActualizar) {
-    $nuevaFila.addClass('formularioActualizar');
+      let filaDetalleHTML = $contenedor.find('.fila-producto').last();
+
+      let infoProducto = await pedirDatosAjax({
+        modulo: 'productos',
+        datosPe: {
+          'accion': 'seleccionarUno',
+          'id_producto': detalleBD.id_producto
+        }
+      });
+
+      let unidadMedida = await pedirDatosAjax({
+        modulo: 'unidadesMedidas',
+        datosPe: {
+          'accion': 'seleccionarUno',
+          'id_unidad_medida': infoProducto.id_unidad_medida
+        }
+      });
+
+      let nombreUnidadMedida = unidadMedida.nombre_unidad_medida;
+      actualizarSelectFila(filaDetalleHTML.find('.selectProductos'));
+      filaDetalleHTML.find('.selectProductos').val(detalleBD.id_producto).addClass('formularioActualizar');
+      filaDetalleHTML.find('.unidad-medida-texto').val(nombreUnidadMedida);
+      filaDetalleHTML.find('.cantidad-producto').val(detalleBD.cantidad_producida).addClass('formularioActualizar');
+    }
   }
   $nuevaFila.hide().fadeIn(300);
-
   return $nuevaFila;
 }
 function eliminarFilaProducto($btnEliminar) {
@@ -156,6 +185,7 @@ function eliminarFilaProducto($btnEliminar) {
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 $(document).on('DOMContentLoaded', async function (e) {
+
   await listarDataTable({
     'encabezados': {
       "id_produccion": "ID",
@@ -185,6 +215,11 @@ $(document).on('DOMContentLoaded', async function (e) {
         ${botones}
       </ul>`;
     },
+    infoTratoEspecial: {
+      fecha_produccion: (info) => {
+        return cambiarFormatos(info.fila.fecha_produccion, 'fecha_hora')
+      }
+    }
   });
   await cargarProductos();
 });
@@ -298,12 +333,9 @@ $(document).on('click', '.botonEditar', async function (e) {
     campoId: 'id_produccion',
     modulo: 'producciones',
   });
-  agregarFilaProducto('contenedorProductosActualizar', true);
-  cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
   console.log('todos los datos:', todosLosDatos);
-
-  
-
+  agregarFilaProducto('contenedorProductosActualizar', true, todosLosDatos.detalles);
+  cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
 
 });
 

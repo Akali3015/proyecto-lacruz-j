@@ -1,20 +1,20 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
-    enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
-    listarDataTable, cargarInputsActualizarQNR,
-    extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice,validarEnTiempoReal
+  enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
+  listarDataTable, cargarInputsActualizarQNR,
+  extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice, validarEnTiempoReal
 } from "/proyecto-lacruz-j/src/assets/js/modulos/global.js";
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
 async function renderizarPresentaciones() {
-    let presentacionesBD = await pedirDatosAjax({
-        modulo: "presentaciones",
-        datosPe: { accion: "listar" },
-    });
-    let html = "";
-    presentacionesBD.forEach((presentacion) => {
-        html += `
+  let presentacionesBD = await pedirDatosAjax({
+    modulo: "presentaciones",
+    datosPe: { accion: "listar" },
+  });
+  let html = "";
+  presentacionesBD.forEach((presentacion) => {
+    html += `
             <div class="col-md-4 mb-3">
                 <div class="form-check card-presentacion p-3 border rounded">
                     <input 
@@ -32,21 +32,21 @@ async function renderizarPresentaciones() {
                 </div>
             </div>
         `;
-    });
-    $(".contenedor-presentaciones").empty().append(html);
+  });
+  $(".contenedor-presentaciones").empty().append(html);
 }
 async function crearFilaMateriaPrima(modal, materiaPrima = null) {
 
-    let codigoUniCoFila = obtenerSiguienteIndice(
-        modal,
-        "select",
-        "materias_primas",
-        "id_materia_prima"
-    );
-    let idMateriaPrima = materiaPrima ? materiaPrima["id_materia_prima"] : "";
-    let cantidad = materiaPrima ? materiaPrima["cantidad_materia_prima"] : "";
+  let codigoUniCoFila = obtenerSiguienteIndice(
+    modal,
+    "select",
+    "materias_primas",
+    "id_materia_prima"
+  );
+  let idMateriaPrima = materiaPrima ? materiaPrima["id_materia_prima"] : "";
+  let cantidad = materiaPrima ? materiaPrima["cantidad_materia_prima"] : "";
 
-    let html = `
+  let html = `
         <tr>
             <td>
                 <select 
@@ -74,88 +74,88 @@ async function crearFilaMateriaPrima(modal, materiaPrima = null) {
         </tr>
     `;
 
-    modal.find("#cuerpoTablaMateriasPrimas").append(html);
-    const selectMateria = modal.find("#cuerpoTablaMateriasPrimas")
-        .find("tr").last().find(".select-materia-prima");
+  modal.find("#cuerpoTablaMateriasPrimas").append(html);
+  const selectMateria = modal.find("#cuerpoTablaMateriasPrimas")
+    .find("tr").last().find(".select-materia-prima");
 
-    await extraerDatosAjax({
-        modulosPeticion: ["materiasPrimas"],
-        accionesPeticion: [{ accion: "listar" }],
-        tipoElemento: ["select"],
-        elementosDestino: [selectMateria],
-        datosInsertar: [
-            {
-                value: "id_materia_prima",
-                texto: "nombre_materia_prima",
-                textoDefault: "Seleccione una materia prima",
-                opcionSeleccionada: idMateriaPrima,
-            }
-        ],
-    });
+  await extraerDatosAjax({
+    modulosPeticion: ["materiasPrimas"],
+    accionesPeticion: [{ accion: "listar" }],
+    tipoElemento: ["select"],
+    elementosDestino: [selectMateria],
+    datosInsertar: [
+      {
+        value: "id_materia_prima",
+        texto: "nombre_materia_prima",
+        textoDefault: "Seleccione una materia prima",
+        opcionSeleccionada: idMateriaPrima,
+      }
+    ],
+  });
 
 }
 async function calcularCostosMateriasPrimas(modal) {
-    const tbody = modal.find("#cuerpoTablaMateriasPrimas");
-    const contenedorInputs = modal.find("#inputsOcultosMaterias");
-    let totalCosto = 0;
-    contenedorInputs.empty();
+  const tbody = modal.find("#cuerpoTablaMateriasPrimas");
+  const contenedorInputs = modal.find("#inputsOcultosMaterias");
+  let totalCosto = 0;
+  contenedorInputs.empty();
 
-    for (let i = 0; i < tbody.find("tr").length; i++) {
-        const fila = $(tbody.find("tr")[i]);
+  for (let i = 0; i < tbody.find("tr").length; i++) {
+    const fila = $(tbody.find("tr")[i]);
 
-        const materiaId = fila.find(".select-materia-prima").val();
-        const cantidad = parseFloat(fila.find(".input-cantidad-materia").val()) || 0;
+    const materiaId = fila.find(".select-materia-prima").val();
+    const cantidad = parseFloat(fila.find(".input-cantidad-materia").val()) || 0;
 
-        let materiaPrimaBD = await pedirDatosAjax({
-            modulo: "materiasPrimas",
-            datosPe: { 'accion': "seleccionarUno", 'id_materia_prima': materiaId },
-        });
+    let materiaPrimaBD = await pedirDatosAjax({
+      modulo: "materiasPrimas",
+      datosPe: { 'accion': "seleccionarUno", 'id_materia_prima': materiaId },
+    });
 
-        if (materiaId && materiaPrimaBD) {
-            const costoUnitario = parseFloat(materiaPrimaBD['costo_materia_prima']) || 0;
-            const subtotal = costoUnitario * cantidad;
-            fila.find(".costo-unitario").text(`${costoUnitario.toFixed(2)} Bs`);
-            fila.find(".subtotal").text(`${subtotal.toFixed(2)} Bs`);
-            totalCosto += parseFloat(subtotal);
-        }
-    };
+    if (materiaId && materiaPrimaBD) {
+      const costoUnitario = parseFloat(materiaPrimaBD['costo_materia_prima']) || 0;
+      const subtotal = costoUnitario * cantidad;
+      fila.find(".costo-unitario").text(`${costoUnitario.toFixed(2)} Bs`);
+      fila.find(".subtotal").text(`${subtotal.toFixed(2)} Bs`);
+      totalCosto += parseFloat(subtotal);
+    }
+  };
 
-    modal.find("#totalCostoMaterias").text(`${totalCosto.toFixed(2)} Bs`);
+  modal.find("#totalCostoMaterias").text(`${totalCosto.toFixed(2)} Bs`);
 }
 async function inicializarModalProducto(modal) {
-    try {
-        let idProducto = modal.attr("id_producto");
-        let productoBD = await pedirDatosAjax({
-            modulo: "productos",
-            datosPe: { 'accion': "seleccionarUno", 'id_producto': idProducto },
-        });
+  try {
+    let idProducto = modal.attr("id_producto");
+    let productoBD = await pedirDatosAjax({
+      modulo: "productos",
+      datosPe: { 'accion': "seleccionarUno", 'id_producto': idProducto },
+    });
 
-        //Seleccionamos las presentaciones del producto
-        const contenedorPresentaciones = modal.find(".contenedor-presentaciones");
-        contenedorPresentaciones.find('.checkbox-presentacion').prop("checked", false)
-            .closest(".card-presentacion").removeClass("bg-light border-primary");
+    //Seleccionamos las presentaciones del producto
+    const contenedorPresentaciones = modal.find(".contenedor-presentaciones");
+    contenedorPresentaciones.find('.checkbox-presentacion').prop("checked", false)
+      .closest(".card-presentacion").removeClass("bg-light border-primary");
 
-        productoBD["detallesExtra"]["idsPresentaciones"].forEach(id_presentacion => {
-            contenedorPresentaciones.find('.checkbox-presentacion[value="' + id_presentacion + '"]').prop("checked", true)
-                .closest(".card-presentacion").addClass("bg-light border-primary");
-        });
+    productoBD["detallesExtra"]["idsPresentaciones"].forEach(id_presentacion => {
+      contenedorPresentaciones.find('.checkbox-presentacion[value="' + id_presentacion + '"]').prop("checked", true)
+        .closest(".card-presentacion").addClass("bg-light border-primary");
+    });
 
-        //Luego cargamos las materias primas
-        const esFabricado = productoBD["producto_es_fabricado"] == "1";
-        modal.find("#cuerpoTablaMateriasPrimas").empty();
-        modal.find(".campos-fabricado").hide();
+    //Luego cargamos las materias primas
+    const esFabricado = productoBD["producto_es_fabricado"] == "1";
+    modal.find("#cuerpoTablaMateriasPrimas").empty();
+    modal.find(".campos-fabricado").hide();
 
-        if (esFabricado) {
-            modal.find(".campos-fabricado").show();
-            for (let i = 0; i < productoBD["detallesExtra"]["materias_primas"].length; i++) {
-                const materiaPrimaBD = productoBD["detallesExtra"]["materias_primas"][i];
-                await crearFilaMateriaPrima(modal, materiaPrimaBD);
-            }
-            await calcularCostosMateriasPrimas(modal);
-        }
+    if (esFabricado) {
+      modal.find(".campos-fabricado").show();
+      for (let i = 0; i < productoBD["detallesExtra"]["materias_primas"].length; i++) {
+        const materiaPrimaBD = productoBD["detallesExtra"]["materias_primas"][i];
+        await crearFilaMateriaPrima(modal, materiaPrimaBD);
+      }
+      await calcularCostosMateriasPrimas(modal);
+    }
 
-    } catch (error) {
-        modal.find(".contenedor-presentaciones").html(`
+  } catch (error) {
+    modal.find(".contenedor-presentaciones").html(`
             <div class="col-12">
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -163,143 +163,148 @@ async function inicializarModalProducto(modal) {
                 </div>
             </div>
         `);
-    }
+  }
 }
 //#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on("DOMContentLoaded", async function () {
-    await listarDataTable({
-        encabezados: {
-            "id_producto": "ID",
-            "nombre_unidad_medida": "UNIDAD DE MEDIDA",
-            "nombre_producto": "NOMBRE",
-            "precio_producto_detal": "PRECIO AL DETAL",
-            "precio_producto_mayor": "PRECIO AL MAYOR",
-            "stock_producto": "STOCK",
-            "producto_es_fabricado": "¿ES FABRICADO?",
-        },
-        informacionPe: {
-            'modulo': 'productos',
-            'datosPe': {
-                'accion': 'listar'
-            }
-        },
-        campoIdBtn: 'id_producto',
-        botones: 'CRUD',
-    });
-    await extraerDatosAjax({
-        modulosPeticion: ["unidadesMedidas"],
-        accionesPeticion: [{ accion: "listar" }],
-        tipoElemento: ["select"],
-        elementosDestino: [$(".selectUnidadMedida")],
-        datosInsertar: [
-            {
-                value: "id_unidad_medida",
-                texto: "nombre_unidad_medida",
-                textoDefault: "Seleccione una unidad de medida",
-            },
-        ],
-    });
-    renderizarPresentaciones();
+  await listarDataTable({
+    encabezados: {
+      "id_producto": "ID",
+      "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+      "nombre_producto": "NOMBRE",
+      "precio_producto_detal": "PRECIO AL DETAL",
+      "precio_producto_mayor": "PRECIO AL MAYOR",
+      "stock_producto": "STOCK",
+      "producto_es_fabricado": "¿ES FABRICADO?",
+    },
+    informacionPe: {
+      'modulo': 'productos',
+      'datosPe': {
+        'accion': 'listar'
+      }
+    },
+    campoIdBtn: 'id_producto',
+    botones: 'CRUD',
+    infoTratoEspecial: {
+      precio_producto_detal: (info) => {
+        return info.fila.precio_producto_detal.toFixed(2) + '$';
+      }
+    }
+  });
+  await extraerDatosAjax({
+    modulosPeticion: ["unidadesMedidas"],
+    accionesPeticion: [{ accion: "listar" }],
+    tipoElemento: ["select"],
+    elementosDestino: [$(".selectUnidadMedida")],
+    datosInsertar: [
+      {
+        value: "id_unidad_medida",
+        texto: "nombre_unidad_medida",
+        textoDefault: "Seleccione una unidad de medida",
+      },
+    ],
+  });
+  renderizarPresentaciones();
 });
 
 $(document).off("click", "#btnAgregarMateriaPrima");
 $(document).on("click", "#btnAgregarMateriaPrima", function () {
-    let modal = $(this).closest(".modal");
-    crearFilaMateriaPrima(modal);
+  let modal = $(this).closest(".modal");
+  crearFilaMateriaPrima(modal);
 });
 
 $(document).off("click", ".btn-eliminar-materia");
 $(document).on("click", ".btn-eliminar-materia", function () {
-    let modal = $(this).closest(".modal");
-    $(this).closest("tr").remove();
-    calcularCostosMateriasPrimas(modal);
+  let modal = $(this).closest(".modal");
+  $(this).closest("tr").remove();
+  calcularCostosMateriasPrimas(modal);
 });
 
 $(document).off("change", ".select-materia-prima");
 $(document).on("change", ".select-materia-prima", function () {
-    let modal = $(this).closest(".modal");
-    calcularCostosMateriasPrimas(modal);
+  let modal = $(this).closest(".modal");
+  calcularCostosMateriasPrimas(modal);
 });
 
 $(document).off("input", ".input-cantidad-materia");
 $(document).on("input", ".input-cantidad-materia", function () {
-    let modal = $(this).closest(".modal");
-    calcularCostosMateriasPrimas(modal);
+  let modal = $(this).closest(".modal");
+  calcularCostosMateriasPrimas(modal);
 });
 
 $(document).off("click", ".card-presentacion");
 $(document).on("click", ".card-presentacion", function () {
-    $(this).toggleClass("bg-light border-primary")
-        .find('.checkbox-presentacion').prop("checked", function (i, val) {
-            return !val;
-        });
+  $(this).toggleClass("bg-light border-primary")
+    .find('.checkbox-presentacion').prop("checked", function (i, val) {
+      return !val;
+    });
 });
 
 $(document).off("click", ".btn-seleccionar-todas");
 $(document).on("click", ".btn-seleccionar-todas", function (e) {
-    $(this).closest(".modal").find(".checkbox-presentacion").prop("checked", true);
+  $(this).closest(".modal").find(".checkbox-presentacion").prop("checked", true);
 });
 
 $(document).off("click", ".btn-deseleccionar-todas");
 $(document).on("click", ".btn-deseleccionar-todas", function (e) {
-    $(this).closest(".modal").find(".checkbox-presentacion").prop("checked", false);
+  $(this).closest(".modal").find(".checkbox-presentacion").prop("checked", false);
 });
 
 $(document).off("change", "#tipo_producto");
 $(document).on("change", "#tipo_producto", function () {
-    const esFabricado = $(this).val() == "1";
-    const modal = $(this).closest(".modal");
+  const esFabricado = $(this).val() == "1";
+  const modal = $(this).closest(".modal");
 
-    if (esFabricado) {
-        modal.find(".campos-fabricado").show();
-    } else {
-        modal.find(".campos-fabricado").hide();
-        modal.find("#cuerpoTablaMateriasPrimas").empty();
-    }
+  if (esFabricado) {
+    modal.find(".campos-fabricado").show();
+  } else {
+    modal.find(".campos-fabricado").hide();
+    modal.find("#cuerpoTablaMateriasPrimas").empty();
+  }
 });
 
 $(document).off("click", ".botonEditar");
 $(document).on("click", ".botonEditar", async function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const idProducto = $(this).attr("value");
-    const modalTarget = $(this).attr("data-bs-target");
-    const modal = $(modalTarget);
+  const idProducto = $(this).attr("value");
+  const modalTarget = $(this).attr("data-bs-target");
+  const modal = $(modalTarget);
 
-    await obtenerDatosRegistro({
-        boton: this,
-        campoId: 'id_producto',
-        modulo: 'productos',
-    });
-    await cargarInputsActualizarQNR.call(modal.find("form"));
-    modal.attr("id_producto", idProducto);
-    inicializarModalProducto(modal);
+  await obtenerDatosRegistro({
+    boton: this,
+    campoId: 'id_producto',
+    modulo: 'productos',
+  });
+  await cargarInputsActualizarQNR.call(modal.find("form"));
+  modal.attr("id_producto", idProducto);
+  inicializarModalProducto(modal);
 });
 
 $(document).off("submit", ".formularioAjax");
 $(document).on("submit", ".formularioAjax", async function (e) {
-    e.preventDefault();
-    enviarFormulario({
-        'formulario': this,
-        'modulo': 'productos'
-    })
+  e.preventDefault();
+  enviarFormulario({
+    'formulario': this,
+    'modulo': 'productos'
+  })
 });
 
 $(document).off("click", ".botonEliminar");
 $(document).on("click", ".botonEliminar", async function (e) {
-    e.preventDefault();
-    eliminarRegistro({
-        boton: this,
-        campoId: 'id_producto',
-        modulo: 'productos',
-    });
+  e.preventDefault();
+  eliminarRegistro({
+    boton: this,
+    campoId: 'id_producto',
+    modulo: 'productos',
+  });
 });
 
 //Evento para validar en tiempo real
 $(document).off('input blur', '.validar input, .validar select')
 $(document).on('input blur', '.validar input, .validar select', function () {
-    validarEnTiempoReal(this,'productos');
+  validarEnTiempoReal(this, 'productos');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN
