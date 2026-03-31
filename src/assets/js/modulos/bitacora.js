@@ -20,6 +20,9 @@ $(document).on('DOMContentLoaded', async function (e) {
       'datosPe': {
         'accion': 'listar'
       }
+    },
+    infoTratoEspecial: {
+      fecha_bitacora: (info) => { return cambiarFormatos(info.valor, 'fecha_hora') },
     }
   });
 })

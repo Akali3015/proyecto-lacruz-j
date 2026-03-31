@@ -57,9 +57,9 @@ class clientesModelo extends conexion
           "campo_valor" => $this->rif_cedula_cliente,
           "formulario_nombre" => "RIF o cédula del cliente",
           "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
+          "minimo" => minRegexCedulaRifLetra,
+          "maximo" => maxRegexCedulaRifLetra,
+          "expresion_re" => regexCedulaRifLetra,
           "tabla" => "clientes",
           "debeSerUnico" => true,
         ],
@@ -130,9 +130,9 @@ class clientesModelo extends conexion
         "campo_valor" => $this->rif_cedula_cliente,
         "formulario_nombre" => "RIF",
         "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
+        "minimo" => minRegexCedulaRifLetra,
+        "maximo" => maxRegexCedulaRifLetra,
+        "expresion_re" => regexCedulaRifLetra,
         "tabla" => "clientes",
         "debeExistir" => true,
       ],
@@ -164,6 +164,8 @@ class clientesModelo extends conexion
         "minimo" => minRegexCorreo,
         "maximo" => maxRegexCorreo,
         "expresion_re" => regexCorreo,
+        "debeSerUnico" => true,
+        "tabla" => 'clientes',
       ],
       [
         "campo_nombre" => "direccion_cliente",
@@ -194,9 +196,9 @@ class clientesModelo extends conexion
         "campo_valor" => $this->rif_cedula_cliente,
         "formulario_nombre" => "RIF o cédula del cliente",
         "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
+        "minimo" => minRegexCedulaRifLetra,
+        "maximo" => maxRegexCedulaRifLetra,
+        "expresion_re" => regexCedulaRifLetra,
         "tabla" => "clientes",
         "debeExistir" => true,
         "camposDiferentes" => 1
@@ -216,28 +218,26 @@ class clientesModelo extends conexion
   private function seleccionarClienteP()
   {
     if ($this->rif_cedula_cliente == null || $this->rif_cedula_cliente == "") {
-      $instruccionesBD = [
-        'campos' => 'rif_cedula_cliente, razon_social_cliente, telefono_cliente, correo_cliente, direccion_cliente',
+      $resultado = $this->seleccionarDatos([
+        'campos' => '
+          rif_cedula_cliente, razon_social_cliente, 
+          telefono_cliente, correo_cliente, direccion_cliente
+        ',
         'tabla' => 'clientes',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
+      ]);
       $clientes = $resultado->fetchAll(PDO::FETCH_ASSOC);
       return $clientes;
     } else {
-
-      $instruccionesBD = [
-        'campos' => 'rif_cedula_cliente, razon_social_cliente, telefono_cliente, correo_cliente, direccion_cliente',
+      $resultado = $this->seleccionarDatos2([
+        'campos' => '
+          rif_cedula_cliente, razon_social_cliente,
+          telefono_cliente, correo_cliente, direccion_cliente
+        ',
         'tabla' => 'clientes',
         'WHERE' => [
-          [
-            "condicion_campo" => "rif_cedula_cliente",
-            "condicion_marcador" => ":RIF",
-            "condicion_valor" => $this->rif_cedula_cliente,
-            "comparacion" => "="
-          ]
+          "rif_cedula_cliente" => $this->rif_cedula_cliente,
         ]
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
+      ]);
       if ($resultado->rowCount() <= 0) {
         $alerta = [
           "tipo" => "simple",
@@ -246,9 +246,12 @@ class clientesModelo extends conexion
           "icono" => "error"
         ];
         return $alerta;
-        exit();
       } else {
         $clientes = $resultado->fetch(PDO::FETCH_ASSOC);
+        $codigoCedulaRif = preg_replace('/[0-9]/', '', $clientes['rif_cedula_cliente']);
+        $cedulaRif = preg_replace('/[a-zA-Z]/', '', $clientes['rif_cedula_cliente']);
+        $clientes['codigo_cedula_rif_cliente'] = $codigoCedulaRif;
+        $clientes['rif_cedula_cliente'] = $cedulaRif;
       }
       return $clientes;
     }
@@ -370,8 +373,8 @@ class clientesModelo extends conexion
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
         "tipo" => "simple",
-        "titulo" => "Cliente no actualizado",
-        "texto" => "El cliente no ha sido actualizado exitosamente",
+        "titulo" => "Sin cambios realizados",
+        "texto" => "No se han realizado cambios en el registro",
         "icono" => "warning",
       ];
     } else {

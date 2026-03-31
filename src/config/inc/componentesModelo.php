@@ -85,6 +85,16 @@ class componentesModelo extends conexion
         </li>
       ';
     };
+    if (!$this->objPermisos->validarPermisos('pedidos', 'ver')) {
+      $sidebarHTML .= '
+        <li>
+          <a href="' . APP_URL . 'pedidos">
+            <i class="fi fi-rr-order-food-mobile"></i>
+            <span>Pedidos</span>
+          </a>
+        </li>
+      ';
+    };
     if (!$this->objPermisos->validarPermisos('compras', 'ver')) {
       $sidebarHTML .= '
         <li>
@@ -105,6 +115,16 @@ class componentesModelo extends conexion
         </li>
       ';
     };
+    if (!$this->objPermisos->validarPermisos('inventario', 'ver inventario')) {
+      $sidebarHTML .= '
+        <li class="nav-item dropdown">
+          <a href="' . APP_URL . 'inventario" title="Inventario">
+            <i class="fi fi-rr-supplier-alt"></i>
+            <span>Inventario</span>
+          </a>
+        </li>
+      ';
+    };
     if (!$this->objPermisos->validarPermisos('reportes', 'ver reportes')) {
       $sidebarHTML .= '
         <li class="nav-item dropdown">
@@ -117,21 +137,25 @@ class componentesModelo extends conexion
     };
     $puedeVerConfig = false;
     $modulosConfig = [
-      'usuarios' => 'ver',
-      'proveedores' => 'ver',
-      'roles' => 'ver',
+      'bancos' => 'ver',
+      'bitacora' => 'ver',
+      'empresasEnvios' => 'ver',
       'iva' => 'ver',
+      'insumos' => 'ver',
+      'materiasPrimas' => 'ver',
+      'metodos-pagos' => 'ver',
       'monedas' => 'ver',
       'monedas' => 'ver historial de cambio',
-      'metodos-pagos' => 'ver',
-      'presentaciones' => 'ver',
       'permisos' => 'ver',
-      'unidadesMedida' => 'ver',
-      'servicios' => 'ver',
+      'presentaciones' => 'ver',
       'productos' => 'ver',
-      'materiasPrimas' => 'ver',
-      'insumos' => 'ver',
-      'bitacora' => 'ver'
+      'proveedores' => 'ver',
+      'repartidores' => 'ver',
+      'roles' => 'ver',
+      'rutas' => 'ver',
+      'servicios' => 'ver',
+      'unidadesMedida' => 'ver',
+      'usuarios' => 'ver',
     ];
     foreach ($modulosConfig as $modulo => $permiso) {
       if (!$this->objPermisos->validarPermisos($modulo, $permiso)) {
@@ -141,10 +165,60 @@ class componentesModelo extends conexion
     if ($puedeVerConfig == true) {
       $lisConfig = '';
 
+      if (!$this->objPermisos->validarPermisos('repartidores', 'ver')) {
+        $lisConfig .= '
+          <li>
+            <a href="' . APP_URL . 'repartidores">
+              <i class="fi fi-rr-person-carry-box"></i>
+              <span>Repartidores</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('empresasEnvios', 'ver')) {
+        $lisConfig .= '
+          <li>
+            <a href="' . APP_URL . 'empresasEnvios">
+              <i class="fi fi-rr-shipping-fast"></i>
+              <span>Empresas de envíos</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('bancos', 'ver')) {
+        $lisConfig .= '
+          <li>
+            <a href="' . APP_URL . 'bancos">
+              <i class="fi fi-rr-bank"></i>
+              <span>Bancos</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('categorias', 'ver')) {
+        $lisConfig .= '
+          <li>
+            <a href="' . APP_URL . 'categorias">
+              <i class="fi fi-rs-category"></i>
+              <span>Categorías</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('rutas', 'ver')) {
+        $lisConfig .= '
+          <li>
+            <a href="' . APP_URL . 'rutas">
+              <i class="fi fi-br-route"></i>
+              <span>Rutas</span>
+            </a>
+          </li>
+        ';
+      };
       if (!$this->objPermisos->validarPermisos('usuarios', 'ver')) {
         $lisConfig .= '
           <li>
-            <a href="'.APP_URL.'usuarios">
+            <a href="' . APP_URL . 'usuarios">
               <i class="fi fi-rr-user"></i>
               <span>Usuarios</span>
             </a>
@@ -300,36 +374,34 @@ class componentesModelo extends conexion
         </li>
         <div class="collapse bloqueSubMenu" id="subMenuConfiguraciones">
           <ul class="btn-toggle-nav list-unstyled ">
-            '.$lisConfig.'
+            ' . $lisConfig . '
           </ul>
         </div>
       ';
     }
-    $sidebarHTML .= '
-      <li>
-        <a href="assets/manual_de_usuario.pdf" title="Ayuda" target="blank">
-          <i class="fi fi-rr-info"></i>
-          <span>Ayuda</span>
-        </a>
-      </li>
-      <li class="sidebar-divider"></li>
-      <li>
-        <a class="logout-btn btnCerrarSession" href="#">
-          <i class="fi fi-rr-sign-out-alt"></i>
-          <span>Cerrar sesión</span>
-        </a>
-      </li>
-    ';
-    $sidebarHTML2 = '
+    $sidebarHTML = '
       <div class="sidebar noselec" id="sidebar">
         <nav>
           <ul class="sidebar-menu">
-            '.$sidebarHTML.'
+            ' . $sidebarHTML . '
+            <li>
+              <a href="assets/manual_de_usuario.pdf" title="Ayuda" target="blank">
+                <i class="fi fi-rr-info"></i>
+                <span>Ayuda</span>
+              </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li>
+              <a class="logout-btn btnCerrarSession" href="#">
+                <i class="fi fi-rr-sign-out-alt"></i>
+                <span>Cerrar sesión</span>
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
     ';
 
-    return $sidebarHTML2;
+    return $sidebarHTML;
   }
 }

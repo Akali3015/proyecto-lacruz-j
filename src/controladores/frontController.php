@@ -19,25 +19,31 @@ class frontController
     $salidasFueraDeSesion = ['productos'];
 
     $this->controladores = [
+      'bancos',
       'bitacora',
       'cambiosIva',
+      'categoriasProductos',
       'clientes',
       'compras',
+      'empresasEnvios',
       'insumos',
       'iva',
       'materiasPrimas',
       'mensajesWS',
       'metodos-pago',
       'monedas',
+      'pedidos',
       'permisos',
       'presentaciones',
       'presupuestos',
       'productos',
       'producciones',
       'proveedores',
+      'repartidores',
       'reportes',
       'recepciones',
       'roles',
+      'rutas',
       'servicios',
       'unidadesMedidas',
       'usuarios',
@@ -59,29 +65,29 @@ class frontController
 
       if (in_array($this->url, $this->controladores) && isset($_SESSION['cedula'])) {
 
-        if ($metodo == 'POST') {
-          $validacion = $this->objPermisos->validarPermisos($this->url, $accion);
-          $this->validarTokens();
-        } else {
-          $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
-        }
-        if (isset($validacion['icono'])) {
-          $this->redireccionarUsuario();
-          return;
-        }
+        // if ($metodo == 'POST') {
+        //   $validacion = $this->objPermisos->validarPermisos($this->url, $accion);
+        //   $this->validarTokens();
+        // } else {
+        //   $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
+        // }
+        // if (isset($validacion['icono'])) {
+        //   $this->redireccionarUsuario();
+        //   return;
+        // }
 
-        $vistasNoFuSe = [
-          'login',
-          'home',
-          'registrar-usuario',
-          'olvidar-contrasena-1',
-          'olvidar-contrasena-2'
-        ];
-        $vista = $urlCompleta[1] ?? $urlCompleta[0];
-        if (isset($_SESSION['cedula']) && in_array($vista, $vistasNoFuSe)) {
-          $this->redireccionarUsuario();
-          return;
-        }
+        // $vistasNoFuSe = [
+        //   'login',
+        //   'home',
+        //   'registrar-usuario',
+        //   'olvidar-contrasena-1',
+        //   'olvidar-contrasena-2'
+        // ];
+        // $vista = $urlCompleta[1] ?? $urlCompleta[0];
+        // if (isset($_SESSION['cedula']) && in_array($vista, $vistasNoFuSe)) {
+        //   $this->redireccionarUsuario();
+        //   return;
+        // }
         if (is_file("src/controladores/" . $this->url . "Controlador.php")) {
           $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
           $_SESSION['vistaActual'] = $this->url;
@@ -91,12 +97,10 @@ class frontController
         $_SESSION['vistaActual'] = $this->url;
       } elseif (in_array($this->url, $salidasFueraDeSesion) && $accion == 'listar') {
         $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
-      } 
-      elseif (isset($_SESSION['cedula'])) {
+      } elseif (isset($_SESSION['cedula'])) {
         $this->redireccionarUsuario();
         return;
-      } 
-      elseif (
+      } elseif (
         $_SESSION['vistaActual'] == 'usuarios' && (
           $accion == 'iniciarSesion' ||
           $accion == 'obtenerUrlOPG' ||
@@ -111,7 +115,7 @@ class frontController
         $this->archivo = "src/vistas/usuarios/login.php";
         $_SESSION['vistaActual'] = 'login';
       }
-    } else{
+    } else {
       $this->redireccionarUsuario();
       exit();
     }
@@ -156,6 +160,11 @@ class frontController
         $validacion = false;
         $urlRedireccion = 'pedidos/';
         $_SESSION['vistaActual'] = 'pedidos';
+      }
+      if ($validacion) {
+        $validacion = false;
+        $urlRedireccion = 'usuarios/login';
+        $_SESSION['vistaActual'] = 'usuarios';
       }
     } else {
       $urlRedireccion = 'usuarios/login';

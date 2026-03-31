@@ -150,6 +150,7 @@ class permisosModelo extends conexion
       case 'listarNotificaciones':
       case 'listarAccionesResagadas':
       case 'listarPedidosRechazadosDelCliente':
+      case 'listarCambios':
         $this->permisoVal = 'listar';
         break;
       case 'actualizarFoto':
@@ -161,6 +162,7 @@ class permisosModelo extends conexion
       case 'confirmarPedido':
       case 'rechazarPedido':
       case 'marcarTodasNotComoLeidas':
+      case 'actualizarValor':
         $this->permisoVal = 'actualizar';
         break;
       case 'registrarToken':
@@ -202,6 +204,10 @@ class permisosModelo extends conexion
         break;
       case 'reportes':
         $this->permisoVal = 'ver reportes';
+        break;
+      case 'mensajesWS':
+        $this->moduloVal = 'usuarios';
+        $this->permisoVal = 'ver notificaciones';
         break;
       default:
 
@@ -292,6 +298,9 @@ class permisosModelo extends conexion
         'ver notificaciones',
         'ver modal de ayuda',
         'ver carrito de compra',
+      ],
+      'inventario' => [
+        'ver inventario',
       ],
       'promociones' => ['ver detalles de promociones'],
       'bitacora' => ['ver bitácora'],

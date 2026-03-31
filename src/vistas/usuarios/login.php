@@ -56,7 +56,7 @@
 
           <div class="form-group mb-3">
             <label for="cedula" class="form-label">Cédula</label>
-            <input type="text" class="form-control" name="cedula_usuario" minlength="<?php echo minRegexCedula ?>" maxlength="<?php echo maxRegexCedula ?>" pattern="<?php echo regexCedula ?>" required>
+            <input type="text" class="form-control" name="cedula_usuario" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" pattern="<?php echo regexCedulaRif ?>" required>
             <div class="form-text">Solo números (6-10 dígitos)</div>
             <div class="invalid-feedback"></div>
           </div>

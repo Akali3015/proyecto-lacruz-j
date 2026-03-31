@@ -29,17 +29,19 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="registrar">
-            <div class="col-md-2 mb-3">
-              <label for="rif_proveedor" class="form-label">CÓDIGO RIF</label>
-              <select class="form-select selectCodigoRIF" name="codigo_rif_proveedor" required>
-                <option value="J">J</option>
-                <option value="G">G</option>
-                <option value="E">E</option>
-              </select>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="rif_proveedor" class="form-label">RIF</label>
-              <input type="text" class="form-control noRepetir" name="rif_proveedor" pattern="<?php echo regexRif ?>" minlength="<?php echo minRegexRif ?>" maxlength="<?php echo maxRegexRif ?>" required>
+            <div class="col-md-6 mb-3">
+              <label for="rif_proveedor" class="form-label">RIF/Cédula</label>
+              <div class="input-group">
+                <select class="input-group-text selectCodigoRIF" name="codigo_rif_proveedor" required>
+                  <option value="V">V</option>
+                  <option value="E">E</option>
+                  <option value="J">J</option>
+                  <option value="G">G</option>
+                  <option value="C">C</option>
+                  <option value="P">P</option>
+                </select>
+                <input type="text" class=" form-control noRepetir" name="rif_proveedor" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="razon_social_proveedor" class="form-label">Razón Social</label>
@@ -87,15 +89,20 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="actualizar">
-            <div class="col-md-2 mb-3 d-none">
-              <label for="rif_proveedor" class="form-label">CÓDIGO RIF</label>
-              <select class="form-select selectCodigoRIF" name="codigo_rif_proveedor" required>
-                <option value="J">J</option>
-                <option value="G">G</option>
-                <option value="E">E</option>
-              </select>
+            <div class="col-md-6 mb-3 d-none">
+              <label for="rif_proveedor" class="form-label">RIF/Cédula</label>
+              <div class="input-group">
+                <select class="input-group-text selectCodigoRIF formularioActualizar" name="codigo_rif_proveedor" required>
+                  <option value="V">V</option>
+                  <option value="E">E</option>
+                  <option value="J">J</option>
+                  <option value="G">G</option>
+                  <option value="C">C</option>
+                  <option value="P">P</option>
+                </select>
+                <input type="text" class=" form-control noRepetir formularioActualizar" name="rif_proveedor" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+              </div>
             </div>
-            <input type="hidden" name="rif_proveedor" class="formularioActualizar">
             <div class="col-md-6 mb-3">
               <label for="razon_social_proveedor" class="form-label">Razón Social</label>
               <input type="text" class="form-control formularioActualizar noRepetir" name="razon_social_proveedor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>

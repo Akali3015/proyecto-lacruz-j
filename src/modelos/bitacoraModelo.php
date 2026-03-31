@@ -152,120 +152,46 @@ class bitacoraModelo extends conexion
 
   private function registrarBitacoraP()
   {
-
     //modulo
-    $instruccionesBD = [
+    $idModulo = $this->VEYSNEC([
+      'RSEN' => true,
       'campos' => 'id_modulo',
       'tabla' => 'modulos',
       'WHERE' => [
-        [
-          "condicion_campo" => "nombre_modulo",
-          "condicion_marcador" => ":nombre_modulo",
-          "condicion_valor" => $this->moduloBitacora,
-          "comparacion" => "=",
-        ]
+        'nombre_modulo' => $this->moduloBitacora
       ]
-    ];
-    $resultado = $this->seleccionarDatos($instruccionesBD);
-    if ($resultado->rowCount() == 0) {
-
-      $datos_registro_modulo = [
-        [
-          "campo_nombre" => "nombre_modulo",
-          "campo_marcador" => ":nombre",
-          "campo_valor" => $this->moduloBitacora
-        ]
-      ];
-
-      $ultimoId = $this->guardarDatos('modulos', $datos_registro_modulo);
-      if ($ultimoId == false || $ultimoId == 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Modulo no registrado",
-          "texto" => "El modulo ingresado no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        $this->rollback();
-        return $alerta;
-        exit();
-      } else {
-        $this->moduloBitacora = $ultimoId;
-      }
-    } else {
-      $this->moduloBitacora = $resultado->fetch(PDO::FETCH_COLUMN);
-    }
+    ]);
 
     //accion
-    $instruccionesBD = [
+    $idAccion = $this->VEYSNEC([
+      'RSEN' => true,
       'campos' => 'id_accion',
       'tabla' => 'acciones',
       'WHERE' => [
-        [
-          "condicion_campo" => "nombre_accion",
-          "condicion_marcador" => ":nombre_accion",
-          "condicion_valor" => $this->accionBitacora,
-          "comparacion" => "=",
-        ]
+        'nombre_accion' => $this->accionBitacora
       ]
-    ];
-    $resultado = $this->seleccionarDatos($instruccionesBD);
-    if ($resultado->rowCount() == 0) {
+    ]);
 
-      $datos_registro_accion = [
-        [
-          "campo_nombre" => "nombre_accion",
-          "campo_marcador" => ":nombre",
-          "campo_valor" => $this->accionBitacora
-        ]
-      ];
+    //resultado
+    $idResultado = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_resultado_bitacora',
+      'tabla' => 'resultados_bitacora',
+      'WHERE' => [
+        'texto_resultado_bitacora' => $this->resultadoBitacora
+      ]
+    ]);
 
-      $ultimoId = $this->guardarDatos('acciones', $datos_registro_accion);
-      if ($ultimoId == false || $ultimoId == 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Accion no registrado",
-          "texto" => "La accion ingresada no se encuentra en el sistema",
-          "icono" => "error"
-        ];
-        $this->rollback();
-        return $alerta;
-        exit();
-      } else {
-        $this->accionBitacora = $ultimoId;
-      }
-    } else {
-      $this->accionBitacora = $resultado->fetch(PDO::FETCH_COLUMN);
-    }
-
-    $datos_registro_bitacora = [
-      [
-        "campo_nombre" => "cedula_usuario",
-        "campo_marcador" => ":cedula_usuario",
-        "campo_valor" => $_SESSION['cedula']
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'bitacora',
+      'datos' => [
+        "cedula_usuario" => $_SESSION['cedula'],
+        "id_accion" => $idAccion,
+        "id_modulo" => $idModulo,
+        "id_resultado_bitacora" => $idResultado,
+        "fecha_bitacora" => $this->FechaHora_Sel('fecha_hora_BD'),
       ],
-      [
-        "campo_nombre" => "id_accion",
-        "campo_marcador" => ":id_accion",
-        "campo_valor" => $this->accionBitacora,
-      ],
-      [
-        "campo_nombre" => "id_modulo",
-        "campo_marcador" => ":id_modulo",
-        "campo_valor" => $this->moduloBitacora,
-      ],
-      [
-        "campo_nombre" => "fecha_bitacora",
-        "campo_marcador" => ":fecha_bitacora",
-        "campo_valor" => $this->FechaHora_Sel('fecha_hora_BD'),
-      ],
-      [
-        "campo_nombre" => "resultado_accion_bitacora",
-        "campo_marcador" => ":resultado_accion_bitacora",
-        "campo_valor" => $this->resultadoBitacora,
-      ],
-    ];
-
-    $ultimoId = $this->guardarDatos('bitacora', $datos_registro_bitacora);
+    ]);
     if ($ultimoId !== false && $ultimoId > 0) {
       $this->commit();
       return false;

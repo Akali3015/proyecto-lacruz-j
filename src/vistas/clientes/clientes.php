@@ -31,7 +31,17 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" name="accion" value="registrar">
             <div class="col-md-6 mb-3">
               <label for="rif_cedula_cliente" class="form-label">RIF/Cédula</label>
-              <input type="text" class="form-control noRepetir" name="rif_cedula_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <div class="input-group">
+                <select class="input-group-text selectCodigoRIF" name="codigo_rif_cedula_cliente" required>
+                  <option value="V">V</option>
+                  <option value="E">E</option>
+                  <option value="J">J</option>
+                  <option value="G">G</option>
+                  <option value="C">C</option>
+                  <option value="P">P</option>
+                </select>
+                <input type="text" class=" form-control noRepetir" name="rif_cedula_cliente" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="razon_social_cliente" class="form-label">Razón Social</label>
@@ -50,14 +60,14 @@ echo $componente->listaDataTable($instruccionesLista);
               <textarea class="form-control" name="direccion_cliente" rows="3" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" required></textarea>
             </div>
           </div>
-        </div>
-        <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-2"></i> Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Guardar Cliente
-          </button>
+          <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i> Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
+              <i class="fas fa-save me-2"></i> Guardar Cliente
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -79,8 +89,20 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="actualizar">
-            <input type="hidden" name="rif_cedula_cliente" class="formularioActualizar">
-
+            <div class="col-md-6 mb-3 d-none">
+              <label for="rif_cedula_cliente" class="form-label">RIF/Cédula</label>
+              <div class="input-group">
+                <select class="input-group-text selectCodigoRIF formularioActualizar" name="codigo_rif_cedula_cliente" required>
+                  <option value="V">V</option>
+                  <option value="E">E</option>
+                  <option value="J">J</option>
+                  <option value="G">G</option>
+                  <option value="C">C</option>
+                  <option value="P">P</option>
+                </select>
+                <input type="text" class=" form-control noRepetir formularioActualizar" name="rif_cedula_cliente" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+              </div>
+            </div>
             <div class="col-md-6 mb-3">
               <label for="razon_social_cliente" class="form-label">Razón Social</label>
               <input type="text" class="form-control formularioActualizar noRepetir" name="razon_social_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
@@ -110,6 +132,5 @@ echo $componente->listaDataTable($instruccionesLista);
       </form>
     </div>
   </div>
-</div>
 </div>
 <!-- FORMULARIO EDITAR FIN -->

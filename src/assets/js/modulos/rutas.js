@@ -9,21 +9,20 @@ import {
 $(document).on('DOMContentLoaded', async function (e) {
   await listarDataTable({
     encabezados: {
-      "id_metodo_pago": "ID",
-      "nombre_metodo_pago": "NOMBRE",
-      "necesita_moneda": "¿NECESITA MONEDA?",
+      "id_ruta": "ID",
+      "nombre_ruta": "NOMBRE",
+      "precio_ruta": "PRECIO",
+      "minimo_km_ruta": "MÍNIMO KM",
+      "maximo_km_ruta": "MÁXIMO KM",
     },
     informacionPe: {
-      'modulo': 'metodos-pago',
+      'modulo': 'rutas',
       'datosPe': {
         'accion': 'listar'
       }
     },
-    campoIdBtn: 'id_metodo_pago',
+    campoIdBtn: 'id_ruta',
     botones: 'CRUD',
-    infoTratoEspecial: {
-      necesita_moneda: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
-    },
   });
 })
 
@@ -33,7 +32,7 @@ $(document).on('submit', '.formularioAjax', function (e) {
   e.preventDefault();
   enviarFormulario({
     'formulario': this,
-    'modulo': 'metodos-pago'
+    'modulo': 'rutas'
   })
 });
 
@@ -43,8 +42,8 @@ $(document).on('click', '.botonEliminar', function (e) {
   e.preventDefault();
   eliminarRegistro({
     boton: this,
-    campoId: 'id_metodo_pago',
-    modulo: 'metodos-pago',
+    campoId: 'id_ruta',
+    modulo: 'rutas',
   });
 });
 
@@ -54,8 +53,8 @@ $(document).on('click', '.botonEditar', async function (e) {
   e.preventDefault();
   await obtenerDatosRegistro({
     boton: this,
-    campoId: 'id_metodo_pago',
-    modulo: 'metodos-pago',
+    campoId: 'id_ruta',
+    modulo: 'rutas',
   });
   cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
 });
@@ -63,7 +62,6 @@ $(document).on('click', '.botonEditar', async function (e) {
 //Evento para validar en tiempo real
 $(document).off('input blur', '.validar input, .validar select')
 $(document).on('input blur', '.validar input, .validar select', function () {
-  validarEnTiempoReal(this, 'metodos-pago');
+  validarEnTiempoReal(this, 'rutas');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN
-

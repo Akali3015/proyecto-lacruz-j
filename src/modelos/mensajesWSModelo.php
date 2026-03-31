@@ -24,9 +24,9 @@ class mensajesWSModelo extends conexion
       "campo_valor" => &$this->cedulaUsuario,
       "formulario_nombre" => "cédula",
       "requerido" => true,
-      "minimo" => minRegexCedula,
-      "maximo" => maxRegexCedula,
-      "expresion_re" => regexCedula,
+      "minimo" => minRegexCedulaRif,
+      "maximo" => maxRegexCedulaRif,
+      "expresion_re" => regexCedulaRif,
       "tabla" => "usuarios",
       "debeExistir" => true,
     ]];
@@ -126,9 +126,9 @@ class mensajesWSModelo extends conexion
         "campo_valor" => &$cedula,
         "formulario_nombre" => "cedula",
         "requerido" => true,
-        "minimo" => minRegexCedula,
-        "maximo" => maxRegexCedula,
-        "expresion_re" => regexCedula,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "debeExistir" => true
       ];
@@ -213,9 +213,9 @@ class mensajesWSModelo extends conexion
         "campo_valor" => &$_SESSION['cedula'],
         "formulario_nombre" => "cédula",
         "requerido" => true,
-        "minimo" => minRegexCedula,
-        "maximo" => maxRegexCedula,
-        "expresion_re" => regexCedula,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "debeExistir" => true
       ],
@@ -270,9 +270,9 @@ class mensajesWSModelo extends conexion
         "campo_nombre" => "cedula_usuario",
         "campo_valor" => &$cedulaReceptor,
         "formulario_nombre" => "cedula",
-        "minimo" => minRegexCedula,
-        "maximo" => maxRegexCedula,
-        "expresion_re" => regexCedula,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "debeExistir" => true
       ],
@@ -329,9 +329,9 @@ class mensajesWSModelo extends conexion
     if ($this->idNotificacion != null && $this->idNotificacion != "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '
-                    no.titulo_notificacion, no.texto_notificacion, 
-                    nu.fecha_creacion_notificacion, no.tipo_notificacion
-                ',
+          no.titulo_notificacion, no.texto_notificacion, 
+          nu.fecha_creacion_notificacion, no.tipo_notificacion
+        ',
         'tabla' => 'notificaciones as no',
         'datosJoins' => [
           'notificaciones_usuarios as nu' => 'id_notificacion = id_notificacion',
@@ -348,14 +348,16 @@ class mensajesWSModelo extends conexion
     } else {
       $resultado = $this->seleccionarDatos2([
         'campos' => '
-                    id_notificacion_usuario, no.titulo_notificacion,
-                    no.tipo_notificacion,
-                    no.texto_notificacion, nu.fecha_creacion_notificacion, 
-                    nu.status
-                ',
+          id_notificacion_usuario, ino.patch_icono_notificacion AS icono_notificacion,
+          tn.nombre_tipo_notificacion AS tipo_notificacion, no.titulo_notificacion,
+          no.texto_notificacion, nu.fecha_creacion_notificacion, 
+          nu.status
+        ',
         'tabla' => 'notificaciones as no',
         'datosJoins' => [
           'notificaciones_usuarios as nu' => 'no.id_notificacion = nu.id_notificacion',
+          'iconos_notificaciones as ino' => 'no.id_icono_notificacion = ino.id_icono_notificacion',
+          'tipos_notificaciones as tn' => 'no.id_tipo_notificacion = tn.id_tipo_notificacion',
         ],
         'WHERE' => [
           'nu.cedula_usuario' => $this->cedulaUsuario,
@@ -392,15 +394,33 @@ class mensajesWSModelo extends conexion
       "rol" => &$rol,
     ] = $this->instruccionesNoti;
 
+    //Id icono
+    $idIcono = $this->VEYSNEC([
+      'campos' => 'id_icono_notificacion',
+      'tabla' => 'iconos_notificaciones',
+      'WHERE' => [
+        'patch_icono_notificacion' => $icono,
+      ],
+    ]);
+
+    // Id tipo notificacion
+    $idTipoNotificacion = $this->VEYSNEC([
+      'campos' => 'id_tipo_notificacion',
+      'tabla' => 'tipos_notificaciones',
+      'WHERE' => [
+        'nombre_tipo_notificacion' => $icono,
+      ],
+    ]);
+
     //LA NOTIFICACIÓN
     $idNotificacion = $this->VEYSNEC([
       'campos' => 'id_notificacion',
       'tabla' => 'notificaciones',
       'WHERE' => [
-        'titulo_notificacion' => $titulo,
-        'tipo_notificacion' => $icono,
+        'id_icono_notificacion' => $idIcono,
+        'id_tipo_notificacion' => $idTipoNotificacion,
         'tiempo_notificacion' => $tiempo,
-        'icono_notificacion' => $icono,
+        'titulo_notificacion' => $titulo,
         'texto_notificacion' => $texto,
       ],
     ]);

@@ -37,7 +37,7 @@ trait traitModelo
     if ($modo == 'antiSQLInyection') {
       $palabras = ["<script>", "</script>", "<script src", "<script type=", "SELECT * FROM", "SELECT ", " SELECT ", "DELETE FROM", "INSERT INTO", "DROP TABLE", "DROP DATABASE", "TRUNCATE TABLE", "SHOW TABLES", "SHOW DATABASES", "<?php", "?>", "--", "^", "<", ">", "==", "=", ";", "::"];
     } elseif ('antiFuncionesSQL') {
-      $palabras = ['(', ')', 'DATE', 'CAST', 'CONVERT', 'AVG', 'SUM', 'COUNT', 'MAX', 'MIN', 'TRIM', 'LOWER', 'UPPER', 'COALESCE', 'IFNULL'];
+      $palabras = [')', 'DATE(', 'CAST(', 'CONVERT(', 'AVG(', 'SUM(', 'COUNT(', 'MAX(', 'MIN(', 'TRIM(', 'LOWER(', 'UPPER(', 'COALESCE('];
     }
 
     $cadena = trim($cadena);
@@ -118,19 +118,13 @@ trait traitModelo
 
       //Para verificar la existencia de un registro para su actualización [normalmente solo el ID del registro]
       if (isset($campo['debeExistir'])) {
-        $instruccionesBD = [
+        $registrosExistentes = $this->seleccionarDatos2([
           'campos' => '*',
           'tabla' =>  $campo['tabla'],
           'WHERE' => [
-            [
-              'condicion_campo' => $campo['campo_nombre'],
-              'condicion_marcador' => ':Id',
-              'condicion_valor' => $campo['campo_valor'],
-              'comparacion' => '=',
-            ]
+            $campo['campo_nombre'] => $campo['campo_valor']
           ]
-        ];
-        $registrosExistentes = $this->seleccionarDatos($instruccionesBD);
+        ]);
 
         if ($registrosExistentes->rowCount() == 0 && isset($campo['requerido'])) {
           $alerta = [
@@ -142,34 +136,48 @@ trait traitModelo
           return ($alerta);
           exit();
         } else {
-          $registrosExis = $registrosExistentes->fetch(PDO::FETCH_ASSOC);/*hacemos el arrays */
+          $registrosExis[$campo['tabla']] = $registrosExistentes->fetch(PDO::FETCH_ASSOC);/*hacemos el arrays */
         }
       }
 
       //Para verificar que no haya mas registros con ese valor
       if (isset($campo['debeSerUnico'])) {
-        $pedirDatosDeNuevo = true;
-        if (isset($registrosExis)) {
-          if (isset($registrosExis[$campo['campo_nombre']])) {
-            $pedirDatosDeNuevo = false;
+
+        $buscarEnLaBD = false;
+        if (isset($registrosExis[$campo['tabla']])) { //es actualizar
+          //Verificar si ya la info fue o no obtenida de la BD
+          if (!isset($registrosExis[$campo['tabla']][$campo['campo_nombre']])) {
+            $resultado = $this->seleccionarDatos2([
+              'campos' => '*',
+              'tabla' =>  $campo['tabla'],
+              'WHERE' => [
+                $campo['campo_nombre'] => $campo['campo_valor']
+              ]
+            ]);
+            $resultado = $resultado->fetch(PDO::FETCH_ASSOC);
+            $registrosExis[$campo['tabla']] = $resultado;
           }
+          //Consultamos entonces si en la BD no hay otro registro con ese valor unico asignado
+          if (
+            $registrosExis[$campo['tabla']][$campo['campo_nombre']] != $campo['campo_valor'] &&
+            strtoupper($registrosExis[$campo['tabla']][$campo['campo_nombre']]) != strtoupper($campo['campo_valor'])
+          ) {
+            $buscarEnLaBD = true;
+          }
+        } else { //es registrar
+          $buscarEnLaBD = true;
         }
 
-        if ($pedirDatosDeNuevo) {
-          $instruccionesBD = [
-            'campos' => '*',
+        //Buscamos el dato a ver si existe en la BD
+        if ($buscarEnLaBD) {
+          $checkRegistro = $this->seleccionarDatos2([
+            'campos' => $campo['campo_nombre'],
             'tabla' =>  $campo['tabla'],
             'WHERE' => [
-              [
-                'condicion_campo' => $campo['campo_nombre'],
-                'condicion_marcador' => ':Id',
-                'condicion_valor' => $campo['campo_valor'],
-                'comparacion' => '=',
-              ]
+              $campo['campo_nombre'] => $campo['campo_valor']
             ]
-          ];
-          $resultado = $this->seleccionarDatos($instruccionesBD);
-          if ($resultado->rowCount() > 0) {
+          ]);
+          if ($checkRegistro->rowCount() > 0) {
             $alerta = [
               "tipo" => "simple",
               "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
@@ -178,39 +186,6 @@ trait traitModelo
             ];
             return ($alerta);
             exit();
-          } else {
-            $registrosExis = false;
-          }
-        }
-
-        if ($registrosExis != false) {
-          if (
-            $registrosExis[$campo['campo_nombre']] != $campo['campo_valor'] &&
-            $registrosExis[$campo['campo_nombre']] != strtoupper($campo['campo_valor'])
-          ) {
-            $instruccionesBD = [
-              'campos' => $campo['campo_nombre'],
-              'tabla' =>  $campo['tabla'],
-              'WHERE' => [
-                [
-                  'condicion_campo' => $campo['campo_nombre'],
-                  'condicion_marcador' => ':Id',
-                  'condicion_valor' => $campo['campo_valor'],
-                  'comparacion' => '=',
-                ]
-              ]
-            ];
-            $checkRegistro = $this->seleccionarDatos($instruccionesBD);
-            if ($checkRegistro->rowCount() > 0) {
-              $alerta = [
-                "tipo" => "simple",
-                "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
-                "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
-                "icono" => "error",
-              ];
-              return ($alerta);
-              exit();
-            }
           }
         }
       }

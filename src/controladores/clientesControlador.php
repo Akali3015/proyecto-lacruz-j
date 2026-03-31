@@ -6,7 +6,9 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $rif = $_POST['rif_cedula_cliente'] ?? "";
+  $codigoRifCedula = $_POST['codigo_rif_cedula_cliente'] ?? "";
+  $rifCedulaCliente = $_POST['rif_cedula_cliente'] ?? "";
+  $rifCedulaCompleto = $codigoRifCedula . $rifCedulaCliente;
   $razon = $_POST['razon_social_cliente'] ?? "";
   $telefono = $_POST['telefono_cliente'] ?? "";
   $correo = $_POST['correo_cliente'] ?? "";
@@ -20,19 +22,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
       echo json_encode($resultado);
       exit();
     case 'seleccionarUno':
-      $resultado = $objeto->seleccionarCliente($rif);
+      $resultado = $objeto->seleccionarCliente($rifCedulaCompleto);
       echo json_encode($resultado);
       exit();
     case 'registrar':
-      $resultado = $objeto->registrarCliente($rif, $razon, $telefono, $correo, $direccion);
+      $resultado = $objeto->registrarCliente($rifCedulaCompleto, $razon, $telefono, $correo, $direccion);
       echo json_encode($resultado);
       exit();
     case 'actualizar':
-      $resultado = $objeto->actualizarCliente($rif, $razon, $telefono, $correo, $direccion);
+      $resultado = $objeto->actualizarCliente($rifCedulaCompleto, $razon, $telefono, $correo, $direccion);
       echo json_encode($resultado);
       exit();
     case 'eliminar':
-      $resultado = $objeto->eliminarCliente($rif);
+      $resultado = $objeto->eliminarCliente($rifCedulaCompleto);
       echo json_encode($resultado);
       exit();
     default:

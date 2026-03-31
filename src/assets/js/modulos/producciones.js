@@ -185,7 +185,6 @@ function eliminarFilaProducto($btnEliminar) {
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 $(document).on('DOMContentLoaded', async function (e) {
-
   await listarDataTable({
     'encabezados': {
       "id_produccion": "ID",

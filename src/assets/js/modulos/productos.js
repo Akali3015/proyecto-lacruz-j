@@ -172,12 +172,13 @@ $(document).on("DOMContentLoaded", async function () {
   await listarDataTable({
     encabezados: {
       "id_producto": "ID",
-      "nombre_unidad_medida": "UNIDAD DE MEDIDA",
       "nombre_producto": "NOMBRE",
-      "precio_producto_detal": "PRECIO AL DETAL",
-      "precio_producto_mayor": "PRECIO AL MAYOR",
+      "nombre_categoria": "CATEGORÍA",
+      "precio_producto_divisas": "PRECIO EN DIVISAS",
+      "precio_producto_bcv": "PRECIO AL BCV",
       "stock_producto": "STOCK",
-      "producto_es_fabricado": "¿ES FABRICADO?",
+      "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+      "mostrar_ecommerce": "MOSTRAR EN EL ECOMMERCE",
     },
     informacionPe: {
       'modulo': 'productos',
@@ -188,9 +189,9 @@ $(document).on("DOMContentLoaded", async function () {
     campoIdBtn: 'id_producto',
     botones: 'CRUD',
     infoTratoEspecial: {
-      precio_producto_detal: (info) => {
-        return info.fila.precio_producto_detal.toFixed(2) + '$';
-      }
+      precio_producto_bcv: (info) => { return info.valor.toFixed(2) + '$'; },
+      precio_producto_divisas: (info) => { return info.valor.toFixed(2) + '$'; },
+      mostrar_ecommerce: (info) => { return info.valor == 1 ? 'SI' : 'NO' },
     }
   });
   await extraerDatosAjax({

@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
   $idUnidadMedida = $_POST['id_unidad_medida'] ?? "";
   $nombre = $_POST['nombre_materia_prima'] ?? "";
   $stock = $_POST['stock_materia_prima'] ?? "";
-  $costo = $_POST['costo_materia_prima'] ?? "";
+  $precio = $_POST['precio_materia_prima'] ?? "";
   $presentaciones = $_POST['presentaciones'] ?? [];
 
   $objeto = new materiasPrimasModelo();
@@ -31,12 +31,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
       exit();
     case "registrar":
       $presentaciones = $_POST['presentaciones'] ?? [];
-      $resultado = $objeto->registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $costo, $presentaciones);
+      $resultado = $objeto->registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $precio, $presentaciones);
       echo json_encode($resultado);
       exit();
     case "actualizar":
       $presentaciones = $_POST['presentaciones'] ?? [];
-      $resultado = $objeto->actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $costo, $presentaciones);
+      $resultado = $objeto->actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $precio, $presentaciones);
       echo json_encode($resultado);
       exit();
     case "eliminar":

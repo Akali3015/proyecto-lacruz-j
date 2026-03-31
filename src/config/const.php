@@ -30,13 +30,13 @@
     const minRegexCantidadItem='1';
     const maxRegexCantidadItem='9';
 
-    const regexCedula = '^\d{7,9}$';
-    const minRegexCedula = '7';
-    const maxRegexCedula = '9';
+    const regexCedulaRif = '^\d{7,10}$';
+    const minRegexCedulaRif = '7';
+    const maxRegexCedulaRif = '10';
 
-    const regexRif = '^\d{7,10}$';
-    const minRegexRif = '7';
-    const maxRegexRif = '10';
+    const regexCedulaRifLetra = '^[a-zA-Z]?\d{8,11}$';
+    const minRegexCedulaRifLetra = '8';
+    const maxRegexCedulaRifLetra = '11';
 
     const regexNombreObj='^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% ]{3,50}$';
     const minRegexNombreObj='3';

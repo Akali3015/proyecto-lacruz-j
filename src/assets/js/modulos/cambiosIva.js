@@ -9,7 +9,7 @@ $(document).on('DOMContentLoaded', async function (e) {
   listarDataTable({
     encabezados: {
       "id_cambio_iva": "ID",
-      "monto_cambio_iva": "PORCENTAJE (%)",
+      "monto_cambio_iva": "PORCENTAJE",
       "fecha_cambio_iva": "FECHA",
     },
     informacionPe: {
@@ -17,6 +17,10 @@ $(document).on('DOMContentLoaded', async function (e) {
       'datosPe': {
         'accion': 'listar'
       }
+    },
+    infoTratoEspecial: {
+      monto_cambio_iva: (info) => { return info.valor + '%'; },
+      fecha_cambio_iva: (info) => { return cambiarFormatos(info.valor, 'fecha_hora') },
     },
   });
 })

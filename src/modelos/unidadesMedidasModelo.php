@@ -65,7 +65,7 @@ class unidadesMedidasModelo extends conexion
         "tabla" => "unidades_medidas",
         "debeSerUnico" => true,
       ],
-      [
+      [ 
         "campo_nombre" => "simbolo_unidad_medida",
         "campo_valor" => $this->simboloUnidadMedida,
         "formulario_nombre" => "simbolo de la unidad de medida",

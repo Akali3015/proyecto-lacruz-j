@@ -42,12 +42,13 @@ class serviciosModelo extends conexion
     }
     return $this->seleccionarServiciosP();
   }
-  public function registrarServicios($idUnidadMedida, $nombre, $costo)
+  public function registrarServicios($idUnidadMedida, $nombre, $precio)
   {
     try {
+
       $this->idUnidadMedida = $idUnidadMedida;
       $this->nombreServicio = $nombre;
-      $this->costoServicio = $costo;
+      $this->costoServicio = $precio;
 
       $campos = [
         [
@@ -73,9 +74,9 @@ class serviciosModelo extends conexion
           "debeSerUnico" => true,
         ],
         [
-          "campo_nombre" => "costo_servicio",
+          "campo_nombre" => "precio_servicio",
           "campo_valor" => $this->costoServicio,
-          "formulario_nombre" => "costo del servicio",
+          "formulario_nombre" => "precio del servicio",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
@@ -96,12 +97,12 @@ class serviciosModelo extends conexion
       throw new Exception("Error al registrar el servicio en la base de datos: " . $e->getMessage());
     }
   }
-  public function actualizarServicios($id, $idUnidadMedida, $nombre, $costo)
+  public function actualizarServicios($id, $idUnidadMedida, $nombre, $precio)
   {
     $this->idServicio = $id;
     $this->idUnidadMedida = $idUnidadMedida;
     $this->nombreServicio = $nombre;
-    $this->costoServicio = $costo;
+    $this->costoServicio = $precio;
 
     $campos = [
       [
@@ -137,9 +138,9 @@ class serviciosModelo extends conexion
         "tabla" => "servicios",
       ],
       [
-        "campo_nombre" => "costo_servicio",
+        "campo_nombre" => "precio_servicio",
         "campo_valor" => $this->costoServicio,
-        "formulario_nombre" => "costo del servicio",
+        "formulario_nombre" => "precio del servicio",
         "requerido" => true,
         "minimo" => minRegexPrecio,
         "maximo" => maxRegexPrecio,
@@ -187,7 +188,7 @@ class serviciosModelo extends conexion
   {
     if ($this->idServicio == null || $this->idServicio == "") {
       $instruccionesBD = [
-        'campos' => 's.id_servicio, s.nombre_servicio, um.nombre_unidad_medida, s.costo_servicio',
+        'campos' => 's.id_servicio, s.nombre_servicio, um.nombre_unidad_medida, s.precio_servicio',
         'tabla' => 'servicios as s',
         'PEL' => 's',
         'datosJoins' => [
@@ -246,8 +247,8 @@ class serviciosModelo extends conexion
         "ponerEnMayusculas" => true,
       ],
       [
-        "campo_nombre" => "costo_servicio",
-        "campo_marcador" => ":costo",
+        "campo_nombre" => "precio_servicio",
+        "campo_marcador" => ":precio",
         "campo_valor" => $this->costoServicio,
       ],
     ];
@@ -290,8 +291,8 @@ class serviciosModelo extends conexion
           "ponerEnMayusculas" => true,
         ],
         [
-          "campo_nombre" => "costo_servicio",
-          "campo_marcador" => ":Costo",
+          "campo_nombre" => "precio_servicio",
+          "campo_marcador" => ":precio",
           "campo_valor" => $this->costoServicio,
         ],
         [

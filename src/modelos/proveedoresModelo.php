@@ -28,9 +28,9 @@ class proveedoresModelo extends conexion
           "campo_valor" => $this->rif_proveedor,
           "formulario_nombre" => "RIF",
           "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj
+          "minimo" => minRegexCedulaRifLetra,
+          "maximo" => maxRegexCedulaRifLetra,
+          "expresion_re" => regexCedulaRifLetra
         ]
       ];
 
@@ -60,9 +60,9 @@ class proveedoresModelo extends conexion
           "campo_valor" => $this->rif_proveedor,
           "formulario_nombre" => "RIF del proveedor",
           "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
+          "minimo" => minRegexCedulaRifLetra,
+          "maximo" => maxRegexCedulaRifLetra,
+          "expresion_re" => regexCedulaRifLetra,
           "tabla" => "proveedores",
           "debeSerUnico" => true,
         ],
@@ -133,9 +133,9 @@ class proveedoresModelo extends conexion
         "campo_valor" => $this->rif_proveedor,
         "formulario_nombre" => "RIF",
         "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
+        "minimo" => minRegexCedulaRifLetra,
+        "maximo" => maxRegexCedulaRifLetra,
+        "expresion_re" => regexCedulaRifLetra,
         "tabla" => "proveedores",
         "debeExistir" => true,
       ],
@@ -197,9 +197,9 @@ class proveedoresModelo extends conexion
         "campo_valor" => $this->rif_proveedor,
         "formulario_nombre" => "RIF del proveedor",
         "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
+        "minimo" => minRegexCedulaRifLetra,
+        "maximo" => maxRegexCedulaRifLetra,
+        "expresion_re" => regexCedulaRifLetra,
         "tabla" => "proveedores",
         "debeExistir" => true,
         "camposDiferentes" => 1
@@ -252,6 +252,10 @@ class proveedoresModelo extends conexion
         exit();
       } else {
         $resultado = $resultado->fetch(PDO::FETCH_ASSOC);
+        $codigoRif = preg_replace('/[0-9]/', '', $resultado['rif_proveedor']);
+        $rif = preg_replace('/[a-zA-Z]/', '', $resultado['rif_proveedor']);
+        $resultado['codigo_rif_proveedor'] = $codigoRif;
+        $resultado['rif_proveedor'] = $rif;
       }
       return $resultado;
     }

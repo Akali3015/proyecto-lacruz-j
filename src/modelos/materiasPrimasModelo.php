@@ -43,12 +43,12 @@ class materiasPrimasModelo extends conexion
     }
     return $this->seleccionarMateriasPrimasP();
   }
-  public function registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $costo, $presentaciones)
+  public function registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $precio, $presentaciones)
   {
     try {
       $this->idUnidadMedida = $idUnidadMedida;
       $this->nombreMateriaPrima = $nombre;
-      $this->costoMateriaPrima = $costo;
+      $this->costoMateriaPrima = $precio;
       $this->stockMateriaPrima = $stock;
 
       $campos = [
@@ -77,7 +77,7 @@ class materiasPrimasModelo extends conexion
         [
           "campo_nombre" => "costo_materia_prima",
           "campo_valor" => $this->costoMateriaPrima,
-          "formulario_nombre" => "costo de la materia prima",
+          "formulario_nombre" => "precio de la materia prima",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
@@ -126,12 +126,12 @@ class materiasPrimasModelo extends conexion
       throw new Exception("Error al registrar la materia prima en la base de datos: " . $e->getMessage());
     }
   }
-  public function actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $costo, $presentaciones)
+  public function actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $precio, $presentaciones)
   {
     $this->idMateriaPrima = $id;
     $this->idUnidadMedida = $idUnidadMedida;
     $this->nombreMateriaPrima = $nombre;
-    $this->costoMateriaPrima = $costo;
+    $this->costoMateriaPrima = $precio;
     $this->stockMateriaPrima = $stock;
 
     $campos = [
@@ -170,7 +170,7 @@ class materiasPrimasModelo extends conexion
       [
         "campo_nombre" => "costo_materia_prima",
         "campo_valor" => $this->costoMateriaPrima,
-        "formulario_nombre" => "costo de la materia prima",
+        "formulario_nombre" => "precio de la materia prima",
         "requerido" => true,
         "minimo" => minRegexPrecio,
         "maximo" => maxRegexPrecio,
@@ -339,7 +339,7 @@ class materiasPrimasModelo extends conexion
       ],
       [
         "campo_nombre" => "costo_materia_prima",
-        "campo_marcador" => ":costo",
+        "campo_marcador" => ":precio",
         "campo_valor" => $this->costoMateriaPrima,
       ],
     ];
@@ -416,7 +416,7 @@ class materiasPrimasModelo extends conexion
         ],
         [
           "campo_nombre" => "costo_materia_prima",
-          "campo_marcador" => ":costo",
+          "campo_marcador" => ":precio",
           "campo_valor" => $this->costoMateriaPrima,
         ],
       ],
@@ -463,7 +463,7 @@ class materiasPrimasModelo extends conexion
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
-        "texto" => "No se realizó ningún cambio en la materia prima",
+        "texto" => "No se han realizado cambios en el registro",
         "icono" => "warning",
       ];
       $modeloBitacora->registrarBitacora("Materias Primas", "Actualizar", "Fallido");

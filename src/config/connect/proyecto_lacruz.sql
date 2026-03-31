@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-03-2026 a las 19:47:19
+-- Tiempo de generación: 31-03-2026 a las 16:50:56
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -65,16 +65,6 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status
 (417, 1, 3, 25, 1),
 (418, 1, 4, 25, 1),
 (419, 1, 5, 25, 1),
-(420, 1, 1, 6, 1),
-(421, 1, 2, 6, 1),
-(422, 1, 1, 20, 1),
-(423, 1, 2, 20, 1),
-(424, 1, 3, 6, 1),
-(425, 1, 3, 20, 1),
-(426, 1, 4, 20, 1),
-(427, 1, 4, 6, 1),
-(428, 1, 5, 6, 1),
-(429, 1, 5, 20, 1),
 (430, 1, 1, 24, 1),
 (431, 1, 1, 19, 1),
 (432, 1, 2, 24, 1),
@@ -163,7 +153,72 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status
 (515, 1, 2, 246, 1),
 (516, 1, 3, 246, 1),
 (517, 1, 4, 246, 1),
-(518, 1, 5, 246, 1);
+(518, 1, 5, 246, 1),
+(519, 3, 1, 18, 1),
+(520, 3, 2, 18, 1),
+(521, 3, 3, 18, 0),
+(522, 3, 4, 18, 0),
+(523, 3, 1, 3, 1),
+(524, 3, 2, 3, 1),
+(525, 3, 3, 3, 1),
+(526, 3, 4, 3, 1),
+(527, 3, 5, 3, 1),
+(528, 3, 2, 9, 1),
+(529, 3, 2, 22, 1),
+(530, 3, 2, 5, 1),
+(531, 3, 2, 17, 1),
+(532, 3, 2, 7, 1),
+(533, 3, 2, 15, 1),
+(534, 3, 2, 4, 1),
+(535, 3, 2, 246, 1),
+(536, 3, 2, 21, 1),
+(537, 3, 2, 28, 1),
+(538, 3, 2, 23, 1),
+(539, 3, 2, 19, 1),
+(540, 3, 2, 24, 1),
+(543, 3, 2, 25, 1),
+(544, 3, 2, 8, 1),
+(545, 3, 2, 1, 1),
+(546, 1, 593, 18, 1),
+(547, 1, 592, 18, 1),
+(548, 2, 24, 29, 1),
+(549, 1, 1, 251, 1),
+(550, 1, 2, 251, 1),
+(551, 1, 3, 251, 1),
+(552, 1, 4, 251, 1),
+(553, 1, 5, 251, 1),
+(554, 1, 5, 249, 1),
+(555, 1, 4, 249, 1),
+(556, 1, 3, 249, 1),
+(557, 1, 2, 249, 1),
+(558, 1, 1, 249, 1),
+(559, 1, 1, 250, 1),
+(560, 1, 2, 250, 1),
+(561, 1, 3, 250, 1),
+(562, 1, 4, 250, 1),
+(563, 1, 5, 250, 1),
+(564, 1, 1, 247, 1),
+(565, 1, 2, 247, 1),
+(566, 1, 3, 247, 1),
+(567, 1, 4, 247, 1),
+(568, 1, 5, 247, 1),
+(569, 1, 1, 248, 1),
+(570, 1, 2, 248, 1),
+(571, 1, 3, 248, 1),
+(572, 1, 4, 248, 1),
+(573, 1, 5, 248, 1),
+(574, 1, 1, 252, 1),
+(575, 1, 2, 252, 1),
+(576, 1, 3, 252, 1),
+(577, 1, 4, 252, 1),
+(578, 1, 5, 252, 1),
+(579, 3, 2, 251, 1),
+(580, 3, 2, 249, 1),
+(581, 3, 2, 250, 1),
+(582, 3, 2, 252, 1),
+(583, 3, 2, 248, 1),
+(584, 3, 2, 247, 1),
+(585, 1, 594, 253, 1);
 
 -- --------------------------------------------------------
 
@@ -208,7 +263,23 @@ CREATE TABLE `acciones_resagadas_usuarios` (
 
 INSERT INTO `acciones_resagadas_usuarios` (`id_accion_resagada`, `id_modulo`, `cedula_usuario`, `id_accion`, `status`) VALUES
 (130, 18, 1234567, 78, 1),
-(132, 18, 1234567, 79, 1);
+(132, 18, 1234567, 79, 1),
+(258, 18, 30485683, 78, 1),
+(259, 18, 30485684, 78, 1),
+(260, 18, 30485683, 79, 1),
+(261, 18, 30485684, 79, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `bancos`
+--
+
+CREATE TABLE `bancos` (
+  `id_banco` int(11) NOT NULL,
+  `nombre_banco` varchar(50) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -225,6 +296,17 @@ CREATE TABLE `bitacora` (
   `fecha_bitacora` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `bitacora`
+--
+
+INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_accion`, `id_modulo`, `id_resultado_bitacora`, `fecha_bitacora`, `status`) VALUES
+(129, 30485684, 3, 18, 1, '2026-03-30 09:02:33', 1),
+(130, 30485684, 3, 18, 1, '2026-03-30 09:50:21', 1),
+(131, 30485684, 3, 18, 1, '2026-03-30 09:50:33', 1),
+(132, 30485684, 3, 18, 1, '2026-03-30 09:53:23', 1),
+(133, 30485684, 3, 18, 1, '2026-03-30 09:55:16', 1);
 
 -- --------------------------------------------------------
 
@@ -364,7 +446,12 @@ INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iv
 (118, 23, '2026-02-09 09:27:41', 1),
 (119, 12, '2026-02-09 21:11:01', 1),
 (120, 12, '2026-02-09 21:11:34', 1),
-(121, 23, '2026-02-09 21:11:45', 1);
+(121, 23, '2026-02-09 21:11:45', 1),
+(124, 11, '2026-03-30 09:02:33', 1),
+(125, 11, '2026-03-30 09:50:21', 1),
+(126, 12, '2026-03-30 09:50:33', 1),
+(127, 15, '2026-03-30 09:53:23', 1),
+(128, 12, '2026-03-30 09:55:16', 1);
 
 -- --------------------------------------------------------
 
@@ -394,7 +481,25 @@ INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, 
 (7, 5, 1, '2025-12-14 16:30:34', 1),
 (8, 1, 23, '2026-02-07 20:44:34', 1),
 (9, 1, 12, '2026-02-09 20:46:09', 1),
-(10, 1, 250, '2026-02-09 20:46:55', 1);
+(10, 1, 250, '2026-02-09 20:46:55', 1),
+(11, 1, 279, '2026-03-30 10:22:47', 1),
+(12, 5, 22, '2026-03-30 10:22:56', 1),
+(13, 2, 500, '2026-03-30 10:23:05', 1),
+(14, 1, 12, '2026-03-30 10:29:39', 1),
+(15, 2, 1234, '2026-03-30 10:29:58', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categorias_productos`
+--
+
+CREATE TABLE `categorias_productos` (
+  `id_categoria_producto` int(11) NOT NULL,
+  `nombre_categoria` varchar(50) NOT NULL,
+  `necesitan_materias_primas` tinyint(1) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -416,8 +521,15 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_cliente`, `correo_cliente`, `direccion_cliente`, `status`) VALUES
-('12345678', 'ANDERSON', '04169484648', 'andersonfreitez@gmail.com', 'SANAREsws', 1),
-('123456782', 'ANDERSONA', '04169484647', 'andersonfreitz@gmail.com', 'hfgyhftgn', 0);
+('12345652', 'ANDEROSN DJOA', '04169484649', 'andersonfreitez6@gmail.coM', 'DDDD', 0),
+('12345654', 'ANDEROSN DJOW', '04169484648', 'andersonfreitez6@gmail.com', 'Hilo', 0),
+('123456541', 'ANDEROSN DJO', '04169484642', 'andersonfreitez61@gmail.com', 'DED', 0),
+('12345678', 'ANDERSON', '04169484648', 'andersonfreitez1@gmail.com', 'SANAREsws', 0),
+('123456782', 'ANDERSONA', '04169484647', 'andersonfreitz@gmail.com', 'hfgyhftgn', 0),
+('30485684', 'ANDEROSN DJOW', '04169484649', 'andersonfreitez6@gmail.com', 'jajajj', 0),
+('J12345654', 'ANDEROSN DJOW', '04169484649', 'andersonfreitez89@gmail.com', 'hhhbhbhb', 0),
+('V30333333', 'QAA', '04169484649', 'andersonfreitez6@gmail.cou', 'kmxkkxk', 1),
+('V30485681', 'ANDERSON', '04169484650', 'andersonfreitez6@gmail.com', 'andeiriririi', 1);
 
 -- --------------------------------------------------------
 
@@ -448,6 +560,20 @@ INSERT INTO `compras` (`id_compra`, `rif_proveedor`, `cedula_usuario`, `fecha_co
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `deliveries`
+--
+
+CREATE TABLE `deliveries` (
+  `id_delivery` int(11) NOT NULL,
+  `id_factura` int(11) NOT NULL,
+  `cedula_repartidor` int(11) NOT NULL,
+  `id_direccion` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `detalles_pagos`
 --
 
@@ -456,7 +582,50 @@ CREATE TABLE `detalles_pagos` (
   `id_pago` int(11) NOT NULL,
   `id_moneda` int(11) NOT NULL,
   `id_metodo_pago` int(11) NOT NULL,
+  `id_banco_emisor` tinyint(1) DEFAULT NULL,
+  `id_banco_receptor` tinyint(1) DEFAULT NULL,
+  `referencia_pago` int(11) DEFAULT NULL,
   `monto_pago` float NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `direcciones`
+--
+
+CREATE TABLE `direcciones` (
+  `id_direccion` int(11) NOT NULL,
+  `id_ruta` int(11) NOT NULL,
+  `id_latitud_direccion` int(11) NOT NULL,
+  `id_longitud_direccion` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `empresas_envios`
+--
+
+CREATE TABLE `empresas_envios` (
+  `id_empresa_envios` int(11) NOT NULL,
+  `nombre_empresa` varchar(50) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `envios_terceros`
+--
+
+CREATE TABLE `envios_terceros` (
+  `id_envio_tercero` int(11) NOT NULL,
+  `id_factura` int(11) NOT NULL,
+  `id_empresa_envios` int(11) NOT NULL,
+  `precio_envio` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -486,6 +655,37 @@ CREATE TABLE `iconos_notificaciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `iconos_notificaciones`
+--
+
+INSERT INTO `iconos_notificaciones` (`id_icono_notificacion`, `patch_icono_notificacion`, `status`) VALUES
+(1, 'info', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `latitudes_direcciones`
+--
+
+CREATE TABLE `latitudes_direcciones` (
+  `id_latitud_direccion` int(11) NOT NULL,
+  `coordenada_latitud` varchar(20) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `longitudes_direcciones`
+--
+
+CREATE TABLE `longitudes_direcciones` (
+  `id_longitud_direccion` int(11) NOT NULL,
+  `coordenada_latitud` varchar(20) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- --------------------------------------------------------
 
 --
@@ -497,6 +697,7 @@ CREATE TABLE `materias_primas` (
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_materia_prima` varchar(50) NOT NULL,
   `stock_materia_prima` int(15) NOT NULL,
+  `stock_minimo_materia_prima` int(15) NOT NULL,
   `precio_materia_prima` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -505,8 +706,8 @@ CREATE TABLE `materias_primas` (
 -- Volcado de datos para la tabla `materias_primas`
 --
 
-INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_materia_prima`, `stock_materia_prima`, `precio_materia_prima`, `status`) VALUES
-(1, 2, 'SULFURO', 870, 10, 1);
+INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_materia_prima`, `stock_materia_prima`, `stock_minimo_materia_prima`, `precio_materia_prima`, `status`) VALUES
+(1, 2, 'SULFURO', 760, 0, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -579,13 +780,6 @@ CREATE TABLE `materias_primas_productos` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `materias_primas_productos`
---
-
-INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materia_prima`, `id_producto`, `cantidad_materia_prima`, `status`) VALUES
-(1, 1, 1, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -596,6 +790,9 @@ CREATE TABLE `metodos_pagos` (
   `id_metodo_pago` int(11) NOT NULL,
   `nombre_metodo_pago` varchar(50) NOT NULL,
   `necesita_moneda` tinyint(1) NOT NULL,
+  `necesita_banco_emisor` tinyint(1) NOT NULL,
+  `necesita_banco_receptor` tinyint(1) NOT NULL,
+  `necesita_referencia` tinyint(1) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -603,15 +800,16 @@ CREATE TABLE `metodos_pagos` (
 -- Volcado de datos para la tabla `metodos_pagos`
 --
 
-INSERT INTO `metodos_pagos` (`id_metodo_pago`, `nombre_metodo_pago`, `necesita_moneda`, `status`) VALUES
-(1, 'EFECTIVO', 1, 1),
-(2, 'TRANSFERENCIA', 0, 1),
-(3, 'PAGO MÓVIL', 0, 1),
-(4, 'ZELLE', 1, 0),
-(5, 'BINANCE', 1, 0),
-(6, 'BINANCE', 1, 1),
-(7, 'ZELLE', 1, 1),
-(8, 'RRRR', 0, 0);
+INSERT INTO `metodos_pagos` (`id_metodo_pago`, `nombre_metodo_pago`, `necesita_moneda`, `necesita_banco_emisor`, `necesita_banco_receptor`, `necesita_referencia`, `status`) VALUES
+(1, 'EFECTIVO', 1, 0, 0, 0, 1),
+(2, 'TRANSFERENCIA', 0, 0, 0, 0, 1),
+(3, 'PAGO MÓVIL', 0, 0, 0, 0, 1),
+(4, 'ZELLE', 1, 0, 0, 0, 0),
+(5, 'BINANCE', 1, 0, 0, 0, 0),
+(6, 'BINANCE', 1, 0, 0, 0, 1),
+(7, 'ZELLE', 1, 0, 0, 0, 1),
+(8, 'RRRR', 0, 0, 0, 0, 0),
+(9, 'ZINLIR', 1, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -634,7 +832,6 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (3, 'ventas', 1),
 (4, 'productos', 1),
 (5, 'servicios', 1),
-(6, 'materias_primas', 1),
 (7, 'proveedores', 1),
 (8, 'compras', 1),
 (9, 'usuarios', 1),
@@ -646,15 +843,21 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (17, 'roles', 1),
 (18, 'cambiosIva', 1),
 (19, 'metodos-pago', 1),
-(20, 'Materias Primas', 1),
 (21, 'presentaciones', 1),
 (22, 'unidadesMedidas', 1),
 (23, 'monedas', 1),
 (24, 'materiasPrimas', 1),
-(25, 'Insumos', 1),
+(25, 'insumos', 1),
 (28, 'permisos', 1),
 (29, 'dashboard', 1),
-(246, 'producciones', 1);
+(246, 'producciones', 1),
+(247, 'rutas', 1),
+(248, 'pedidos', 1),
+(249, 'categoriasProductos', 1),
+(250, 'empresasEnvios', 1),
+(251, 'bancos', 1),
+(252, 'repartidores', 1),
+(253, 'inventario', 1);
 
 -- --------------------------------------------------------
 
@@ -675,11 +878,12 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 250, 1),
-(2, 'EURO', '€', 250, 1),
+(1, 'DÓLAR', '$', 12, 1),
+(2, 'EURO', '€', 1234, 1),
 (3, 'YUAN', '¥', 12, 1),
 (4, 'AGUACATE', '$O', 1, 0),
-(5, 'BÓLIVAR', 'BS', 1, 1);
+(5, 'BÓLIVAR', 'BS', 22, 1),
+(6, 'YUA', '$$', 100, 0);
 
 -- --------------------------------------------------------
 
@@ -697,6 +901,13 @@ CREATE TABLE `notificaciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `notificaciones`
+--
+
+INSERT INTO `notificaciones` (`id_notificacion`, `id_icono_notificacion`, `id_tipo_notificacion`, `tiempo_notificacion`, `titulo_notificacion`, `texto_notificacion`, `status`) VALUES
+(31, 1, 1, 0, 'Precio del IVA actualizado', 'El precio del IVA ha sido actualizado', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -710,6 +921,20 @@ CREATE TABLE `notificaciones_usuarios` (
   `fecha_creacion_notificacion` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `notificaciones_usuarios`
+--
+
+INSERT INTO `notificaciones_usuarios` (`id_notificacion_usuario`, `cedula_usuario`, `id_notificacion`, `fecha_creacion_notificacion`, `status`) VALUES
+(177, 30485683, 31, '2026-03-30 09:50:21', 1),
+(178, 30485684, 31, '2026-03-30 09:50:21', 2),
+(179, 30485683, 31, '2026-03-30 09:50:34', 1),
+(180, 30485684, 31, '2026-03-30 09:50:34', 2),
+(181, 30485683, 31, '2026-03-30 09:53:23', 1),
+(182, 30485684, 31, '2026-03-30 09:53:23', 2),
+(183, 30485683, 31, '2026-03-30 09:55:16', 1),
+(184, 30485684, 31, '2026-03-30 09:55:16', 2);
 
 -- --------------------------------------------------------
 
@@ -733,7 +958,7 @@ CREATE TABLE `pagos` (
 CREATE TABLE `permisos` (
   `id_permiso` int(11) NOT NULL,
   `nombre_permiso` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL
+  `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -758,20 +983,12 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (22, 'ver ventas despachadas', 1),
 (23, 'ver modal de ayuda', 1),
 (24, 'ver dashboard', 1),
-(25, 'ver dashboard', 0),
-(26, 'ver historial de cambio', 0),
-(27, 'actualizar cambio de divisas', 0),
-(28, 'ver detalles de las ventas', 0),
-(29, 'ver ventas despachadas', 0),
-(30, 'ver ventas sin cancelar', 0),
 (31, 'ver pedidos en espera', 1),
 (32, 'ver pedidos rechazados', 1),
 (33, 'gestionar ventas', 1),
 (34, 'ver reportes', 1),
-(35, 'imprimir reportes de ventas', 0),
 (36, 'imprimir reportes de productos', 1),
 (37, 'imprimir comandas', 1),
-(38, 'asignar roles a usuarios', 0),
 (39, 'ver el precio del dólar', 0),
 (40, 'ver notificaciones', 0),
 (41, 'ver modal de ayuda', 0),
@@ -1324,7 +1541,10 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (588, 'ver carrito de compra', 1),
 (589, 'ver detalles de promociones', 1),
 (590, 'ver bitácora', 0),
-(591, 'transformar imagenes', 1);
+(591, 'transformar imagenes', 1),
+(592, 'ver historial de cambio del iva', 1),
+(593, 'actualizar cambio del iva', 1),
+(594, 'ver inventario', 1);
 
 -- --------------------------------------------------------
 
@@ -1350,6 +1570,20 @@ CREATE TABLE `precios_productos` (
   `id_precio_producto` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
   `precio_producto` float NOT NULL,
+  `fecha_cambio` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `precios_rutas`
+--
+
+CREATE TABLE `precios_rutas` (
+  `id_precio_ruta` int(11) NOT NULL,
+  `id_ruta` int(11) NOT NULL,
+  `precio_ruta` float NOT NULL,
   `fecha_cambio` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1389,7 +1623,8 @@ CREATE TABLE `presentaciones` (
 INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_presentacion`, `cantidad_pmp`, `status`) VALUES
 (1, 2, 'PIPA', 200, 1),
 (2, 2, 'BIDÓN', 20, 1),
-(3, 2, 'GRANEL', 1, 1);
+(3, 2, 'GRANEL', 1, 1),
+(4, 2, 'PIPE', 100, 0);
 
 -- --------------------------------------------------------
 
@@ -1416,7 +1651,9 @@ INSERT INTO `producciones` (`id_produccion`, `fecha_produccion`, `status`) VALUE
 (31, '2026-03-01 08:16:17', 1),
 (32, '2026-03-01 08:44:57', 1),
 (34, '2026-03-01 09:00:33', 1),
-(35, '2026-03-01 09:32:25', 1);
+(35, '2026-03-01 09:32:25', 1),
+(36, '2026-03-29 13:11:33', 1),
+(37, '2026-03-29 13:13:01', 1);
 
 -- --------------------------------------------------------
 
@@ -1427,22 +1664,16 @@ INSERT INTO `producciones` (`id_produccion`, `fecha_produccion`, `status`) VALUE
 CREATE TABLE `productos` (
   `id_producto` int(11) NOT NULL,
   `id_unidad_medida` int(11) NOT NULL,
+  `id_categoria_producto` int(11) NOT NULL,
   `nombre_producto` varchar(100) NOT NULL,
-  `precio_producto_detal` float NOT NULL,
-  `precio_producto_mayor` float NOT NULL,
+  `precio_producto_divisas` float NOT NULL,
+  `precio_producto_bcv` float NOT NULL,
   `stock_producto` int(15) NOT NULL,
-  `producto_es_fabricado` tinyint(1) NOT NULL DEFAULT 1,
-  `es_insumo` tinyint(1) NOT NULL,
+  `stock_minimo_producto` int(15) NOT NULL,
+  `mostrar_ecommerce` tinyint(1) NOT NULL,
+  `foto_producto` varchar(100) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `productos`
---
-
-INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `nombre_producto`, `precio_producto_detal`, `precio_producto_mayor`, `stock_producto`, `producto_es_fabricado`, `es_insumo`, `status`) VALUES
-(1, 2, 'JABÓN', 100, 90, 192, 1, 0, 1),
-(2, 2, 'CLORO', 10, 5, 20, 0, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -1457,19 +1688,6 @@ CREATE TABLE `productos_compras` (
   `cantidad_producto` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `productos_compras`
---
-
-INSERT INTO `productos_compras` (`id_producto_compra`, `id_producto`, `id_compra`, `cantidad_producto`, `status`) VALUES
-(1, 1, 4, 1, 1),
-(2, 1, 5, 1, 1),
-(3, 1, 7, 22, 1),
-(4, 2, 8, 1, 1),
-(5, 2, 8, 1, 1),
-(9, 1, 9, 15, 1),
-(10, 1, 10, 12, 1);
 
 -- --------------------------------------------------------
 
@@ -1498,20 +1716,6 @@ CREATE TABLE `productos_presentaciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `productos_presentaciones`
---
-
-INSERT INTO `productos_presentaciones` (`id_producto_presentacion`, `id_presentacion`, `id_producto`, `status`) VALUES
-(1, 1, 1, 0),
-(2, 2, 1, 0),
-(3, 3, 1, 0),
-(4, 1, 2, 1),
-(5, 2, 2, 1),
-(6, 3, 2, 1),
-(7, 3, 1, 0),
-(8, 3, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -1525,28 +1729,6 @@ CREATE TABLE `productos_producciones` (
   `cantidad_producida` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `productos_producciones`
---
-
-INSERT INTO `productos_producciones` (`id_producto_produccion`, `id_produccion`, `id_producto`, `cantidad_producida`, `status`) VALUES
-(25, 26, 1, 1, 1),
-(26, 27, 1, 1, 1),
-(27, 28, 1, 100, 1),
-(28, 29, 1, 1, 0),
-(29, 29, 1, 6, 0),
-(31, 29, 1, 12, 1),
-(32, 29, 2, 12, 1),
-(33, 30, 2, 1, 1),
-(34, 30, 1, 1, 1),
-(35, 30, 1, 1, 1),
-(36, 31, 2, 1, 1),
-(37, 31, 1, 1, 1),
-(38, 32, 1, 1, 1),
-(41, 34, 1, 10, 1),
-(42, 35, 1, 3, 1),
-(43, 35, 2, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -1582,7 +1764,26 @@ CREATE TABLE `proveedores` (
 --
 
 INSERT INTO `proveedores` (`rif_proveedor`, `razon_social_proveedor`, `telefono_proveedor`, `correo_proveedor`, `direccion_proveedor`, `status`) VALUES
-('30485684', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'sxaxasas', 1);
+('123456789', 'ANDERSO', '04169484640', 'andersonfreitez60@gmail.com', 'HHHHBHBH', 1),
+('1234567890', 'ANDERSONM', '04169484641', 'andersonfreitez6@gmail.com', 'DIRECCION', 1),
+('30485684', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'sxaxasas', 1),
+('J12345611', 'ANDERSON9K', '04169484699', 'andersonfreitez6@gmail.co', 'kmkmkm', 0),
+('J12345678', 'ANDERS', '04169484688', 'andersonfreitez9@gmail.com', 'eejejej', 0),
+('J30485684', 'ANDERSON9', '04169484645', 'andersonfreitez61@gmail.co', 'jxjnjnj', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `repartidores`
+--
+
+CREATE TABLE `repartidores` (
+  `cedula_repartidor` int(11) NOT NULL,
+  `nombre_repartidor` varchar(50) NOT NULL,
+  `apellido_repartidor` varchar(50) NOT NULL,
+  `telefono_repartidor` varchar(11) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1595,6 +1796,13 @@ CREATE TABLE `resultados_bitacora` (
   `texto_resultado_bitacora` varchar(30) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `resultados_bitacora`
+--
+
+INSERT INTO `resultados_bitacora` (`id_resultado_bitacora`, `texto_resultado_bitacora`, `status`) VALUES
+(1, 'éxito', 1);
 
 -- --------------------------------------------------------
 
@@ -1614,7 +1822,34 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (1, 'ADMINISTRADOR', 1),
-(2, 'OFICINISTA', 1);
+(2, 'OFICINISTA', 1),
+(3, 'CLIENTE', 1),
+(15, 'SUUMM', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `rutas`
+--
+
+CREATE TABLE `rutas` (
+  `id_ruta` int(11) NOT NULL,
+  `nombre_ruta` varchar(50) NOT NULL,
+  `precio_ruta` float NOT NULL,
+  `minimo_km_ruta` float NOT NULL,
+  `maximo_km_ruta` float NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `rutas`
+--
+
+INSERT INTO `rutas` (`id_ruta`, `nombre_ruta`, `precio_ruta`, `minimo_km_ruta`, `maximo_km_ruta`, `status`) VALUES
+(1, 'CENTRO', 0, 0, 0, 0),
+(2, 'CENTRQ', 0, 0, 0, 0),
+(3, 'CENTRIMO', 1, 17, 2, 0),
+(4, 'CENTRO', 1, 1, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -1627,6 +1862,8 @@ CREATE TABLE `servicios` (
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_servicio` varchar(100) NOT NULL,
   `precio_servicio` float NOT NULL,
+  `mostrar_ecommerce` tinyint(1) NOT NULL,
+  `foto_servicio` varchar(100) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1634,10 +1871,10 @@ CREATE TABLE `servicios` (
 -- Volcado de datos para la tabla `servicios`
 --
 
-INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `precio_servicio`, `status`) VALUES
-(1, 2, 'FUMIGACION', 100, 1),
-(2, 1, 'FUMIGACIONT', 122, 1),
-(3, 2, 'FUMIGACION 2', 12, 1);
+INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `precio_servicio`, `mostrar_ecommerce`, `foto_servicio`, `status`) VALUES
+(1, 2, 'FUMIGACION', 100, 0, '', 1),
+(2, 1, 'FUMIGACIONT', 122, 0, '', 1),
+(3, 2, 'FUMIGACION 2', 12, 0, '', 1);
 
 -- --------------------------------------------------------
 
@@ -1667,6 +1904,13 @@ CREATE TABLE `tipos_notificaciones` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `tipos_notificaciones`
+--
+
+INSERT INTO `tipos_notificaciones` (`id_tipo_notificacion`, `nombre_tipo_notificacion`, `status`) VALUES
+(1, 'info', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -1687,7 +1931,13 @@ CREATE TABLE `unidades_medidas` (
 
 INSERT INTO `unidades_medidas` (`id_unidad_medida`, `nombre_unidad_medida`, `simbolo_unidad_medida`, `equivalencia_ub`, `status`) VALUES
 (1, 'KILO(S)', 'KG', 1000, 1),
-(2, 'LITRO(S)', 'L', 1000, 1);
+(2, 'LITRO(S)', 'L', 1000, 1),
+(3, 'MILLA', 'ML', 1000000, 1),
+(4, 'MILL', 'ML', 1000000, 0),
+(5, 'MILLA', 'M', 1000000, 0),
+(6, 'MILLM', 'MIL', 1000000, 0),
+(7, 'MILLA', 'ML', 2, 0),
+(8, 'MILLAS', 'MLA', 1000000, 1);
 
 -- --------------------------------------------------------
 
@@ -1712,9 +1962,12 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `status`) VALUES
-(1234567, 1, 'ANDERS', 'DAVID', 'ander1234', '$2y$10$tnkCgC.SA4fIWZ1jyJ1Nc.at2Ke5PF0PpZbGwmnBxjFZAeAltJjMW', '12345678901', 'ander2@gmail.com', 1),
+(1234567, 1, 'ANDERS', 'DAVID', 'ander1234', '$2y$10$tnkCgC.SA4fIWZ1jyJ1Nc.at2Ke5PF0PpZbGwmnBxjFZAeAltJjMW', '12345678901', 'ander2@gmail.com', 0),
+(12121212, 3, 'ANDER', 'FREITEZ', 'Ander1234', '$2y$10$wlJJpoPxUW08gNRFImD3tuyZFY8tdalmvILxE1N5AdbFKalU9FRsu', '04169000000', 'ander@gmail.com', 0),
+(30485682, 2, 'ANDERSON', 'FREITEZ', 'Ander12345', '$2y$10$AEx18yoxgMJwFCK1CNJHXeEZ9rYjjQtdsiUHQskN7Rmy8AU/Uh8yS', '04169484648', 'andersonfreitez62@gmail.com', 0),
+(30485683, 3, 'ANDERSON', 'FREITEZ', 'Ander1234', '$2y$10$VnBXa/h1NQ3Ohj7Upz6M5uywadRezaoEu0t7zeUpHtXc3m1jsJls.', '04169484649', 'andersonfreitez16@gmail.com', 1),
 (30485684, 1, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1),
-(30485685, 1, 'ANDERSON', 'APELLIDO', 'Ander4321', '$2y$10$dZ.w3dX5fWLZgwRx1KOaz.kop/X/Qjb.oiHikcChNvFVbGypxkMT6', '04169484649', 'andersonfreitez16@gmail.com', 1);
+(30485685, 1, 'ANDERSON', 'APELLIDO', 'Ander4321', '$2y$10$dZ.w3dX5fWLZgwRx1KOaz.kop/X/Qjb.oiHikcChNvFVbGypxkMT6', '04169484649', 'andersonfreitez16@gmail.com', 0);
 
 --
 -- Índices para tablas volcadas
@@ -1745,6 +1998,12 @@ ALTER TABLE `acciones_resagadas_usuarios`
   ADD KEY `cedula_usuario_acciones_resagadas_fk` (`cedula_usuario`);
 
 --
+-- Indices de la tabla `bancos`
+--
+ALTER TABLE `bancos`
+  ADD PRIMARY KEY (`id_banco`);
+
+--
 -- Indices de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
@@ -1768,6 +2027,12 @@ ALTER TABLE `cambios_monedas`
   ADD KEY `id_moneda_cambio_fk` (`id_moneda`);
 
 --
+-- Indices de la tabla `categorias_productos`
+--
+ALTER TABLE `categorias_productos`
+  ADD PRIMARY KEY (`id_categoria_producto`);
+
+--
 -- Indices de la tabla `clientes`
 --
 ALTER TABLE `clientes`
@@ -1781,6 +2046,15 @@ ALTER TABLE `compras`
   ADD KEY `rif_proveedor_compras_fk` (`rif_proveedor`);
 
 --
+-- Indices de la tabla `deliveries`
+--
+ALTER TABLE `deliveries`
+  ADD PRIMARY KEY (`id_delivery`),
+  ADD KEY `id_factura_delivery_fk` (`id_factura`),
+  ADD KEY `cedula_repartidor_deliveries_fk` (`cedula_repartidor`),
+  ADD KEY `id_direccion_deliveries_fk` (`id_direccion`);
+
+--
 -- Indices de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
@@ -1788,6 +2062,29 @@ ALTER TABLE `detalles_pagos`
   ADD KEY `id_pago_detalle_pago_fk` (`id_pago`),
   ADD KEY `id_moneda_detalle_pago_fk` (`id_moneda`),
   ADD KEY `id_metodo_pago_detalle_pago_fk` (`id_metodo_pago`);
+
+--
+-- Indices de la tabla `direcciones`
+--
+ALTER TABLE `direcciones`
+  ADD PRIMARY KEY (`id_direccion`),
+  ADD KEY `id_ruta_direcciones_fk` (`id_ruta`),
+  ADD KEY `id_latitud_direccion_direccion_fk` (`id_latitud_direccion`),
+  ADD KEY `id_longitud_direccion_fk` (`id_longitud_direccion`);
+
+--
+-- Indices de la tabla `empresas_envios`
+--
+ALTER TABLE `empresas_envios`
+  ADD PRIMARY KEY (`id_empresa_envios`);
+
+--
+-- Indices de la tabla `envios_terceros`
+--
+ALTER TABLE `envios_terceros`
+  ADD PRIMARY KEY (`id_envio_tercero`),
+  ADD KEY `id_empresa_envios_envios_terceros_fk` (`id_empresa_envios`),
+  ADD KEY `id_factura_envios_terceros_fk` (`id_factura`);
 
 --
 -- Indices de la tabla `facturas`
@@ -1802,6 +2099,18 @@ ALTER TABLE `facturas`
 --
 ALTER TABLE `iconos_notificaciones`
   ADD PRIMARY KEY (`id_icono_notificacion`);
+
+--
+-- Indices de la tabla `latitudes_direcciones`
+--
+ALTER TABLE `latitudes_direcciones`
+  ADD PRIMARY KEY (`id_latitud_direccion`);
+
+--
+-- Indices de la tabla `longitudes_direcciones`
+--
+ALTER TABLE `longitudes_direcciones`
+  ADD PRIMARY KEY (`id_longitud_direccion`);
 
 --
 -- Indices de la tabla `materias_primas`
@@ -1904,6 +2213,13 @@ ALTER TABLE `precios_productos`
   ADD KEY `id_producto_precios_productos_fk` (`id_producto`);
 
 --
+-- Indices de la tabla `precios_rutas`
+--
+ALTER TABLE `precios_rutas`
+  ADD PRIMARY KEY (`id_precio_ruta`),
+  ADD KEY `id_ruta_precios_ruta_fk` (`id_ruta`);
+
+--
 -- Indices de la tabla `precios_servicios`
 --
 ALTER TABLE `precios_servicios`
@@ -1928,7 +2244,8 @@ ALTER TABLE `producciones`
 --
 ALTER TABLE `productos`
   ADD PRIMARY KEY (`id_producto`),
-  ADD KEY `id_unidad_medida_producto_fk` (`id_unidad_medida`);
+  ADD KEY `id_unidad_medida_producto_fk` (`id_unidad_medida`),
+  ADD KEY `id_categoria_producto_productos_fk` (`id_categoria_producto`);
 
 --
 -- Indices de la tabla `productos_compras`
@@ -1977,6 +2294,12 @@ ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`rif_proveedor`);
 
 --
+-- Indices de la tabla `repartidores`
+--
+ALTER TABLE `repartidores`
+  ADD PRIMARY KEY (`cedula_repartidor`);
+
+--
 -- Indices de la tabla `resultados_bitacora`
 --
 ALTER TABLE `resultados_bitacora`
@@ -1987,6 +2310,12 @@ ALTER TABLE `resultados_bitacora`
 --
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`id_rol`);
+
+--
+-- Indices de la tabla `rutas`
+--
+ALTER TABLE `rutas`
+  ADD PRIMARY KEY (`id_ruta`);
 
 --
 -- Indices de la tabla `servicios`
@@ -2030,7 +2359,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=519;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=586;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones`
@@ -2042,25 +2371,37 @@ ALTER TABLE `acciones`
 -- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
 --
 ALTER TABLE `acciones_resagadas_usuarios`
-  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=254;
+  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=262;
+
+--
+-- AUTO_INCREMENT de la tabla `bancos`
+--
+ALTER TABLE `bancos`
+  MODIFY `id_banco` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
 --
 ALTER TABLE `cambios_iva`
-  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
 --
 ALTER TABLE `cambios_monedas`
-  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `categorias_productos`
+--
+ALTER TABLE `categorias_productos`
+  MODIFY `id_categoria_producto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `compras`
@@ -2069,10 +2410,34 @@ ALTER TABLE `compras`
   MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT de la tabla `deliveries`
+--
+ALTER TABLE `deliveries`
+  MODIFY `id_delivery` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
   MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `direcciones`
+--
+ALTER TABLE `direcciones`
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `empresas_envios`
+--
+ALTER TABLE `empresas_envios`
+  MODIFY `id_empresa_envios` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `envios_terceros`
+--
+ALTER TABLE `envios_terceros`
+  MODIFY `id_envio_tercero` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `facturas`
@@ -2084,7 +2449,19 @@ ALTER TABLE `facturas`
 -- AUTO_INCREMENT de la tabla `iconos_notificaciones`
 --
 ALTER TABLE `iconos_notificaciones`
-  MODIFY `id_icono_notificacion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_icono_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `latitudes_direcciones`
+--
+ALTER TABLE `latitudes_direcciones`
+  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `longitudes_direcciones`
+--
+ALTER TABLE `longitudes_direcciones`
+  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas`
@@ -2120,31 +2497,31 @@ ALTER TABLE `materias_primas_productos`
 -- AUTO_INCREMENT de la tabla `metodos_pagos`
 --
 ALTER TABLE `metodos_pagos`
-  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=247;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=254;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
 --
 ALTER TABLE `monedas`
-  MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones_usuarios`
 --
 ALTER TABLE `notificaciones_usuarios`
-  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
+  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=185;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
@@ -2156,7 +2533,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=592;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=595;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_materias_primas`
@@ -2171,6 +2548,12 @@ ALTER TABLE `precios_productos`
   MODIFY `id_precio_producto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `precios_rutas`
+--
+ALTER TABLE `precios_rutas`
+  MODIFY `id_precio_ruta` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `precios_servicios`
 --
 ALTER TABLE `precios_servicios`
@@ -2180,13 +2563,13 @@ ALTER TABLE `precios_servicios`
 -- AUTO_INCREMENT de la tabla `presentaciones`
 --
 ALTER TABLE `presentaciones`
-  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `producciones`
 --
 ALTER TABLE `producciones`
-  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -2216,7 +2599,7 @@ ALTER TABLE `productos_presentaciones`
 -- AUTO_INCREMENT de la tabla `productos_producciones`
 --
 ALTER TABLE `productos_producciones`
-  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_servicios_facturas`
@@ -2228,13 +2611,19 @@ ALTER TABLE `productos_servicios_facturas`
 -- AUTO_INCREMENT de la tabla `resultados_bitacora`
 --
 ALTER TABLE `resultados_bitacora`
-  MODIFY `id_resultado_bitacora` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_resultado_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `rutas`
+--
+ALTER TABLE `rutas`
+  MODIFY `id_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios`
@@ -2252,13 +2641,13 @@ ALTER TABLE `servicios_facturas`
 -- AUTO_INCREMENT de la tabla `tipos_notificaciones`
 --
 ALTER TABLE `tipos_notificaciones`
-  MODIFY `id_tipo_notificacion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_tipo_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `unidades_medidas`
 --
 ALTER TABLE `unidades_medidas`
-  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_unidad_medida` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas
@@ -2302,12 +2691,35 @@ ALTER TABLE `compras`
   ADD CONSTRAINT `rif_proveedor_compras_fk` FOREIGN KEY (`rif_proveedor`) REFERENCES `proveedores` (`rif_proveedor`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `deliveries`
+--
+ALTER TABLE `deliveries`
+  ADD CONSTRAINT `cedula_repartidor_deliveries_fk` FOREIGN KEY (`cedula_repartidor`) REFERENCES `repartidores` (`cedula_repartidor`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_direccion_deliveries_fk` FOREIGN KEY (`id_direccion`) REFERENCES `direcciones` (`id_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_factura_delivery_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
   ADD CONSTRAINT `id_metodo_pago_detalle_pago_fk` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodos_pagos` (`id_metodo_pago`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_moneda_detalle_pago_fk` FOREIGN KEY (`id_moneda`) REFERENCES `monedas` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_pago_detalle_pago_fk` FOREIGN KEY (`id_pago`) REFERENCES `pagos` (`id_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `direcciones`
+--
+ALTER TABLE `direcciones`
+  ADD CONSTRAINT `id_latitud_direccion_direccion_fk` FOREIGN KEY (`id_latitud_direccion`) REFERENCES `latitudes_direcciones` (`id_latitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_longitud_direccion_fk` FOREIGN KEY (`id_longitud_direccion`) REFERENCES `longitudes_direcciones` (`id_longitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_ruta_direcciones_fk` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id_ruta`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `envios_terceros`
+--
+ALTER TABLE `envios_terceros`
+  ADD CONSTRAINT `id_empresa_envios_envios_terceros_fk` FOREIGN KEY (`id_empresa_envios`) REFERENCES `empresas_envios` (`id_empresa_envios`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_factura_envios_terceros_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `facturas`
@@ -2383,6 +2795,12 @@ ALTER TABLE `precios_productos`
   ADD CONSTRAINT `id_producto_precios_productos_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `precios_rutas`
+--
+ALTER TABLE `precios_rutas`
+  ADD CONSTRAINT `id_ruta_precios_ruta_fk` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id_ruta`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `precios_servicios`
 --
 ALTER TABLE `precios_servicios`
@@ -2398,6 +2816,7 @@ ALTER TABLE `presentaciones`
 -- Filtros para la tabla `productos`
 --
 ALTER TABLE `productos`
+  ADD CONSTRAINT `id_categoria_producto_productos_fk` FOREIGN KEY (`id_categoria_producto`) REFERENCES `categorias_productos` (`id_categoria_producto`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_unidad_medida_producto_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

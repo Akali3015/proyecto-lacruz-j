@@ -11,11 +11,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
 
   $id = $datos["id_producto"] ?? $_POST['id_producto'] ?? "";
   $idUnidadMedida = $datos['id_unidad_medida'] ?? "";
+  $idCategoria = $datos['id_categoria'] ?? "";
   $nombre = $datos['nombre_producto'] ?? "";
-  $precioDetal = $datos['precio_producto_detal'] ?? "";
-  $precioMayor = $datos['precio_producto_mayor'] ?? "";
+  $precioDivisas = $datos['precio_producto_divisas'] ?? "";
+  $precioBCV = $datos['precio_producto_bcv'] ?? "";
   $stock = $datos['stock_producto'] ?? "0";
-  $fabricado = $datos['producto_es_fabricado'] ?? "0";
   $presentaciones = $datos['presentaciones'] ?? [];
   $materiasPrimas = $datos['materias_primas'] ?? [];
 

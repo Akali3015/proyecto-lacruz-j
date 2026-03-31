@@ -44,8 +44,8 @@
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Costo Unitario (Bs)</label>
-                            <input type="number" step="0.01" class="form-control" name="costo_materia_prima" pattern="<?php echo regexPrecio?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+                            <label class="form-label">precio Unitario (Bs)</label>
+                            <input type="number" step="0.01" class="form-control" name="precio_materia_prima" pattern="<?php echo regexPrecio?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
                         </div>
                         
                         <div class="col-12 mb-3">
@@ -112,8 +112,8 @@
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Costo Unitario (Bs)</label>
-                            <input type="number" step="0.01" class="form-control formularioActualizar" name="costo_materia_prima" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+                            <label class="form-label">precio Unitario (Bs)</label>
+                            <input type="number" step="0.01" class="form-control formularioActualizar" name="precio_materia_prima" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">Presentaciones Disponibles</label>

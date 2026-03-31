@@ -31,7 +31,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" name="accion" value="registrar">
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Cédula</label>
-              <input type="text" class="form-control noRepetir" name="cedula_usuario" pattern="<?php echo regexCedula ?>" minlength="<?php echo minRegexCedula ?>" maxlength="<?php echo maxRegexCedula ?>" required placeholder="Ej: 12345678">
+              <input type="text" class="form-control noRepetir" name="cedula_usuario" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required placeholder="Ej: 12345678">
             </div>
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Nombre</label>

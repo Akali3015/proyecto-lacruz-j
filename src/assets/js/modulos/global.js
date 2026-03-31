@@ -39,7 +39,7 @@ export const españolDataTable = {
 //#endregion [VARIABLES O CONSTANTES GLOBALES] FIN
 
 //#region [ VALIDACIONES ] COMIENZO
-export function funcionAlertaError(input,texto) {
+export function funcionAlertaError(input, texto) {
   if ($(input).closest('form').hasClass('login')) {
     return `
         <div class="mensajeError d-flex alert alert-danger alert-dismissible fade show mt-3">
@@ -52,7 +52,7 @@ export function funcionAlertaError(input,texto) {
   }
 };
 export function funcionMandarError(input, mensaje) {
-  input =$(input);
+  input = $(input);
   let mensajeHTML = funcionAlertaError(input, mensaje);
   let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
   input.removeClass('validado').addClass('error');
@@ -66,13 +66,13 @@ export function funcionMandarError(input, mensaje) {
   }
 }
 export function funcionEliminaError(input) {
-  input =$(input);
+  input = $(input);
   input.addClass('validado').removeClass('error');
   let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
   contenedorGI.find('.mensajeError').remove();
 }
-export function reiniciarCampo(input){
-  input =$(input);
+export function reiniciarCampo(input) {
+  input = $(input);
   input.removeClass('error validado');
   let contenedorGI = input.closest('.form-group').length > 0 ? input.closest('.form-group') : input.closest('[class^="col-"]');
   contenedorGI.find('.mensajeError').remove();
@@ -90,7 +90,7 @@ export async function validarEnTiempoReal(input, modulo) {
 
   //Validar si es requerido
   if (requerido && valorIntroducido == '') {
-    funcionMandarError(input,'Este campo es obligatorio!!!');
+    funcionMandarError(input, 'Este campo es obligatorio!!!');
     return;
   } else {
     funcionEliminaError(input);
@@ -103,7 +103,7 @@ export async function validarEnTiempoReal(input, modulo) {
 
   //Para validar el minimo del campo
   if (minimo && valorIntroducido.length < minimo) {
-    funcionMandarError(input,`El valor del campo debe ser mayor o igual a ${minimo} caracteres`)
+    funcionMandarError(input, `El valor del campo debe ser mayor o igual a ${minimo} caracteres`)
     return;
   } else {
     funcionEliminaError(input);
@@ -111,7 +111,7 @@ export async function validarEnTiempoReal(input, modulo) {
 
   //Para validar el maximo del campo
   if (maximo && valorIntroducido.length > maximo) {
-    funcionMandarError(input,`El valor del campo debe ser menor o igual a ${maximo} caracteres`)
+    funcionMandarError(input, `El valor del campo debe ser menor o igual a ${maximo} caracteres`)
     return;
   } else {
     funcionEliminaError(input)
@@ -120,7 +120,7 @@ export async function validarEnTiempoReal(input, modulo) {
   //Para validar la contrasena de confirmación
   if (input.attr('id') == 'contrasena2_usuario') {
     if ($('#contrasena1_usuario').val() != $('#contrasena2_usuario').val()) {
-      funcionMandarError(input,'El valor de ambas contraseña debe coincidir');
+      funcionMandarError(input, 'El valor de ambas contraseña debe coincidir');
       return;
     } else {
       funcionEliminaError(input);
@@ -129,7 +129,7 @@ export async function validarEnTiempoReal(input, modulo) {
 
   //Para validar el formato del campo
   if (!esValido) {
-    funcionMandarError(input,'El valor del campo no es valido');
+    funcionMandarError(input, 'El valor del campo no es valido');
     return;
   } else {
     funcionEliminaError(input);
@@ -173,7 +173,7 @@ export async function validarEnTiempoReal(input, modulo) {
       }
     }
     if (mandaAlerta) {
-      funcionMandarError(input,'El dato ingresado ya se encuentra registrado')
+      funcionMandarError(input, 'El dato ingresado ya se encuentra registrado')
     } else {
       funcionEliminaError(input);
     }
@@ -322,7 +322,6 @@ export async function listarDataTable(instrucciones) {
             return infoTratoEspecial[key]({
               valor,
               fila,
-              type
             });
           }
         });
@@ -617,7 +616,9 @@ export async function enviarFormulario(instrucciones) {
         }
         reiniciarDataTables();
       }
+
       respuestaJSON.formulario = formulario
+      console.log(respuestaJSON.formulario);
       await alertasAjax(respuestaJSON);
       return respuestaJSON;
     } else if (contentType.includes('application/pdf')) {
@@ -710,7 +711,7 @@ export async function alertasAjax(alerta) {
       });
       if (formulario) {
         $(formulario)[0].reset();
-        $(formulario).find('input,select,textarea').removeClass('error').each((i,elemento)=>{
+        $(formulario).find('input,select,textarea').removeClass('error').each((i, elemento) => {
           reiniciarCampo(elemento);
         });
       }
@@ -724,7 +725,7 @@ export async function alertasAjax(alerta) {
       });
       if (formulario) {
         $(formulario)[0].reset();
-        $(formulario).find('input,select,textarea').removeClass('error').each((i,elemento)=>{
+        $(formulario).find('input,select,textarea').removeClass('error').each((i, elemento) => {
           reiniciarCampo(elemento);
         });
         const botonCerrar = $(formulario).closest('.modal').find('.btn-close');
@@ -1420,20 +1421,20 @@ export async function listarNotificaciones() {
       }
 
       notificacionHTML += `
-            <li ${bgNoLeida}>
-                <a href="#" class="d-flex align-items-center">
-                    <div class="img me-3 ${bgNotificacion}">
-                        <img src="http://localhost/proyecto-lacruz-j/src/assets/images/${tipo_notificacion}Icono.png" alt="Image" class="img-fluid">
-                    </div>
-                    <div class="text w-100">
-                        <span class="float-end text-muted">${hora}</span>
-                    <strong>${titulo_notificacion}</strong>
-                    <p class="p-0 m-0">${texto_notificacion}</p>
-                    <p class="p-0 m-0">${dia}</p>
-                    </div>
-                </a>
-            </li>
-        `;
+        <li ${bgNoLeida}>
+            <a href="#" class="d-flex align-items-center">
+                <div class="img me-3 ${bgNotificacion}">
+                    <img src="http://localhost/proyecto-lacruz-j/src/assets/images/${tipo_notificacion}Icono.png" alt="Image" class="img-fluid">
+                </div>
+                <div class="text w-100">
+                    <span class="float-end text-muted">${hora}</span>
+                <strong>${titulo_notificacion}</strong>
+                <p class="p-0 m-0">${texto_notificacion}</p>
+                <p class="p-0 m-0">${dia}</p>
+                </div>
+            </a>
+        </li>
+      `;
     });
     $('.contenedorNotificaciones').empty().append(notificacionHTML);
     if (notificacionesNoLeidas == 0) {
