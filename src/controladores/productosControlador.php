@@ -5,70 +5,35 @@ use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
 
-  $datos = file_get_contents('php://input');
-  $datos = json_decode($datos, true);
-  $accion = $datos["accion"] ?? $_POST['accion'] ?? "";
-
-  $id = $datos["id_producto"] ?? $_POST['id_producto'] ?? "";
-  $idUnidadMedida = $datos['id_unidad_medida'] ?? "";
-  $idCategoria = $datos['id_categoria'] ?? "";
-  $nombre = $datos['nombre_producto'] ?? "";
-  $precioDivisas = $datos['precio_producto_divisas'] ?? "";
-  $precioBCV = $datos['precio_producto_bcv'] ?? "";
-  $stock = $datos['stock_producto'] ?? "0";
-  $presentaciones = $datos['presentaciones'] ?? [];
-  $materiasPrimas = $datos['materias_primas'] ?? [];
-
+  $accion = $_POST['accion'] ?? "";
   $objeto = new productosModelo();
   ob_clean();
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarProductos();
-      echo json_encode($resultado);
-      exit();
-
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarProductos($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarProductos($_POST);
+      break;
     case "registrar":
-      $resultado = $objeto->registrarProductos(
-        $idUnidadMedida,
-        $nombre,
-        $precioDetal,
-        $precioMayor,
-        $stock,
-        $fabricado,
-        $presentaciones,
-        $materiasPrimas
-      );
-      echo json_encode($resultado);
-      exit();
-
+      $resultado = $objeto->registrarProductos($_POST);
+      break;
     case "actualizar":
-      $resultado = $objeto->actualizarProductos(
-        $id,
-        $idUnidadMedida,
-        $nombre,
-        $precioDetal,
-        $precioMayor,
-        $stock,
-        $fabricado,
-        $presentaciones,
-        $materiasPrimas
-      );
-      echo json_encode($resultado);
-      exit();
-
+      $resultado = $objeto->actualizarProductos($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarProductos($id);
-      echo json_encode($resultado);
-      exit();
-
+      $resultado = $objeto->eliminarProductos($_POST);
+      break;
+    case "actualizarFoto":
+      $resultado = $objeto->actualizarFotosProductos($_POST);
+      break;
+    case "eliminarFoto":
+      $resultado = $objeto->eliminarFotosProductos($_POST);
+      break;
     default:
       echo json_encode(["error" => "Acción no reconocida"]);
       exit();
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

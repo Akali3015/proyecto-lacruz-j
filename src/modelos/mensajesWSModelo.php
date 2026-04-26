@@ -28,18 +28,20 @@ class mensajesWSModelo extends conexion
       "maximo" => maxRegexCedulaRif,
       "expresion_re" => regexCedulaRif,
       "tabla" => "usuarios",
+      "BD" => "seguridad",
       "debeExistir" => true,
     ]];
     if ($this->idNotificacion != "") {
       $campos[] = [
-        "campo_nombre" => "id_notificacion_usuario",
+        "campo_nombre" => "id_notificacion",
         "campo_valor" => &$this->idNotificacion,
         "formulario_nombre" => "id de la notificación",
         "requerido" => true,
         "minimo" => minRegexId,
         "maximo" => maxRegexId,
         "expresion_re" => regexId,
-        "tabla" => "notificaciones_usuarios",
+        "tabla" => "notificaciones",
+        "BD" => "seguridad",
         "debeExistir" => true,
       ];
     }
@@ -130,6 +132,7 @@ class mensajesWSModelo extends conexion
         "maximo" => maxRegexCedulaRif,
         "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
+        "BD" => "seguridad",
         "debeExistir" => true
       ];
     }
@@ -143,6 +146,7 @@ class mensajesWSModelo extends conexion
         "maximo" => maxRegexNombreObj,
         "expresion_re" => regexNombreObj,
         "tabla" => "roles",
+        "BD" => "seguridad",
         "debeExistir" => true
       ];
     }
@@ -151,9 +155,8 @@ class mensajesWSModelo extends conexion
     if ($respuesta !== false) {
       return $respuesta;
       exit();
-    } else {
-      return $this->registrarNotificaciones();
     }
+    return $this->registrarNotificaciones();
   }
   public function Notificaciones_Act($cambio)
   {
@@ -182,14 +185,15 @@ class mensajesWSModelo extends conexion
       $this->idNotificacion = $id;
       $campos = [
         [
-          "campo_nombre" => "id_notificacion_usuario",
+          "campo_nombre" => "id_notificacion",
           "campo_valor" => &$this->idNotificacion,
           "formulario_nombre" => "id de la notificación",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
-          "tabla" => "notificaciones_usuarios",
+          "tabla" => "notificaciones",
+          "BD" => "seguridad",
           "debeExistir" => true,
         ]
       ];
@@ -217,6 +221,7 @@ class mensajesWSModelo extends conexion
         "maximo" => maxRegexCedulaRif,
         "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
+        "BD" => "seguridad",
         "debeExistir" => true
       ],
     ];
@@ -274,6 +279,7 @@ class mensajesWSModelo extends conexion
         "maximo" => maxRegexCedulaRif,
         "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
+        "BD" => "seguridad",
         "debeExistir" => true
       ],
       [
@@ -330,14 +336,12 @@ class mensajesWSModelo extends conexion
       $resultado = $this->seleccionarDatos2([
         'campos' => '
           no.titulo_notificacion, no.texto_notificacion, 
-          nu.fecha_creacion_notificacion, no.tipo_notificacion
+          no.fecha_creacion_notificacion, no.tipo_notificacion
         ',
         'tabla' => 'notificaciones as no',
-        'datosJoins' => [
-          'notificaciones_usuarios as nu' => 'id_notificacion = id_notificacion',
-        ],
+        "BD" => "seguridad",
         'WHERE' => [
-          'no.id_notificacion_usuario' =>  $this->idNotificacion,
+          'no.id_notificacion' =>  $this->idNotificacion,
           'nu.cedula_usuario' =>  $this->cedulaUsuario,
           'nu.status' => ' != ' .  0,
         ],
@@ -346,24 +350,28 @@ class mensajesWSModelo extends conexion
       $notificacion = $resultado->fetch(PDO::FETCH_ASSOC);
       return $notificacion;
     } else {
+
       $resultado = $this->seleccionarDatos2([
         'campos' => '
-          id_notificacion_usuario, ino.patch_icono_notificacion AS icono_notificacion,
-          tn.nombre_tipo_notificacion AS tipo_notificacion, no.titulo_notificacion,
-          no.texto_notificacion, nu.fecha_creacion_notificacion, 
-          nu.status
+          no.id_notificacion,
+          ino.path_icono_notificacion AS icono_notificacion,
+          tn.nombre_tipo_notificacion AS tipo_notificacion,
+          no.titulo_notificacion,
+          no.texto_notificacion,
+          no.fecha_creacion_notificacion, 
+          no.status
         ',
         'tabla' => 'notificaciones as no',
+        "BD" => "seguridad",
         'datosJoins' => [
-          'notificaciones_usuarios as nu' => 'no.id_notificacion = nu.id_notificacion',
           'iconos_notificaciones as ino' => 'no.id_icono_notificacion = ino.id_icono_notificacion',
           'tipos_notificaciones as tn' => 'no.id_tipo_notificacion = tn.id_tipo_notificacion',
         ],
         'WHERE' => [
-          'nu.cedula_usuario' => $this->cedulaUsuario,
-          'nu.status' => '!= ' . 0
+          'no.cedula_usuario' => $this->cedulaUsuario,
+          'no.status' => '!= ' . 0
         ],
-        'ORDER' => 'nu.fecha_creacion_notificacion DESC'
+        'ORDER' => 'no.fecha_creacion_notificacion DESC'
       ]);
 
       if ($resultado->rowCount() <= 0) {
@@ -398,30 +406,18 @@ class mensajesWSModelo extends conexion
     $idIcono = $this->VEYSNEC([
       'campos' => 'id_icono_notificacion',
       'tabla' => 'iconos_notificaciones',
+      "BD" => "seguridad",
       'WHERE' => [
-        'patch_icono_notificacion' => $icono,
+        'path_icono_notificacion' => $icono,
       ],
     ]);
-
     // Id tipo notificacion
     $idTipoNotificacion = $this->VEYSNEC([
       'campos' => 'id_tipo_notificacion',
       'tabla' => 'tipos_notificaciones',
+      "BD" => "seguridad",
       'WHERE' => [
-        'nombre_tipo_notificacion' => $icono,
-      ],
-    ]);
-
-    //LA NOTIFICACIÓN
-    $idNotificacion = $this->VEYSNEC([
-      'campos' => 'id_notificacion',
-      'tabla' => 'notificaciones',
-      'WHERE' => [
-        'id_icono_notificacion' => $idIcono,
-        'id_tipo_notificacion' => $idTipoNotificacion,
-        'tiempo_notificacion' => $tiempo,
-        'titulo_notificacion' => $titulo,
-        'texto_notificacion' => $texto,
+        'nombre_tipo_notificacion' => $tipo,
       ],
     ]);
 
@@ -432,12 +428,14 @@ class mensajesWSModelo extends conexion
         $instruccionesBD = [
           'campos' => 'cedula_usuario',
           'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
         ];
         break;
       case 'todos':
         $instruccionesBD = [
           'campos' => 'cedula_usuario',
           'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
           'WHERE' => [
             'cedula_usuario' => '!= ' . $_SESSION['cedula']
           ],
@@ -447,6 +445,7 @@ class mensajesWSModelo extends conexion
         $instruccionesBD = [
           'campos' => 'us.cedula_usuario',
           'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
           'datosJoins' => [
             'roles as ro' => 'us.id_rol = ro.id_rol',
           ],
@@ -467,12 +466,17 @@ class mensajesWSModelo extends conexion
       $resultado = $this->seleccionarDatos2($instruccionesBD);
       $cedulasUsuarios = $resultado->fetchAll(PDO::FETCH_COLUMN);
     }
-    $asociarCedulaANotificacion = function ($cedula, $idNotificacion) {
+    $asociarCedulaANotificacion = function ($cedula, $infoNot) {
       $ultimoId = $this->guardarDatos2([
-        'tabla' => 'notificaciones_usuarios',
+        'tabla' => 'notificaciones',
+        "BD" => "seguridad",
         'datos' => [
-          "id_notificacion" => $idNotificacion,
           "cedula_usuario" => $cedula,
+          'id_icono_notificacion' => $infoNot['id_icono_notificacion'],
+          'id_tipo_notificacion' => $infoNot['id_tipo_notificacion'],
+          'tiempo_notificacion' => $infoNot['tiempo_notificacion'],
+          'titulo_notificacion' => $infoNot['titulo_notificacion'],
+          'texto_notificacion' => $infoNot['texto_notificacion'],
           "fecha_creacion_notificacion" => $this->FechaHora_Sel('fecha_hora_BD'),
         ]
       ]);
@@ -488,15 +492,23 @@ class mensajesWSModelo extends conexion
         return false;
       }
     };
+
+    $infoNoti = [
+      'id_icono_notificacion' => $idIcono,
+      'id_tipo_notificacion' => $idTipoNotificacion,
+      'tiempo_notificacion' => $tiempo,
+      'titulo_notificacion' => $titulo,
+      'texto_notificacion' => $texto,
+    ];
     if (is_array($cedulasUsuarios)) {
       foreach ($cedulasUsuarios as $cedula) {
-        $resultado = $asociarCedulaANotificacion($cedula, $idNotificacion);
+        $resultado = $asociarCedulaANotificacion($cedula, $infoNoti);
         if ($resultado != false) {
           return $resultado;
         }
       }
     } else {
-      $resultado = $asociarCedulaANotificacion($cedulasUsuarios, $idNotificacion);
+      $resultado = $asociarCedulaANotificacion($cedulasUsuarios, $infoNoti);
       if ($resultado != false) {
         return $resultado;
       }
@@ -512,11 +524,12 @@ class mensajesWSModelo extends conexion
   {
     if ($cambio == 'marcarTodasComoLeidas') {
       $resultado = $this->actualizarDatos2([
-        "tabla" => "notificaciones_usuarios",
+        "tabla" => "notificaciones",
+        "BD" => "seguridad",
         "datos" => [
           "status" => 2
         ],
-        "condiciones" => [
+        "WHERE" => [
           "cedula_usuario" => $_SESSION['cedula'],
           "status" => '!= ' . 0,
         ]
@@ -543,7 +556,8 @@ class mensajesWSModelo extends conexion
   private function eliminarNotificaciones()
   {
     $resultado = $this->eliminarDatos2([
-      'tabla' => "notificaciones_usuarios",
+      'tabla' => "notificaciones",
+      "BD" => "seguridad",
       'WHERE' => [
         "cedula_usuario" => $_SESSION['cedula']
       ]
@@ -570,12 +584,12 @@ class mensajesWSModelo extends conexion
   private function seleccionarAccionesResagadas()
   {
     $resultado = $this->seleccionarDatos2([
-      'tabla' => 'acciones_resagadas_usuarios as aru',
       'campos' => '
-                ac.nombre_accion, mo.nombre_modulo
-            ',
+        aru.accion_resagada, mo.nombre_modulo
+      ',
+      'tabla' => 'acciones_resagadas_usuarios as aru',
+      "BD" => "seguridad",
       'datosJoins' => [
-        'acciones as ac' => 'aru.id_accion = ac.id_accion',
         'modulos as mo' => 'aru.id_modulo = mo.id_modulo',
       ],
       'WHERE' => [
@@ -597,24 +611,15 @@ class mensajesWSModelo extends conexion
     ] = $this->instruccionesAccion;
     $modulo = $this->instruccionesAccion['modulo'] ?? 'cualquiera';
 
-    //LA ACCIÓN 
-    $idAccion = $this->VEYSNEC([
-      'campos' => 'id_accion',
-      'tabla' => 'acciones',
-      'WHERE' => [
-        'nombre_accion' => $accion
-      ],
-    ]);
     //EL MODULO 
     $idModulo = $this->VEYSNEC([
       'campos' => 'id_modulo',
       'tabla' => 'modulos',
+      "BD" => "seguridad",
       'WHERE' => [
         'nombre_modulo' => $modulo
       ],
     ]);
-
-
 
     // BÚSQUEDA DE LOS USUARIOS
     $cedulasUsuarios = false;
@@ -623,12 +628,14 @@ class mensajesWSModelo extends conexion
         $instruccionesBD = [
           'campos' => 'cedula_usuario',
           'tabla' => 'usuarios',
+          "BD" => "seguridad",
         ];
         break;
       case 'todos':
         $instruccionesBD = [
           'campos' => 'cedula_usuario',
           'tabla' => 'usuarios',
+          "BD" => "seguridad",
           'WHERE' => [
             'cedula_usuario' => $_SESSION['cedula'],
           ],
@@ -638,6 +645,7 @@ class mensajesWSModelo extends conexion
         $instruccionesBD = [
           'campos' => 'us.cedula_usuario',
           'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
           'datosJoins' => [
             'roles as ro' => 'us.id_rol = ro.id_rol',
           ],
@@ -657,19 +665,18 @@ class mensajesWSModelo extends conexion
     // PROCESO DE ASOCIAR LA NOTIFICACION A EL O LOS USUARIOS
     if ($cedulasUsuarios == false) {
       $resultado = $this->seleccionarDatos2($instruccionesBD);
-
       $cedulasUsuarios = $resultado->fetchAll(PDO::FETCH_COLUMN);
     }
 
-
-    $asociarAccion = function ($cedula, $idModulo, $idAccion) {
+    $asociarAccion = function ($cedula, $idModulo, $accion) {
       //Registramos la accion solo si ya no hay una vigente
       $idAccionResagada = $this->VEYSNEC([
-        'campos' => 'id_accion_resagada',
+        'campos' => 'id_accion_resagada_usuario',
         'tabla' => 'acciones_resagadas_usuarios',
+        "BD" => "seguridad",
         'WHERE' => [
           'id_modulo' => $idModulo,
-          'id_accion' => $idAccion,
+          'accion_resagada' => $accion,
           'cedula_usuario' => $cedula,
         ],
       ]);
@@ -687,13 +694,13 @@ class mensajesWSModelo extends conexion
     };
     if (is_array($cedulasUsuarios)) {
       foreach ($cedulasUsuarios as $cedula) {
-        $resultado = $asociarAccion($cedula, $idModulo, $idAccion);
+        $resultado = $asociarAccion($cedula, $idModulo, $accion);
         if ($resultado != false) {
           return $resultado;
         }
       }
     } else {
-      $resultado = $asociarAccion($cedulasUsuarios, $idModulo, $idAccion);
+      $resultado = $asociarAccion($cedulasUsuarios, $idModulo, $accion);
       if ($resultado != false) {
         return $resultado;
       }
@@ -708,18 +715,19 @@ class mensajesWSModelo extends conexion
   private function eliminarAcciones()
   {
     $resultado = $this->seleccionarDatos2([
-      'tabla' => 'modulos',
       'campos' => 'id_modulo',
+      'tabla' => 'modulos',
+      "BD" => "seguridad",
       'WHERE' => [
         'nombre_modulo' => $this->instruccionesAccion['modulo'] ?? 'cualquiera'
       ]
     ]);
-
     $idModulo = $resultado->fetch(PDO::FETCH_COLUMN);
 
     $resultado = $this->seleccionarDatos2([
-      'tabla' => 'acciones',
       'campos' => 'id_accion',
+      'tabla' => 'acciones',
+      "BD" => "seguridad",
       'WHERE' => [
         'nombre_accion' => $this->instruccionesAccion['accion']
       ]
@@ -728,6 +736,7 @@ class mensajesWSModelo extends conexion
     $idAccion = $resultado->fetch(PDO::FETCH_COLUMN);
     $resultado = $this->eliminarDatos2([
       'tabla' => 'acciones_resagadas_usuarios',
+      "BD" => "seguridad",
       'fisico' => true,
       'WHERE' => [
         'cedula_usuario' => $_SESSION['cedula'],
@@ -793,7 +802,6 @@ class mensajesWSModelo extends conexion
     } else {
       foreach ($instruccionesMsj as $instruccionInd) {
         $resultado = $procesarInstrucciones($instruccionInd);
-
         if ($resultado != false) {
           return $resultado;
         };
@@ -821,7 +829,6 @@ class mensajesWSModelo extends conexion
       "url" =>
       // "http://localhost:1234/api/enviar-mensajes-ws",
       "https://api-the-vina-node.onrender.com/api/enviar-mensajes-ws",
-
       "metodo" => "POST",
       "datosPe" => $estructuraEnvio,
       "enviarComoJSON" => true

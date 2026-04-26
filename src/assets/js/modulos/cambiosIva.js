@@ -1,6 +1,6 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
-  listarDataTable, enviarFormulario, validarEnTiempoReal
+  listarDataTable, enviarFormulario, validarEnTiempoReal,cambiarFormatos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 

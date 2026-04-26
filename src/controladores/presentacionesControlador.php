@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
       echo json_encode($resultado);
       exit();
     case "registrar":
-      $resultado = $objeto->registrarPresentaciones($idUnidadMedida, $nombre, $cantidadPmp);
+      $resultado = $objeto->registrarPresentaciones($id, $idUnidadMedida, $nombre, $cantidadPmp);
       echo json_encode($resultado);
       exit();
     case "actualizar":

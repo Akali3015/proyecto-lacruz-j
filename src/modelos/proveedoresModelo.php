@@ -367,7 +367,7 @@ class proveedoresModelo extends conexion
           "campo_valor" => $this->direccion_proveedor
         ]
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "rif_proveedor",
           "condicion_marcador" => ":rif_proveedor",

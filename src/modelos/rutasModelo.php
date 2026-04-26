@@ -14,33 +14,45 @@ class rutasModelo extends conexion
   private $precioRuta;
   private $minimoKmRuta;
   private $maximoKmRuta;
+  private $kmRecorrido;
 
-  public function seleccionarRutas($id = null)
+  public function seleccionarRutas($id = null, $tipoConsulta = null, $km = null)
   {
     $this->idRuta = $id;
-    if ($this->idRuta != null && $this->idRuta != "") {
-      //Arrays para las validaciones
-      $campos = [
-        [
-          "campo_nombre" => 'id_ruta',
-          "campo_valor" => $this->idRuta,
-          "formulario_nombre" => "id de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => 'rutas',
-          "debeExistir" => true
-        ]
-      ];
+    $this->kmRecorrido = $km;
 
+    $campos = [];
+    if ($this->idRuta != null && $this->idRuta != "") {
+      $campos[] = [
+        "campo_nombre" => 'id_ruta',
+        "campo_valor" => $this->idRuta,
+        "formulario_nombre" => "id de la ruta",
+        "requerido" => true,
+        "minimo" => minRegexId,
+        "maximo" => maxRegexId,
+        "expresion_re" => regexId,
+        "tabla" => 'rutas',
+        "debeExistir" => true
+      ];
+    }
+    if ($this->kmRecorrido != null && $this->kmRecorrido != "") {
+      $campos[] = [
+        "campo_valor" => $this->kmRecorrido,
+        "formulario_nombre" => "km de recorrido",
+        "requerido" => true,
+        "minimo" => minRegexCantidadItem,
+        "maximo" => maxRegexCantidadItem,
+        "expresion_re" => regexCantidadItem,
+      ];
+    }
+    if ($campos != []) {
       $respuesta = $this->limpiar_Verificar($campos);
       if ($respuesta !== false) {
         return $respuesta;
         exit();
       }
     }
-    return $this->seleccionarRutasP();
+    return $this->seleccionarRutasP($tipoConsulta);
   }
   public function registrarRutas($nombre, $precio, $minimoKm, $maximoKm)
   {
@@ -184,7 +196,7 @@ class rutasModelo extends conexion
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarRutasP()
+  private function seleccionarRutasP($tipoConsulta)
   {
     if ($this->idRuta == null || $this->idRuta == "") {
       $resultado = $this->seleccionarDatos2([
@@ -193,18 +205,25 @@ class rutasModelo extends conexion
       ]);
       $resultado = $resultado->fetchAll(PDO::FETCH_ASSOC);
     } else {
-      $resultado = $this->seleccionarDatos2([
+      $instruccionesBD = [
         'campos' => '*',
         'tabla' => 'rutas',
         'WHERE' => [
           "id_ruta" => $this->idRuta,
         ]
-      ]);
+      ];
+      if ($tipoConsulta == 'porKm') {
+        $instruccionesBD['WHERE'] = [
+          'minimo_km_ruta' => '<= ' . $this->kmRecorrido,
+          'maximo_km_ruta' => '>= ' . $this->kmRecorrido,
+        ];
+      };
+      $resultado = $this->seleccionarDatos2($instruccionesBD);
       if ($resultado->rowCount() <= 0) {
         $alerta = [
           "tipo" => "simple",
-          "titulo" => "ruta no encontrado",
-          "texto" => "El ruta que ha intentado buscar no se encuentra en la base de datos",
+          "titulo" => "ruta no encontrada",
+          "texto" => "La ruta que ha intentado buscar no se encuentra en la base de datos",
           "icono" => "error"
         ];
         return $alerta;
@@ -252,7 +271,7 @@ class rutasModelo extends conexion
         "minimo_km_ruta" => $this->minimoKmRuta,
         "maximo_km_ruta" => $this->maximoKmRuta,
       ],
-      "condiciones" => [
+      "WHERE" => [
         "id_ruta" => $this->idRuta,
       ]
     ]);

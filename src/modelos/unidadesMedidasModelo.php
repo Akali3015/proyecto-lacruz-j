@@ -299,7 +299,7 @@ class unidadesMedidasModelo extends conexion
           "campo_valor" => $this->equivalenciaUB,
         ],
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "id_unidad_medida",
           "condicion_marcador" => ":id",

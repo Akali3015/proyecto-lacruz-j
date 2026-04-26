@@ -237,7 +237,7 @@ class monedasModelo extends conexion
       'PEL' => 'cm',
       'datosJoins' => [
         [
-          "TablaDestino" => "monedas AS mo",
+          "tablaDestino" => "monedas AS mo",
           "conexionLo" => "cm.id_moneda = mo.id_moneda"
         ]
       ]
@@ -302,7 +302,7 @@ class monedasModelo extends conexion
           "comaPunto" => true,
         ],
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "id_moneda",
           "condicion_marcador" => ":id",

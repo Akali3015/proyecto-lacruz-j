@@ -1,7 +1,7 @@
 <div class="row">
   <input type="hidden" class="nombreVista" value="permisos">
   <!-- [LISTA DE PERMISOS] COMIENZO -->
-  <div class="main-content" id="mainContent">
+  <div class="main-content px-4" id="mainContent">
     <dvi class="container-fluid py-4">
       <div class="row mb-4">
         <div class="col-md-6">

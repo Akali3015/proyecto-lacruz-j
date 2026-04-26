@@ -174,7 +174,7 @@ class ventasModelo extends conexion
         "campo_marcador" => ":s",
         "campo_valor" => $this->status
       ]],
-      "condiciones" => [[
+      "WHERE" => [[
         "condicion_campo" => "id_venta",
         "condicion_marcador" => ":id",
         "condicion_valor" => $this->id_venta,

@@ -1,0 +1,87 @@
+.buscadorProductosServicios {
+  border-radius: 2rem !important;
+  padding-left: 3rem;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.iconoBuscadorCatalogo {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Pestañas (Pills) de Categoría */
+.botonCategoriaItems {
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+}
+
+.botonCategoriaItems:hover {
+  background-color: #f8f9fa;
+}
+
+.botonCategoriaItems.active {
+  background-color: #1952c1 !important;
+  border-color: #1952c1 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Contenedor principal de la tabla para que parezca una lista limpia */
+.listarItemsPedido {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+/* Filas de la tabla de productos */
+.listarItemsPedido .fila_producto {
+  transition: background-color 0.2s, transform 0.1s;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.listarItemsPedido .fila_producto:last-child {
+  border-bottom: none;
+}
+
+.listarItemsPedido .fila_producto:hover {
+  background-color: #f9fafb;
+}
+
+/* Badge personalizado para categorías dentro de la tabla */
+.listarItemsPedido .badge-category {
+  background-color: #4f98fd !important;
+  /* light yellow */
+  color: #0e2085 !important;
+  /* dark yellow text */
+  font-weight: 600;
+}
+
+/* Estilos de precio */
+.listarItemsPedido .precio_bs {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.listarItemsPedido .precio_usd {
+  color: #b48600;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.listarItemsPedido .imagen_producto {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  background-color: #f3f4f6;
+}

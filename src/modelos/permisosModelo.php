@@ -29,6 +29,7 @@ class permisosModelo extends conexion
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
           "tabla" => "roles",
+          'BD'=>'seguridad',
           "debeExistir" => true
         ]
       ];
@@ -58,6 +59,7 @@ class permisosModelo extends conexion
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
           "tabla" => "roles",
+          'BD'=>'seguridad',
           "debeExistir" => true
         ]
       ];
@@ -86,6 +88,7 @@ class permisosModelo extends conexion
         "maximo" => maxRegexId,
         "expresion_re" => regexId,
         "tabla" => "roles",
+        'BD'=>'seguridad',
         "debeExistir" => true
       ],
       [
@@ -97,6 +100,7 @@ class permisosModelo extends conexion
         "maximo" => maxRegexId,
         "expresion_re" => regexId,
         "tabla" => "modulos",
+        'BD'=>'seguridad',
         "debeExistir" => true
       ],
       [
@@ -108,6 +112,7 @@ class permisosModelo extends conexion
         "maximo" => maxRegexId,
         "expresion_re" => regexId,
         "tabla" => "permisos",
+        'BD'=>'seguridad',
         "debeExistir" => true
       ],
       [
@@ -163,6 +168,8 @@ class permisosModelo extends conexion
       case 'rechazarPedido':
       case 'marcarTodasNotComoLeidas':
       case 'actualizarValor':
+      case 'actualizarFoto':
+      case 'eliminarFoto':
         $this->permisoVal = 'actualizar';
         break;
       case 'registrarToken':
@@ -213,7 +220,6 @@ class permisosModelo extends conexion
 
         break;
     }
-
     $campos = [
       [
         "campo_valor" => &$this->moduloVal,
@@ -246,12 +252,12 @@ class permisosModelo extends conexion
     $resultado = $this->seleccionarDatos2([
       'campos' => 'id_permiso, id_modulo',
       'tabla' => 'accesos',
+      'BD'=>'seguridad',
       'WHERE' => [
         "id_rol" => $this->idRol,
       ],
     ]);
     $permisosRol = $resultado->fetchAll(PDO::FETCH_ASSOC);
-
 
     // INDEXACIÓN PARA LA BUSQUEDA DE PERMISOS SI ESTÁN O NO HABILITADOS PARA EL ROL
     $permisosRolIndexados = [];
@@ -264,6 +270,53 @@ class permisosModelo extends conexion
       $llave1 = json_encode($permiso);
       $arrayConfirmacion[$llave1] = true;
     }
+
+    //Backup de los permisos generales
+    $idPermisoVer = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_permiso',
+      'tabla' => 'permisos',
+      'BD'=>'seguridad',
+      'WHERE' => [
+        'nombre_permiso' => 'ver'
+      ]
+    ]);
+    $idPermisoListar = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_permiso',
+      'tabla' => 'permisos',
+      'BD'=>'seguridad',
+      'WHERE' => [
+        'nombre_permiso' => 'listar'
+      ]
+    ]);
+    $idPermisoRegistrar = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_permiso',
+      'tabla' => 'permisos',
+      'BD'=>'seguridad',
+      'WHERE' => [
+        'nombre_permiso' => 'registrar'
+      ]
+    ]);
+    $idPermisoActualizar = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_permiso',
+      'tabla' => 'permisos',
+      'BD'=>'seguridad',
+      'WHERE' => [
+        'nombre_permiso' => 'actualizar'
+      ]
+    ]);
+    $idPermisoEliminar = $this->VEYSNEC([
+      'RSEN' => true,
+      'campos' => 'id_permiso',
+      'tabla' => 'permisos',
+      'BD'=>'seguridad',
+      'WHERE' => [
+        'nombre_permiso' => 'eliminar'
+      ]
+    ]);
 
     //Backup automatico de los permisos especiales
     $respaldoPerEsp = [
@@ -311,6 +364,7 @@ class permisosModelo extends conexion
         'RSEN' => true,
         'campos' => 'id_modulo',
         'tabla' => 'modulos',
+        'BD'=>'seguridad',
         'WHERE' => [
           'nombre_modulo' => $modulo
         ]
@@ -323,6 +377,7 @@ class permisosModelo extends conexion
           'RSEN' => true,
           'campos' => 'id_permiso',
           'tabla' => 'permisos',
+          'BD'=>'seguridad',
           'WHERE' => [
             'nombre_permiso' => $permiso
           ]
@@ -343,6 +398,7 @@ class permisosModelo extends conexion
     $resultado = $this->seleccionarDatos2([
       'campos' => '*',
       'tabla' => 'modulos',
+      'BD'=>'seguridad',
     ]);
     $modulosTotales = $resultado->fetchAll(PDO::FETCH_ASSOC);
 
@@ -350,9 +406,16 @@ class permisosModelo extends conexion
     $resultado = $this->seleccionarDatos2([
       'campos' => '*',
       'tabla' => 'permisos',
+      'BD'=>'seguridad',
       'WHERE' => [
         'id_permiso' => [
-          '=' => [1, 2, 3, 4, 5],
+          '=' => [
+            $idPermisoVer,
+            $idPermisoListar,
+            $idPermisoRegistrar,
+            $idPermisoActualizar,
+            $idPermisoEliminar
+          ],
         ]
       ]
     ]);
@@ -361,7 +424,7 @@ class permisosModelo extends conexion
       'generales' => [],
       'especiales' => $permisosEspecialesRol,
     ];
-    $modulosFuera = ['dashboard', 'reportes', 'cambios', 'bitacora', 'imagenes'];
+    $modulosFuera = ['dashboard', 'reportes', 'cambios', 'bitacora', 'imagenes', 'inventario'];
     foreach ($modulosTotales as $modulo) {
       if (!in_array($modulo['nombre_modulo'], $modulosFuera)) {
         $permisos = [];
@@ -396,6 +459,7 @@ class permisosModelo extends conexion
     $resultado = $this->seleccionarDatos2([
       'campos' => 'ro.nombre_rol, mo.nombre_modulo, pe.nombre_permiso',
       'tabla' => 'accesos as ac',
+      'BD'=>'seguridad',
       'datosJoins' => [
         'roles as ro' => 'ac.id_rol = ro.id_rol',
         'permisos as pe' => 'ac.id_permiso = pe.id_permiso',
@@ -433,6 +497,7 @@ class permisosModelo extends conexion
       'eliminadosYVigentes' => true,
       'campos' => 'status, id_acceso',
       'tabla' => 'accesos',
+      'BD'=>'seguridad',
       'WHERE' => [
         "id_rol" => $this->idRol,
         "id_modulo" => $this->idModulo,
@@ -443,10 +508,11 @@ class permisosModelo extends conexion
     $idAcceso = $acceso['id_acceso'];
     $resultado = $this->actualizarDatos2([
       "tabla" => "accesos",
+      'BD'=>'seguridad',
       "datos" => [
         "status" => $this->cambio
       ],
-      "condiciones" => [
+      "WHERE" => [
         "id_acceso" => $idAcceso,
       ]
     ]);
@@ -471,7 +537,7 @@ class permisosModelo extends conexion
   }
   private function validarPermisosP()
   {
-    $permisos = $this->seleccionarPermisosPorRol();
+    return false;
     if (!isset($permisos[$this->moduloVal])) {
       $alerta = [
         "tipo" => "simple",

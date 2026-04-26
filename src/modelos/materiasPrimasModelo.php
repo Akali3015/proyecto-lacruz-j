@@ -75,7 +75,7 @@ class materiasPrimasModelo extends conexion
           "debeSerUnico" => true,
         ],
         [
-          "campo_nombre" => "costo_materia_prima",
+          "campo_nombre" => "precio_materia_prima",
           "campo_valor" => $this->costoMateriaPrima,
           "formulario_nombre" => "precio de la materia prima",
           "requerido" => true,
@@ -168,7 +168,7 @@ class materiasPrimasModelo extends conexion
         "tabla" => "materias_primas",
       ],
       [
-        "campo_nombre" => "costo_materia_prima",
+        "campo_nombre" => "precio_materia_prima",
         "campo_valor" => $this->costoMateriaPrima,
         "formulario_nombre" => "precio de la materia prima",
         "requerido" => true,
@@ -271,13 +271,15 @@ class materiasPrimasModelo extends conexion
   {
     if ($this->idMateriaPrima == null || $this->idMateriaPrima == "") {
       $instruccionesBD = [
-        'campos' => 'mp.id_materia_prima, mp.nombre_materia_prima, 
-                um.nombre_unidad_medida, mp.stock_materia_prima, mp.costo_materia_prima',
+        'campos' => '
+          mp.id_materia_prima, mp.nombre_materia_prima,
+          um.nombre_unidad_medida, mp.stock_materia_prima, mp.precio_materia_prima
+        ',
         'tabla' => 'materias_primas as mp',
         'PEL' => 'mp',
         'datosJoins' => [
           [
-            "TablaDestino" => "unidades_medidas as um",
+            "tablaDestino" => "unidades_medidas as um",
             "conexionLo" => "mp.id_unidad_medida = um.id_unidad_medida",
           ]
         ]
@@ -338,7 +340,7 @@ class materiasPrimasModelo extends conexion
         "campo_valor" => $this->stockMateriaPrima,
       ],
       [
-        "campo_nombre" => "costo_materia_prima",
+        "campo_nombre" => "precio_materia_prima",
         "campo_marcador" => ":precio",
         "campo_valor" => $this->costoMateriaPrima,
       ],
@@ -415,12 +417,12 @@ class materiasPrimasModelo extends conexion
           "campo_valor" => $this->stockMateriaPrima,
         ],
         [
-          "campo_nombre" => "costo_materia_prima",
+          "campo_nombre" => "precio_materia_prima",
           "campo_marcador" => ":precio",
           "campo_valor" => $this->costoMateriaPrima,
         ],
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "id_materia_prima",
           "condicion_marcador" => ":id",
@@ -514,7 +516,7 @@ class materiasPrimasModelo extends conexion
       'PEL' => 'mp',
       'datosJoins' => [
         [
-          "TablaDestino" => "presentaciones as p",
+          "tablaDestino" => "presentaciones as p",
           "conexionLo" => "mp.id_presentacion = p.id_presentacion",
         ]
       ],

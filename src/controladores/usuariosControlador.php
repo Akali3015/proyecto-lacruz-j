@@ -51,6 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       case "actualizar":
         $resultado = $objetoUsuarios->actualizarUsuarios(
           $cedula,
+          $nombre,
+          $apellido,
           $correo,
           $telefono,
           $rol,
@@ -63,6 +65,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
       case "cerrarSesion":
         $resultado = $objetoUsuarios->cerrarSesionUsuarios();
+        $objetoUsuarios->DECORE($resultado);
+        exit();
+      case "actualizarFoto":
+        $resultado = $objetoUsuarios->actualizarFotosUsuarios($_SESSION['cedula'], $foto);
+        $objetoUsuarios->DECORE($resultado);
+        exit();
+      case "eliminarFoto":
+        $resultado = $objetoUsuarios->eliminarFotosUsuarios($_SESSION['cedula']);
         $objetoUsuarios->DECORE($resultado);
         exit();
       default:
@@ -94,11 +104,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $objetoUsuarios->DECORE($resultado);
         exit();
       default:
-        json_encode('Accion no reconocida');
+        $objetoUsuarios->DECORE(["error" => "Acción no reconocida"]);
         exit();
     }
   } else {
-    json_encode('Accion no reconocida');
+    $objetoUsuarios->DECORE(["error" => "Acción no reconocida"]);
     exit();
   }
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {

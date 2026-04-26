@@ -5,97 +5,113 @@ use src\config\inc\componentesModelo;
 $componente = new componentesModelo();
 ?>
 
-<input type="hidden" class="nombreVista" value="metodosPago">
+<input type="hidden" class="nombreVista" value="metodos-pago">
 
 <?php
 $instruccionesLista = [
-  'encabezado' => 'Gestionar Métodos de Pago',
-  'tituloBtnReg' => 'Registrar Método de Pago',
+  'encabezado' => 'Configuración de Métodos de Pago',
+  'tituloBtnReg' => 'Nuevo Método de Pago',
 ];
 echo $componente->listaDataTable($instruccionesLista);
 ?>
 
-<!-- [ FORMULARIO REGISTRAR ] COMIENZO -->
+<!-- [ MODAL REGISTRAR ] -->
 <div class="modal fade modalRegistrar" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content border-0">
       <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
-        <h5 class="modal-title">
-          <i class="fas fa-user-plus me-2"></i> Registro de Método de Pago
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="fas fa-credit-card me-2"></i> Nuevo Método</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <form class="formularioAjax validar" method="POST" action="" novalidate>
         <div class="modal-body">
-          <div class="row">
-            <input type="hidden" name="accion" value="registrar">
-            <div class="col-md-12 mb-3">
-              <label for="cedula" class="form-label">Nombre del Método de Pago</label>
-              <input type="text" class="form-control noRepetir" name="nombre_metodo_pago" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+          <input type="hidden" name="accion" value="registrar">
+          <div class="mb-3">
+            <label class="form-label fw-bold">ID del Método</label>
+            <input type="text" class="form-control noRepetir" name="id_metodo_pago" required pattern="<?php echo regexId ?>" minlength="<?php echo minRegexId ?>" maxlength="<?php echo maxRegexId ?>">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Nombre del Método</label>
+            <input type="text" class="form-control" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
+          </div>
+          <div class="card bg-light p-3">
+            <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" name="necesita_moneda" value="1" id="regMon">
+              <label class="form-check-label" for="regMon">¿Requiere especificar Moneda?</label>
             </div>
-            <div class="col-md-12 mb-3">
-              <label class="form-label">¿Necesita especificar la moneda?</label>
-              <select class="form-select" name="necesita_moneda" pattern="<?php echo regexValorBoleano ?>" minlength="<?php echo minRegexValorBoleano ?>" maxlength="<?php echo maxRegexValorBoleano ?>" required>
-                <option value="0">NO</option>
-                <option value="1">SI</option>
-              </select>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" name="necesita_banco_emisor" value="1" id="regBE">
+              <label class="form-check-label" for="regBE">¿Requiere Banco Emisor?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" name="necesita_banco_receptor" value="1" id="regBR">
+              <label class="form-check-label" for="regBR">¿Requiere Banco Receptor?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" name="necesita_referencia" value="1" id="regRef">
+              <label class="form-check-label" for="regRef">¿Requiere Número de Referencia?</label>
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-2"></i> Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Guardar Método de Pago
-          </button>
+        <div class="modal-footer justify-content-center bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 </div>
-<!-- [ FORMULARIO REGISTRAR ] FIN -->
 
-<!-- [ FORMULARIO EDITAR ] COMIENZO -->
+<!-- [ MODAL ACTUALIZAR ] -->
 <div class="modal fade modalActualizar" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content border-0">
       <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
-        <h5 class="modal-title">
-          <i class="fas fa-edit me-2"></i> Editar Método de Pago
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="fas fa-edit me-2"></i> Editar Método</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form class="formularioAjax validar" method="POST" action="" novalidate>
         <div class="modal-body">
-          <div class="row">
-            <input type="hidden" name="accion" value="actualizar">
-            <input type="hidden" name="id_metodo_pago" class="formularioActualizar">
+          <input type="hidden" name="accion" value="actualizar">
 
-            <div class="col-md-12 mb-3">
-              <label for="cedula" class="form-label">Nombre del Método de Pago</label>
-              <input type="text" class="form-control noRepetir formularioActualizar" name="nombre_metodo_pago" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required placeholder="Ej: CARLOS">
+          <div class="mb-3">
+            <label class="form-label fw-bold">ID del Método</label>
+            <input type="text" class="form-control noRepetir formularioActualizar" name="id_metodo_pago" required readonly pattern="<?php echo regexId ?>">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Nombre del Método</label>
+            <input type="text" class="form-control" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
+          </div>
+          <div class="card bg-light p-3">
+            <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input formularioActualizar" value="1" type="checkbox" name="necesita_moneda" id="regMon">
+              <label class="form-check-label" for="regMon">¿Requiere especificar Moneda?</label>
             </div>
-            <div class="col-md-12 mb-3">
-              <label class="form-label">¿Necesita especificar la moneda?</label>
-              <select class="form-select formularioActualizar" name="necesita_moneda" pattern="<?php echo regexValorBoleano ?>" minlength="<?php echo minRegexValorBoleano ?>" maxlength="<?php echo maxRegexValorBoleano ?>" required>
-                <option value="0">NO</option>
-                <option value="1">SI</option>
-              </select>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input formularioActualizar" value="1" type="checkbox" name="necesita_banco_emisor" id="regBE">
+              <label class="form-check-label" for="regBE">¿Requiere Banco Emisor?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input formularioActualizar" value="1" type="checkbox" name="necesita_banco_receptor" id="regBR">
+              <label class="form-check-label" for="regBR">¿Requiere Banco Receptor?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input formularioActualizar" value="1" type="checkbox" name="necesita_referencia" id="regRef">
+              <label class="form-check-label" for="regRef">¿Requiere Número de Referencia?</label>
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+        <div class="modal-footer justify-content-center bg-light">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times me-2"></i> Cancelar
           </button>
           <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Actualizar
+            <i class="fas fa-sync-alt me-2"></i> Actualizar Cambios
           </button>
         </div>
       </form>
     </div>
   </div>
 </div>
-<!-- [ FORMULARIO EDITAR ] FIN -->

@@ -1,7 +1,8 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
-  listarDataTable, extraerDatosAjax, cargarInputsActualizarQNR, validarEnTiempoReal
+  listarDataTable, extraerDatosAjax, cargarInputsActualizarQNR, validarEnTiempoReal,
+  rutaFotos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -11,6 +12,7 @@ $(document).on('DOMContentLoaded', async function (e) {
     await listarDataTable({
       encabezados: {
         "cedula_usuario": "CÉDULA",
+        "foto_usuario": "FOTO",
         "nombre_rol": "ROL",
         "nombre_usuario": "NOMBRE",
         "apellido_usuario": "APELLIDO",
@@ -26,6 +28,25 @@ $(document).on('DOMContentLoaded', async function (e) {
       },
       campoIdBtn: 'cedula_usuario',
       botones: 'CRUD',
+      infoTratoEspecial: {
+        foto_usuario: (info) => {
+          let foto= info.valor!='' ? info.valor :'perfilDefaultUsuario.png';
+          return `
+            <img 
+              src="${rutaFotos}usuarios/${foto}"
+              class="estiloFotoRegistro fotoRegistro shadow-sm"
+              data-tabla_bd="usuarios"
+              data-campo_id="cedula_usuario"
+              data-valor_id="${info.fila.cedula_usuario}"
+              data-campo_foto="foto_usuario"
+              data-accion_act="actualizarFoto"
+              data-accion_eli="eliminarFoto"
+              data-label_foto="Actualizar Foto de Perfil"
+              data-texto_alerta="Tu foto de perfil volverá a la configuración predeterminada"
+              data-foto_default="perfilDefaultUsuario.png"
+            >`;
+        }
+      }
     });
     extraerDatosAjax({
       'modulosPeticion': ['roles'],

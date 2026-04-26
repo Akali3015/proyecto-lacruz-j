@@ -212,7 +212,7 @@ class produccionesModelo extends conexion
         'datos' => [
           'stock_producto' => ($infoGeneralProducto['stock_producto'] + $detalle['cantidad'])
         ],
-        'condiciones' => [
+        'WHERE' => [
           'id_producto' => $detalle['id']
         ]
       ]);
@@ -273,7 +273,7 @@ class produccionesModelo extends conexion
           'datos' => [
             'stock_materia_prima' => $nuevoStock
           ],
-          'condiciones' => [
+          'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);
@@ -341,7 +341,7 @@ class produccionesModelo extends conexion
         'datos' => [
           'stock_producto' => ($infoGeneralProducto['stock_producto'] - $cantidadProducto)
         ],
-        'condiciones' => [
+        'WHERE' => [
           'id_producto' => $idProducto
         ]
       ]);
@@ -390,7 +390,7 @@ class produccionesModelo extends conexion
           'datos' => [
             'stock_materia_prima' => $nuevoStock
           ],
-          'condiciones' => [
+          'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);
@@ -444,7 +444,7 @@ class produccionesModelo extends conexion
         'datos' => [
           'stock_producto' => ($infoGeneralProducto['stock_producto'] + $detalle['cantidad'])
         ],
-        'condiciones' => [
+        'WHERE' => [
           'id_producto' => $detalle['id']
         ]
       ]);
@@ -504,7 +504,7 @@ class produccionesModelo extends conexion
           'datos' => [
             'stock_materia_prima' => $nuevoStock
           ],
-          'condiciones' => [
+          'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);

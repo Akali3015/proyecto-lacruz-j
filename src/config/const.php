@@ -1,88 +1,96 @@
 <?php
-    /*Constantes de la BD*/
-    const DB_SERVER= "localhost";
-    const DB_NAME= "proyecto_lacruz";
-    const DB_USER= "root";
-    const DB_PASS= "";
+/*Constantes de la BD*/
+const DB_SERVER = "localhost";
+const DB_NAME = "proyecto_lacruz";
+const DB_USER = "root";
+const DB_PASS = "";
+const DIR_FOTOS = "src/assets/fotosModulos/";
 
-    /*Constante de la APP */
-    $PROTOCOLO='http://';
-    if(
-        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
-        (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-    ){
-        $PROTOCOLO='https://';
-    }
-    define('APP_URL', $PROTOCOLO . $_SERVER['HTTP_HOST']."/proyecto-lacruz-j/");
-    
-    
-    const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
-    const APP_SESSION_NAME = "JLACRUZ";
-    date_default_timezone_set("America/Caracas");
+/*Constante de la APP */
+$PROTOCOLO = 'http://';
+if (
+  (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+  (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+  (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+) {
+  $PROTOCOLO = 'https://';
+}
+define('APP_URL', $PROTOCOLO . $_SERVER['HTTP_HOST'] . "/proyecto-lacruz-j/");
 
-    /*Expresiones regulares*/
-    const regexId='^\d{1,9}$';
-    const minRegexId='1';
-    const maxRegexId='9';
 
-    const regexCantidadItem='^\d{1,9}$';
-    const minRegexCantidadItem='1';
-    const maxRegexCantidadItem='9';
+const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
+const APP_SESSION_NAME = "JLACRUZ";
+date_default_timezone_set("America/Caracas");
 
-    const regexCedulaRif = '^\d{7,10}$';
-    const minRegexCedulaRif = '7';
-    const maxRegexCedulaRif = '10';
+/*Expresiones regulares*/
+const regexId = '^\d{1,9}$';
+const minRegexId = '1';
+const maxRegexId = '9';
 
-    const regexCedulaRifLetra = '^[a-zA-Z]?\d{8,11}$';
-    const minRegexCedulaRifLetra = '8';
-    const maxRegexCedulaRifLetra = '11';
+const regexIdSeguro = '^[a-zA-Z]{2,4}-\d{5}-\d{5}-\d{2}$';
+const minRegexIdSeguro = '17';
+const maxRegexIdSeguro = '20';
 
-    const regexNombreObj='^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% ]{3,50}$';
-    const minRegexNombreObj='3';
-    const maxRegexNombreObj='50';
+const regexCantidadItem = '^\d{1,10}(?:[.,]\d{1,3})?$';
+const minRegexCantidadItem = '1';
+const maxRegexCantidadItem = '11';
 
-    const regexNombrePer='^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]{3,30}$';
-    const minRegexNombrePer='3';
-    const maxRegexNombrePer='50';
+const regexCedulaRif = '^\d{7,10}$';
+const minRegexCedulaRif = '7';
+const maxRegexCedulaRif = '10';
 
-    const regexDescripcion='^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\$\(\)\,\.\/\-\!\¡\?\¿\:\-\= ]{3,255}$';
-    const minRegexDescripcion='3';
-    const maxRegexDescripcion='255';
+const regexCedulaRifLetra = '^[a-zA-Z]?\d{8,11}$';
+const minRegexCedulaRifLetra = '8';
+const maxRegexCedulaRifLetra = '11';
 
-    const regexTelefono='^\d{11}$';
-    const minRegexTelefono='11';
-    const maxRegexTelefono='11';
+const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% ]{3,50}$';
+const minRegexNombreObj = '3';
+const maxRegexNombreObj = '50';
 
-    const regexPrecio='^\d{1,10}(?:[.,]\d{1,10})?$';
-    const minRegexPrecio='1';
-    const maxRegexPrecio='10';
+const regexNombrePer = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]{3,30}$';
+const minRegexNombrePer = '3';
+const maxRegexNombrePer = '50';
 
-    const regexValorBoleano='^\d{1}$';
-    const minRegexValorBoleano='1';
-    const maxRegexValorBoleano='1';
-    
-    const regexSimboloMoneda='^[a-zA-Z0-9À-ÿ€¥$]{1,3}$';
-    const minRegexSimboloMoneda='1';
-    const maxRegexSimboloMoneda='3';
+const regexDescripcion = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\$\(\)\,\.\/\-\!\¡\?\¿\:\-\= ]{3,255}$';
+const minRegexDescripcion = '3';
+const maxRegexDescripcion = '255';
 
-    const regexCorreo='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
-    const minRegexCorreo='10';
-    const maxRegexCorreo='255';
+const regexTelefono = '^\d{11}$';
+const minRegexTelefono = '11';
+const maxRegexTelefono = '11';
 
-    
-    const regexUsuario='^(?=.*[0-9].*[0-9])(?=.{8,}).*$';
-    const minRegexUsuario='8';
-    const maxRegexUsuario='20';
+const regexPrecio = '^\d{1,10}(?:[.,]\d{1,3})?$';
+const minRegexPrecio = '1';
+const maxRegexPrecio = '20';
 
-    const regexContrasena='^(?=.*[0-9].*[0-9])(?=.{8,}).*$';
-    const minRegexContrasena='8';
-    const maxRegexContrasena='20';
+const regexPrecioFront = '^\d{1,3}(\.\d{3})*(,\d{1,2})?$';
+const minRegexPrecioFront = '1';
+const maxRegexPrecioFront = '20';
 
-    const regexEnteroGrande='^\d{1,15}$';
-    const minRegexEnteroGrande='1';
-    const maxRegexEnteroGrande='15';
+const regexValorBoleano = '^\d{1}$';
+const minRegexValorBoleano = '1';
+const maxRegexValorBoleano = '1';
 
-    
+const regexSimboloMoneda = '^[a-zA-Z0-9À-ÿ€¥$]{1,3}$';
+const minRegexSimboloMoneda = '1';
+const maxRegexSimboloMoneda = '3';
 
-?>
+const regexCorreo = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+const minRegexCorreo = '10';
+const maxRegexCorreo = '255';
+
+const regexUsuario = '^(?=.*[0-9].*[0-9])(?=.{8,}).*$';
+const minRegexUsuario = '8';
+const maxRegexUsuario = '20';
+
+const regexContrasena = '^(?=.*[0-9].*[0-9])(?=.{8,}).*$';
+const minRegexContrasena = '8';
+const maxRegexContrasena = '20';
+
+const regexEnteroGrande = '^\d{1,15}$';
+const minRegexEnteroGrande = '1';
+const maxRegexEnteroGrande = '15';
+
+const regexCoordenadas = '^[+-]?\d+\.\d{1,20}$';
+const minRegexCoordenadas = 0;
+const maxRegexCoordenadas = 20;

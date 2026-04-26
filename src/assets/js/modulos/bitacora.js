@@ -1,6 +1,6 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
-  listarDataTable
+  listarDataTable,cambiarFormatos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -8,12 +8,12 @@ import {
 $(document).on('DOMContentLoaded', async function (e) {
   await listarDataTable({
     encabezados: {
-      "id_bitacora": "ID",
-      "nombre_usuario": "USUARIO",
-      "nombre_modulo": "MÓDULO",
-      "nombre_accion": "ACCIÓN",
+      "accion": "ACCIÓN",
       "fecha_bitacora": "FECHA",
-      "resultado_accion_bitacora": "RESULT",
+      "id_bitacora": "ID",
+      "nombre_modulo": "MÓDULO",
+      "nombre_usuario": "USUARIO",
+      "resultado_bitacora": "RESULT",
     },
     informacionPe: {
       'modulo': 'bitacora',

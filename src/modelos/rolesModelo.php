@@ -6,6 +6,7 @@ use src\config\connect\conexion;
 use PDO;
 use PDOException;
 use Exception;
+use src\modelos\bitacoraModelo;
 
 class rolesModelo extends conexion
 {
@@ -28,6 +29,7 @@ class rolesModelo extends conexion
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
           "tabla" => 'roles',
+          'BD' => 'seguridad',
           "debeExistir" => true
         ]
       ];
@@ -36,12 +38,9 @@ class rolesModelo extends conexion
       if ($respuesta !== false) {
         return $respuesta;
         exit();
-      } else {
-        return $this->seleccionarRolesP();
       }
-    } else {
-      return $this->seleccionarRolesP();
     }
+    return $this->seleccionarRolesP();
   }
   public function registrarRoles($nombre)
   {
@@ -57,17 +56,14 @@ class rolesModelo extends conexion
           "maximo" => maxRegexNombrePer,
           "expresion_re" => regexNombrePer,
           "tabla" => "roles",
+          'BD' => 'seguridad',
           "debeSerUnico" => true,
         ]
       ];
 
       $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarRolesP();
-      }
+      if ($respuesta !== false) return $respuesta;
+      return $this->registrarRolesP();
     } catch (PDOException $e) {
       error_log("Error: " . $e->getMessage());
       throw new Exception("Error al registrar el rol en la base de datos: " . $e->getMessage());
@@ -89,6 +85,7 @@ class rolesModelo extends conexion
         "maximo" => maxRegexId,
         "expresion_re" => regexId,
         "tabla" => "roles",
+        'BD' => 'seguridad',
         "debeExistir" => true,
         "debeSerUnico" => true
       ],
@@ -101,6 +98,7 @@ class rolesModelo extends conexion
         "maximo" => maxRegexNombrePer,
         "expresion_re" => regexNombrePer,
         "tabla" => "roles",
+        'BD' => 'seguridad',
         "debeSerUnico" => true
       ],
     ];
@@ -130,7 +128,8 @@ class rolesModelo extends conexion
         "expresion_re" => regexId,
         "debeExistir" => true,
         "camposDiferentes" => 1,
-        "tabla" => "roles"
+        "tabla" => "roles",
+        'BD' => 'seguridad',
       ]
     ];
 
@@ -147,21 +146,21 @@ class rolesModelo extends conexion
   private function seleccionarRolesP()
   {
     if ($this->idRol == null || $this->idRol == "") {
-      $instruccionesBD = [
-        'campos' => 'id_rol, nombre_rol',
+      $resultado = $this->seleccionarDatos2([
+        'campos' => '*',
         'tabla' => 'roles',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
+        'BD' => 'seguridad',
+      ]);
       return $resultado->fetchAll(PDO::FETCH_ASSOC);
     } else {
-      $instruccionesBD = [
-        'campos' => 'id_rol, nombre_rol',
+      $resultado = $this->seleccionarDatos2([
+        'campos' => '*',
         'tabla' => 'roles',
+        'BD' => 'seguridad',
         'WHERE' => [
           "id_rol" => $this->idRol,
         ]
-      ];
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
+      ]);
       if ($resultado->rowCount() <= 0) {
         $alerta = [
           "tipo" => "simple",
@@ -179,16 +178,14 @@ class rolesModelo extends conexion
   }
   private function registrarRolesP()
   {
-    $datos_registro_roles = [
-      [
-        "campo_nombre" => "nombre_rol",
-        "campo_marcador" => ":Nombre",
-        "campo_valor" => $this->nombreRol,
-        "ponerEnMayusculas" => true
-      ],
-    ];
-
-    $ultimoId = $this->guardarDatos('roles', $datos_registro_roles);
+    $objBitacora = new bitacoraModelo();
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'roles',
+      'BD' => 'seguridad',
+      'datos' => [
+        "nombre_rol" => $this->nombreRol,
+      ]
+    ]);
     if ($ultimoId !== false && $ultimoId > 0) {
       $alerta = [
         "tipo" => "limpiarYcerrar",
@@ -196,6 +193,7 @@ class rolesModelo extends conexion
         "texto" => "El rol ha sido registrado exitosamente",
         "icono" => "success",
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'Registrar', 'Éxito');
       $this->commit();
     } else {
       $alerta = [
@@ -204,38 +202,28 @@ class rolesModelo extends conexion
         "texto" => "El rol no ha sido registrado exitosamente",
         "icono" => "error",
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'Registrar', 'Error');
+      $this->rollback();
+    }
+    if ($resultadoB != false) {
+      $this->rollback();
+      return $resultadoB;
     }
     return $alerta;
   }
   private function actualizarRolesP()
   {
-
-    $instruccionesBD = [
-      "tabla" => "roles",
-      "datos" => [
-        [
-          "campo_nombre" => "id_rol",
-          "campo_marcador" => ":id",
-          "campo_valor" => $this->idRol
-        ],
-        [
-          "campo_nombre" => "nombre_rol",
-          "campo_marcador" => ":Nombre",
-          "campo_valor" => $this->nombreRol,
-          "ponerEnMayusculas" => true
-        ]
+    $objBitacora = new bitacoraModelo();
+    $resultado = $this->actualizarDatos2([
+      'tabla' => 'roles',
+      'BD' => 'seguridad',
+      'datos' => [
+        "nombre_rol" => $this->nombreRol,
       ],
-      "condiciones" => [
-        [
-          "condicion_campo" => "id_rol",
-          "condicion_marcador" => ":id",
-          "condicion_valor" => $this->idRol,
-          "comparacion" => "="
-        ]
+      "WHERE" => [
+        "id_rol" => $this->idRol,
       ]
-    ];
-    $resultado = $this->actualizarDatos($instruccionesBD);
-
+    ]);
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
         "tipo" => "simple",
@@ -243,6 +231,7 @@ class rolesModelo extends conexion
         "texto" => "No se realizó ningún cambio en el rol",
         "icono" => "warning",
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'actualizar rol con id: ' . $this->idRol, 'Error');
     } else {
       $alerta = [
         "tipo" => "limpiarYcerrar",
@@ -250,21 +239,33 @@ class rolesModelo extends conexion
         "texto" => "El rol ha sido actualizado exitosamente",
         "icono" => "success",
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'actualizar rol con id: ' . $this->idRol, 'Éxito');
       $this->commit();
+    }
+    if ($resultadoB != false) {
+      $this->rollback();
+      return $resultadoB;
     }
     return $alerta;
   }
   private function eliminarRolesP()
   {
-    $eliminarUsuario = $this->eliminarDatos("roles", "id_rol", $this->idRol);
+    $objBitacora = new bitacoraModelo();
+    $eliminarUsuario = $this->eliminarDatos2([
+      "tabla" => "roles",
+      'BD' => 'seguridad',
+      "WHERE" => [
+        "id_rol" => $this->idRol
+      ]
+    ]);
     if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
-
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Rol eliminado",
         "texto" => "El rol ha sido eliminado con éxito",
         "icono" => "success"
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'eliminar rol con id: ' . $this->idRol, 'Éxito');
       $this->commit();
     } else {
       $alerta = [
@@ -273,7 +274,13 @@ class rolesModelo extends conexion
         "texto" => "El rol no existe en la Base de Datos",
         "icono" => "error"
       ];
+      $resultadoB = $objBitacora->registrarBitacora('roles', 'eliminar rol con id: ' . $this->idRol, 'Error');
     }
+    if ($resultadoB != false) {
+      $this->rollback();
+      return $resultadoB;
+    }
+
     return $alerta;
   }
 }

@@ -3,9 +3,12 @@
 namespace src\controladores;
 
 use src\modelos\permisosModelo;
+use src\modelos\traitModelo;
 
 class frontController
 {
+  use traitModelo;
+  
   private $url;
   private $vistasEstaticas;
   private $controladores;
@@ -132,49 +135,7 @@ class frontController
       $this->redireccionarUsuario();
     }
   }
-  private function redireccionarUsuario()
-  {
-    $urlRedireccion = '';
-    if (!empty($_SESSION['cedula'])) {
-      $validacion = true;
-      if (
-        $validacion &&
-        !isset($this->objPermisos->validarPermisos('dashboard', 'ver dashboard')['icono'])
-      ) {
-        $validacion = false;
-        $urlRedireccion = 'dashboard';
-        $_SESSION['vistaActual'] = 'dashboard';
-      };
-      if (
-        $validacion &&
-        !isset($this->objPermisos->validarPermisos('ventas', 'ver')['icono'])
-      ) {
-        $validacion = false;
-        $urlRedireccion = 'ventas/';
-        $_SESSION['vistaActual'] = 'ventas';
-      }
-      if (
-        $validacion &&
-        !isset($this->objPermisos->validarPermisos('pedidos', 'ver')['icono'])
-      ) {
-        $validacion = false;
-        $urlRedireccion = 'pedidos/';
-        $_SESSION['vistaActual'] = 'pedidos';
-      }
-      if ($validacion) {
-        $validacion = false;
-        $urlRedireccion = 'usuarios/login';
-        $_SESSION['vistaActual'] = 'usuarios';
-      }
-    } else {
-      $urlRedireccion = 'usuarios/login';
-      $_SESSION['vistaActual'] = 'usuarios';
-    }
-    http_response_code(403);
-    ob_end_clean();
-    header('Location: ' . APP_URL . $urlRedireccion);
-    exit();
-  }
+  
   private function transformarCuerpoAPost()
   {
     if ($_SERVER["REQUEST_METHOD"] == 'POST') {
@@ -182,6 +143,7 @@ class frontController
         foreach (json_decode($_POST['metadatos'], true) as $clave => $valor) {
           $_POST[$clave] = $valor;
         }
+        unset($_POST['metadatos']);
       } elseif (!empty(file_get_contents('php://input'))) {
         $datos = json_decode(file_get_contents('php://input'), true);
         if (is_array($datos)) {
@@ -189,6 +151,9 @@ class frontController
             $_POST[$clave] = $valor;
           }
         }
+      }
+      foreach($_FILES as $clave => $valor){
+        $_POST[$clave]=$valor;
       }
     }
   }

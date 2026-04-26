@@ -193,7 +193,7 @@ class serviciosModelo extends conexion
         'PEL' => 's',
         'datosJoins' => [
           [
-            "TablaDestino" => "unidades_medidas as um",
+            "tablaDestino" => "unidades_medidas as um",
             "conexionLo" => "s.id_unidad_medida = um.id_unidad_medida",
           ]
         ]
@@ -301,7 +301,7 @@ class serviciosModelo extends conexion
           "campo_valor" => $this->idUnidadMedida,
         ],
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "id_servicio",
           "condicion_marcador" => ":Id",

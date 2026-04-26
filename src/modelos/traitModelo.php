@@ -10,6 +10,7 @@ use DateInterval;
 use Exception;
 use Throwable;
 use FPDF;
+use src\modelos\permisosModelo;
 
 class errorBD extends Exception
 {
@@ -30,8 +31,11 @@ trait traitModelo
   private $nombreDB = DB_NAME;
   private $userDB = DB_USER;
   private $passwordDB = DB_PASS;
-  protected $conexion;
+  protected static $conexion = null;
+  protected static $conexion2 = null;
+  private $BDactual;
 
+  // #region [PUBLIC]
   public function limpiarCadena($cadena, $modo = 'antiSQLInyection')
   {
     if ($modo == 'antiSQLInyection') {
@@ -61,6 +65,13 @@ trait traitModelo
         $campo['campo_valor'] = $this->limpiarCadena($campo['campo_valor']);
       }
 
+      //Cantidades numericas de tipo float
+      if (isset($campo['comaPunto'])) {
+        $campo['campo_valor'] = str_replace('.', '', $campo['campo_valor']);
+        $campo['campo_valor'] = str_replace(',', '.', $campo['campo_valor']);
+        $campo['campo_valor'] = (float)$campo['campo_valor'];
+      }
+
       //Para validar campos requeridos
       if (isset($campo['requerido'])) {
         if (!isset($campo['campo_valor']) || $campo['campo_valor'] == "") {
@@ -85,7 +96,7 @@ trait traitModelo
               "texto" => "El campo de " . $campo['formulario_nombre'] . " no puede tener más de " . $campo['maximo'] . " carácteres de longitud: " . $campo['campo_valor'],
               "icono" => "error",
             ];
-            return ($alerta);
+            return $alerta;
             exit();
           } elseif (mb_strlen($campo['campo_valor']) < $campo['minimo']) {
             $alerta = [
@@ -94,7 +105,7 @@ trait traitModelo
               "texto" => "El campo de" . $campo['formulario_nombre'] . " no puede tener menos de " . $campo['minimo'] . " carácteres de longitud: " . $campo['campo_valor'],
               "icono" => "error",
             ];
-            return ($alerta);
+            return $alerta;
             exit();
           }
         }
@@ -121,6 +132,7 @@ trait traitModelo
         $registrosExistentes = $this->seleccionarDatos2([
           'campos' => '*',
           'tabla' =>  $campo['tabla'],
+          'BD' => ($campo['BD'] ?? NULL),
           'WHERE' => [
             $campo['campo_nombre'] => $campo['campo_valor']
           ]
@@ -150,6 +162,7 @@ trait traitModelo
             $resultado = $this->seleccionarDatos2([
               'campos' => '*',
               'tabla' =>  $campo['tabla'],
+              'BD' => ($campo['BD'] ?? NULL),
               'WHERE' => [
                 $campo['campo_nombre'] => $campo['campo_valor']
               ]
@@ -173,6 +186,7 @@ trait traitModelo
           $checkRegistro = $this->seleccionarDatos2([
             'campos' => $campo['campo_nombre'],
             'tabla' =>  $campo['tabla'],
+            'BD' => ($campo['BD'] ?? NULL),
             'WHERE' => [
               $campo['campo_nombre'] => $campo['campo_valor']
             ]
@@ -211,91 +225,6 @@ trait traitModelo
             "tipo" => "simple",
             "titulo" => "ERROR",
             "texto" => "El valor de " . $campo['formulario_nombre'] . " no puede ser usado en esa transacción",
-            "icono" => "error",
-          ];
-          return ($alerta);
-          exit();
-        }
-      }
-
-      //para validar el usuario y contraseña del login
-      if (isset($campo['validarLogin'])) {
-        $instruccionesBD = [
-          'campos' => "
-                        us.cedula_usuario, us.nombre_usuario, us.apellido_usuario,
-                        ro.id_rol, ro.nombre_rol, us.usuario_usuario, us.contrasena_usuario
-                    ",
-          'tabla' =>  "usuarios as us",
-          'PEL' => 'us',
-          'datosJoins' => [
-            [
-              'TablaDestino' => 'roles as ro',
-              'conexionLo' => 'us.id_rol = ro.id_rol'
-            ]
-          ],
-          'WHERE' => [
-            [
-              'condicion_campo' => "us.usuario_usuario",
-              'condicion_marcador' => ':usuario_usuario',
-              'condicion_valor' => $campo['validarLogin']['usuario'],
-              'comparacion' => '=',
-            ]
-          ]
-        ];
-        $check_usuario = $this->seleccionarDatos($instruccionesBD);
-
-        if ($check_usuario->rowCount() == 1) {
-
-          $check_usuario = $check_usuario->fetch(); /*Para hacer un arrays con los datos que coincidieron en la BD */
-
-          if (
-            ($campo['validarLogin']['usuario'] != $check_usuario['usuario_usuario']) ||
-            (!password_verify($campo['validarLogin']['contrasena'], $check_usuario['contrasena_usuario']))
-          ) {
-            $alerta = [
-              "tipo" => "simple",
-              "titulo" => "Contraseña incorrecta",
-              "texto" => "La contraseña que ha introducido es incorrecta, por favor verifique e intente nuevamente",
-              "icono" => "error",
-            ];
-            return ($alerta);
-            exit();
-          } else {
-            /*Creamos las variables de sesión */
-            $_SESSION['cedula'] = $check_usuario['cedula_usuario'];
-            $_SESSION['nombre'] = $check_usuario['nombre_usuario'];
-            $_SESSION['apellido'] = $check_usuario['apellido_usuario'];
-            $_SESSION['usuario'] = $check_usuario['usuario_usuario'];
-            $_SESSION['rol'] = $check_usuario['id_rol'];
-            $_SESSION['nombreRol'] = $check_usuario['nombre_rol'];
-            $_SESSION['TOKEN_CSRF'] = bin2hex(random_bytes(32));
-          }
-        }
-      }
-
-      //Valor de Atributo No Repetible del registro a Actualizar
-      if (isset($campo['VANRA'])) {
-
-        $instruccionesBD = [
-          'campos' => "*",
-          'tabla' =>  $campo['tabla'],
-          'WHERE' => [
-            [
-              'condicion_campo' => $campo['campo_nombre'],
-              'condicion_marcador' => ':ID',
-              'condicion_valor' => $campo['campo_valor'],
-              'comparacion' => '=',
-            ]
-          ]
-        ];
-        $checkRegistro = $this->seleccionarDatos($instruccionesBD);
-        //Para verificar que el valor no es igual al que ya posee
-        $valorCheck = $checkRegistro->fetch(PDO::FETCH_ASSOC);
-        if ($valorCheck[$campo['VANRA']['atributo']] == $campo['VANRA']['valor']) {
-          $alerta = [
-            "tipo" => "simple",
-            "titulo" => "Valor ya registrado",
-            "texto" => "El valor de " . $campo['formulario_nombre'] . " introducido es igual al actual, por favor verifique e intente de nuevo",
             "icono" => "error",
           ];
           return ($alerta);
@@ -341,15 +270,669 @@ trait traitModelo
     }
     return $this->fecha;
   }
+  public function redireccionarUsuario($sinRedireccion = null)
+  {
+    $objPermisos = new permisosModelo();
+    $urlRedireccion = '';
+
+    if (!empty($_SESSION['cedula'])) {
+      $validacion = true;
+      if (
+        $validacion &&
+        !isset($objPermisos->validarPermisos('dashboard', 'ver dashboard')['icono'])
+      ) {
+        $validacion = false;
+        $urlRedireccion = 'dashboard';
+        $_SESSION['vistaActual'] = 'dashboard';
+      };
+      if (
+        $validacion &&
+        !isset($objPermisos->validarPermisos('ventas', 'ver')['icono'])
+      ) {
+        $validacion = false;
+        $urlRedireccion = 'ventas/';
+        $_SESSION['vistaActual'] = 'ventas';
+      }
+      if (
+        $validacion &&
+        !isset($objPermisos->validarPermisos('pedidos', 'ver')['icono'])
+      ) {
+        $validacion = false;
+        $urlRedireccion = 'pedidos/';
+        $_SESSION['vistaActual'] = 'pedidos';
+      }
+      if ($validacion) {
+        $validacion = false;
+        $urlRedireccion = 'usuarios/login';
+        $_SESSION['vistaActual'] = 'usuarios';
+      }
+    } else {
+      $urlRedireccion = 'usuarios/login';
+      $_SESSION['vistaActual'] = 'usuarios';
+    }
+    http_response_code(403);
+    ob_end_clean();
+    if ($sinRedireccion) return APP_URL . $urlRedireccion;
+    header("Location: " . APP_URL . $urlRedireccion);
+  }
   public function __destruct()
   {
-    $this->conexion = null;
+    if (self::$conexion instanceof PDO && !self::$conexion->inTransaction()) {
+      self::$conexion = null;
+    }
+    if (self::$conexion2 instanceof PDO && !self::$conexion2->inTransaction()) {
+      self::$conexion2 = null;
+    }
   }
-
-  //Métodos protegidos para el encapsulamiento
-  protected function conectar()
+  public function hacerPeticionesAPIs(array $instruccionesPe)
   {
-    return $this->conectarP();
+    $url = $instruccionesPe['url'];
+    $datosPe = $instruccionesPe['datosPe'] ?? '';
+    $metodo = $instruccionesPe['metodo'] ?? 'POST';
+    $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
+    $peticion = curl_init($url);
+    curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
+    if ($metodo == 'POST' || $metodo == 'post') {
+      if ($enviarComoJSON) {
+        $datosPe = json_encode($datosPe);
+        curl_setopt($peticion, CURLOPT_HTTPHEADER, [
+          'Content-Type: application/json',
+          'Content-Length: ' . strlen($datosPe)
+        ]);
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
+      } else {
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
+      }
+      curl_setopt($peticion, CURLOPT_POST, true);
+    }
+    $respuesta = curl_exec($peticion);
+
+    // 4. Obtener el código de estado HTTP
+    $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
+
+    if (preg_match('/2\d{2}/', $codigoEstado)) {
+      if (is_string($respuesta)) {
+        return json_decode($respuesta, true);
+      } else {
+        return $respuesta;
+      }
+    } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion, error: ' . $codigoEstado
+      ];
+    } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'Ocurrió un error en la petición de: ' . $codigoEstado
+      ];
+    } else {
+      return [
+        'error' => 'El envio de la peticion fallo y no se reconoce el codigo de error que envía: ' . $codigoEstado
+      ];
+    }
+  }
+  public function seleccionarDatos2($instrucciones)
+  {
+    return $this->seleccionarDatosP2($instrucciones);
+  }
+  public function guardarDatos2($instrucciones)
+  {
+    return $this->guardarDatosP2($instrucciones);
+  }
+  public function actualizarDatos2($instrucciones)
+  {
+    return $this->actualizarDatosP2($instrucciones);
+  }
+  public function eliminarDatos2($instrucciones)
+  {
+    return $this->eliminarDatosP2($instrucciones);
+  }
+  public function VEYSNEC($instrucciones)
+  {
+    [
+      'tabla' => $tabla,
+      'WHERE' => $WHERE,
+    ] = $instrucciones;
+    $camposRetorno = $instrucciones['campos'];
+    $RSEN = $instrucciones['RSEN'] ?? false;
+    $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
+
+    $camposArray = explode(',', $instrucciones['campos']);
+    $camposArray = array_map(function ($campo) {
+      return trim($campo);
+    }, $camposArray);
+
+    $instruccionesBD = [
+      'campos' => '*',
+      'tabla' => $tabla,
+      'BD' => ($instrucciones['BD'] ?? NULL),
+      'WHERE' => $WHERE ?? [],
+      'eliminadosYVigentes' => $eliminadosYVigentes,
+    ];
+    $resultado = $this->seleccionarDatos2($instruccionesBD);
+
+    if ($resultado->rowCount() == 0) {
+      $instruccionesRegistro = [
+        'tabla' => $tabla,
+        'BD' => ($instrucciones['BD'] ?? NULL),
+        'datos' => []
+      ];
+      foreach ($WHERE as $clave => $valor) {
+        $instruccionesRegistro['datos'][$clave] = $valor;
+      };
+      $ultimoId = $this->guardarDatos2($instruccionesRegistro);
+      if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Registro automático de la tabla {$tabla} no creado",
+          "texto" => "El Registro automático no ha podido ser creado",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+      $instruccionesBD = [
+        'campos' => $camposRetorno,
+        'tabla' => $tabla,
+        'BD' => ($instrucciones['BD'] ?? NULL),
+        'WHERE' => $WHERE ?? [],
+        'eliminadosYVigentes' => $eliminadosYVigentes
+      ];
+      $resultado = $this->seleccionarDatos2($instruccionesBD);
+      if (count($camposArray) == 1) {
+        return $resultado->fetch(PDO::FETCH_COLUMN);
+      } elseif (count($camposArray) > 1) {
+        return $resultado->fetch(PDO::FETCH_ASSOC);
+      }
+    } else {
+      $info = $resultado->fetch(PDO::FETCH_ASSOC);
+      if ($RSEN == true) {
+        $estado = $info['status'];
+        if ($estado == 0) {
+          $resultadoAct = $this->actualizarDatos2([
+            'tabla' => $tabla,
+            'BD' => ($instrucciones['BD'] ?? NULL),
+            'datos' => [
+              'status' => 1
+            ],
+            'WHERE' => $WHERE
+          ]);
+          if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
+            return $resultadoAct;
+          } else {
+            $info['status'] = 1;
+          }
+        }
+      }
+      if (count($camposArray) == 1) {
+        return $info[$camposArray[0]];
+      } elseif (count($camposArray) > 1) {
+        $resultado = array_intersect_key($info, array_flip($camposArray));
+        return $resultado;
+      }
+    }
+  }
+  public function DECORE($respuesta)
+  {
+    if ($respuesta instanceof FPDF) {
+      $_SESSION['codigoRequest'] = 200;
+      $respuesta->Output('I', 'Reporte');
+      return;
+    }
+
+    if (($respuesta['icono'] ?? '') == 'error') {
+      $codigoEstado = 400;
+    } else {
+      $codigoEstado = $respuesta['codigoRequest'] ?? 200;
+    }
+
+    $_SESSION['codigoRequest'] = $codigoEstado;
+    http_response_code($codigoEstado);
+    echo json_encode($respuesta);
+  }
+  public function Imagenes_Reg($subCarpeta, $imagen, $tablaBD)
+  {
+    $procesarImagenes = function ($subCarpeta, $imagen, $tablaBD) {
+      if ($tablaBD == "") {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Ocurrió un error inesperado",
+          "texto" => "No puedes registrar una imagen con campos vacíos",
+          "icono" => "error",
+        ];
+        return $alerta;
+        exit();
+      }
+      if ($imagen['name'] == "" || $imagen['size'] <= 0) {
+        return "";
+      }
+      if (!file_exists(DIR_FOTOS . $subCarpeta . '/')) {
+        if (!mkdir(DIR_FOTOS . $subCarpeta . '/', 0777)) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Directorio no creado",
+            "texto" => "El directorio para la foto no se pudo crear",
+            "icono" => "error",
+          ];
+          return $alerta;
+          exit();
+        }
+      }
+      if (
+        mime_content_type($imagen['tmp_name']) != "image/jpeg" &&
+        mime_content_type($imagen['tmp_name']) != "image/png"
+      ) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Formato inválido",
+          "texto" => "El formato del archivo seleccionado es incorrecto",
+          "icono" => "error",
+        ];
+        return $alerta;
+        exit();
+      }
+      if (
+        ($imagen['size']) / 1048576 > 5
+      ) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Archivo muy pesado",
+          "texto" => "El tamaño del archivo excede los 5MB permitidos por el sistema",
+          "icono" => "error",
+        ];
+        return $alerta;
+        exit();
+      }
+
+      $nombreFoto = str_ireplace(" ", "_", $tablaBD);
+      $nombreFoto = $nombreFoto . "_" . $this->FechaHora_Sel("Fecha_hora_foto") . '_' . rand(1, 100);
+      switch (mime_content_type($imagen['tmp_name'])) {
+        case "image/jpeg":
+          $nombreFoto =  $nombreFoto . ".jpg";
+          break;
+        case "image/png":
+          $nombreFoto =  $nombreFoto . ".png";
+          break;
+      }
+
+      chmod(DIR_FOTOS . $subCarpeta . '/', 0777);
+      if (!move_uploaded_file($imagen['tmp_name'], DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Archivo no movido",
+          "texto" => "El archivo no pude ser movido a la carpeta destino",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+      return $nombreFoto;
+    };
+    $nombresFotos = [];
+    if (is_array($imagen['name'])) {
+      for ($i = 0; $i < count($imagen['name']); $i++) {
+        $archivoIndividual = [
+          'full_path' => $imagen['full_path'][$i],
+          'name' => $imagen['name'][$i],
+          'size' => $imagen['size'][$i],
+          'tmp_name' => $imagen['tmp_name'][$i],
+          'type' => $imagen['type'][$i],
+        ];
+        $nombresFotos[] = $procesarImagenes($subCarpeta, $archivoIndividual, $tablaBD);
+      }
+    } else {
+      $nombresFotos = $procesarImagenes($subCarpeta, $imagen, $tablaBD);
+    }
+    return $nombresFotos;
+  }
+  public function Imagenes_Act($instrucciones)
+  {
+    $subCarpeta = $instrucciones['subCarpeta'];
+    $imagen = $instrucciones['imagen'];
+    $tablaBD = $instrucciones['tablaBD'];
+    $nombreCampofoto = $instrucciones['nombreCampoFoto'];
+    $nombreCampoId = $instrucciones['nombreCampoId'];
+    $valorId = $instrucciones['valorId'];
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    /*Verificar Campos obligatorios*/
+    if (
+      $subCarpeta == "" || $nombreCampoId == "" || $valorId == "" || $nombreCampofoto == "" ||  $tablaBD == ""
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Ocurrió un error inesperado",
+        "texto" => "No puedes actualizar una imagen con campos vacíos",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+    $resultado = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'WHERE' => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado->rowCount() <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no encontrada",
+        "texto" => "La imagen que ha intentado actualizar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    } else {
+      $resultado = $resultado->fetch();
+    }
+
+    /*Función para comprobar si se seleccionó una imagen*/
+    if (
+      $imagen['name'] == "" &&
+      $imagen['size'] <= 0
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Foto no válida",
+        "texto" => "No puede enviar el campo vació o archivos diferentes al formato solicitado",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Función para crear el directorio de las imágenes si este no existe */
+    if (!file_exists(DIR_FOTOS . $subCarpeta . '/')) { /*Comprueba si el directorio no existe */
+      if (!mkdir(DIR_FOTOS . $subCarpeta . '/', 0777)) { /*Crea el archivo y si no puede, manda una alerta */
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Directorio no creado",
+          "texto" => "El directorio para la foto no se pudo crear",
+          "icono" => "error",
+        ];
+        return $alerta;
+        exit();
+      }
+    }
+
+    if (/*Función para verificar el formato de las imágenes*/
+      mime_content_type($imagen['tmp_name']) != "image/jpeg" &&
+      mime_content_type($imagen['tmp_name']) != "image/png"
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Formato inválido",
+        "texto" => "El formato del archivo seleccionado es incorrecto",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Función para verificar que la imagen no sobrepase los 5 MB*/
+    if (($imagen['size']) / 1048576 > 5) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen muy pesada",
+        "texto" => "El tamaño de la imagen excede los 5MB permitidos por el sistema",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Creación del nombre de la foto*/
+    if ($resultado[$nombreCampofoto] != "") {
+      $nombreFoto = explode(".", $resultado[$nombreCampofoto]);
+      $nombreFoto = $nombreFoto[0];
+    } else {
+      $nombreFoto = str_ireplace(" ", "_", $tablaBD);
+      $nombreFoto .= "_" . $this->FechaHora_Sel("Fecha_hora_foto"); /*para cambiar el sufijo de la foto por si algún usuario repite el nombre */
+    }
+
+    /*Asignación del tipo de archivo */
+    switch (mime_content_type($imagen['tmp_name'])) {
+      case "image/jpeg":
+        $nombreFoto .= ".jpg";
+        break;
+      case "image/png":
+        $nombreFoto .= ".png";
+        break;
+    }
+
+    /*Permisos de lectura y escritura a la carpeta de imagenes */
+    chmod(DIR_FOTOS . $subCarpeta . '/', 0777);
+
+    /*Mover el archivo */
+    if (!move_uploaded_file($imagen['tmp_name'], DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Foto no movida",
+        "texto" => "La imagen no puede ser movida a la carpeta destino",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Eliminar la imagen anterior*/
+    $nombreFotoExis = explode('?', $resultado[$nombreCampofoto]);
+    if (is_file(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0]) && $nombreFotoExis[0] != $nombreFoto) {
+      chmod(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0], 0777); /*damos permiso de lectura y escritura */
+      unlink(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0]); /*eliminamos la foto */
+    }
+
+    //Asignamos el numero de version a la foto para forzar que se actualice en el HTML
+    $nombreFoto .= "?v=" . $this->FechaHora_Sel("Fecha_hora_foto");
+    $resultado = $this->actualizarDatos2([
+      "tabla" => $tablaBD,
+      'BD' => $BD,
+      "datos" => [
+        $nombreCampofoto => $nombreFoto
+      ],
+      "WHERE" => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no actualizada",
+        "texto" => "No hemos podido actualizar algunos datos del usuario",
+        "icono" => "warning",
+      ];
+    } else {
+      /*Para cambiar en tiempo real la foto del usuario que ha iniciado sesión*/
+      if (
+        $tablaBD == 'usuarios' &&
+        $nombreCampofoto == 'foto_usuario' &&
+        $valorId == $_SESSION['cedula']
+      ) {
+        $_SESSION['foto'] = $nombreFoto;
+      }
+
+      $rutaImagen = APP_URL . DIR_FOTOS . $subCarpeta . '/' . $nombreFoto;
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen actualizada",
+        "texto" => "La imagen ha sido actualizada exitosamente",
+        "icono" => "success",
+        // "claseImagen" => 'imagenRegistro',
+        // "idRegistro" => $valorId,
+        // "nuevaRutaImagen" => $rutaImagen
+      ];
+      $this->commit();
+    }
+    return $alerta;
+  }
+  public function Imagenes_Eli($instrucciones)
+  {
+    $subCarpeta = $instrucciones['subCarpeta'];
+    $tablaBD = $instrucciones['tablaBD'];
+    $nombreCampofoto = $instrucciones['nombreCampoFoto'];
+    $nombreCampoId = $instrucciones['nombreCampoId'];
+    $valorId = $instrucciones['valorId'];
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    $valorId = $this->limpiarCadena($valorId);
+    $resultado = $this->seleccionarDatos2([
+      'campos' => $nombreCampofoto,
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'WHERE' => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado->rowCount() <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Registro no encontrado",
+        "texto" => "El registro que ha intentado eliminar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    } else {
+      $resultado = $resultado->fetch();
+    }
+
+    chmod(DIR_FOTOS . $subCarpeta . '/', 0777);/*damos permiso de lectura y escritura */
+    $nombreFoto = $resultado[$nombreCampofoto];
+    $nombreFoto = explode("?", $nombreFoto);
+    $nombreFoto = $nombreFoto[0];
+
+    if (is_file(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+      chmod(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto, 0777);
+      if (!unlink(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Imagen no eliminada",
+          "texto" => "No se ha podido eliminar la imagen",
+          "icono" => "error"
+        ];
+        return $alerta;
+        exit();
+      }
+    } else {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no encontrada",
+        "texto" => "La imagen que ha intentado eliminar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    }
+
+    //Actualizamos el valor en la BD
+    $resultado = $this->actualizarDatos2([
+      "tabla" => $tablaBD,
+      'BD' => $BD,
+      "datos" => [
+        $nombreCampofoto => ""
+      ],
+      "WHERE" => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado == false || $resultado <= 0) {
+      $alerta = [
+        "tipo" => "limpiar",
+        "titulo" => "Imagen no eliminada",
+        "texto" => "No hemos podido actualizar algunos datos, sin embargo la imagen se eliminó con éxito",
+        "icono" => "warning",
+      ];
+    } else {
+      if (
+        $valorId == $_SESSION['cedula'] &&
+        $nombreCampofoto == 'foto_usuario' &&
+        $tablaBD == 'usuarios'
+      ) {
+        $_SESSION['foto'] = "";
+      }
+
+      if ($tablaBD == 'usuarios') {
+        $rutaImagen = APP_URL . DIR_FOTOS . "default.png";
+      } else {
+        $rutaImagen = APP_URL . DIR_FOTOS . "default2.png";
+      }
+
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen eliminada",
+        "texto" => "La imagen ha sido eliminada exitosamente",
+        "icono" => "success",
+        // "claseImagen" => 'imagenRegistro',
+        // "idRegistro" => $valorId,
+        // "nuevaRutaImagen" => $rutaImagen,
+        // "reiniciarPreview" => true
+      ];
+      $this->commit();
+    }
+    return $alerta;
+  }
+  public function Imagenes_Eli2($subCarpeta, $foto)
+  {
+    $foto = explode('?', $foto);
+    $foto = $foto[0];
+    if (is_file(DIR_FOTOS . $subCarpeta . '/' . $foto)) { /*verificamos que se creó */
+      chmod(DIR_FOTOS . $subCarpeta . '/' . $foto, 0777); /*le damos permiso a la carpeta para eliminar */
+      unlink(DIR_FOTOS . $subCarpeta . '/' . $foto); /*borramos el archivos */
+      return true;
+    } else {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no eliminada",
+        "texto" => "La imagen ha sido eliminada con éxito",
+        "icono" => "error"
+      ];
+      return $alerta;
+    }
+  }
+  public function generarCodSeg($instrucciones)
+  {
+    [
+      'tablaBD' => $tablaBD,
+      'prefijo' => $prefijo,
+      'campoID' => $campoID
+    ] = $instrucciones;
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    $resultado = $this->seleccionarDatosP2([
+      'eliminadosYVigentes' => true,
+      'campos' => $campoID,
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'ORDER' => $campoID . ' DESC',
+      'LIMIT' => 1,
+      'FOR_UPDATE' => $tablaBD
+    ]);
+
+    $codigo = 1;
+    $datetime = date("yz");
+
+    //Para que se reinicie diario
+    if ($resultado->rowCount() > 0) {
+      $pedazos = explode('-', $resultado->fetch(PDO::FETCH_COLUMN));
+      if (isset($pedazos[1])) {
+        if ($datetime == $pedazos[1]) {
+          $codigo = ((int)$pedazos[2]) + 1;
+        }
+      }
+    }
+    $nroRandom = str_pad(rand(0, 99), 2, "0", STR_PAD_LEFT);
+    $idRellenado = str_pad($codigo, 5, "0", STR_PAD_LEFT);
+    return $prefijo . '-' . $datetime . '-' . $idRellenado . '-' . $nroRandom;
+  }
+  // #endregion [PUBLIC]
+
+  // #region [ PROTECTED ]
+  protected function conectar($BD = null)
+  {
+    return $this->conectarP($BD);
   }
   protected function commit()
   {
@@ -401,16 +984,24 @@ trait traitModelo
   {
     return $this->eliminarDatosP($tabla, $campo, $id, $permanente);
   }
+  // #endregion [ PROTECTED ]
 
-  /*Métodos privados para el manejo de datos con la BD*/
-  protected function conectarP()
+  // #region [ PRIVATE ]
+  private function conectarP($BD)
   {
-    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
-      return;
+    $conexionElegida = self::$conexion;
+    $this->nombreDB = 'proyecto_lacruz';
+    if ($BD == 'seguridad') {
+      $conexionElegida = self::$conexion2;
+      $this->nombreDB = 'proyecto_lacruz_seguridad';
     }
-    if ($this->conexion == null) {
+
+    if ($conexionElegida instanceof PDO && $conexionElegida->inTransaction()) {
+      return $conexionElegida;
+    }
+    if ($conexionElegida == null) {
       try {
-        $this->conexion = new PDO(
+        $conexionElegida = new PDO(
           "mysql:host=" . $this->servidorDB . ";dbname=" . $this->nombreDB,
           $this->userDB,
           $this->passwordDB,
@@ -420,38 +1011,60 @@ trait traitModelo
             //PDO::ATTR_EMULATE_PREPARES => false, // Mejor seguridad y rendimiento
           ]
         );
-        $this->conexion->exec("SET CHARACTER SET utf8");
+        $conexionElegida->exec("SET CHARACTER SET utf8");
       } catch (PDOException $e) {
         // Para obtener el error
         throw new PDOException("Error al establecer la conexión con la base de datos: " . $e->getMessage(), " Código de error: " . $e->getCode());
       }
     }
-    if (!$this->conexion->inTransaction()) {
+    if (!$conexionElegida->inTransaction()) {
       try {
-        $this->conexion->beginTransaction();
+        $conexionElegida->beginTransaction();
       } catch (PDOException $e) {
         throw new PDOException("Error al iniciar la transacción: " . $e->getMessage(), " Este es el código: " . $e->getCode());
       }
     }
-    return $this->conexion;
+
+    //Guardar la conexion
+    if ($BD == 'seguridad') {
+      self::$conexion2 = $conexionElegida;
+    } else {
+      self::$conexion = $conexionElegida;
+    }
+
+    return $conexionElegida;
   }
-  protected function commitP()
+  private function commitP()
   {
     //verificamos que la conexión esté abierta y esté en una transacción
-    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
+    if (self::$conexion instanceof PDO && self::$conexion->inTransaction()) {
       try {
-        $this->conexion->commit();
+        self::$conexion->commit();
+      } catch (PDOException $e) {
+        throw new PDOException("Error al confirmar la transacción (COMMIT): " . $e->getMessage(), (int)$e->getCode());
+      }
+    }
+    //verificamos que la conexión esté abierta y esté en una transacción
+    if (self::$conexion2 instanceof PDO && self::$conexion2->inTransaction()) {
+      try {
+        self::$conexion2->commit();
       } catch (PDOException $e) {
         throw new PDOException("Error al confirmar la transacción (COMMIT): " . $e->getMessage(), (int)$e->getCode());
       }
     }
   }
-  protected function rollbackP()
+  private function rollbackP()
   {
-    //aqui verificamos igual que en el commit
-    if ($this->conexion instanceof PDO && $this->conexion->inTransaction()) {
+    if (self::$conexion instanceof PDO && self::$conexion->inTransaction()) {
       try {
-        $this->conexion->rollBack();
+        self::$conexion->rollBack();
+      } catch (PDOException $e) {
+        throw new PDOException("Error al revertir la transacción (ROLLBACK): " . $e->getMessage(), (int)$e->getCode());
+      }
+    }
+    if (self::$conexion2 instanceof PDO && self::$conexion2->inTransaction()) {
+      try {
+        self::$conexion2->rollBack();
       } catch (PDOException $e) {
         throw new PDOException("Error al revertir la transacción (ROLLBACK): " . $e->getMessage(), (int)$e->getCode());
       }
@@ -460,21 +1073,20 @@ trait traitModelo
   private function seleccionarDatosP($datos)
   {
     try {
-      $this->conectar();
       //LOS CAMPOS Y LA TABLA
       $consulta = 'SELECT ' . $datos['campos'] . ' FROM ' . $datos['tabla'] . ' ';
 
       //INNER JOINS
       if (isset($datos['datosJoins'])) {
         foreach ($datos['datosJoins'] as $join) {
-          if (is_array($join) && isset($join["TablaDestino"]) && isset($join["conexionLo"])) {
+          if (is_array($join) && isset($join["tablaDestino"]) && isset($join["conexionLo"])) {
             if (isset($join['tipoJoin'])) {
               $consulta .=
-                " " . $join['tipoJoin'] . " JOIN " . $join["TablaDestino"] .
+                " " . $join['tipoJoin'] . " JOIN " . $join["tablaDestino"] .
                 " ON " . $join["conexionLo"];
             } else {
               $consulta .=
-                " INNER JOIN " . $join["TablaDestino"] .
+                " INNER JOIN " . $join["tablaDestino"] .
                 " ON " . $join["conexionLo"];
             }
           }
@@ -501,8 +1113,7 @@ trait traitModelo
         }
         $consulta .= 'status != 0 ';
       }
-
-      //CONDICIONES EXTRAS
+      //WHERE EXTRAS
       if (isset($datos['WHERE'])) {
         foreach ($datos['WHERE'] as $condicion) {
           $consulta .= 'AND ' . $condicion['condicion_campo'] . ' ';
@@ -538,11 +1149,10 @@ trait traitModelo
       }
 
       //PREPARACIÓN (ANTI-SQL-INYECTION)
-      $consulta = $this->conexion->prepare($consulta);
+      $conexion = $this->conectar($datos['BD'] ?? NULL);
+      $consulta = $conexion->prepare($consulta);
 
       //HACEMOS EL BIND DE MARCADORES POR VALORES
-
-      //return $datos['WHERE'];
       if (isset($datos['WHERE'])) {
         foreach ($datos['WHERE'] as $condicion) {
           $consulta->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
@@ -571,10 +1181,9 @@ trait traitModelo
   private function guardarDatosP($tabla, $datos, $condicion)
   {
     try {
-      $this->conectar();
+      $conexion = $this->conectar();
       if ($condicion != null) {
         /*Para verificar si el id, cedula, placa o cualquier código que se esté intentando ingresar ya se encuentra en la BD */
-
         $instruccionesBD = [
           'campos' => '*',
           'registrosEli' => true,
@@ -609,7 +1218,7 @@ trait traitModelo
           $query .= " WHERE " . $condicion["condicion_campo"] . "=" . $condicion["condicion_marcador"];
 
           //la preparamos para evitar la inyeccion de sql
-          $sql = $this->conexion->prepare($query);
+          $sql = $conexion->prepare($query);
 
           //recorremos el array con la condicion de la misma
           foreach ($datos as $clave) {
@@ -645,7 +1254,7 @@ trait traitModelo
           }
 
           $query .= " ) ";
-          $sql = $this->conexion->prepare($query);
+          $sql = $conexion->prepare($query);
 
           foreach ($datos as $clave) {
             $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
@@ -654,8 +1263,8 @@ trait traitModelo
           $sql->execute();
 
           //Porque el ID puede o no ser autoincremental
-          if ($this->conexion->lastInsertId() > 0) {
-            return $this->conexion->lastInsertId();
+          if ($conexion->lastInsertId() > 0) {
+            return $conexion->lastInsertId();
           } else {
             return $sql->rowCount();
           }
@@ -671,9 +1280,7 @@ trait traitModelo
           $query .= $clave["campo_nombre"];
           $C++;
         }
-
         $query .= ") VALUES (";
-
         $C = 0;
         foreach ($datos as $clave) {
           if ($C >= 1) {
@@ -682,20 +1289,13 @@ trait traitModelo
           $query .= $clave["campo_marcador"];
           $C++;
         }
-
         $query .= ")";
-
-        /*conectar() retorna la conexión que preparamos con prepare para la consulta de inserción en la variable $query */
-        $sql = $this->conexion->prepare($query);
-
-
+        $sql = $conexion->prepare($query);
         foreach ($datos as $clave) {
           $sql->bindParam($clave["campo_marcador"], $clave["campo_valor"]);
         }
-
-
         $sql->execute();
-        return $this->conexion->lastInsertId();
+        return $conexion->lastInsertId();
       }
     } catch (\Throwable $th) {
       $this->rollback();
@@ -713,13 +1313,9 @@ trait traitModelo
   private function actualizarDatosP($instrucciones)
   {
     try {
-      $this->conectar();
-      //comenzamos la consulta SQL
+      $conexion = $this->conectar();
       $query = "UPDATE " . $instrucciones['tabla'] . " SET ";
-      //recorremos el arrays con los campos de la misma
       $C = 0;
-      //return $instrucciones['datos'];
-
       foreach ($instrucciones['datos'] as $clave) {
         if ($C >= 1) {
           $query .= ", ";
@@ -730,8 +1326,8 @@ trait traitModelo
       $query .= " WHERE ";
 
       $co = 0;
-      $numeroCondi = count($instrucciones['condiciones']);
-      foreach ($instrucciones['condiciones'] as $condicion) {
+      $numeroCondi = count($instrucciones['WHERE']);
+      foreach ($instrucciones['WHERE'] as $condicion) {
 
         $query .= $condicion["condicion_campo"] . ' ';
         $query .= $condicion['comparacion'] . ' ';
@@ -750,23 +1346,14 @@ trait traitModelo
       if ($numeroCondi > 1) {
         $query .= " )";
       }
-
-      //return $query;
-
-      //la preparamos para evitar la inyeccion de sql
-      $sql = $this->conexion->prepare($query);
-
-      //recorremos el array con la condicion de la misma
+      $sql = $conexion->prepare($query);
       foreach ($instrucciones['datos'] as $dato) {
         $sql->bindParam($dato["campo_marcador"], $dato["campo_valor"]);
       }
-
-      foreach ($instrucciones['condiciones'] as $condicion) {
+      foreach ($instrucciones['WHERE'] as $condicion) {
         $sql->bindParam($condicion["condicion_marcador"], $condicion["condicion_valor"]);
       }
-
       $sql->execute(); //ejecutamos la consulta
-
       return $sql->rowCount();
     } catch (\Throwable $th) {
       $this->rollback();
@@ -784,11 +1371,11 @@ trait traitModelo
   private function eliminarDatosP($tabla, $campo, $id, $permanente)
   {
     try {
-      $this->conectar();
+      $conexion = $this->conectar();
       if ($permanente == true) {
-        $sql = $this->conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
+        $sql = $conexion->prepare("DELETE FROM $tabla WHERE $campo = :id");
       } else {
-        $sql = $this->conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
+        $sql = $conexion->prepare("UPDATE $tabla SET status = 0 WHERE $campo = :id");
       }
       $sql->bindParam(":id", $id);
       $sql->execute();
@@ -811,72 +1398,10 @@ trait traitModelo
       throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
     }
   }
-  public function hacerPeticionesAPIs(array $instruccionesPe)
-  {
-    $url = $instruccionesPe['url'];
-    $datosPe = $instruccionesPe['datosPe'] ?? '';
-    $metodo = $instruccionesPe['metodo'] ?? 'POST';
-    $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
-    $peticion = curl_init($url);
-    curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
-    if ($metodo == 'POST' || $metodo == 'post') {
-      if ($enviarComoJSON) {
-        $datosPe = json_encode($datosPe);
-        curl_setopt($peticion, CURLOPT_HTTPHEADER, [
-          'Content-Type: application/json',
-          'Content-Length: ' . strlen($datosPe)
-        ]);
-        curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
-      } else {
-        curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
-      }
-      curl_setopt($peticion, CURLOPT_POST, true);
-    }
-    $respuesta = curl_exec($peticion);
-
-    // 4. Obtener el código de estado HTTP
-    $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
-
-    if (preg_match('/2\d{2}/', $codigoEstado)) {
-      if (is_string($respuesta)) {
-        return json_decode($respuesta, true);
-      } else {
-        return $respuesta;
-      }
-    } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
-      return [
-        'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion'
-      ];
-    } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
-      return [
-        'error' => 'El o los mensajes no han sido enviados debido a un error en el servidor WebSocket'
-      ];
-    } else {
-      return [
-        'error' => 'El envio del mensaje fallo y no se reconoce el codigo de error que envía el servidor WebSocket'
-      ];
-    }
-  }
-  public function seleccionarDatos2($instrucciones)
-  {
-    return $this->seleccionarDatosP2($instrucciones);
-  }
-  public function guardarDatos2($instrucciones)
-  {
-    return $this->guardarDatosP2($instrucciones);
-  }
-  public function actualizarDatos2($instrucciones)
-  {
-    return $this->actualizarDatosP2($instrucciones);
-  }
-  public function eliminarDatos2($instrucciones)
-  {
-    return $this->eliminarDatosP2($instrucciones);
-  }
   private function seleccionarDatosP2($instrucciones)
   {
     try {
-      $this->conectar();
+      $conexion = $this->conectar(($instrucciones['BD'] ?? NULL));
       $campos = $instrucciones['campos'];
       $tabla = trim($instrucciones['tabla']);
       $datosJoins = $instrucciones['datosJoins'] ?? false;
@@ -887,6 +1412,7 @@ trait traitModelo
       $HAVING = $instrucciones['HAVING'] ?? false;
       $ORDER = $instrucciones['ORDER'] ?? false;
       $LIMIT = $instrucciones['LIMIT'] ?? false;
+      $FOR_UPDATE = $instrucciones['FOR_UPDATE'] ?? false;
       $patronAS_captura = '/\b(as|AS)\b\s*(.*)/i';
       $PEL = '';
       if (preg_match($patronAS_captura, $tabla, $matches)) {
@@ -1024,10 +1550,25 @@ trait traitModelo
       if ($LIMIT) {
         $consulta .= " LIMIT " . $LIMIT;
       }
+      if ($FOR_UPDATE) {
+        if (!is_array($FOR_UPDATE)) {
+          $FOR_UPDATE = [$FOR_UPDATE];
+        }
+        for ($i = 0; $i < count($FOR_UPDATE); $i++) {
+          if ($i == 0) {
+            if ($datosJoins) {
+              $consulta .= " FOR UPDATE OF " . $FOR_UPDATE[$i];
+            } else {
+              $consulta .= " FOR UPDATE";
+            }
+          } else {
+            $consulta .= ", " . $FOR_UPDATE[$i];
+          }
+        };
+      }
 
       $consulta = preg_replace('/\s+/', ' ', $consulta);
-
-      $consulta = $this->conexion->prepare($consulta);
+      $consulta = $conexion->prepare($consulta);
       if ($WHERE) {
         foreach ($WHERE as $claveW2 => $valorW2) {
           $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
@@ -1037,10 +1578,7 @@ trait traitModelo
           } else {
             foreach ($valorW2 as $operadorW2 => $valoresW2) {
               if (is_array($valoresW2)) {
-
                 foreach ($valoresW2 as $valorInd) {
-
-
                   $marcador = array_shift($marcadoresWHERE[$claveW2]);
                   $consulta->bindValue($marcador, $valorInd);
                 }
@@ -1053,7 +1591,6 @@ trait traitModelo
         }
       }
       if ($HAVING) {
-
         foreach ($HAVING as $claveH2 => $valorH2) {
           if (!is_array($valorH2)) {
             $claveH2 = $this->limpiarCadena($claveH2, 'antiFuncionesSQL');
@@ -1093,11 +1630,12 @@ trait traitModelo
   private function guardarDatosP2($instrucciones)
   {
     try {
+      $conexion = $this->conectar($instrucciones['BD'] ?? NULL);
       [
         'tabla' => $tabla,
         'datos' => $datos,
       ] = $instrucciones;
-      $camposReciclado = $instrucciones['camposReciclado'] ?? false;
+      $WHERE =  $instrucciones['WHERE'] ?? $instrucciones['camposReciclado'] ?? false;
       if (empty($datos) || !is_array($datos)) {
         throw new \Exception("El parámetro 'datos' está vacío o no es un array en guardarDatosP.");
       }
@@ -1105,27 +1643,24 @@ trait traitModelo
         throw new \Exception("El parámetro 'tabla' está vacío dentro del metodo de guardarDatosP");
       }
 
-      $this->conectar();
       $esActualizacion = false;
-      if ($camposReciclado != false) {
+      if ($WHERE != false) {
         $instruccionesBD = [
           'campos' => '*',
           'registrosEli' => true,
           'tabla' => $tabla,
-          'WHERE' => []
+          'BD' => ($instrucciones['BD'] ?? NULL),
+          'WHERE' => $WHERE
         ];
-        foreach ($camposReciclado as $campo => &$valor) {
-          $instruccionesBD["WHERE"][$campo] = $valor;
-        }
-        $resultado = $this->seleccionarDatos($instruccionesBD);
 
+        $resultado = $this->seleccionarDatosP2($instruccionesBD);
         if ($resultado->rowCount() > 0) {
           $esActualizacion = true;
         }
       }
       if ($esActualizacion) {
         $instrucciones['reciclaje'] = true;
-        return $this->actualizarDatos($instrucciones);
+        return $this->actualizarDatos2($instrucciones);
       } else {
         $query = "INSERT INTO $tabla ";
 
@@ -1144,7 +1679,7 @@ trait traitModelo
           $C++;
         }
         $query .= '(' . $stringCampos . ') VALUES (' . $stringMarcadores . ')';
-        $sql = $this->conexion->prepare($query);
+        $sql = $conexion->prepare($query);
 
         foreach ($datos as $clave => $valor) {
           $marcador = ':' . str_ireplace('.', "_", $clave);
@@ -1153,8 +1688,8 @@ trait traitModelo
         $sql->execute();
 
         //Porque el ID puede o no ser autoincremental
-        if ($this->conexion->lastInsertId() > 0) {
-          return $this->conexion->lastInsertId();
+        if ($conexion->lastInsertId() > 0) {
+          return $conexion->lastInsertId();
         } else {
           return $sql->rowCount();
         }
@@ -1175,12 +1710,12 @@ trait traitModelo
   private function actualizarDatosP2($instrucciones)
   {
     try {
-      $this->conectar();
+      $conexion = $this->conectar($instrucciones['BD'] ?? NULL);
       [
         'tabla' => $tabla,
         'datos' => $datos,
       ] = $instrucciones;
-      $condiciones = $instrucciones['camposReciclado'] ?? $instrucciones['condiciones'];
+      $WHERE = $instrucciones['camposReciclado'] ?? $instrucciones['WHERE'];
       $reciclaje = $instrucciones['reciclaje'] ?? false;
 
       //comenzamos la consulta SQL
@@ -1215,7 +1750,7 @@ trait traitModelo
       $consulta .= " WHERE ";
 
       $c2 = 0;
-      foreach ($condiciones as $claveW1 => &$valorW1) {
+      foreach ($WHERE as $claveW1 => &$valorW1) {
         if ($c2 != 0) {
           $consulta .= ' AND ';
         }
@@ -1255,14 +1790,12 @@ trait traitModelo
         $c2++;
       }
       unset($valorW1);
-      $sql = $this->conexion->prepare($consulta);
-
+      $sql = $conexion->prepare($consulta);
       foreach ($datos as $campoClave2 => $valorCampo2) {
         $marcador = array_shift($marcadoresConsulta[$campoClave2]);
         $sql->bindValue($marcador, $valorCampo2);
       }
-
-      foreach ($condiciones as $claveW2 => $valorW2) {
+      foreach ($WHERE as $claveW2 => $valorW2) {
         $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
         if (!is_array($valorW2)) {
           $marcador = array_shift($marcadoresConsulta[$claveW2]);
@@ -1290,7 +1823,7 @@ trait traitModelo
         'linea' => $th->getLine(),
         'código de error' => $th->getCode(),
         'mensaje de error' => $th->getMessage(),
-        'consulta' => $consulta,
+        'consulta' => $consulta ?? 'SIN CONSULTA',
         'rastro' => $th->getTrace(),
         'instrucciones' => $instrucciones
       ];
@@ -1300,13 +1833,13 @@ trait traitModelo
   private function eliminarDatosP2($instrucciones)
   {
     try {
+      $conexion = $this->conectar($instrucciones['BD'] ?? NULL);
       [
         'tabla' => $tabla,
         'WHERE' => $WHERE,
       ] = $instrucciones;
       $permanentemente = $instrucciones['fisico'] ?? false;
 
-      $this->conectar();
       $consulta = '';
       if ($permanentemente == true) {
         $consulta .= "DELETE FROM $tabla";
@@ -1366,7 +1899,7 @@ trait traitModelo
       unset($valorW1);
 
       $consulta = preg_replace('/\s+/', ' ', $consulta);
-      $consulta = $this->conexion->prepare($consulta);
+      $consulta = $conexion->prepare($consulta);
 
       foreach ($WHERE as $claveW2 => $valorW2) {
         $claveW2 = $this->limpiarCadena($claveW2, 'antiFuncionesSQL');
@@ -1388,7 +1921,7 @@ trait traitModelo
         }
       }
       $consulta->execute();
-      return $consulta;
+      return $consulta->rowCount();
     } catch (\Throwable $th) {
       $this->rollback();
       $error = [
@@ -1402,102 +1935,5 @@ trait traitModelo
       throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
     }
   }
-  public function VEYSNEC($instrucciones)
-  {
-    [
-      'tabla' => $tabla,
-      'WHERE' => $WHERE,
-    ] = $instrucciones;
-    $RSEN = $instrucciones['RSEN'] ?? false;
-    $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
-    $camposRetorno = $instrucciones['campos'];
-
-    $camposArray = explode(',', $instrucciones['campos']);
-    $camposArray = array_map(function ($campo) {
-      return trim($campo);
-    }, $camposArray);
-
-    $instruccionesBD = [
-      'campos' => '*',
-      'tabla' => $tabla,
-      'WHERE' => $WHERE ?? [],
-      'eliminadosYVigentes' => $eliminadosYVigentes
-    ];
-    $resultado = $this->seleccionarDatos2($instruccionesBD);
-
-    if ($resultado->rowCount() == 0) {
-      $instruccionesRegistro = [
-        'tabla' => $tabla,
-        'datos' => []
-      ];
-      foreach ($WHERE as $clave => $valor) {
-        $instruccionesRegistro['datos'][$clave] = $valor;
-      };
-      $ultimoId = $this->guardarDatos2($instruccionesRegistro);
-      if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Registro automático de la tabla {$tabla} no creado",
-          "texto" => "El Registro automático no ha podido ser creado",
-          "icono" => "error",
-        ];
-        return $alerta;
-      }
-      $instruccionesBD = [
-        'campos' => $camposRetorno,
-        'tabla' => $tabla,
-        'WHERE' => $WHERE ?? [],
-        'eliminadosYVigentes' => $eliminadosYVigentes
-      ];
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
-      if (count($camposArray) == 1) {
-        return $resultado->fetch(PDO::FETCH_COLUMN);
-      } elseif (count($camposArray) > 1) {
-        return $resultado->fetch(PDO::FETCH_ASSOC);
-      }
-    } else {
-      $info = $resultado->fetch(PDO::FETCH_ASSOC);
-      if ($RSEN == true) {
-        $estado = $info['status'];
-        if ($estado == 0) {
-          $resultadoAct = $this->actualizarDatos2([
-            'tabla' => $tabla,
-            'datos' => [
-              'status' => 1
-            ],
-            'condiciones' => $WHERE
-          ]);
-          if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
-            return $resultadoAct;
-          } else {
-            $info['status'] = 1;
-          }
-        }
-      }
-      if (count($camposArray) == 1) {
-        return $info[$camposArray[0]];
-      } elseif (count($camposArray) > 1) {
-        $resultado = array_intersect_key($info, array_flip($camposArray));
-        return $resultado;
-      }
-    }
-  }
-  public function DECORE($respuesta)
-  {
-    if ($respuesta instanceof FPDF) {
-      $_SESSION['codigoRequest'] = 200;
-      $respuesta->Output('I', 'Reporte');
-      return;
-    }
-
-    if (($respuesta['icono'] ?? '') == 'error') {
-      $codigoEstado = 400;
-    } else {
-      $codigoEstado = $respuesta['codigoRequest'] ?? 200;
-    }
-
-    $_SESSION['codigoRequest'] = $codigoEstado;
-    http_response_code($codigoEstado);
-    echo json_encode($respuesta);
-  }
+  // #endregion [ PRIVATE ]
 }

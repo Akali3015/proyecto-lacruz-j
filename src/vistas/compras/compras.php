@@ -128,7 +128,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2 px-2">
                             <h6 class="fw-bold text-muted mb-0"><i class="fas fa-boxes me-2"></i>Detalle de la Compra
                             </h6>
-                            <button type="button" class="btn btn-sm btn-primary" id="btnAgregarFila"
+                            <button type="button" class="btn btn-sm btn-primary" id="btnAgregarFilaAct"
                                 style="background: linear-gradient(135deg, #667eea, #764ba2); border: none;">
                                 <i class="fas fa-plus me-1"></i> Agregar Item
                             </button>
@@ -143,7 +143,7 @@
                             <div class="text-center">Acción</div>
                         </div>
 
-                        <div class="grid-compras-container border border-top-0 rounded-bottom" id="contenedorItems">
+                        <div class="grid-compras-container border border-top-0 rounded-bottom" id="contenedorItemsAct">
                             <!-- JS fills this -->
                         </div>
 

@@ -22,115 +22,106 @@ class componentesModelo extends conexion
             <i class="fas fa-plus-circle"></i> ' . $tituloBtnReg . '
         </button>';
     $listaDataTable = '
-            <div class="main-content" id="mainContent">
-                <dvi class="container-fluid py-4">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h2 class="mb-0">' . $encabezado . '</h2>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            ' . $boton . '
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover tabla-ajax">
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        ';
+      <div class="main-content px-4" id="mainContent">
+          <dvi class="container-fluid py-4">
+              <div class="row mb-4">
+                  <div class="col-md-6">
+                      <h2 class="mb-0">' . $encabezado . '</h2>
+                  </div>
+                  <div class="col-md-6 text-end">
+                      ' . $boton . '
+                  </div>
+              </div>
+              <div class="card">
+                  <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table table-striped table-hover tabla-ajax">
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    ';
     return $listaDataTable;
   }
   public function sidebar()
   {
     $sidebarHTML = '
-      <li>
-        <a href="' . APP_URL . 'home" title="Inicio">
+      <li class="liSidebar">
+        <a href="' . APP_URL . 'home" class="aSidebar">
           <i class="fi fi-rr-home"></i>
           <span>Inicio</span>
         </a>
       </li>
     ';
+
     if (!$this->objPermisos->validarPermisos('dashboard', 'ver dashboard')) {
       $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'dashboard" title="Dashboard">
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'dashboard" class="aSidebar">
             <i class="fi fi-rr-chart-pie-alt"></i>
-            <span>Dashboard</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('producciones', 'ver')) {
-      $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'producciones" title="Producciones">
-            <i class="fi fi-rr-hands-bubbles"></i>
-            <span>Producciones</span>
+            <span>Estadísticas</span>
           </a>
         </li>
       ';
     };
     if (!$this->objPermisos->validarPermisos('ventas', 'ver')) {
       $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'ventas" title="Ventas">
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'ventas" class="aSidebar">
             <i class="fi fi-rr-receipt"></i>
             <span>Ventas</span>
           </a>
         </li>
       ';
     };
-    if (!$this->objPermisos->validarPermisos('pedidos', 'ver')) {
-      $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'pedidos">
-            <i class="fi fi-rr-order-food-mobile"></i>
-            <span>Pedidos</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('compras', 'ver')) {
-      $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'compras">
-            <i class="fi fi-br-shopping-cart-add"></i>
-            <span>Compras</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('clientes', 'ver')) {
-      $sidebarHTML .= '
-        <li>
-          <a href="' . APP_URL . 'clientes" title="Clientes">
-            <i class="fi fi-rr-users-medical"></i>
-            <span>Clientes</span>
-          </a>
-        </li>
-      ';
-    };
     if (!$this->objPermisos->validarPermisos('inventario', 'ver inventario')) {
       $sidebarHTML .= '
-        <li class="nav-item dropdown">
-          <a href="' . APP_URL . 'inventario" title="Inventario">
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'inventario" class="aSidebar">
             <i class="fi fi-rr-supplier-alt"></i>
             <span>Inventario</span>
           </a>
         </li>
       ';
     };
+    if (!$this->objPermisos->validarPermisos('clientes', 'ver')) {
+      $sidebarHTML .= '
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'clientes" class="aSidebar">
+            <i class="fi fi-rr-users-medical"></i>
+            <span>Clientes</span>
+          </a>
+        </li>
+      ';
+    };
     if (!$this->objPermisos->validarPermisos('reportes', 'ver reportes')) {
       $sidebarHTML .= '
-        <li class="nav-item dropdown">
-          <a href="' . APP_URL . 'reportes" title="Reportes">
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'reportes" class="aSidebar">
             <i class="fi fi-rr-chart-histogram"></i>
             <span>Reportes</span>
+          </a>
+        </li>
+      ';
+    };
+    if (!$this->objPermisos->validarPermisos('compras', 'ver')) {
+      $sidebarHTML .= '
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'compras" class="aSidebar">
+            <i class="fi fi-br-shopping-cart-add"></i>
+            <span>Compras</span>
+          </a>
+        </li>
+      ';
+    };
+    if (!$this->objPermisos->validarPermisos('producciones', 'ver')) {
+      $sidebarHTML .= '
+        <li class="liSidebar">
+          <a href="' . APP_URL . 'producciones" class="aSidebar">
+            <i class="fi fi-rr-hands-bubbles"></i>
+            <span>Producciones</span>
           </a>
         </li>
       ';
@@ -164,71 +155,120 @@ class componentesModelo extends conexion
     };
     if ($puedeVerConfig == true) {
       $lisConfig = '';
-
-      if (!$this->objPermisos->validarPermisos('repartidores', 'ver')) {
+      if (!$this->objPermisos->validarPermisos('cambios', 'ver historial de cambio')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'repartidores">
-              <i class="fi fi-rr-person-carry-box"></i>
-              <span>Repartidores</span>
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'monedas/cambios-monedas" class="aSidebar">
+              <i class="fi fi-rs-money-transfer-coin-arrow"></i>
+              <span>Cambio Monetario</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('empresasEnvios', 'ver')) {
+      if (!$this->objPermisos->validarPermisos('productos', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'empresasEnvios">
-              <i class="fi fi-rr-shipping-fast"></i>
-              <span>Empresas de envíos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('bancos', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'bancos">
-              <i class="fi fi-rr-bank"></i>
-              <span>Bancos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('categorias', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'categorias">
-              <i class="fi fi-rs-category"></i>
-              <span>Categorías</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('rutas', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'rutas">
-              <i class="fi fi-br-route"></i>
-              <span>Rutas</span>
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'productos" class="aSidebar">
+              <i class="fi fi-rr-bin-bottles"></i>
+              <span>Productos</span>
             </a>
           </li>
         ';
       };
       if (!$this->objPermisos->validarPermisos('usuarios', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'usuarios">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'usuarios" class="aSidebar">
               <i class="fi fi-rr-user"></i>
               <span>Usuarios</span>
             </a>
           </li>
         ';
       };
+      if (!$this->objPermisos->validarPermisos('materiasPrimas', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'materiasPrimas" class="aSidebar">
+              <i class="fi fi-rr-flask"></i>
+              <span>Materias Primas</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('presentaciones', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'presentaciones" class="aSidebar">
+              <i class="fi fi-rr-soap"></i>
+              <span>Presentaciones</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('servicios', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'servicios" class="aSidebar">
+              <i class="fi fi-rr-broom"></i>
+              <span>Servicios</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('unidadesMedidas', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'unidadesMedidas" class="aSidebar">
+              <i class="fi fi-rr-ruler-horizontal"></i>
+              <span>Unidades de Medida</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('insumos', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'insumos" class="aSidebar">
+              <i class="fi fi-rr-jug-bottle"></i>
+              <span>Insumos</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('metodos-pago', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'metodos-pago" class="aSidebar">
+              <i class="fi fi-rr-credit-card"></i>
+              <span>Métodos de Pago</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('monedas', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'monedas" class="aSidebar">
+              <i class="fi fi-rr-money"></i>
+              <span>Monedas</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('repartidores', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'repartidores" class="aSidebar">
+              <i class="fi fi-rr-person-carry-box"></i>
+              <span>Repartidores</span>
+            </a>
+          </li>
+        ';
+      };
       if (!$this->objPermisos->validarPermisos('proveedores', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'proveedores" title="Proveedores">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'proveedores" class="aSidebar">
               <i class="fi fi-rr-seller"></i>
               <span>Proveedores</span>
             </a>
@@ -237,8 +277,8 @@ class componentesModelo extends conexion
       };
       if (!$this->objPermisos->validarPermisos('roles', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'roles">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'roles" class="aSidebar">
               <i class="fi fi-br-organization-chart"></i>
               <span>Roles</span>
             </a>
@@ -247,118 +287,68 @@ class componentesModelo extends conexion
       };
       if (!$this->objPermisos->validarPermisos('cambiosIva', 'ver historial de cambio del iva')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'cambiosIva">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'cambiosIva" class="aSidebar">
               <i class="fi fi-sr-tax-alt"></i>
               <span>IVA</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('cambios', 'ver historial de cambio')) {
+      if (!$this->objPermisos->validarPermisos('empresasEnvios', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'monedas/cambios-monedas">
-              <i class="fi fi-rs-money-transfer-coin-arrow"></i>
-              <span>Cambio Monetario</span>
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'empresasEnvios" class="aSidebar">
+              <i class="fi fi-rr-shipping-fast"></i>
+              <span>Empresas de envíos</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('metodos-pago', 'ver')) {
+      if (!$this->objPermisos->validarPermisos('bancos', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'metodos-pago">
-              <i class="fi fi-rr-credit-card"></i>
-              <span>Métodos de Pago</span>
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'bancos" class="aSidebar">
+              <i class="fi fi-rr-bank"></i>
+              <span>Bancos</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('presentaciones', 'ver')) {
+      if (!$this->objPermisos->validarPermisos('categoriasProductos', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'presentaciones">
-              <i class="fi fi-rr-soap"></i>
-              <span>Presentaciones</span>
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'categoriasProductos" class="aSidebar">
+              <i class="fi fi-rs-category"></i>
+              <span>Categorías</span>
+            </a>
+          </li>
+        ';
+      };
+      if (!$this->objPermisos->validarPermisos('rutas', 'ver')) {
+        $lisConfig .= '
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'rutas" class="aSidebar">
+              <i class="fi fi-br-route"></i>
+              <span>Rutas</span>
             </a>
           </li>
         ';
       };
       if (!$this->objPermisos->validarPermisos('permisos', 'ver')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'permisos">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'permisos" class="aSidebar">
               <i class="fi fi-rr-user-key"></i>
               <span>Permisos</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('unidadesMedidas', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'unidadesMedidas">
-              <i class="fi fi-rr-ruler-horizontal"></i>
-              <span>Unidades de Medida</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('monedas', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'monedas">
-              <i class="fi fi-rr-money"></i>
-              <span>Monedas</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('servicios', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'servicios" title="Servicios">
-              <i class="fi fi-rr-broom"></i>
-              <span>Servicios</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('productos', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'productos" title="Productos">
-              <i class="fi fi-rr-bin-bottles"></i>
-              <span>Productos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('materiasPrimas', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'materiasPrimas" title="Materia Prima">
-              <i class="fi fi-rr-flask"></i>
-              <span>Materias Primas</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('insumos', 'ver')) {
-        $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'insumos" title="Insumos">
-              <i class="fi fi-rr-jug-bottle"></i>
-              <span>Insumos</span>
-            </a>
-          </li>
-        ';
-      };
       if (!$this->objPermisos->validarPermisos('bitacora', 'ver bitacora')) {
         $lisConfig .= '
-          <li>
-            <a href="' . APP_URL . 'bitacora" title="Bitácora">
+          <li class="liSidebar">
+            <a href="' . APP_URL . 'bitacora" class="aSidebar">
               <i class="fi fi-rr-file-spreadsheet"></i>
               <span>Bitácora</span>
             </a>
@@ -366,33 +356,40 @@ class componentesModelo extends conexion
         ';
       };
       $sidebarHTML .= '
-        <li class="subMenuSidebar" data-bs-toggle="collapse" data-bs-target="#subMenuConfiguraciones">
-          <div class="d-flex">
-            <i class="fi fi-rr-settings"></i>
-            <span>Configuraciones</span>
+        <li class="liSidebar">
+          <a href="#multiNivelCollapse1" data-bs-toggle="collapse" aria-expanded="false" class="aSubSidebar">
+            <div class="d-flex align-items-center w-100">
+              <i class="fi fi-rr-settings me-2"></i>
+              <span class="text-truncate">Configuraciones</span>
+            </div>
+            <i class="fi fi-rr-angle-small-down menu-arrow transition-transform text-muted ms-2"></i>
+          </a>
+          <div class="collapse" id="multiNivelCollapse1">
+            <ul class="list-unstyled mt-1 border-start border-light ms-1 ps-1 pe-0">
+              ' . $lisConfig . '
+            </ul>
           </div>
         </li>
-        <div class="collapse bloqueSubMenu" id="subMenuConfiguraciones">
-          <ul class="btn-toggle-nav list-unstyled ">
-            ' . $lisConfig . '
-          </ul>
-        </div>
       ';
     }
     $sidebarHTML = '
-      <div class="sidebar noselec" id="sidebar">
+      <div class="sidebar noselec">
+        <div class="iconoNombre d-flex flex-column align-items-center justify-content-center text-center mt-2 px-3 w-100">
+          <img src="' . APP_URL . 'src/assets/images/logo2.png" class="navbar-logo rounded m-0" alt="logo">
+          <a class="navbar-brand m-0 text-dark fw-bolder fs-4 text-decoration-none w-100" href="#">J.LACRUZ C.A.</a>
+        </div>
         <nav>
-          <ul class="sidebar-menu">
+          <ul class="sidebar-menu list-unstyled px-0">
             ' . $sidebarHTML . '
-            <li>
-              <a href="assets/manual_de_usuario.pdf" title="Ayuda" target="blank">
+            <li class="liSidebar">
+              <a href="assets/manual_de_usuario.pdf" target="blank" class="aSidebar">
                 <i class="fi fi-rr-info"></i>
                 <span>Ayuda</span>
               </a>
             </li>
             <li class="sidebar-divider"></li>
-            <li>
-              <a class="logout-btn btnCerrarSession" href="#">
+            <li class="liSidebar">
+              <a class="logout-btn btnCerrarSession" href="#" class="aSidebar">
                 <i class="fi fi-rr-sign-out-alt"></i>
                 <span>Cerrar sesión</span>
               </a>
@@ -400,8 +397,98 @@ class componentesModelo extends conexion
           </ul>
         </nav>
       </div>
+      <div class="sidebarBackdrop"></div>
     ';
 
+    /* return '
+      <div class="sidebar noselec" >
+        <div class="iconoNombre d-flex flex-column align-items-center justify-content-center text-center mt-2 px-3 w-100">
+          <img src="src/assets/images/logo2.png" class="navbar-logo rounded m-0" alt="logo">
+          <a class="navbar-brand m-0 text-dark fw-bolder fs-4 text-decoration-none w-100" href="#">J.LACRUZ C.A.</a>
+        </div>
+        <nav>
+          <ul class="sidebar-menu list-unstyled px-0">
+            <li class="mb-1">
+              <a href="#" class="d-flex align-items-center text-dark text-decoration-none py-2 px-3 hover-bg-light w-100">
+                <i class="fi fi-rr-home me-2 text-muted"></i>
+                <span>Inicio</span>
+              </a>
+            </li>
+            <li class="mb-1">
+              <a href="#multiNivelCollapse1" data-bs-toggle="collapse" aria-expanded="false"
+                class="d-flex align-items-center justify-content-between text-dark text-decoration-none py-2 px-3 hover-bg-light w-100">
+                <div class="d-flex align-items-center w-100">
+                  <i class="fi fi-rr-folder-tree me-2 text-muted"></i>
+                  <span class="text-truncate">Menu multinivel</span>
+                </div>
+                <i class="fi fi-rr-angle-small-down menu-arrow transition-transform text-muted ms-2"></i>
+              </a>
+              <div class="collapse" id="multiNivelCollapse1">
+                <ul class="list-unstyled mt-1 border-start border-light ms-1 ps-1 pe-0">
+                  <li class="mb-1">
+                    <a href="#multiNivelCollapse2" data-bs-toggle="collapse" aria-expanded="false"
+                      class="d-flex align-items-center justify-content-between text-dark text-decoration-none p-2 rounded hover-bg-light small fw-bold">
+                      <div class="d-flex">
+                        <i class="fi fi-rr-folder-tree me-2 text-muted"></i>
+                        <span class="text-truncate">Nivel 1</span>
+                      </div>
+                      <i class="fi fi-rr-angle-small-down menu-arrow transition-transform text-muted"></i>
+                    </a>
+                    <div class="collapse" id="multiNivelCollapse2">
+                      <ul class="list-unstyled mt-1 border-start border-light ms-1 ps-1 pe-0">
+                        <li class="mb-1">
+                          <a href="#multiNivelCollapse3" data-bs-toggle="collapse" aria-expanded="false"
+                            class="d-flex align-items-center justify-content-between text-dark text-decoration-none p-2 rounded hover-bg-light small fw-bold">
+                            <div class="d-flex">
+                              <i class="fi fi-rr-folder-tree me-2 text-muted"></i>
+                              <span class="text-truncate">Nivel 2</span>
+                            </div>
+                            <i class="fi fi-rr-angle-small-down menu-arrow transition-transform text-muted"></i>
+                          </a>
+                          <div class="collapse" id="multiNivelCollapse3">
+                            <ul class="list-unstyled mt-1 border-start border-light ms-1 ps-1 pe-0 mb-0">
+                              <li class="mb-0">
+                                <a href="#"
+                                  class="d-flex align-items-center text-muted text-decoration-none p-2 rounded hover-bg-light small">
+                                  <i class="fi fi-rr-folder-tree me-2 text-muted"></i>
+                                  <span class="text-truncate">Nivel 3.1</span>
+                                </a>
+                              </li>
+                              <li class="mb-0">
+                                <a href="#"
+                                  class="d-flex align-items-center text-muted text-decoration-none p-2 rounded hover-bg-light small">
+                                  <i class="fi fi-rr-folder-tree me-2 text-muted"></i>
+                                  <span class="text-truncate">Nivel 3.2</span>
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </li>
+                        <!-- Final Menu Nivel 4 -->
+                        <li class="mb-0">
+                          <a href="#"
+                            class="d-flex align-items-center text-muted text-decoration-none p-2 rounded hover-bg-light small">
+                            <span class="text-truncate">Nivel 3.2 Directo</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                  <!-- Final Menu Nivel 3 -->
+                  <li class="mb-0">
+                    <a href="#"
+                      class="d-flex align-items-center text-muted text-decoration-none p-2 rounded hover-bg-light small">
+                      <span class="text-truncate">Nivel 2.2 Directo</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="sidebarBackdrop"></div>
+    '; */
     return $sidebarHTML;
   }
 }

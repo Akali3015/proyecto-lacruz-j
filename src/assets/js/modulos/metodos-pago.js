@@ -11,18 +11,22 @@ $(document).on('DOMContentLoaded', async function (e) {
     encabezados: {
       "id_metodo_pago": "ID",
       "nombre_metodo_pago": "NOMBRE",
-      "necesita_moneda": "¿NECESITA MONEDA?",
+      "necesita_moneda": "MONEDA",
+      "necesita_banco_emisor": "B. EMISOR",
+      "necesita_banco_receptor": "B. RECEPTOR",
+      "necesita_referencia": "REFERENCIA",
     },
     informacionPe: {
       'modulo': 'metodos-pago',
-      'datosPe': {
-        'accion': 'listar'
-      }
+      'datosPe': { 'accion': 'listar' }
     },
     campoIdBtn: 'id_metodo_pago',
     botones: 'CRUD',
     infoTratoEspecial: {
       necesita_moneda: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
+      necesita_banco_emisor: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
+      necesita_banco_receptor: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
+      necesita_referencia: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
     },
   });
 })
@@ -52,11 +56,17 @@ $(document).on('click', '.botonEliminar', function (e) {
 $(document).off('click', '.botonEditar');
 $(document).on('click', '.botonEditar', async function (e) {
   e.preventDefault();
-  await obtenerDatosRegistro({
-    boton: this,
-    campoId: 'id_metodo_pago',
-    modulo: 'metodos-pago',
-  });
+  
+  // Obtener los datos (esta función ya llena los inputs de texto automáticamente)
+  const datos = await obtenerDatosRegistro({ boton: this, campoId: 'id_metodo_pago', modulo: 'metodos-pago' });
+  const form = $($(this).attr('data-bs-target')).find('form');
+  
+  /* // Sincronizar switches
+  form.find('input[type="checkbox"]').each(function() {
+    const name = $(this).attr('name');
+    $(this).prop('checked', datos[name] == 1);
+  }); */
+
   cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
 });
 
@@ -66,4 +76,3 @@ $(document).on('input blur', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'metodos-pago');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN
-

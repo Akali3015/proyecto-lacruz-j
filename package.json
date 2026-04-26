@@ -68,5 +68,8 @@
       "Datepicker": "readonly",
       "Choices": "readonly"
     }
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
   }
 }

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/sweetalert2.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/notifier.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/iconos/uicons/css/all/all.css">
+  <link rel="stylesheet" href="/proyecto-lacruz-j/node_modules/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/header.css">
 </head>
 

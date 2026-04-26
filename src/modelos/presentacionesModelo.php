@@ -37,19 +37,30 @@ class presentacionesModelo extends conexion
       $respuesta = $this->limpiar_Verificar($campos);
       if ($respuesta !== false) {
         return $respuesta;
-        exit();
       }
     }
     return $this->seleccionarPresentacionesP();
   }
-  public function registrarPresentaciones($idUnidadMedida, $nombre, $cantidadPMP)
+  public function registrarPresentaciones($id, $idUnidadMedida, $nombre, $cantidadPMP)
   {
     try {
+      $this->idPresentacion = $id;
       $this->idUnidadMedida = $idUnidadMedida;
       $this->nombrePresentacion = $nombre;
       $this->cantidadPMP = $cantidadPMP;
 
       $campos = [
+        [
+          "campo_nombre" => "id_presentacion",
+          "campo_valor" => $this->idPresentacion,
+          "formulario_nombre" => "id de la presentación",
+          "requerido" => true,
+          "minimo" => minRegexId,
+          "maximo" => maxRegexId,
+          "expresion_re" => regexId,
+          "tabla" => "presentaciones",
+          "debeSerUnico" => true,
+        ],
         [
           "campo_nombre" => "id_unidad_medida",
           "campo_valor" => $this->idUnidadMedida,
@@ -66,9 +77,9 @@ class presentacionesModelo extends conexion
           "campo_valor" => $this->nombrePresentacion,
           "formulario_nombre" => "nombre de la presentación",
           "requerido" => true,
-          "minimo" => minRegexNombrePer,
-          "maximo" => maxRegexNombrePer,
-          "expresion_re" => regexNombrePer,
+          "minimo" => minRegexNombreObj,
+          "maximo" => maxRegexNombreObj,
+          "expresion_re" => regexNombreObj,
           "tabla" => "presentaciones",
           "debeSerUnico" => true,
         ],
@@ -85,7 +96,6 @@ class presentacionesModelo extends conexion
       $respuesta = $this->limpiar_Verificar($campos);
       if ($respuesta !== false) {
         return $respuesta;
-        exit();
       } else {
         return $this->registrarPresentacionesP();
       }
@@ -148,7 +158,6 @@ class presentacionesModelo extends conexion
     $respuesta = $this->limpiar_Verificar($campos);
     if ($respuesta !== false) {
       return $respuesta;
-      exit();
     } else {
       return $this->actualizarPresentacionesP();
     }
@@ -175,7 +184,6 @@ class presentacionesModelo extends conexion
     $respuesta = $this->limpiar_Verificar($campos);
     if ($respuesta !== false) {
       return $respuesta;
-      exit();
     } else {
       return $this->eliminarPresentacionesP();
     }
@@ -186,12 +194,15 @@ class presentacionesModelo extends conexion
   {
     if ($this->idPresentacion == null || $this->idPresentacion == "") {
       $instruccionesBD = [
-        'campos' => 'pr.id_presentacion, pr.nombre_presentacion, pr.cantidad_pmp, um.nombre_unidad_medida',
+        'campos' => '
+          pr.id_presentacion, pr.nombre_presentacion, pr.cantidad_pmp, 
+          um.nombre_unidad_medida
+        ',
         'tabla' => 'presentaciones as pr',
         'PEL' => 'pr',
         'datosJoins' => [
           [
-            'TablaDestino' => 'unidades_medidas as um',
+            'tablaDestino' => 'unidades_medidas as um',
             'conexionLo' => 'pr.id_unidad_medida = um.id_unidad_medida',
           ]
         ]
@@ -200,7 +211,6 @@ class presentacionesModelo extends conexion
       $Presentaciones = $resultado->fetchAll(PDO::FETCH_ASSOC);
       return $Presentaciones;
     } else {
-
         /*Hacemos la consulta */;
       $instruccionesBD = [
         'campos' => '*',
@@ -223,7 +233,6 @@ class presentacionesModelo extends conexion
           "icono" => "error"
         ];
         return $alerta;
-        exit();
       } else {
         $rol = $resultado->fetch(PDO::FETCH_ASSOC);
       }
@@ -233,6 +242,11 @@ class presentacionesModelo extends conexion
   private function registrarPresentacionesP()
   {
     $datos_registro_Presentaciones = [
+      [
+        "campo_nombre" => "id_presentacion",
+        "campo_marcador" => ":Id",
+        "campo_valor" => $this->idPresentacion,
+      ],
       [
         "campo_nombre" => "id_unidad_medida",
         "campo_marcador" => ":unidadMedida",
@@ -261,6 +275,7 @@ class presentacionesModelo extends conexion
       ];
       $this->commit();
     } else {
+      $this->rollback();
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Presentación no registrada",
@@ -293,7 +308,7 @@ class presentacionesModelo extends conexion
           "campo_valor" => $this->cantidadPMP,
         ],
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "id_presentacion",
           "condicion_marcador" => ":id",
@@ -311,6 +326,7 @@ class presentacionesModelo extends conexion
         "texto" => "No se realizó ningún cambio en la presentación",
         "icono" => "warning",
       ];
+      $this->rollback();
     } else {
       $alerta = [
         "tipo" => "limpiarYcerrar",

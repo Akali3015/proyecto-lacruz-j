@@ -1,5 +1,6 @@
 //#region [VARIABLES O CONSTANTES GLOBALES] COMIENZO
 export const rutaAbsoluta = window.location.origin + "/proyecto-lacruz-j/";
+export const rutaFotos = rutaAbsoluta + "src/assets/fotosModulos/";
 export let vista = $('.nombreVista').val();
 export let instanciasDatatable = [];
 export let variableDeError = '';
@@ -80,6 +81,7 @@ export function reiniciarCampo(input) {
 export async function validarEnTiempoReal(input, modulo) {
 
   input = $(input);
+  if (input.is(':disabled')) return;
   let nameImput = input.attr('name')
   let valorIntroducido = input.val();
   let minimo = input.attr('minlength') || false;
@@ -181,7 +183,7 @@ export async function validarEnTiempoReal(input, modulo) {
 }
 export async function validarTodosLosCampos(formulario, modulo) {
 
-  let elementosForm = $(formulario).find('input, select');
+  let elementosForm = $(formulario).find('input, select, textarea');
   elementosForm.each(async (indice, elemento) => {
     await validarEnTiempoReal(elemento, modulo);
   });
@@ -210,6 +212,64 @@ export function cargarInputsActualizarQNR() {
   inputsNR.each((indice, input) => {
     inputsActualizarNoRepetir[$(input).attr('name')] = $(input).val();
   });
+}
+export function mLength(objeto) {
+  if (objeto) {
+    if (objeto instanceof FormData) {
+      return [...objeto.keys()].length;
+    } else {
+      return Object.keys(objeto).length
+    }
+  } else {
+    return 0;
+  }
+}
+export function formateoCampos(elemento, formato) {
+  switch (formato) {
+    case 'referencia':
+      $(elemento).mask('000000', {
+        reverse: true,
+      });
+      break;
+    case 'dinero':
+      $(elemento).mask('#.##0,00', {
+        reverse: true,
+      });
+      break;
+    case 'dineroSL':
+      $(elemento).each(function () {
+        let el = $(this);
+        let esInput = el.is('input, textarea');
+        let valorActual = esInput ? el.val() : el.text();
+        if (!esInput && valorActual.toString().includes(',')) {
+          valorActual = valorActual.toString().replace(/\./g, '').replace(',', '.');
+        }
+        let mascara = valorActual.toString().indexOf('-') > -1 ? 'S#.##0,00' : '#.##0,00';
+        let opciones = {
+          reverse: true,
+          translation: { 'S': { pattern: /-/, optional: true } },
+          onKeyPress: function (val, e, field, options) {
+            const msk = val.indexOf('-') > -1 ? 'S#.##0,00' : '#.##0,00';
+            if (options.mask !== msk) $(field).mask(msk, options);
+          }
+        };
+        if (esInput) {
+          el.unmask().mask(mascara, opciones);
+        } else {
+          let num = parseFloat(valorActual);
+          if (!isNaN(num)) {
+            let prefijo = num < 0 ? '-' : '';
+            let absoluto = Math.abs(num).toFixed(2);
+            let partes = absoluto.split('.');
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            el.text(prefijo + partes.join(','));
+          }
+        }
+      });
+      break;
+    default:
+      break;
+  }
 }
 //#endregion [ VALIDACIONES ] FIN
 
@@ -279,7 +339,6 @@ export async function listarDataTable(instrucciones) {
     $(selectorTabla).DataTable().destroy();
   }
   const data = await pedirDatosAjax(informacionPe);
-  console.log(data)
   let datos = data;
   const arregloColumnas = [];
   const dynamicColumnDefs = [];
@@ -360,14 +419,14 @@ export async function listarDataTable(instrucciones) {
         });
       }
       // Añade la definición de clase
-      dynamicColumnDefs.push({ targets: [targetsCount], className: 'dt-body-center dt-head-center' });
+      dynamicColumnDefs.push({ targets: [targetsCount], className: 'dt-center alineado_vertical' });
       targetsCount++;
     }
   });
 
   if (arregloColumnas.length === 0) {
     arregloColumnas.push({ data: null, title: 'No hay datos disponibles' });
-    dynamicColumnDefs.push({ targets: [0], className: 'tabla' });
+    dynamicColumnDefs.push({ targets: [0], className: 'tabla dt-center' });
     targetsCount = 1; // Aseguramos que targetsCount esté correcto para la siguiente columna (acciones)
   }
   if (botonesAccion != null) {
@@ -382,7 +441,7 @@ export async function listarDataTable(instrucciones) {
         return botonesAccion(info);
       }
     });
-    dynamicColumnDefs.push({ orderable: false, className: 'acciones dt-body-center dt-head-center', targets: [targetsCount] });
+    dynamicColumnDefs.push({ orderable: false, className: 'acciones dt-center alineado_vertical', targets: [targetsCount] });
   }
 
   // Inicializa DataTables con la configuración construida
@@ -457,6 +516,105 @@ export function reiniciarDataTables() {
 //#endregion [ LISTAR CON DATATABLE ] FIN
 
 //#region [ ENVIAR FORMULARIOS CON AJAX ] COMIENZO
+
+export async function convertirHTMLJSON(instrucciones) {
+
+  let {
+    elemento,
+    camposFuera = null,
+    camposFoto = null
+  } = instrucciones
+  elemento = $(elemento);
+
+  let cuerpoPeticion = new FormData();
+  let elementos = elemento.find('select, input, textarea')
+  let datosTransformados = {};
+
+  elementos.each((i, elemento) => {
+    elemento = $(elemento);
+    let name = elemento.attr('name')
+    let type = elemento.attr('type')
+
+    let llaves = name.split('-');
+    let valor = elemento.val()
+    let referencia = datosTransformados;
+
+    //Depurar campos 
+    if (!name || elemento.attr('disabled')) {
+      return true;
+    }
+    if (camposFuera) {
+      let coincide = false
+      camposFuera.forEach(campoF => {
+        if (name.startsWith(campoF) || name == campoF) {
+          coincide = true;
+        }
+      });
+      if (coincide) {
+        return true;
+      }
+    }
+    if (type == 'checkbox' && !elemento.is(':checked')) {
+      return true;
+    }
+
+    //Campos de tipo FILE
+    if (camposFoto) {
+      let esUnCampoFoto = false;
+      llaves.forEach(llave => {
+        if (camposFoto.includes(llave)) {
+          esUnCampoFoto = true;
+        }
+      });
+      if (esUnCampoFoto) return true;
+    }
+    for (let i = 0; i < llaves.length; i++) {
+      const llave = llaves[i];
+      if (!referencia[llave]) {
+        referencia[llave] = {}
+      }
+      if (i == llaves.length - 1) {
+        referencia[llave] = valor
+      } else {
+        referencia = referencia[llave]
+      }
+    }
+  });
+  let huboUnCampoFoto = false;
+
+  if (camposFoto) {
+    camposFoto.forEach(campoFoto => {
+      if (elemento.find(`input[name="${campoFoto}"]`).length > 0) {
+        huboUnCampoFoto = true;
+        const campoHTML = elemento.find('input[name="' + campoFoto + '"]');
+        if (
+          !campoHTML.attr('multiple') &&
+          campoHTML.val() != undefined &&
+          campoHTML.val() != '' &&
+          campoHTML.val() != [] &&
+          campoHTML.val() != null
+        ) {
+          cuerpoPeticion.append(campoFoto, campoHTML[0].files[0]);
+        } else {
+          let imagenes = campoHTML[0].files;
+          for (let i = 0; i < imagenes.length; i++) {
+            const imagen = imagenes[i];
+            cuerpoPeticion.append(campoFoto + '[]', imagen);
+          }
+        }
+      }
+    });
+  }
+  if (huboUnCampoFoto) {
+    if (mLength(datosTransformados) > 0) {
+      cuerpoPeticion.append('metadatos', JSON.stringify(datosTransformados));
+    }
+  } else {
+    cuerpoPeticion = JSON.stringify(datosTransformados);
+  }
+  return cuerpoPeticion;
+
+}
 export async function enviarFormulario(instrucciones) {
   let {
 
@@ -618,7 +776,6 @@ export async function enviarFormulario(instrucciones) {
       }
 
       respuestaJSON.formulario = formulario
-      console.log(respuestaJSON.formulario);
       await alertasAjax(respuestaJSON);
       return respuestaJSON;
     } else if (contentType.includes('application/pdf')) {
@@ -660,7 +817,6 @@ export async function cerrarSession() {
         'accion': 'cerrarSesion'
       }
     });
-    console.log(respuesta);
     await alertasAjax(respuesta);
   }
 }
@@ -804,7 +960,11 @@ export async function eliminarRegistro(instrucciones) {
         });
       }
     }
-    return alertasAjax(respuesta);
+    let resultadoAlerta= await alertasAjax(respuesta);
+    return {
+      resultadoAlerta,
+      respuestaBack:respuesta
+    }
   }
 }
 //#endregion [ PARA ELIMINAR REGISTROS ] FIN
@@ -836,9 +996,14 @@ export async function obtenerDatosRegistro(instrucciones) {
 
   const inputs = formulario.find('select,input,textarea');
   inputs.each((indice, input) => {
+    let tipoCampo = $(input).attr('type');
     const nombreCampo = input.name;
-    if (Object.prototype.hasOwnProperty.call(datosNoAgrupados, nombreCampo)) {
-      input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input
+    if (tipoCampo == 'checkbox') {
+      $(input).prop('checked', (datosNoAgrupados[nombreCampo] == 1 || datosNoAgrupados[nombreCampo] == true));
+    } else if(tipoCampo!='file') {
+      if (Object.prototype.hasOwnProperty.call(datosNoAgrupados, nombreCampo)) {
+        input.value = datosNoAgrupados[nombreCampo]; // Le Asignamos el valor al input
+      }
     }
   });
 
@@ -910,7 +1075,6 @@ export async function pedirDatosAjax(instrucciones) {
 
   let respuesta = '';
   if (buscarDatos) {
-
     let formData = new FormData;
     if (JSONstring) {
       formData = JSON.stringify(datosPe);
@@ -1132,90 +1296,6 @@ export async function extraerDatosAjax(instrucciones) {
 }
 //#endregion [ PARA EXTRAER DATOS DE LA DB E INSERTARLOS EN ELEMENTOS HTML ] FIN
 
-//#region [ DINAMISMO DEL HTML ] COMIENZO
-
-function initSidebar() {
-  const sidebar = $('#sidebar')[0];
-  const sidebarToggle = $('#sidebarToggle')[0];
-  if (sidebar && sidebarToggle) {
-    sidebarToggle.addEventListener('click', function () {
-      sidebar.classList.toggle('active');
-    });
-  }
-
-  $(document).off('click', '.sidebar-menu li')
-  $(document).on('click', '.sidebar-menu li', function (e) {
-    cambiarEstadoLiSidebar.call(this);
-  })
-}
-function cambiarEstadoLiSidebar() {
-  if ($(this).hasClass('activa')) {
-    return;
-  } else {
-    $(this).addClass('activa');
-    $(this).closest('.sidebar-menu').find('li').not($(this)).removeClass('activa')
-  }
-
-  if (!$(this).hasClass('subMenuSidebar')) {
-    let textoOpcionSeleccionada = $(this).find('span').text();
-    sessionStorage.setItem('moduloSeleccionadoSidebar', textoOpcionSeleccionada);
-  }
-}
-function cargarModuloSeleccionaSidebar() {
-  let opcionSeleccionada = sessionStorage.getItem('moduloSeleccionadoSidebar');
-  if (opcionSeleccionada != 'null' && opcionSeleccionada != null) {
-    let opcionesSidebar = $('.sidebar-menu').find('li').find('span');
-    opcionesSidebar.each((indice, elemento) => {
-      if ($(elemento).text() == opcionSeleccionada) {
-        $(elemento).closest('li').addClass('activa')
-        let subMenuPadre = $(elemento).closest('.bloqueSubMenu')
-        if (subMenuPadre.length > 0) {
-          subMenuPadre.addClass('show');
-          let liDeBloqueSM = $('[data-bs-target="#' + subMenuPadre.attr('id') + '"]');
-          liDeBloqueSM.addClass('activa').removeClass('collapsed').attr('aria-expanded', true)
-        }
-      }
-    })
-  }
-}
-function initNotificaciones() {
-  $('.headerPrincipal').find('.custom-dropdown').on('show.bs.dropdown', function () {
-    let that = $(this);
-    setTimeout(function () {
-      that.find('.dropdown-menu').addClass('active');
-    }, 100);
-  });
-  $('.custom-dropdown').on('hide.bs.dropdown', function () {
-    $(this).find('.dropdown-menu').removeClass('active');
-  });
-}
-function eliminarAriaHidden() {
-  $('[aria-hidden="true"]').removeAttr('aria-hidden');
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
-        const target = $(mutation.target);
-        if (target.attr('aria-hidden') === 'true') {
-          // Lo removemos inmediatamente
-          target.removeAttr('aria-hidden');
-        }
-      }
-    });
-  });
-  observer.observe(document.body, {
-    attributes: true,
-    subtree: true,
-    attributeFilter: ['aria-hidden']
-  });
-}
-function iniciarTooltips() {
-  let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
-  })
-}
-//#endregion [ DINAMISMO DEL HTML ] FIN
-
 // #region [WEBSOCKETS] COMIENZO  
 
 // #region [ CONFIGURACIONES Y FUNCIONES GENERALES ] COMIENZO  
@@ -1396,6 +1476,7 @@ export async function listarNotificaciones() {
         status,
         texto_notificacion,
         titulo_notificacion,
+        icono_notificacion,
       } = notificacion
 
       let fecha = cambiarFormatos(fecha_creacion_notificacion, 'fecha_hora');
@@ -1424,7 +1505,7 @@ export async function listarNotificaciones() {
         <li ${bgNoLeida}>
             <a href="#" class="d-flex align-items-center">
                 <div class="img me-3 ${bgNotificacion}">
-                    <img src="http://localhost/proyecto-lacruz-j/src/assets/images/${tipo_notificacion}Icono.png" alt="Image" class="img-fluid">
+                    <img src="http://localhost/proyecto-lacruz-j/src/assets/images/${icono_notificacion}Icono.png" alt="Image" class="img-fluid">
                 </div>
                 <div class="text w-100">
                     <span class="float-end text-muted">${hora}</span>
@@ -1532,6 +1613,987 @@ export async function procesarAccionesResagadas() {
 
 // #endregion [WEBSOCKETS] FIN
 
+// #region [E-COMMERCE] COMIENZO
+export function listarItemPanelCarritoPedido() {
+  let itemCarrito = sessionStorage.getItem('itemsCarritoPedido');
+  $('.depositoDetallesPedido').empty()
+  if (itemCarrito) {
+    itemCarrito = JSON.parse(itemCarrito);
+    let { productos, servicios } = itemCarrito;
+    for (const info of Object.values(productos)) {
+
+      let contenedorDetalles = $('.panelCotizacionPedido').find('.depositoDetallesPedido')
+      let molde = $('.panelCotizacionPedido').find('.moldeItemPedido').clone();
+
+      let productoBD = {
+        'id_producto': 1,
+        'id_presentacion': 1,
+        'nombre_producto': 'CLORO',
+        'precio_bcv_producto': 36.5,
+        'precio_divisas_producto': 1,
+        'nombre_presentacion': '1 Litro',
+        'foto_producto': 'producto_default.png',
+      }
+      let presentacionesBD = [
+        {
+          'id_presentacion': '1',
+          'nombre_presentacion': 'Por Litro',
+          'cantidad_pmp': 1
+        },
+        {
+          'id_presentacion': '2',
+          'nombre_presentacion': 'Bidon',
+          'cantidad_pmp': 20
+        },
+        {
+          'id_presentacion': '3',
+          'nombre_presentacion': 'Por Pipa',
+          'cantidad_pmp': 200
+        },
+      ]
+      let {
+        nombre_producto,
+        precio_bcv_producto,
+        precio_divisas_producto,
+        foto_producto
+      } = productoBD
+      let presentacionBD = presentacionesBD.find((P => P.id_presentacion == productoBD.id_presentacion));
+      let { id_presentacion, nombre_presentacion, cantidad_pmp } = presentacionBD
+
+      let dirFotos = rutaAbsoluta + 'src/assets/images/';
+
+      molde.data({
+        'id': info.id,
+        'id_presentacion': id_presentacion,
+        'tipo_item': 'productos',
+        'precio_bcv': precio_bcv_producto,
+        'precio_divisas': precio_divisas_producto,
+        'cantidad_pmp': cantidad_pmp,
+      })
+
+      molde.find('.nombreItem').text(nombre_producto + ' - ' + nombre_presentacion);
+      molde.find('.imagenItemPedido').attr('src', dirFotos + foto_producto);
+      molde.find('.cantidadItemCarrito').text(info.cantidad)
+
+      molde.removeClass('d-none moldeItemPedido').addClass('itemPedido');
+      contenedorDetalles.append(molde);
+    }
+  }
+  recalcularTotalesPedido();
+}
+function sumarRestarItemCarritoPedido() {
+
+  let detalle = $(this).closest('.itemPedido');
+
+  let { id, tipo_item, id_presentacion } = detalle.data();
+  let items = sessionStorage.getItem('itemsCarritoPedido');
+  items = JSON.parse(items);
+  const cantidadItem = $(this).siblings(".cantidadItemCarrito");
+  let cantidadActual = parseInt(cantidadItem.text() || 0);
+
+  if ($(this).hasClass('btnSumItemPedido')) {
+    cantidadActual++;
+  } else if ($(this).hasClass('btnResItemPedido') && cantidadActual > 1) {
+    cantidadActual--;
+  }
+
+  let objeto = {
+    id: parseInt(id),
+    id_presentacion: parseInt(id_presentacion)
+  }
+  let clave = JSON.stringify(objeto);
+
+  cantidadItem.text(cantidadActual);
+  items[tipo_item][clave].cantidad = cantidadActual;
+
+  items = JSON.stringify(items);
+  sessionStorage.setItem('itemsCarritoPedido', items);
+  recalcularTotalesPedido();
+}
+function recalcularTotalesPedido() {
+
+  let totalBase = 0;
+  let totalDescuento = 0;
+  let tipoMoneda = $('.panelCotizacionPedido').find('.btnTipoPago.active').data('tipo_pago');
+
+  let signoMoneda = '';
+  if (tipoMoneda == 'bs') {
+    signoMoneda = ' Bs';
+  } else {
+    signoMoneda = '$'
+  }
+  $('.panelCotizacionPedido').find('.signoPrecio').text(signoMoneda);
+  $('#modalPagoUbicacion').find('.signoPrecio').text(signoMoneda);
+  $('#modalPagoDetalles').find('.signoPrecio').text(signoMoneda);
+
+  let totalItems = 0;
+
+  $('.depositoDetallesPedido').find(".itemPedido").each(function () {
+
+    const detalle = $(this);
+    let {
+      id,
+      precio_bcv,
+      precio_divisas,
+      cantidad_pmp,
+      id_presentacion
+    } = detalle.data();
+
+    let llave = JSON.stringify({
+      id: parseInt(id),
+      id_presentacion: parseInt(id_presentacion)
+    })
+    let items = JSON.parse(sessionStorage.getItem('itemsCarritoPedido'));
+    let cantidad = parseInt(items['productos'][llave]['cantidad']);
+    totalItems += cantidad;
+
+    let precioBase = 0;
+    if (tipoMoneda == 'bs') {
+      precioBase = precio_bcv;
+    } else {
+      precioBase = precio_divisas
+    }
+    detalle.find('.precioBaseItem').text(precioBase.toFixed(2));
+    detalle.find('.precioMayorItem').text((precioBase - (precioBase * 0.1)).toFixed(2));
+
+    let cantidadBruta = cantidad * cantidad_pmp;
+    let subtotalBase = cantidad * precioBase;
+    let subTotalDescuento = subtotalBase;
+    if (cantidadBruta >= 20) {
+      detalle.find('.subTotalBase').removeClass('d-none');
+      subTotalDescuento = (subtotalBase - (subtotalBase * 0.1)).toFixed(2);
+    } else {
+      detalle.find('.subTotalBase').addClass('d-none');
+    }
+    detalle.find('.cantidadSubTotalBase').text(subtotalBase);
+    detalle.find('.cantidadSubTotalDescuento').text(subTotalDescuento);
+
+    // CALCULO
+    totalBase += parseFloat(subtotalBase);
+    totalDescuento += parseFloat(subTotalDescuento)
+  });
+
+  if (totalItems == 0) {
+    $('.carritoVacio').removeClass('d-none');
+    $('.nroItemsPedido').addClass('d-none')
+  } else {
+    $('.carritoVacio').addClass('d-none');
+    $('.nroItemsPedido').removeClass('d-none').text(totalItems)
+  }
+
+  $(".totalesPedido").find('.cantidadTotalBase').text(totalBase.toFixed(2));
+  $(".totalesPedido").find('.cantidadTotalDescuento').text(totalDescuento.toFixed(2));
+
+  let montoDescuentoMayor = parseFloat((totalBase - totalDescuento).toFixed(2));
+  if (montoDescuentoMayor <= 0) {
+    $('.descuentoPedidoPorMayor').addClass('d-none');
+    $('.totalBase').addClass('d-none').removeClass('d-flex');
+    $(".cantidadDescuentoPedidoPorMayor").text("0.00");
+  } else {
+    $('.descuentoPedidoPorMayor').removeClass('d-none');
+    $('.totalBase').removeClass('d-none').addClass('d-flex');
+    $(".cantidadDescuentoPedidoPorMayor").text(montoDescuentoMayor);
+  }
+
+  //Total delivery
+  let precioDolar = 450.00;
+  let rutas = [
+    {
+      'id_ruta': 1,
+      'minimo_km_ruta': 0,
+      'maximo_km_ruta': 2,
+      'precio_ruta': 0.50
+    },
+    {
+      'id_ruta': '2',
+      'minimo_km_ruta': 3,
+      'maximo_km_ruta': 5,
+      'precio_ruta': 1
+    },
+    {
+      'id_ruta': 3,
+      'minimo_km_ruta': 6,
+      'maximo_km_ruta': 1000,
+      'precio_ruta': 2
+    },
+  ];
+  let kmR = $('#modalPagoUbicacion').find('#inputKilometrosTotales').val();
+  let distanciaKM = parseFloat(kmR != '' ? kmR : 0);
+  let precioKm = 0;
+  rutas.forEach(ruta => {
+    if (
+      distanciaKM >= ruta.minimo_km_ruta &&
+      distanciaKM <= ruta.maximo_km_ruta &&
+      precioKm < ruta.precio_ruta
+    ) {
+      precioKm = ruta.precio_ruta;
+    }
+  });
+
+  if (tipoMoneda == 'bs') precioKm = precioKm * precioDolar;
+  const subtotalEnvio = parseFloat((distanciaKM * precioKm));
+  $('#inputPrecioPorKm').val(precioKm.toFixed(2));
+  $('#inputSubtotalEnvio').val(subtotalEnvio.toFixed(2));
+
+  // Calculo pagos
+  let monedasBD = [
+    {
+      'id_moneda': 1,
+      'nombre_moneda': 'DÓLAR',
+      'valor_moneda': 450.00,
+    },
+    {
+      'id_moneda': 2,
+      'nombre_moneda': 'BOLÍVAR',
+      'valor_moneda': 1,
+    },
+    {
+      'id_moneda': 3,
+      'nombre_moneda': 'EURO',
+      'valor_moneda': 550.00,
+    },
+    {
+      'id_moneda': 4,
+      'nombre_moneda': 'YUAN',
+      'valor_moneda': 70,
+    },
+  ];
+  let totalCancelado = 0.00;
+  $('#modalPagoDetalles').find('.detalles_pago').each((i, e) => {
+    let idMoneda = $(e).find('.selectMonedaPagoPedido').val();
+    let montoPago = $(e).find('.inputMontoPagoPedido').val();
+    montoPago = montoPago.replaceAll('.', '').replaceAll(',', '.');
+
+    if (idMoneda != '' && montoPago != '') {
+      let moneda = monedasBD.find(M => (M.id_moneda == idMoneda));
+      totalCancelado += (moneda.valor_moneda * parseFloat(montoPago));
+    }
+    formateoCampos($(e).find('.inputMontoPagoPedido'), 'dinero')
+  })
+  if (tipoMoneda == 'usd') totalCancelado = totalCancelado / precioDolar;
+
+  //Mandar totales al modal 2 del pago
+  let modalPagoDeta = $('#modalPagoDetalles');
+  modalPagoDeta.find('.totalItemsPedido').text(totalDescuento.toFixed(2))
+  modalPagoDeta.find('.totalDeliveryPedido').text(subtotalEnvio)
+  modalPagoDeta.find('.sumaTotalPedido').text(((totalDescuento + subtotalEnvio).toFixed(2)))
+  modalPagoDeta.find('.canceladoTotalPedido').text(totalCancelado.toFixed(2))
+  modalPagoDeta.find('.restanteTotalPedido').text(((((totalDescuento + subtotalEnvio) - totalCancelado) * -1).toFixed(2)))
+  modalPagoDeta.find('.signoPrecio').text(signoMoneda);
+
+  //Formateo
+  formateoCampos(modalPagoDeta.find('.totalItemsPedido'), 'dineroSL')
+  formateoCampos(modalPagoDeta.find('.totalDeliveryPedido'), 'dineroSL')
+  formateoCampos(modalPagoDeta.find('.sumaTotalPedido'), 'dineroSL')
+  formateoCampos(modalPagoDeta.find('.canceladoTotalPedido'), 'dineroSL')
+  formateoCampos(modalPagoDeta.find('.restanteTotalPedido'), 'dineroSL')
+  formateoCampos($('#inputPrecioPorKm'), 'dineroSL')
+  formateoCampos($('#inputSubtotalEnvio'), 'dineroSL')
+}
+function cambiarMonedaCalculoPedido() {
+  $(this).siblings().removeClass("active btn-dark text-white").addClass("btn-outline-secondary bg-light border-0 text-dark");
+  $(this).addClass("active btn-dark text-white").removeClass("btn-outline-secondary bg-light border-0 text-dark");
+  let monedaSel = $(this).data('tipo_pago');
+  let contenedor = '';
+  if ($(this).closest('.botonera').data('nro_btn') == '1') {
+    contenedor = $('#modalPagoDetalles');
+  } else {
+    contenedor = $('.panelCotizacionPedido')
+  }
+  let botones = contenedor.find('.btnTipoPago');
+  botones.removeClass("active btn-dark text-white").addClass("btn-outline-secondary bg-light border-0 text-dark");
+  let botonElegido = botones.filter(`[data-tipo_pago="${monedaSel}"]`)
+  botonElegido.addClass("active btn-dark text-white").removeClass("btn-outline-secondary bg-light border-0 text-dark");
+
+  if (monedaSel == 'usd') {
+    $('#modalPagoDetalles').find('.infoPagoBCV').addClass('d-none');
+  } else {
+    $('#modalPagoDetalles').find('.infoPagoBCV').removeClass('d-none');
+  }
+
+  recalcularTotalesPedido();
+}
+function eliminarItemPedido() {
+  let detalle = $(this).closest('.itemPedido');
+  let { id, tipo_item, id_presentacion } = detalle.data();
+
+  let llave = JSON.stringify({
+    id: parseInt(id),
+    id_presentacion: parseInt(id_presentacion)
+  })
+
+  let items = JSON.parse(sessionStorage.getItem('itemsCarritoPedido'));
+  if (items[tipo_item][llave]) {
+    delete items[tipo_item][llave];
+  }
+  items = JSON.stringify(items);
+  sessionStorage.setItem('itemsCarritoPedido', items);
+  detalle.remove();
+  recalcularTotalesPedido();
+}
+function obtenerUbicacion() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+let instanciaMapa = '';
+
+async function cargarMapaPedido() {
+  const contenedorMapa = L.DomUtil.get('contenedorMapaPedido');
+  if (contenedorMapa && contenedorMapa._leaflet_id) {
+    if (instanciaMapa) {
+      instanciaMapa.remove();
+      instanciaMapa = null;
+    }
+  }
+  if (contenedorMapa) {
+    const resultado = await navigator.permissions.query({ name: 'geolocation' });
+    const funcionDevolverDelMapa = async () => {
+      const alerta = {
+        tipo: 'simple',
+        icono: 'warning',
+        titulo: 'Permiso denegado!',
+        texto: 'No se puede mostrar el mapa sin la autorización del uso del GPS del dispositivo'
+      };
+      $('#modalPagoUbicacion').find('.btn-close').trigger('click');
+      await alertasAjax(alerta);
+    };
+
+    if (resultado.state === 'prompt') {
+      const alerta = {
+        tipo: 'preguntar',
+        titulo: 'Usar Ubicación actual',
+        texto: '¿Esta de acuerdo en que se use su ubicación actual para el pedido?'
+      };
+      const respuesta = await alertasAjax(alerta);
+      if (!respuesta.isConfirmed) {
+        return funcionDevolverDelMapa();
+      }
+    } else if (resultado.state === 'denied') {
+      return funcionDevolverDelMapa();
+    }
+
+    let ubicacion = '';
+    try {
+      ubicacion = await obtenerUbicacion();
+    } catch (error) {
+      if (error.code == 1) {
+        await funcionDevolverDelMapa();
+        return;
+      }
+      return;
+    }
+    const latitud = ubicacion.coords.latitude;
+    const longitud = ubicacion.coords.longitude;
+
+    // ubicación por default (ubicacion de la persona)
+    const mapa = L.map('contenedorMapaPedido').setView([latitud, longitud], 15);
+    instanciaMapa = mapa;
+    let marcadorActual = L.marker([latitud, longitud]).addTo(mapa).bindPopup('Ubicación del envío');
+    var posicion = marcadorActual.getLatLng();
+    actualizarDetallesEnvio({ 'lat': posicion.lat, 'lng': posicion.lng });
+
+    // Ubicación de JLACRUZ
+    const iconoJLACRUZ = L.divIcon({ className: 'iconoHamburguesa' });
+    const marcadorJLACRUZ = L.marker([10.063276, -69.31708], { icon: iconoJLACRUZ }).addTo(mapa).bindPopup('JLACRUZ');
+
+    // Capa de visualización
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        attribution: '&copy; <a href="#">OpenStreetMap</a> contributors'
+      }
+    ).addTo(mapa);
+
+    // Evento del click
+    mapa.on('click', function clickEnMapa(e) {
+      if (marcadorActual) {
+        mapa.removeLayer(marcadorActual);
+      }
+      marcadorActual = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapa);
+      mapa.panTo([e.latlng.lat, e.latlng.lng]);
+      actualizarDetallesEnvio(e.latlng);
+    });
+
+    $(document).on('click', '.btnSelUbiActualPedido', async function (e) {
+      const ubicacion = await obtenerUbicacion();
+      const latitud = ubicacion.coords.latitude;
+      const longitud = ubicacion.coords.longitude;
+      const latlng = L.latLng(latitud, longitud);
+
+      mapa.flyTo([latitud, longitud], 16, {
+        animate: true,
+        duration: 2
+      });
+
+      if (marcadorActual) {
+        mapa.removeLayer(marcadorActual);
+      }
+      marcadorActual = L.marker([latitud, longitud]).addTo(mapa);
+      actualizarDetallesEnvio(latlng);
+    });
+  }
+}
+async function actualizarDetallesEnvio(latlng) {
+
+  let items = JSON.parse(sessionStorage.getItem('itemsCarritoPedido'))
+  if (!items) {
+    items = {
+      'productos': {},
+      'servicios': {},
+      'delivery': {}
+    }
+  }
+  items['delivery']['latitud'] = latlng.lat;
+  items['delivery']['longitud'] = latlng.lng;
+
+  const centroJLACRUZ = { lat: 10.063276, lng: -69.31708 };
+  let distanciaKM = 0;
+  sessionStorage.setItem('itemsCarritoPedido', JSON.stringify(items));
+
+  let apiKey = "plFhQVWfX5abG1DPt7jja56Syrqh7rY2";
+  try {
+    const respuesta = await fetch(
+      `https://api.tomtom.com/routing/1/calculateRoute/${centroJLACRUZ.lat},${centroJLACRUZ.lng}:${latlng.lat},${latlng.lng}/json?key=${apiKey}&travelMode=car`
+    );
+    const infoRuta = await respuesta.json();
+
+    if (infoRuta.routes[0].summary.lengthInMeters) {
+      distanciaKM = Math.ceil(infoRuta.routes[0].summary.lengthInMeters / 1000);
+    } else {
+      throw new Error('No se pudo encontrar una ruta transitable por carretera');
+    }
+  } catch (error) {
+    console.warn("Falla en Routing API, usando distancia lineal como respaldo:", error);
+    const centroLL = L.latLng(centroJLACRUZ.lat, centroJLACRUZ.lng);
+    distanciaKM = (centroLL.distanceTo(latlng) / 1000).toFixed(2);
+  }
+  $('#inputKilometrosTotales').val(distanciaKM);
+  recalcularTotalesPedido();
+
+  //Obtener ubicacion en reversa
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latlng.lat}&lon=${latlng.lng}`);
+    const data = await response.json();
+    if (data.display_name) {
+      $('#inputDireccionEnvio').val(data.display_name);
+    } else {
+      $('#inputDireccionEnvio').val(`${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
+    }
+  } catch (error) {
+    console.error("Error obteniendo dirección:", error);
+    $('#inputDireccionEnvio').val(`${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
+  }
+}
+function aggDetallePagoPedido() {
+  const detallesT = $('#contenedorDetallesPago').find('.detalles_pago');
+  const htmlMolde = $('#modalPagoDetalles').find('.plantillaDetallePago').html();
+  const stringMolde = htmlMolde.replace(/\[INDICES\]/g, detallesT.length);
+  const molde = $(`<div class="detalles_pago">${stringMolde}</div>`);
+  molde.find('.nroDetalle').text(detallesT.length + 1);
+  molde.find('.btnEliminarDetallePago').removeClass('d-none');
+  molde.removeClass('plantillaDetallePago d-none').addClass('detalles_pago');
+  $('#contenedorDetallesPago').append(molde);
+  actualizarBotonesEliminar();
+  recalcularTotalesPedido();
+}
+function eliDetallePagoPedido() {
+  let detallesT = $('#contenedorDetallesPago').find('.detalles_pago');
+  if (detallesT.length <= 1) return;
+  $(this).closest('.detalles_pago').remove();
+  detallesT = $('#contenedorDetallesPago').find('.detalles_pago');
+  detallesT.each((i, detalle) => {
+    detalle = $(detalle)
+    detalle.find('.nroDetalle').text(i + 1);
+    detalle.find('.selectMetodoPagoPedido').attr('name', `pagos-${i}-id_metodo_pago`)
+    detalle.find('.inputMontoPagoPedido').attr('name', `pagos-${i}-monto_pago`)
+    detalle.find('.selectMonedaPagoPedido').attr('name', `pagos-${i}-id_moneda`)
+    detalle.find('.inputReferenciaPagoPedido').attr('name', `pagos-${i}-referencia_pago`)
+    detalle.find('.selectBancoEmisorPagoPedido').attr('name', `pagos-${i}-id_banco_emisor`)
+    detalle.find('.selectBancoReceptorPagoPedido').attr('name', `pagos-${i}-id_banco_receptor`)
+  });
+  actualizarBotonesEliminar();
+  recalcularTotalesPedido();
+}
+function actualizarBotonesEliminar() {
+  const total = $('#contenedorDetallesPago').find('.detalles_pago').length;
+  if (total <= 1) {
+    $('.btnEliminarDetallePago').addClass('d-none');
+  } else {
+    $('.btnEliminarDetallePago').removeClass('d-none');
+  }
+}
+function mostrarPreviewComprobantes() {
+  const preview = $('#modalPagoDetalles').find('#pagoComprobantesPreview');
+  preview.empty();
+
+  let archivos = Array.from(this.files);
+  archivos.forEach(file => {
+    const nombreFoto = $(`
+      <div class="pago-file-chip">
+        <i class="fi fi-rr-picture"></i>
+        <span>${file.name}</span>
+      </div>
+    `);
+    preview.append(nombreFoto);
+  });
+
+  let drop = $('#modalPagoDetalles').find('.areaComprobantesPago').find('.msjDropCapturesPago');
+  if (archivos.length > 0) {
+    drop.addClass('d-none');
+  } else {
+    drop.removeClass('d-none');
+  }
+}
+async function eliminarPedido() {
+  const resultado = await Swal.fire({
+    title: '¿Eliminar pedido?',
+    text: 'Esta acción vaciará todos los ítems de tu pedido actual.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#c82333',
+    cancelButtonColor: '#4e54c8',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  });
+  if (resultado.isConfirmed) {
+    sessionStorage.removeItem('itemsCarritoPedido');
+    listarItemPanelCarritoPedido();
+    $('#modalPagoDetalles').modal('hide');
+    $('#modalPagoDetalles').find('#contenedorDetallesPago').empty();
+    aggDetallePagoPedido();
+    $('#modalPagoDetalles').find('#inputComprobantes').val('').trigger('change')
+    Swal.fire({ icon: 'success', title: 'Pedido eliminado', timer: 1500, showConfirmButton: false });
+  }
+}
+async function mostrarUOcultarCamposDetallesPagoPedido() {
+
+  let idMetodoPagoSel = $(this).val()
+
+  let detalle = $(this).closest('.detalles_pago');
+  if (idMetodoPagoSel == '') {
+    detalle.find(`
+      .inputReferenciaPagoPedido,
+      .selectBancoEmisorPagoPedido,
+      .selectBancoReceptorPagoPedido
+    `).each((i, e) => {
+      $(e).prop('disabled', true).closest('[class*="col-lg-"]').addClass('d-none')
+    });
+
+    detalle.find('.selectMonedaPagoPedido')
+      .closest('[class*="col-lg-"]').addClass('d-none')
+
+    detalle.find('.selectMetodoPagoPedido')
+      .closest('[class*="col-lg-"]')
+      .removeClass('col-lg-4')
+      .addClass('col-lg-6');
+
+    detalle.find('.inputMontoPagoPedido')
+      .closest('[class*="col-lg-"]')
+      .removeClass('col-lg-4')
+      .addClass('col-lg-6');
+
+    return;
+  }
+  let metodoPagoBD = await pedirDatosAjax({
+    'modulo': 'metodos-pago',
+    'datosPe': {
+      'accion': 'seleccionarUno',
+      id_metodo_pago: idMetodoPagoSel
+    },
+  })
+  let totalCampos = 0;
+
+  //Moneda
+  if (metodoPagoBD.necesita_moneda == 1) {
+    detalle.find('.selectMetodoPagoPedido')
+      .closest('.col-lg-6')
+      .removeClass('col-lg-6')
+      .addClass('col-lg-4');
+    detalle.find('.inputMontoPagoPedido')
+      .closest('.col-lg-6')
+      .removeClass('col-lg-6')
+      .addClass('col-lg-4');
+    detalle.find('.selectMonedaPagoPedido')
+      .val('')
+      .closest('.col-lg-4')
+      .removeClass('d-none');
+  } else {
+    detalle.find('.selectMetodoPagoPedido')
+      .closest('.col-lg-4')
+      .removeClass('col-lg-4')
+      .addClass('col-lg-6');
+    detalle.find('.inputMontoPagoPedido')
+      .closest('.col-lg-4')
+      .removeClass('col-lg-4')
+      .addClass('col-lg-6');
+    detalle.find('.selectMonedaPagoPedido')
+      .val(2)
+      .closest('.col-lg-4')
+      .addClass('d-none');
+  }
+
+  // Referencia
+  if (metodoPagoBD.necesita_referencia == 1) {
+    totalCampos++;
+    detalle
+      .find('.inputReferenciaPagoPedido').prop('disabled', false)
+      .closest('[class*="col-lg"]').removeClass('d-none');
+  } else {
+    detalle
+      .find('.inputReferenciaPagoPedido').prop('disabled', true)
+      .closest('[class*="col-lg"]').addClass('d-none');
+  }
+
+  //Banco emisor
+  if (metodoPagoBD.necesita_banco_emisor == 1) {
+    totalCampos++;
+    detalle
+      .find('.selectBancoEmisorPagoPedido').prop('disabled', false)
+      .closest('[class*="col-lg"]').removeClass('d-none');
+  } else {
+    detalle
+      .find('.selectBancoEmisorPagoPedido').prop('disabled', true)
+      .closest('[class*="col-lg"]').addClass('d-none');
+  }
+
+  // Banco Receptor
+  if (metodoPagoBD.necesita_banco_receptor == 1) {
+    totalCampos++;
+    detalle
+      .find('.selectBancoReceptorPagoPedido').prop('disabled', false)
+      .closest('[class*="col-lg"]').removeClass('d-none');
+  } else {
+    detalle
+      .find('.selectBancoReceptorPagoPedido').prop('disabled', true)
+      .closest('[class*="col-lg"]').addClass('d-none');
+  }
+
+  let largoCSF = 12 / (totalCampos != 0 ? totalCampos : 3);
+
+  let CSF = detalle.find('.inputReferenciaPagoPedido, .selectBancoEmisorPagoPedido, .selectBancoReceptorPagoPedido')
+  CSF.each((i, elemento) => {
+    let grupocCampo = $(elemento).closest('[class*="col-lg"]');
+    grupocCampo.attr('class', function (i, c) {
+      let clase = c.replace(/(^|\s)col-lg-\S+/g, '');
+      return c.replace(/(^|\s)col-lg-\S+/g, '');
+    });
+    grupocCampo.addClass(`col-lg-${largoCSF}`)
+  });
+  recalcularTotalesPedido();
+}
+async function enviarPedido() {
+  let respuesta = await alertasAjax({
+    'tipo': 'preguntar',
+    'titulo': 'Confirmar pedido',
+    'texto': '¿Desea confirmar y registrar su pedido?'
+  })
+  if (respuesta.isConfirmed) {
+
+    let hayCamposInvalidos = await validarTodosLosCampos($(this).closest('.modal').find('#contenedorDetallesPago'), 'pedidos');
+    if (hayCamposInvalidos) {
+      return alertasAjax({
+        'tipo': 'simple',
+        'titulo': 'Campos Inválidos',
+        'texto': 'El formulario del pago tiene campos inválidos, verifique e intente de nuevo',
+        'icono': 'warning'
+      })
+    }
+
+    let pagos = await convertirHTMLJSON({
+      elemento: $('#modalPagoDetalles #contenedorDetallesPago'),
+    })
+    pagos = await JSON.parse(pagos);
+    let comprobantesPago = await convertirHTMLJSON({
+      elemento: $('#modalPagoDetalles .areaComprobantesPago'),
+      camposFoto: ['comprobantes_pago']
+    })
+    let items = JSON.parse(sessionStorage.getItem('itemsCarritoPedido') ?? {});
+    if (mLength(items['productos']) <= 0) {
+      return alertasAjax({
+        'tipo': 'simple',
+        'titulo': 'Sin items en el carrito',
+        'texto': 'No puedes enviar un pedido sin articulos',
+        'icono': 'warning'
+      });
+    }
+    if (!(comprobantesPago instanceof FormData) || mLength(comprobantesPago) <= 0) {
+      return alertasAjax({
+        'tipo': 'simple',
+        'titulo': 'Sin comprobantes de pago',
+        'texto': 'Debe agg al menos un comprobante de pago',
+        'icono': 'warning'
+      });
+    }
+
+    let todaInfo = {
+      ...items,
+      ...pagos,
+      ...{
+        'accion': 'registrar'
+      }
+    };
+    todaInfo.productos = Object.values(items.productos);
+    comprobantesPago.append('metadatos', JSON.stringify(todaInfo));
+    const config = {
+      method: 'POST',
+      headers: encabezadosPeticiones,
+      mode: 'cors',
+      cache: 'no-cache',
+      body: comprobantesPago
+    };
+    respuesta = await (await fetch(rutaAbsoluta + 'pedidos', config)).json();
+    if (respuesta.icono == 'success') {
+      $(this).closest('.modal').modal('hide')
+    }
+
+
+
+    return alertasAjax(respuesta);
+  }
+}
+// #endregion [E-COMMERCE] FIN
+
+//#region [ DINAMISMO DEL HTML ] COMIENZO
+
+function initSidebar() {
+
+  //Evento para abrir el sidebar
+  $(document).off('click', '.sidebarToggle')
+  $(document).on('click', '.sidebarToggle', function (e) {
+    $("body").toggleClass("sidebar-closed");
+    $(".sidebar").toggleClass("show");
+    $(".sidebarBackdrop").toggleClass("show");
+  })
+
+  //Evento para cerrar el sidebar
+  $(document).off('click', '.sidebarBackdrop')
+  $(document).on('click', '.sidebarBackdrop', function (e) {
+    $(".sidebar").removeClass("show");
+    $(this).removeClass("show");
+    $("body").addClass("sidebar-closed");
+  })
+
+  $(document).off('click', '.sidebar-menu li')
+  $(document).on('click', '.sidebar-menu li', function (e) {
+    cambiarEstadoLiSidebar.call(this);
+  })
+}
+function cambiarEstadoLiSidebar() {
+
+  if ($(this).hasClass('activa')) {
+    return;
+  } else {
+    $(this).addClass('activa');
+    $(this).closest('.sidebar-menu').find('li').not($(this)).removeClass('activa')
+  }
+
+  if (!$(this).hasClass('aSubSidebar')) {
+    let textoOpcionSeleccionada = $(this).find('span').text();
+    sessionStorage.setItem('moduloSeleccionadoSidebar', textoOpcionSeleccionada);
+  }
+}
+function cargarModuloSeleccionaSidebar() {
+  let opcionSeleccionada = sessionStorage.getItem('moduloSeleccionadoSidebar');
+  if (opcionSeleccionada != 'null' && opcionSeleccionada != null) {
+    let opcionesSidebar = $('.sidebar-menu').find('li').find('span');
+    opcionesSidebar.each((indice, elemento) => {
+      if ($(elemento).text() == opcionSeleccionada) {
+        $(elemento).closest('li').addClass('activa')
+        let subMenuPadre = $(elemento).closest('.bloqueSubMenu')
+        if (subMenuPadre.length > 0) {
+          subMenuPadre.addClass('show');
+          let liDeBloqueSM = $('[data-bs-target="#' + subMenuPadre.attr('id') + '"]');
+          liDeBloqueSM.addClass('activa').removeClass('collapsed').attr('aria-expanded', true)
+        }
+      }
+    })
+  }
+}
+function initNotificaciones() {
+  $('.headerPrincipal').find('.custom-dropdown').on('show.bs.dropdown', function () {
+    let that = $(this);
+    setTimeout(function () {
+      that.find('.dropdown-menu').addClass('active');
+    }, 100);
+  });
+  $('.custom-dropdown').on('hide.bs.dropdown', function () {
+    $(this).find('.dropdown-menu').removeClass('active');
+  });
+}
+function eliminarAriaHidden() {
+  $('[aria-hidden="true"]').removeAttr('aria-hidden');
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+        const target = $(mutation.target);
+        if (target.attr('aria-hidden') === 'true') {
+          // Lo removemos inmediatamente
+          target.removeAttr('aria-hidden');
+        }
+      }
+    });
+  });
+  observer.observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['aria-hidden']
+  });
+}
+function iniciarTooltips() {
+  let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+}
+//#endregion [ DINAMISMO DEL HTML ] FIN
+
+// #region [CARGAR PRECIO DEL DÓLAR API] COMIENZO
+export async function cargarPrecioDolar() {
+  try {
+    let infoDolarWS = sessionStorage.getItem('infoDolarWS');
+    if (!infoDolarWS) {
+      infoDolarWS = {};
+    } else {
+      infoDolarWS = JSON.parse(infoDolarWS);
+    }
+    const tipoPrecio = infoDolarWS.tipoPrecio;
+    let precioDolar = '';
+    let pedirPorAPI = false;
+
+    if (tipoPrecio == 'Precio Local' || !tipoPrecio) {
+      pedirPorAPI = true;
+    }
+
+    if (pedirPorAPI) {
+      try {
+        const dolar = await (await fetch('https://api-the-vina-node.onrender.com/api/precio-dolar-bcv')).json();
+        precioDolar = dolar.precioDolar.toFixed(2);
+        infoDolarWS['precio'] = precioDolar.toString();
+        infoDolarWS['tipoPrecio'] = 'Precio del BCV';
+      } catch (error) {
+        try {
+          const dolar = await (await fetch('https://ve.dolarapi.com/v1/dolares/oficial')).json();
+          precioDolar = dolar.promedio.toFixed(2);
+          infoDolarWS['precio'] = precioDolar.toString();
+          infoDolarWS['tipoPrecio'] = 'Precio del BCV';
+        } catch (error) {
+          const dolar = await pedirDatosAjax({
+            modulo: 'monedas',
+            datosPe: {
+              accion: 'seleccionarUno',
+              id_moneda: 1
+            }
+          });
+          precioDolar = dolar.valor_moneda.toFixed(2);
+          infoDolarWS['precio'] = precioDolar.toString();
+          infoDolarWS['tipoPrecio'] = 'Precio Local';
+        }
+      }
+    }
+
+    if (infoDolarWS['tipoPrecio'] == 'Precio Local') {
+      $('.tipoDeDolarPrecio').text(infoDolarWS['tipoPrecio']);
+    } else {
+      $('.tipoDeDolarPrecio').empty();
+      $('.tipoDeDolarPrecio').append(`<a href="https://www.bcv.org.ve/">${infoDolarWS['tipoPrecio']}</a>`);
+    }
+
+    let precio = parseFloat(infoDolarWS['precio']).toFixed(2);
+    infoDolarWS['precio'] = precio
+    $('.precio_dolar').text(precio);
+    sessionStorage.setItem('infoDolarWS', JSON.stringify(infoDolarWS))
+  } catch (error) {
+    $('.contenedorPrecioDolar').empty().text('ERROR AL CARGAR EL PRECIO DEL DÓLAR');
+  }
+}
+async function initPrecioDolar() {
+  if (!sessionStorage.getItem('infoDolarWS')) {
+    cargarPrecioDolar();
+  } else {
+    let infoDolar = JSON.parse(sessionStorage.getItem('infoDolarWS'));
+    if (infoDolar['tipoPrecio'] == 'Precio Local') {
+      $('.tipoDeDolarPrecio').text(infoDolar['tipoPrecio']);
+    } else {
+      $('.tipoDeDolarPrecio').empty();
+      $('.tipoDeDolarPrecio').append(`<a href="https://www.bcv.org.ve/">${infoDolar['tipoPrecio']}</a>`);
+    }
+
+    $('.precio_dolar').text(parseFloat(infoDolar['precio']).toFixed(2));
+  }
+  extraerDatosAjax({
+    modulosPeticion: ['monedas'],
+    accionesPeticion: [{ 'accion': 'seleccionarUno', 'id_moneda': 1 }],
+    tipoElemento: ['input'],
+    elementosDestino: [$('.precioDolar')],
+    datosInsertar: ['valor_moneda'],
+    funcionBusqueda: [
+      function (registros) {
+        return registros.find(dato => dato.id_moneda == 1)
+      },
+    ]
+  })
+}
+// #endregion [CARGAR PRECIO DEL DÓLAR API] FIN
+
+// #region [IMAGENES REGISTROS] FIN
+async function actualizarFotoPerfil() {
+  let modal = $(this).closest('.modal')
+  let datos = modal.data();
+  console.log('datos: ', datos)
+  const formulario = modal.find('.formularioActualizarFotoPerfil');
+  const inputFoto = modal.find('#inputFotoPerfil');
+  if (inputFoto[0].files.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: 'Por favor, selecciona una nueva foto para actualizar.',
+    });
+    return;
+  }
+
+  const resultado = await enviarFormulario({
+    formulario: formulario,
+    modulo: datos.tabla_bd,
+    camposFoto: datos.campo_foto
+  });
+  if (resultado && resultado.icono === 'success') {
+    const nuevaRuta = $('#previsualizacionFotoPerfilModal').attr('src');
+    $(`img[data-tabla_bd="${datos.tabla_bd}"][data-campo_id="${datos.campo_id}"][data-valor_id="${datos.valor_id}"]`)
+      .attr('src', nuevaRuta);
+    modal.modal('hide');
+  }
+}
+async function eliminarFotoPerfil() {
+  let modal = $(this).closest('.modal');
+  let datos = modal.data();
+
+  let resultado = await alertasAjax({
+    tipo: 'preguntar',
+    titulo: '¿Estás seguro?',
+    texto: datos.texto_alerta,
+    icono: 'warning',
+  });
+  if (resultado.isConfirmed) {
+    const resultado = await pedirDatosAjax({
+      modulo: datos.tabla_bd,
+      datosPe: {
+        accion: datos.accion_eli,
+        [datos.campo_id]: datos.valor_id
+      }
+    });
+    if (resultado && resultado.icono === 'success') {
+      const rutaDefault = rutaFotos + datos.tabla_bd +'/'+ datos.foto_default;
+      modal.find('#previsualizacionFotoPerfilModal').attr('src', rutaDefault);
+      $(`img[data-tabla_bd="${datos.tabla_bd}"][data-campo_id="${datos.campo_id}"][data-valor_id="${datos.valor_id}"]`)
+      .attr('src', rutaDefault);
+      modal.find('#inputFotoPerfil').val('');
+      modal.modal('hide');
+    }
+    alertasAjax(resultado);
+  }
+}
+// #endregion [IMAGENES REGISTROS] FIN
+
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 //Evento para la precarga datos y eventos
@@ -1541,6 +2603,9 @@ $(document).on('DOMContentLoaded', async function (e) {
   let vistasFueraSe = ['login'];
   if (!vistasFueraSe.includes(vista)) {
     initSidebar();
+    initPrecioDolar();
+    recalcularTotalesPedido();
+    aggDetallePagoPedido();
     cargarModuloSeleccionaSidebar();
     initNotificaciones();
     listarNotificaciones()
@@ -1556,8 +2621,55 @@ $(document).on('DOMContentLoaded', async function (e) {
         textoDefault: 'Seleccione una opción'
       }]
     });
+    listarItemPanelCarritoPedido();
   }
 });
+//#region [ IMAGENES DE REGISTROS ] COMIENZO
+
+// Sincronizar imagen con la del perfil
+$(document).on('click', '.fotoRegistro', function () {
+  let modal = $('#modalActualizarFotoPerfil');
+  let datos = $(this).data();
+  modal.modal('show');
+  modal.find('#previsualizacionFotoPerfilModal').attr('src', $(this).attr('src'))
+  modal.find('#inputFotoPerfil').val('').attr('name', datos.campo_foto);
+  modal.find('#nombreCampoIdRegistroFoto').val(datos.valor_id).attr('name', datos.campo_id);
+  modal.find('#modalActualizarFotoPerfilLabel').text(datos.label_foto ?? 'Actualizar imagen de registro');
+  modal.find('.inputAccionActFoto').val(datos.accion_act);
+  modal.data(datos);
+});
+
+// Vinculación foto - input FILE
+$(document).on('click', '#btnDispararInputFile', function () {
+  $('#inputFotoPerfil').trigger('click');
+});
+
+// Previsualización de la imagen seleccionada
+$(document).on('change', '#inputFotoPerfil', function (e) {
+  const archivo = e.target.files[0];
+  if (archivo) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      $('#previsualizacionFotoPerfilModal').attr('src', event.target.result);
+    };
+    reader.readAsDataURL(archivo);
+  }
+});
+
+// Actualizar foto de perfil
+$(document).on('click', '.btnGuardarFotoPerfil', async function () {
+  actualizarFotoPerfil.call(this);
+});
+
+// Eliminar foto de perfil
+$(document).on('click', '.btnEliminarFotoPerfil', async function (e) {
+  e.stopPropagation(); // Evitar que el clic se propague al contenedor que abre el input file
+  eliminarFotoPerfil.call(this);
+});
+
+//#endregion [ IMAGENES DE REGISTROS ] FIN
+
+//#region [ NOTIFICACIONES ] COMIENZO
 
 //Eliminar todas las notificaciones
 $(document).off('click', '.btnETLN')
@@ -1570,6 +2682,113 @@ $(document).off('click', '.btnMTLNCL')
 $(document).on('click', '.btnMTLNCL', function () {
   marcarNotificacionesComoLeidas();
 })
+
+//#endregion [ NOTIFICACIONES ] FIN
+
+//#region [E-COMMERCE]
+
+//Evento para validar en tiempo real
+$(document).off('input blur', '#modalPagoDetalles input, #modalPagoDetalles select, #modalPagoDetalles textarea')
+$(document).on('input blur', '#modalPagoDetalles input, #modalPagoDetalles select, #modalPagoDetalles textarea', function () {
+  validarEnTiempoReal(this, 'pedidos');
+})
+
+//Evento para validar en tiempo real
+$(document).off('input', '#modalPagoDetalles .inputReferenciaPagoPedido')
+$(document).on('input', '#modalPagoDetalles .inputReferenciaPagoPedido', function () {
+  formateoCampos($(this), 'referencia');
+})
+
+// Cambiar moneda de calculo
+$(document).off('click', '.btnTipoPago')
+$(document).on("click", ".btnTipoPago", function () {
+  cambiarMonedaCalculoPedido.call(this);
+});
+
+//Aumentar o decrementar un item
+$(document).off('click', '.btnSumItemPedido, .btnResItemPedido')
+$(document).on("click", ".btnSumItemPedido, .btnResItemPedido", function () {
+  sumarRestarItemCarritoPedido.call(this);
+});
+
+//Eliminar un item
+$(document).off("click", ".btnEliItemPedido");
+$(document).on("click", ".btnEliItemPedido", function () {
+  eliminarItemPedido.call(this)
+});
+
+// cargar mapa leafteat
+$(document).off('click', '.btnProcesarPedido');
+$(document).on('click', '.btnProcesarPedido', function (e) {
+  e.preventDefault();
+  const offcanvasCarrito = bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas'));
+  if (offcanvasCarrito) offcanvasCarrito.hide();
+  setTimeout(() => {
+    $('#modalPagoUbicacion').modal('show');
+  }, 200);
+  cargarMapaPedido.call(this);
+});
+
+//Agg detalle pago pedido
+$(document).off('click', '.btnAggDetallePagoPedido');
+$(document).on('click', '.btnAggDetallePagoPedido', function () {
+  aggDetallePagoPedido();
+});
+
+// Eliminar detalle Pago Pedido
+$(document).off('click', '.btnEliminarDetallePago');
+$(document).on('click', '.btnEliminarDetallePago', function () {
+  eliDetallePagoPedido.call($(this));
+});
+
+// Preview de comprobantes
+$(document).off('change', '#modalPagoDetalles #inputComprobantes');
+$(document).on('change', '#modalPagoDetalles #inputComprobantes', function () {
+  mostrarPreviewComprobantes.call(this);
+});
+
+// Borrrar detalles del pedido
+$(document).off('click', '#btnEliminarPedido');
+$(document).on('click', '#btnEliminarPedido', async function () {
+  eliminarPedido();
+});
+
+// Enviar pedido
+$(document).off('click', '#btnConfirmarPedido');
+$(document).on('click', '#btnConfirmarPedido', function () {
+  enviarPedido.call(this);
+});
+
+// Sincronizar Leaflet con el ciclo de vida del Modal
+$(document).on('shown.bs.modal', '#modalPagoUbicacion', function () {
+  if (instanciaMapa) {
+    setTimeout(() => {
+      instanciaMapa.invalidateSize();
+    }, 200);
+  }
+});
+
+// mostrar u ocultar campos de detalles dependiendo del metodo de pago
+$(document).off('change', '.selectMetodoPagoPedido');
+$(document).on('change', '.selectMetodoPagoPedido', function () {
+  mostrarUOcultarCamposDetallesPagoPedido.call(this);
+});
+
+// mostrar u ocultar campos de detalles dependiendo del metodo de pago
+$(document).off('input', '.inputMontoPagoPedido');
+$(document).on('input', '.inputMontoPagoPedido', function () {
+  recalcularTotalesPedido();
+});
+
+// mostrar u ocultar campos de detalles dependiendo del metodo de pago
+$(document).off('change', '.selectMonedaPagoPedido');
+$(document).on('change', '.selectMonedaPagoPedido', function () {
+  recalcularTotalesPedido();
+});
+
+
+
+//#endregion [E-COMMERCE]
 
 //Cerrar sesión
 $(document).off('click', '.btnCerrarSession')
@@ -1596,4 +2815,11 @@ $(document).on('click', '.btnEditarPerfil', function () {
     modulo: 'usuarios',
   });
 })
+
 //#endregion [ DELEGACIÓN DE EVENTOS ] FIN
+
+
+
+
+
+

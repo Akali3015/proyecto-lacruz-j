@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-03-2026 a las 16:50:56
+-- Tiempo de generación: 26-04-2026 a las 18:36:12
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -26,252 +26,6 @@ USE `proyecto_lacruz`;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `accesos`
---
-
-CREATE TABLE `accesos` (
-  `id_acceso` int(11) NOT NULL,
-  `id_rol` int(11) NOT NULL,
-  `id_permiso` int(11) NOT NULL,
-  `id_modulo` int(11) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `accesos`
---
-
-INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_permiso`, `id_modulo`, `status`) VALUES
-(397, 1, 1, 29, 1),
-(398, 1, 1, 28, 1),
-(399, 1, 1, 9, 1),
-(400, 1, 1, 18, 1),
-(401, 1, 2, 18, 1),
-(402, 1, 3, 18, 1),
-(403, 1, 4, 18, 1),
-(404, 1, 5, 18, 1),
-(405, 1, 1, 1, 1),
-(406, 1, 2, 1, 1),
-(407, 1, 3, 1, 1),
-(408, 1, 4, 1, 1),
-(409, 1, 5, 1, 1),
-(410, 1, 1, 8, 1),
-(411, 1, 2, 8, 1),
-(412, 1, 3, 8, 1),
-(413, 1, 4, 8, 1),
-(414, 1, 5, 8, 1),
-(415, 1, 1, 25, 1),
-(416, 1, 2, 25, 1),
-(417, 1, 3, 25, 1),
-(418, 1, 4, 25, 1),
-(419, 1, 5, 25, 1),
-(430, 1, 1, 24, 1),
-(431, 1, 1, 19, 1),
-(432, 1, 2, 24, 1),
-(433, 1, 2, 19, 1),
-(434, 1, 3, 19, 1),
-(435, 1, 4, 24, 1),
-(436, 1, 3, 24, 1),
-(437, 1, 4, 19, 1),
-(438, 1, 5, 24, 1),
-(439, 1, 5, 19, 1),
-(440, 1, 1, 23, 1),
-(441, 1, 2, 23, 1),
-(442, 1, 2, 28, 1),
-(443, 1, 3, 28, 1),
-(444, 1, 3, 23, 1),
-(445, 1, 4, 23, 1),
-(446, 1, 4, 28, 1),
-(447, 1, 5, 28, 1),
-(448, 1, 5, 23, 1),
-(449, 1, 1, 21, 1),
-(450, 1, 2, 21, 1),
-(451, 1, 3, 21, 1),
-(452, 1, 4, 21, 1),
-(453, 1, 5, 21, 1),
-(454, 1, 1, 4, 1),
-(455, 1, 2, 4, 1),
-(456, 1, 3, 4, 1),
-(457, 1, 4, 4, 1),
-(458, 1, 5, 4, 1),
-(459, 1, 5, 15, 1),
-(460, 1, 4, 15, 1),
-(461, 1, 3, 15, 1),
-(462, 1, 2, 15, 1),
-(463, 1, 1, 15, 1),
-(464, 1, 1, 7, 1),
-(465, 1, 2, 7, 1),
-(466, 1, 3, 7, 1),
-(467, 1, 4, 7, 1),
-(468, 1, 5, 7, 1),
-(469, 1, 5, 17, 1),
-(470, 1, 4, 17, 1),
-(471, 1, 3, 17, 1),
-(472, 1, 2, 17, 1),
-(473, 1, 1, 17, 1),
-(474, 1, 1, 5, 1),
-(475, 1, 1, 22, 1),
-(476, 1, 2, 22, 1),
-(477, 1, 2, 5, 1),
-(478, 1, 3, 5, 1),
-(479, 1, 3, 22, 1),
-(480, 1, 4, 22, 1),
-(481, 1, 4, 5, 1),
-(482, 1, 5, 5, 1),
-(483, 1, 5, 22, 1),
-(484, 1, 2, 9, 1),
-(485, 1, 2, 3, 1),
-(486, 1, 1, 3, 1),
-(487, 1, 3, 3, 1),
-(488, 1, 4, 9, 1),
-(489, 1, 3, 9, 1),
-(490, 1, 4, 3, 1),
-(491, 1, 5, 3, 1),
-(492, 1, 5, 9, 1),
-(493, 1, 31, 3, 1),
-(494, 1, 22, 3, 1),
-(495, 1, 21, 10, 1),
-(496, 1, 33, 3, 1),
-(497, 1, 11, 11, 1),
-(498, 1, 37, 11, 1),
-(499, 1, 15, 9, 1),
-(500, 1, 23, 9, 1),
-(501, 1, 43, 15, 1),
-(502, 1, 45, 16, 1),
-(503, 1, 19, 13, 1),
-(504, 1, 42, 9, 1),
-(505, 1, 16, 9, 1),
-(506, 1, 14, 9, 1),
-(507, 1, 36, 11, 1),
-(508, 1, 34, 11, 1),
-(509, 1, 10, 3, 1),
-(510, 1, 32, 3, 1),
-(511, 1, 24, 29, 1),
-(512, 1, 8, 3, 1),
-(513, 1, 6, 10, 1),
-(514, 1, 1, 246, 1),
-(515, 1, 2, 246, 1),
-(516, 1, 3, 246, 1),
-(517, 1, 4, 246, 1),
-(518, 1, 5, 246, 1),
-(519, 3, 1, 18, 1),
-(520, 3, 2, 18, 1),
-(521, 3, 3, 18, 0),
-(522, 3, 4, 18, 0),
-(523, 3, 1, 3, 1),
-(524, 3, 2, 3, 1),
-(525, 3, 3, 3, 1),
-(526, 3, 4, 3, 1),
-(527, 3, 5, 3, 1),
-(528, 3, 2, 9, 1),
-(529, 3, 2, 22, 1),
-(530, 3, 2, 5, 1),
-(531, 3, 2, 17, 1),
-(532, 3, 2, 7, 1),
-(533, 3, 2, 15, 1),
-(534, 3, 2, 4, 1),
-(535, 3, 2, 246, 1),
-(536, 3, 2, 21, 1),
-(537, 3, 2, 28, 1),
-(538, 3, 2, 23, 1),
-(539, 3, 2, 19, 1),
-(540, 3, 2, 24, 1),
-(543, 3, 2, 25, 1),
-(544, 3, 2, 8, 1),
-(545, 3, 2, 1, 1),
-(546, 1, 593, 18, 1),
-(547, 1, 592, 18, 1),
-(548, 2, 24, 29, 1),
-(549, 1, 1, 251, 1),
-(550, 1, 2, 251, 1),
-(551, 1, 3, 251, 1),
-(552, 1, 4, 251, 1),
-(553, 1, 5, 251, 1),
-(554, 1, 5, 249, 1),
-(555, 1, 4, 249, 1),
-(556, 1, 3, 249, 1),
-(557, 1, 2, 249, 1),
-(558, 1, 1, 249, 1),
-(559, 1, 1, 250, 1),
-(560, 1, 2, 250, 1),
-(561, 1, 3, 250, 1),
-(562, 1, 4, 250, 1),
-(563, 1, 5, 250, 1),
-(564, 1, 1, 247, 1),
-(565, 1, 2, 247, 1),
-(566, 1, 3, 247, 1),
-(567, 1, 4, 247, 1),
-(568, 1, 5, 247, 1),
-(569, 1, 1, 248, 1),
-(570, 1, 2, 248, 1),
-(571, 1, 3, 248, 1),
-(572, 1, 4, 248, 1),
-(573, 1, 5, 248, 1),
-(574, 1, 1, 252, 1),
-(575, 1, 2, 252, 1),
-(576, 1, 3, 252, 1),
-(577, 1, 4, 252, 1),
-(578, 1, 5, 252, 1),
-(579, 3, 2, 251, 1),
-(580, 3, 2, 249, 1),
-(581, 3, 2, 250, 1),
-(582, 3, 2, 252, 1),
-(583, 3, 2, 248, 1),
-(584, 3, 2, 247, 1),
-(585, 1, 594, 253, 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `acciones`
---
-
-CREATE TABLE `acciones` (
-  `id_accion` int(11) NOT NULL,
-  `nombre_accion` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `acciones`
---
-
-INSERT INTO `acciones` (`id_accion`, `nombre_accion`, `status`) VALUES
-(1, 'Registrar', 1),
-(2, 'Actualizar', 1),
-(3, 'registrarIva', 1),
-(78, 'borrarDataModuloSS', 1),
-(79, 'actDT', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `acciones_resagadas_usuarios`
---
-
-CREATE TABLE `acciones_resagadas_usuarios` (
-  `id_accion_resagada` int(11) NOT NULL,
-  `id_modulo` int(11) NOT NULL,
-  `cedula_usuario` int(11) NOT NULL,
-  `id_accion` int(11) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `acciones_resagadas_usuarios`
---
-
-INSERT INTO `acciones_resagadas_usuarios` (`id_accion_resagada`, `id_modulo`, `cedula_usuario`, `id_accion`, `status`) VALUES
-(130, 18, 1234567, 78, 1),
-(132, 18, 1234567, 79, 1),
-(258, 18, 30485683, 78, 1),
-(259, 18, 30485684, 78, 1),
-(260, 18, 30485683, 79, 1),
-(261, 18, 30485684, 79, 1);
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `bancos`
 --
 
@@ -281,32 +35,28 @@ CREATE TABLE `bancos` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `bancos`
+--
+
+INSERT INTO `bancos` (`id_banco`, `nombre_banco`, `status`) VALUES
+(1, 'BANCO DE VENEZUELA', 1),
+(2, 'BANCO PROVINCIAL', 1),
+(8, 'BANCO PROVINCIALES', 0);
+
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `bitacora`
+-- Estructura de tabla para la tabla `bancos_detalles_pagos`
 --
 
-CREATE TABLE `bitacora` (
-  `id_bitacora` int(11) NOT NULL,
-  `cedula_usuario` int(11) NOT NULL,
-  `id_accion` int(11) NOT NULL,
-  `id_modulo` int(11) NOT NULL,
-  `id_resultado_bitacora` int(11) NOT NULL,
-  `fecha_bitacora` datetime NOT NULL,
+CREATE TABLE `bancos_detalles_pagos` (
+  `id_banco_detalle_pago` int(11) NOT NULL,
+  `id_detalle_pago` int(11) NOT NULL,
+  `id_banco` int(11) NOT NULL,
+  `es_emisor` tinyint(1) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `bitacora`
---
-
-INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_accion`, `id_modulo`, `id_resultado_bitacora`, `fecha_bitacora`, `status`) VALUES
-(129, 30485684, 3, 18, 1, '2026-03-30 09:02:33', 1),
-(130, 30485684, 3, 18, 1, '2026-03-30 09:50:21', 1),
-(131, 30485684, 3, 18, 1, '2026-03-30 09:50:33', 1),
-(132, 30485684, 3, 18, 1, '2026-03-30 09:53:23', 1),
-(133, 30485684, 3, 18, 1, '2026-03-30 09:55:16', 1);
 
 -- --------------------------------------------------------
 
@@ -327,131 +77,14 @@ CREATE TABLE `cambios_iva` (
 
 INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iva`, `status`) VALUES
 (1, 12, '2025-12-05 18:15:15', 1),
-(2, 13, '2025-12-05 18:17:41', 1),
-(3, 13, '2025-12-05 18:17:55', 1),
-(4, 14, '2025-12-05 18:18:02', 1),
-(5, 12, '2025-12-06 15:56:00', 1),
-(6, 12.01, '2025-12-06 15:56:12', 1),
-(7, 12, '2025-12-06 15:56:22', 1),
-(8, 323, '2026-02-07 20:38:38', 1),
-(9, 12, '2026-02-08 17:30:07', 1),
-(10, 12, '2026-02-08 17:30:50', 1),
-(11, 23, '2026-02-08 17:31:24', 1),
-(12, 23, '2026-02-08 17:32:06', 1),
-(13, 23, '2026-02-08 17:42:21', 1),
-(14, 23, '2026-02-08 17:42:46', 1),
-(15, 23, '2026-02-08 17:46:04', 1),
-(16, 23, '2026-02-08 17:46:38', 1),
-(17, 23, '2026-02-08 17:49:22', 1),
-(18, 23, '2026-02-08 17:52:01', 1),
-(19, 23, '2026-02-08 17:53:18', 1),
-(20, 23, '2026-02-08 17:53:58', 1),
-(21, 23, '2026-02-08 17:54:07', 1),
-(22, 23, '2026-02-08 17:55:03', 1),
-(23, 23, '2026-02-08 17:57:20', 1),
-(24, 23, '2026-02-08 17:59:27', 1),
-(25, 23, '2026-02-08 18:01:07', 1),
-(26, 23, '2026-02-08 18:03:36', 1),
-(27, 23, '2026-02-08 18:04:02', 1),
-(28, 2, '2026-02-08 18:04:13', 1),
-(29, 2, '2026-02-08 18:05:34', 1),
-(30, 2, '2026-02-08 18:06:35', 1),
-(31, 122, '2026-02-08 18:10:16', 1),
-(32, 23, '2026-02-08 18:11:16', 1),
-(33, 45, '2026-02-08 18:11:34', 1),
-(34, 67, '2026-02-08 18:13:24', 1),
-(35, 45, '2026-02-08 18:14:19', 1),
-(36, 67, '2026-02-08 18:15:26', 1),
-(37, 45, '2026-02-08 18:15:35', 1),
-(38, 23, '2026-02-08 18:16:21', 1),
-(39, 43, '2026-02-08 18:17:33', 1),
-(40, 12, '2026-02-08 18:17:55', 1),
-(41, 23, '2026-02-08 18:20:44', 1),
-(42, 23, '2026-02-08 18:20:58', 1),
-(43, 23, '2026-02-08 18:21:33', 1),
-(44, 23, '2026-02-08 18:21:48', 1),
-(45, 23, '2026-02-08 18:22:50', 1),
-(46, 23, '2026-02-08 18:23:44', 1),
-(47, 67, '2026-02-08 18:25:42', 1),
-(48, 67, '2026-02-08 18:25:48', 1),
-(49, 23, '2026-02-08 18:26:53', 1),
-(50, 67, '2026-02-08 18:27:39', 1),
-(51, 67, '2026-02-08 18:30:10', 1),
-(52, 67, '2026-02-08 18:30:33', 1),
-(53, 67, '2026-02-08 18:30:49', 1),
-(54, 67, '2026-02-08 18:31:29', 1),
-(55, 67, '2026-02-08 18:32:19', 1),
-(56, 67, '2026-02-08 18:33:16', 1),
-(57, 67, '2026-02-08 18:33:38', 1),
-(58, 67, '2026-02-08 18:34:13', 1),
-(59, 67, '2026-02-08 18:35:10', 1),
-(60, 67, '2026-02-08 18:35:45', 1),
-(61, 67, '2026-02-08 18:36:37', 1),
-(62, 67, '2026-02-08 19:30:15', 1),
-(63, 23, '2026-02-08 19:32:01', 1),
-(64, 23, '2026-02-08 19:32:07', 1),
-(65, 23, '2026-02-08 19:32:13', 1),
-(66, 23, '2026-02-08 19:32:30', 1),
-(67, 23, '2026-02-08 19:32:46', 1),
-(68, 23, '2026-02-08 19:33:00', 1),
-(69, 67, '2026-02-08 19:36:24', 1),
-(70, 67, '2026-02-08 19:42:39', 1),
-(71, 67, '2026-02-08 19:42:44', 1),
-(72, 67, '2026-02-08 19:44:45', 1),
-(73, 23, '2026-02-08 19:46:45', 1),
-(74, 23, '2026-02-08 19:53:48', 1),
-(75, 23, '2026-02-08 19:58:48', 1),
-(76, 23, '2026-02-08 19:59:03', 1),
-(77, 23, '2026-02-08 20:00:23', 1),
-(78, 45, '2026-02-08 20:00:31', 1),
-(79, 67, '2026-02-08 20:01:57', 1),
-(80, 45, '2026-02-08 20:02:03', 1),
-(81, 23, '2026-02-08 20:07:58', 1),
-(82, 23, '2026-02-08 20:23:55', 1),
-(83, 23, '2026-02-08 20:30:07', 1),
-(84, 67, '2026-02-08 20:31:23', 1),
-(85, 67, '2026-02-08 20:49:03', 1),
-(86, 23, '2026-02-08 20:55:09', 1),
-(87, 12, '2026-02-08 20:55:14', 1),
-(88, 67, '2026-02-08 20:58:27', 1),
-(89, 45, '2026-02-08 20:58:32', 1),
-(90, 16, '2026-02-08 20:58:36', 1),
-(91, 23, '2026-02-08 21:11:37', 1),
-(92, 45, '2026-02-08 21:16:50', 1),
-(93, 16, '2026-02-08 21:16:54', 1),
-(94, 45, '2026-02-08 21:23:29', 1),
-(95, 12, '2026-02-08 21:23:37', 1),
-(96, 67, '2026-02-08 21:23:56', 1),
-(97, 67, '2026-02-08 21:24:01', 1),
-(98, 67, '2026-02-08 21:29:03', 1),
-(99, 16, '2026-02-08 21:29:08', 1),
-(100, 23, '2026-02-08 21:29:39', 1),
-(101, 67, '2026-02-08 21:30:08', 1),
-(102, 23, '2026-02-08 21:44:06', 1),
-(103, 12, '2026-02-08 21:44:10', 1),
-(104, 67, '2026-02-08 21:45:55', 1),
-(105, 45, '2026-02-08 21:46:07', 1),
-(106, 67, '2026-02-08 21:46:40', 1),
-(107, 45, '2026-02-08 21:47:35', 1),
-(108, 12, '2026-02-08 21:48:07', 1),
-(109, 67, '2026-02-09 08:58:10', 1),
-(110, 67, '2026-02-09 09:08:28', 1),
-(111, 12, '2026-02-09 09:08:37', 1),
-(112, 16, '2026-02-09 09:08:44', 1),
-(113, 23, '2026-02-09 09:08:53', 1),
-(114, 12, '2026-02-09 09:11:21', 1),
-(115, 12, '2026-02-09 09:20:39', 1),
-(116, 23, '2026-02-09 09:26:57', 1),
-(117, 23, '2026-02-09 09:27:19', 1),
-(118, 23, '2026-02-09 09:27:41', 1),
-(119, 12, '2026-02-09 21:11:01', 1),
-(120, 12, '2026-02-09 21:11:34', 1),
-(121, 23, '2026-02-09 21:11:45', 1),
-(124, 11, '2026-03-30 09:02:33', 1),
-(125, 11, '2026-03-30 09:50:21', 1),
-(126, 12, '2026-03-30 09:50:33', 1),
-(127, 15, '2026-03-30 09:53:23', 1),
-(128, 12, '2026-03-30 09:55:16', 1);
+(129, 12, '2026-04-24 15:34:11', 1),
+(130, 12, '2026-04-24 15:34:17', 1),
+(131, 12, '2026-04-24 15:36:14', 1),
+(132, 12, '2026-04-24 15:36:50', 1),
+(133, 12, '2026-04-24 15:36:54', 1),
+(134, 12, '2026-04-24 15:41:00', 1),
+(135, 24, '2026-04-24 15:46:47', 1),
+(136, 12, '2026-04-24 15:49:02', 1);
 
 -- --------------------------------------------------------
 
@@ -473,20 +106,20 @@ CREATE TABLE `cambios_monedas` (
 
 INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, `fecha_cambio`, `status`) VALUES
 (1, 1, 17, '2025-12-06 20:12:19', 1),
-(2, 5, 2, '2025-12-06 20:13:37', 1),
-(3, 2, 3, '2025-12-06 20:13:48', 1),
+(2, 2, 2, '2025-12-06 20:13:37', 1),
+(3, 3, 3, '2025-12-06 20:13:48', 1),
 (4, 1, 257.93, '2025-12-06 20:14:15', 1),
 (5, 1, 250, '2025-12-11 18:35:07', 1),
-(6, 2, 250, '2025-12-11 19:04:46', 1),
-(7, 5, 1, '2025-12-14 16:30:34', 1),
+(6, 3, 250, '2025-12-11 19:04:46', 1),
+(7, 2, 1, '2025-12-14 16:30:34', 1),
 (8, 1, 23, '2026-02-07 20:44:34', 1),
 (9, 1, 12, '2026-02-09 20:46:09', 1),
 (10, 1, 250, '2026-02-09 20:46:55', 1),
 (11, 1, 279, '2026-03-30 10:22:47', 1),
-(12, 5, 22, '2026-03-30 10:22:56', 1),
-(13, 2, 500, '2026-03-30 10:23:05', 1),
+(12, 2, 22, '2026-03-30 10:22:56', 1),
+(13, 3, 500, '2026-03-30 10:23:05', 1),
 (14, 1, 12, '2026-03-30 10:29:39', 1),
-(15, 2, 1234, '2026-03-30 10:29:58', 1);
+(15, 3, 1234, '2026-03-30 10:29:58', 1);
 
 -- --------------------------------------------------------
 
@@ -501,6 +134,15 @@ CREATE TABLE `categorias_productos` (
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `categorias_productos`
+--
+
+INSERT INTO `categorias_productos` (`id_categoria_producto`, `nombre_categoria`, `necesitan_materias_primas`, `status`) VALUES
+(1, 'FABRICADOS', 1, 1),
+(2, 'NO FABRICADOS', 0, 1),
+(3, 'INSUMOS', 0, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -509,7 +151,7 @@ CREATE TABLE `categorias_productos` (
 
 CREATE TABLE `clientes` (
   `rif_cedula_cliente` varchar(20) NOT NULL,
-  `razon_social_cliente` varchar(50) NOT NULL,
+  `razon_social_cliente` varchar(100) NOT NULL,
   `telefono_cliente` varchar(11) NOT NULL,
   `correo_cliente` varchar(150) NOT NULL,
   `direccion_cliente` varchar(255) NOT NULL,
@@ -521,15 +163,7 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_cliente`, `correo_cliente`, `direccion_cliente`, `status`) VALUES
-('12345652', 'ANDEROSN DJOA', '04169484649', 'andersonfreitez6@gmail.coM', 'DDDD', 0),
-('12345654', 'ANDEROSN DJOW', '04169484648', 'andersonfreitez6@gmail.com', 'Hilo', 0),
-('123456541', 'ANDEROSN DJO', '04169484642', 'andersonfreitez61@gmail.com', 'DED', 0),
-('12345678', 'ANDERSON', '04169484648', 'andersonfreitez1@gmail.com', 'SANAREsws', 0),
-('123456782', 'ANDERSONA', '04169484647', 'andersonfreitz@gmail.com', 'hfgyhftgn', 0),
-('30485684', 'ANDEROSN DJOW', '04169484649', 'andersonfreitez6@gmail.com', 'jajajj', 0),
-('J12345654', 'ANDEROSN DJOW', '04169484649', 'andersonfreitez89@gmail.com', 'hhhbhbhb', 0),
-('V30333333', 'QAA', '04169484649', 'andersonfreitez6@gmail.cou', 'kmxkkxk', 1),
-('V30485681', 'ANDERSON', '04169484650', 'andersonfreitez6@gmail.com', 'andeiriririi', 1);
+('30485684', 'ANDEROSN FREITEZ', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 1);
 
 -- --------------------------------------------------------
 
@@ -538,9 +172,9 @@ INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_
 --
 
 CREATE TABLE `compras` (
-  `id_compra` int(11) NOT NULL,
+  `id_compra` varchar(20) NOT NULL,
   `rif_proveedor` varchar(20) NOT NULL,
-  `cedula_usuario` int(11) NOT NULL,
+  `cedula_usuario` varchar(20) NOT NULL,
   `fecha_compra` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -550,12 +184,28 @@ CREATE TABLE `compras` (
 --
 
 INSERT INTO `compras` (`id_compra`, `rif_proveedor`, `cedula_usuario`, `fecha_compra`, `status`) VALUES
-(4, '30485684', 30485684, '2026-02-15 15:02:00', 1),
-(5, '30485684', 30485684, '2026-02-15 15:08:00', 1),
-(7, '30485684', 30485684, '2026-02-18 20:56:00', 1),
-(8, '30485684', 30485684, '2026-02-18 20:59:00', 1),
-(9, '30485684', 30485684, '2026-02-18 20:59:00', 1),
-(10, '30485684', 30485684, '2026-02-18 21:04:00', 1);
+('10', '30485684', '30485684', '2026-02-18 21:04:00', 1),
+('11', '123456789', '30485684', '2026-04-05 14:43:00', 1),
+('12', '123456789', '30485684', '2026-04-05 14:49:00', 1),
+('13', '123456789', '30485684', '2026-04-05 14:44:00', 1),
+('4', '30485684', '30485684', '2026-02-15 15:02:00', 1),
+('5', '30485684', '30485684', '2026-02-15 15:08:00', 1),
+('7', '30485684', '30485684', '2026-02-18 20:56:00', 1),
+('8', '30485684', '30485684', '2026-02-18 20:59:00', 1),
+('9', '30485684', '30485684', '2026-02-18 20:59:00', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `comprobantes_pagos`
+--
+
+CREATE TABLE `comprobantes_pagos` (
+  `id_comprobante_pago` int(11) NOT NULL,
+  `id_pago` varchar(20) NOT NULL,
+  `path_comprobante` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -564,9 +214,9 @@ INSERT INTO `compras` (`id_compra`, `rif_proveedor`, `cedula_usuario`, `fecha_co
 --
 
 CREATE TABLE `deliveries` (
-  `id_delivery` int(11) NOT NULL,
-  `id_factura` int(11) NOT NULL,
-  `cedula_repartidor` int(11) NOT NULL,
+  `id_delivery` varchar(20) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
+  `cedula_repartidor` varchar(20) DEFAULT NULL,
   `id_direccion` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -579,12 +229,9 @@ CREATE TABLE `deliveries` (
 
 CREATE TABLE `detalles_pagos` (
   `id_detalle_pago` int(11) NOT NULL,
-  `id_pago` int(11) NOT NULL,
-  `id_moneda` int(11) NOT NULL,
+  `id_pago` varchar(20) NOT NULL,
   `id_metodo_pago` int(11) NOT NULL,
-  `id_banco_emisor` tinyint(1) DEFAULT NULL,
-  `id_banco_receptor` tinyint(1) DEFAULT NULL,
-  `referencia_pago` int(11) DEFAULT NULL,
+  `id_moneda` int(11) NOT NULL,
   `monto_pago` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -622,9 +269,9 @@ CREATE TABLE `empresas_envios` (
 --
 
 CREATE TABLE `envios_terceros` (
-  `id_envio_tercero` int(11) NOT NULL,
-  `id_factura` int(11) NOT NULL,
-  `id_empresa_envios` int(11) NOT NULL,
+  `id_envio_tercero` varchar(20) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
+  `id_sucursal_empresa_envios` int(11) NOT NULL,
   `precio_envio` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -636,31 +283,13 @@ CREATE TABLE `envios_terceros` (
 --
 
 CREATE TABLE `facturas` (
-  `id_factura` int(11) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
   `rif_cedula_cliente` varchar(20) NOT NULL,
+  `cedula_usuario` varchar(20) NOT NULL,
   `id_cambio_iva` int(11) NOT NULL,
   `fecha_factura` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `iconos_notificaciones`
---
-
-CREATE TABLE `iconos_notificaciones` (
-  `id_icono_notificacion` int(11) NOT NULL,
-  `patch_icono_notificacion` varchar(100) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `iconos_notificaciones`
---
-
-INSERT INTO `iconos_notificaciones` (`id_icono_notificacion`, `patch_icono_notificacion`, `status`) VALUES
-(1, 'info', 1);
 
 -- --------------------------------------------------------
 
@@ -682,7 +311,7 @@ CREATE TABLE `latitudes_direcciones` (
 
 CREATE TABLE `longitudes_direcciones` (
   `id_longitud_direccion` int(11) NOT NULL,
-  `coordenada_latitud` varchar(20) NOT NULL,
+  `coordenada_longitud` varchar(20) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -693,11 +322,11 @@ CREATE TABLE `longitudes_direcciones` (
 --
 
 CREATE TABLE `materias_primas` (
-  `id_materia_prima` int(11) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_materia_prima` varchar(50) NOT NULL,
-  `stock_materia_prima` int(15) NOT NULL,
-  `stock_minimo_materia_prima` int(15) NOT NULL,
+  `stock_materia_prima` int(11) NOT NULL,
+  `stock_minimo_materia_prima` int(11) NOT NULL,
   `precio_materia_prima` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -707,7 +336,8 @@ CREATE TABLE `materias_primas` (
 --
 
 INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_materia_prima`, `stock_materia_prima`, `stock_minimo_materia_prima`, `precio_materia_prima`, `status`) VALUES
-(1, 2, 'SULFURO', 760, 0, 10, 1);
+('1', 2, 'SULFURO', 796, 0, 10, 1),
+('2', 2, 'HIPOCLORITO', 11, 0, 100, 1);
 
 -- --------------------------------------------------------
 
@@ -717,9 +347,9 @@ INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_m
 
 CREATE TABLE `materias_primas_compras` (
   `id_materia_prima_compra` int(11) NOT NULL,
-  `id_compra` int(11) NOT NULL,
-  `id_materia_prima` int(11) NOT NULL,
-  `cantidad_materia_prima` int(11) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
+  `id_compra` varchar(20) NOT NULL,
+  `cantidad_materia_prima` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -727,8 +357,14 @@ CREATE TABLE `materias_primas_compras` (
 -- Volcado de datos para la tabla `materias_primas_compras`
 --
 
-INSERT INTO `materias_primas_compras` (`id_materia_prima_compra`, `id_compra`, `id_materia_prima`, `cantidad_materia_prima`, `status`) VALUES
-(1, 7, 1, 1, 1);
+INSERT INTO `materias_primas_compras` (`id_materia_prima_compra`, `id_materia_prima`, `id_compra`, `cantidad_materia_prima`, `status`) VALUES
+(1, '1', '7', 1, 1),
+(2, '1', '11', 20, 1),
+(3, '2', '11', 1, 1),
+(4, '1', '12', 12, 1),
+(5, '1', '13', 1, 1),
+(6, '1', '13', 1, 1),
+(7, '1', '13', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -738,7 +374,7 @@ INSERT INTO `materias_primas_compras` (`id_materia_prima_compra`, `id_compra`, `
 
 CREATE TABLE `materias_primas_presentaciones` (
   `id_materia_prima_presentacion` int(11) NOT NULL,
-  `id_materia_prima` int(11) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
   `id_presentacion` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -748,9 +384,9 @@ CREATE TABLE `materias_primas_presentaciones` (
 --
 
 INSERT INTO `materias_primas_presentaciones` (`id_materia_prima_presentacion`, `id_materia_prima`, `id_presentacion`, `status`) VALUES
-(1, 1, 1, 1),
-(2, 1, 2, 1),
-(3, 1, 3, 1);
+(1, '1', 3, 1),
+(2, '1', 2, 1),
+(4, '2', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -760,9 +396,9 @@ INSERT INTO `materias_primas_presentaciones` (`id_materia_prima_presentacion`, `
 
 CREATE TABLE `materias_primas_producciones` (
   `id_materia_prima_produccion` int(11) NOT NULL,
-  `id_materia_prima` int(11) NOT NULL,
-  `id_produccion` int(11) NOT NULL,
-  `cantidad_materia_prima` int(11) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
+  `id_produccion` varchar(20) NOT NULL,
+  `cantidad_materia_prima` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -774,11 +410,25 @@ CREATE TABLE `materias_primas_producciones` (
 
 CREATE TABLE `materias_primas_productos` (
   `id_materia_prima_producto` int(11) NOT NULL,
-  `id_materia_prima` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
-  `cantidad_materia_prima` int(15) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
+  `cantidad_materia_prima` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `materias_primas_productos`
+--
+
+INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materia_prima`, `id_producto`, `cantidad_materia_prima`, `status`) VALUES
+(4, '1', 'PROD-26114-00001-80', 1, 0),
+(5, '2', 'PROD-26114-00002-35', 1, 0),
+(38, '2', 'PROD-26114-00003-42', 1.9, 0),
+(40, '1', 'PROD-26115-00001-16', 12, 0),
+(41, '1', 'PROD-26115-00002-14', 10, 0),
+(42, '1', 'PROD-26115-00003-20', 10, 0),
+(43, '1', 'PROD-26115-00004-58', 1, 0),
+(44, '1', 'PROD-26115-00006-00', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -801,63 +451,12 @@ CREATE TABLE `metodos_pagos` (
 --
 
 INSERT INTO `metodos_pagos` (`id_metodo_pago`, `nombre_metodo_pago`, `necesita_moneda`, `necesita_banco_emisor`, `necesita_banco_receptor`, `necesita_referencia`, `status`) VALUES
-(1, 'EFECTIVO', 1, 0, 0, 0, 1),
-(2, 'TRANSFERENCIA', 0, 0, 0, 0, 1),
-(3, 'PAGO MÓVIL', 0, 0, 0, 0, 1),
-(4, 'ZELLE', 1, 0, 0, 0, 0),
-(5, 'BINANCE', 1, 0, 0, 0, 0),
-(6, 'BINANCE', 1, 0, 0, 0, 1),
-(7, 'ZELLE', 1, 0, 0, 0, 1),
-(8, 'RRRR', 0, 0, 0, 0, 0),
-(9, 'ZINLIR', 1, 0, 0, 0, 0);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `modulos`
---
-
-CREATE TABLE `modulos` (
-  `id_modulo` int(11) NOT NULL,
-  `nombre_modulo` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `modulos`
---
-
-INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
-(1, 'clientes', 1),
-(3, 'ventas', 1),
-(4, 'productos', 1),
-(5, 'servicios', 1),
-(7, 'proveedores', 1),
-(8, 'compras', 1),
-(9, 'usuarios', 1),
-(10, 'cambios', 1),
-(11, 'reportes', 1),
-(13, 'bitacora', 1),
-(15, 'promociones', 1),
-(16, 'imagenes', 1),
-(17, 'roles', 1),
-(18, 'cambiosIva', 1),
-(19, 'metodos-pago', 1),
-(21, 'presentaciones', 1),
-(22, 'unidadesMedidas', 1),
-(23, 'monedas', 1),
-(24, 'materiasPrimas', 1),
-(25, 'insumos', 1),
-(28, 'permisos', 1),
-(29, 'dashboard', 1),
-(246, 'producciones', 1),
-(247, 'rutas', 1),
-(248, 'pedidos', 1),
-(249, 'categoriasProductos', 1),
-(250, 'empresasEnvios', 1),
-(251, 'bancos', 1),
-(252, 'repartidores', 1),
-(253, 'inventario', 1);
+(1, 'TRANSFERENCIA', 0, 1, 1, 1, 1),
+(2, 'PAGO MÓVIL', 0, 0, 1, 1, 1),
+(3, 'ZELLE', 1, 0, 0, 1, 1),
+(4, 'ZINLI', 1, 0, 0, 1, 0),
+(5, 'BINANCE', 1, 0, 0, 1, 1),
+(6, 'EFECTIVO', 1, 0, 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -878,63 +477,10 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 12, 1),
-(2, 'EURO', '€', 1234, 1),
-(3, 'YUAN', '¥', 12, 1),
-(4, 'AGUACATE', '$O', 1, 0),
-(5, 'BÓLIVAR', 'BS', 22, 1),
-(6, 'YUA', '$$', 100, 0);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `notificaciones`
---
-
-CREATE TABLE `notificaciones` (
-  `id_notificacion` int(11) NOT NULL,
-  `id_icono_notificacion` int(11) NOT NULL,
-  `id_tipo_notificacion` int(11) NOT NULL,
-  `tiempo_notificacion` int(10) NOT NULL,
-  `titulo_notificacion` varchar(30) NOT NULL,
-  `texto_notificacion` varchar(255) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `notificaciones`
---
-
-INSERT INTO `notificaciones` (`id_notificacion`, `id_icono_notificacion`, `id_tipo_notificacion`, `tiempo_notificacion`, `titulo_notificacion`, `texto_notificacion`, `status`) VALUES
-(31, 1, 1, 0, 'Precio del IVA actualizado', 'El precio del IVA ha sido actualizado', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `notificaciones_usuarios`
---
-
-CREATE TABLE `notificaciones_usuarios` (
-  `id_notificacion_usuario` int(11) NOT NULL,
-  `cedula_usuario` int(11) NOT NULL,
-  `id_notificacion` int(11) NOT NULL,
-  `fecha_creacion_notificacion` datetime NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `notificaciones_usuarios`
---
-
-INSERT INTO `notificaciones_usuarios` (`id_notificacion_usuario`, `cedula_usuario`, `id_notificacion`, `fecha_creacion_notificacion`, `status`) VALUES
-(177, 30485683, 31, '2026-03-30 09:50:21', 1),
-(178, 30485684, 31, '2026-03-30 09:50:21', 2),
-(179, 30485683, 31, '2026-03-30 09:50:34', 1),
-(180, 30485684, 31, '2026-03-30 09:50:34', 2),
-(181, 30485683, 31, '2026-03-30 09:53:23', 1),
-(182, 30485684, 31, '2026-03-30 09:53:23', 2),
-(183, 30485683, 31, '2026-03-30 09:55:16', 1),
-(184, 30485684, 31, '2026-03-30 09:55:16', 2);
+(1, 'DÓLAR', '$', 450, 1),
+(2, 'BÓLIVAR', 'BS', 1, 1),
+(3, 'EURO', '€', 600, 1),
+(4, 'YUAN', '¥', 500, 1);
 
 -- --------------------------------------------------------
 
@@ -943,608 +489,11 @@ INSERT INTO `notificaciones_usuarios` (`id_notificacion_usuario`, `cedula_usuari
 --
 
 CREATE TABLE `pagos` (
-  `id_pago` int(11) NOT NULL,
-  `id_factura` int(11) NOT NULL,
+  `id_pago` varchar(20) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
   `fecha_pago` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `permisos`
---
-
-CREATE TABLE `permisos` (
-  `id_permiso` int(11) NOT NULL,
-  `nombre_permiso` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `permisos`
---
-
-INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
-(1, 'ver', 1),
-(2, 'listar', 1),
-(3, 'registrar', 1),
-(4, 'actualizar', 1),
-(5, 'eliminar', 1),
-(6, 'ver historial de cambio', 1),
-(8, 'ver detalles de las ventas', 1),
-(10, 'ver ventas sin cancelar', 1),
-(11, 'imprimir reportes de ventas', 1),
-(14, 'asignar roles a usuarios', 1),
-(15, 'ver el precio del dólar', 1),
-(16, 'ver notificaciones', 1),
-(19, 'ver bitácora', 1),
-(21, 'actualizar cambio de divisas', 1),
-(22, 'ver ventas despachadas', 1),
-(23, 'ver modal de ayuda', 1),
-(24, 'ver dashboard', 1),
-(31, 'ver pedidos en espera', 1),
-(32, 'ver pedidos rechazados', 1),
-(33, 'gestionar ventas', 1),
-(34, 'ver reportes', 1),
-(36, 'imprimir reportes de productos', 1),
-(37, 'imprimir comandas', 1),
-(39, 'ver el precio del dólar', 0),
-(40, 'ver notificaciones', 0),
-(41, 'ver modal de ayuda', 0),
-(42, 'ver carrito de compra', 1),
-(43, 'ver detalles de promociones', 1),
-(44, 'ver bitácora', 0),
-(45, 'transformar imagenes', 1),
-(46, 'ver dashboard', 0),
-(47, 'ver historial de cambio', 0),
-(48, 'actualizar cambio de divisas', 0),
-(49, 'ver detalles de las ventas', 0),
-(50, 'ver ventas despachadas', 0),
-(51, 'ver ventas sin cancelar', 0),
-(52, 'ver pedidos en espera', 1),
-(53, 'ver pedidos rechazados', 1),
-(54, 'gestionar ventas', 1),
-(55, 'ver reportes', 1),
-(56, 'imprimir reportes de ventas', 0),
-(57, 'imprimir reportes de productos', 1),
-(58, 'imprimir comandas', 1),
-(59, 'asignar roles a usuarios', 0),
-(60, 'ver el precio del dólar', 0),
-(61, 'ver notificaciones', 0),
-(62, 'ver modal de ayuda', 0),
-(63, 'ver carrito de compra', 1),
-(64, 'ver detalles de promociones', 1),
-(65, 'ver bitácora', 0),
-(66, 'transformar imagenes', 1),
-(67, 'ver dashboard', 0),
-(68, 'ver historial de cambio', 0),
-(69, 'actualizar cambio de divisas', 0),
-(70, 'ver detalles de las ventas', 0),
-(71, 'ver ventas despachadas', 0),
-(72, 'ver ventas sin cancelar', 0),
-(73, 'ver pedidos en espera', 1),
-(74, 'ver pedidos rechazados', 1),
-(75, 'gestionar ventas', 1),
-(76, 'ver reportes', 1),
-(77, 'imprimir reportes de ventas', 0),
-(78, 'imprimir reportes de productos', 1),
-(79, 'imprimir comandas', 1),
-(80, 'asignar roles a usuarios', 0),
-(81, 'ver el precio del dólar', 0),
-(82, 'ver notificaciones', 0),
-(83, 'ver modal de ayuda', 0),
-(84, 'ver carrito de compra', 1),
-(85, 'ver detalles de promociones', 1),
-(86, 'ver bitácora', 0),
-(87, 'transformar imagenes', 1),
-(88, 'ver dashboard', 0),
-(89, 'ver historial de cambio', 0),
-(90, 'actualizar cambio de divisas', 0),
-(91, 'ver detalles de las ventas', 0),
-(92, 'ver ventas despachadas', 0),
-(93, 'ver ventas sin cancelar', 0),
-(94, 'ver pedidos en espera', 1),
-(95, 'ver pedidos rechazados', 1),
-(96, 'gestionar ventas', 1),
-(97, 'ver reportes', 1),
-(98, 'imprimir reportes de ventas', 0),
-(99, 'imprimir reportes de productos', 1),
-(100, 'imprimir comandas', 1),
-(101, 'asignar roles a usuarios', 0),
-(102, 'ver el precio del dólar', 0),
-(103, 'ver notificaciones', 0),
-(104, 'ver modal de ayuda', 0),
-(105, 'ver carrito de compra', 1),
-(106, 'ver detalles de promociones', 1),
-(107, 'ver bitácora', 0),
-(108, 'transformar imagenes', 1),
-(109, 'ver dashboard', 0),
-(110, 'ver historial de cambio', 0),
-(111, 'actualizar cambio de divisas', 0),
-(112, 'ver detalles de las ventas', 0),
-(113, 'ver ventas despachadas', 0),
-(114, 'ver ventas sin cancelar', 0),
-(115, 'ver pedidos en espera', 1),
-(116, 'ver pedidos rechazados', 1),
-(117, 'gestionar ventas', 1),
-(118, 'ver reportes', 1),
-(119, 'imprimir reportes de ventas', 0),
-(120, 'imprimir reportes de productos', 1),
-(121, 'imprimir comandas', 1),
-(122, 'asignar roles a usuarios', 0),
-(123, 'ver el precio del dólar', 0),
-(124, 'ver notificaciones', 0),
-(125, 'ver modal de ayuda', 0),
-(126, 'ver carrito de compra', 1),
-(127, 'ver detalles de promociones', 1),
-(128, 'ver bitácora', 0),
-(129, 'transformar imagenes', 1),
-(130, 'ver dashboard', 0),
-(131, 'ver historial de cambio', 0),
-(132, 'actualizar cambio de divisas', 0),
-(133, 'ver detalles de las ventas', 0),
-(134, 'ver ventas despachadas', 0),
-(135, 'ver ventas sin cancelar', 0),
-(136, 'ver pedidos en espera', 1),
-(137, 'ver pedidos rechazados', 1),
-(138, 'gestionar ventas', 1),
-(139, 'ver reportes', 1),
-(140, 'imprimir reportes de ventas', 0),
-(141, 'imprimir reportes de productos', 1),
-(142, 'imprimir comandas', 1),
-(143, 'asignar roles a usuarios', 0),
-(144, 'ver el precio del dólar', 0),
-(145, 'ver notificaciones', 0),
-(146, 'ver modal de ayuda', 0),
-(147, 'ver carrito de compra', 1),
-(148, 'ver detalles de promociones', 1),
-(149, 'ver bitácora', 0),
-(150, 'transformar imagenes', 1),
-(151, 'ver dashboard', 0),
-(152, 'ver historial de cambio', 0),
-(153, 'actualizar cambio de divisas', 0),
-(154, 'ver detalles de las ventas', 0),
-(155, 'ver ventas despachadas', 0),
-(156, 'ver ventas sin cancelar', 0),
-(157, 'ver pedidos en espera', 1),
-(158, 'ver pedidos rechazados', 1),
-(159, 'gestionar ventas', 1),
-(160, 'ver reportes', 1),
-(161, 'imprimir reportes de ventas', 0),
-(162, 'imprimir reportes de productos', 1),
-(163, 'imprimir comandas', 1),
-(164, 'asignar roles a usuarios', 0),
-(165, 'ver el precio del dólar', 0),
-(166, 'ver notificaciones', 0),
-(167, 'ver modal de ayuda', 0),
-(168, 'ver carrito de compra', 1),
-(169, 'ver detalles de promociones', 1),
-(170, 'ver bitácora', 0),
-(171, 'transformar imagenes', 1),
-(172, 'ver dashboard', 0),
-(173, 'ver historial de cambio', 0),
-(174, 'actualizar cambio de divisas', 0),
-(175, 'ver detalles de las ventas', 0),
-(176, 'ver ventas despachadas', 0),
-(177, 'ver ventas sin cancelar', 0),
-(178, 'ver pedidos en espera', 1),
-(179, 'ver pedidos rechazados', 1),
-(180, 'gestionar ventas', 1),
-(181, 'ver reportes', 1),
-(182, 'imprimir reportes de ventas', 0),
-(183, 'imprimir reportes de productos', 1),
-(184, 'imprimir comandas', 1),
-(185, 'asignar roles a usuarios', 0),
-(186, 'ver el precio del dólar', 0),
-(187, 'ver notificaciones', 0),
-(188, 'ver modal de ayuda', 0),
-(189, 'ver carrito de compra', 1),
-(190, 'ver detalles de promociones', 1),
-(191, 'ver bitácora', 0),
-(192, 'transformar imagenes', 1),
-(193, 'ver dashboard', 0),
-(194, 'ver historial de cambio', 0),
-(195, 'actualizar cambio de divisas', 0),
-(196, 'ver detalles de las ventas', 0),
-(197, 'ver ventas despachadas', 0),
-(198, 'ver ventas sin cancelar', 0),
-(199, 'ver pedidos en espera', 1),
-(200, 'ver pedidos rechazados', 1),
-(201, 'gestionar ventas', 1),
-(202, 'ver reportes', 1),
-(203, 'imprimir reportes de ventas', 0),
-(204, 'imprimir reportes de productos', 1),
-(205, 'imprimir comandas', 1),
-(206, 'asignar roles a usuarios', 0),
-(207, 'ver el precio del dólar', 0),
-(208, 'ver notificaciones', 0),
-(209, 'ver modal de ayuda', 0),
-(210, 'ver carrito de compra', 1),
-(211, 'ver detalles de promociones', 1),
-(212, 'ver bitácora', 0),
-(213, 'transformar imagenes', 1),
-(214, 'ver dashboard', 0),
-(215, 'ver historial de cambio', 0),
-(216, 'actualizar cambio de divisas', 0),
-(217, 'ver detalles de las ventas', 0),
-(218, 'ver ventas despachadas', 0),
-(219, 'ver ventas sin cancelar', 0),
-(220, 'ver pedidos en espera', 1),
-(221, 'ver pedidos rechazados', 1),
-(222, 'gestionar ventas', 1),
-(223, 'ver reportes', 1),
-(224, 'imprimir reportes de ventas', 0),
-(225, 'imprimir reportes de productos', 1),
-(226, 'imprimir comandas', 1),
-(227, 'asignar roles a usuarios', 0),
-(228, 'ver el precio del dólar', 0),
-(229, 'ver notificaciones', 0),
-(230, 'ver modal de ayuda', 0),
-(231, 'ver carrito de compra', 1),
-(232, 'ver detalles de promociones', 1),
-(233, 'ver bitácora', 0),
-(234, 'transformar imagenes', 1),
-(235, 'ver dashboard', 0),
-(236, 'ver historial de cambio', 0),
-(237, 'actualizar cambio de divisas', 0),
-(238, 'ver detalles de las ventas', 0),
-(239, 'ver ventas despachadas', 0),
-(240, 'ver ventas sin cancelar', 0),
-(241, 'ver pedidos en espera', 1),
-(242, 'ver pedidos rechazados', 1),
-(243, 'gestionar ventas', 1),
-(244, 'ver reportes', 1),
-(245, 'imprimir reportes de ventas', 0),
-(246, 'imprimir reportes de productos', 1),
-(247, 'imprimir comandas', 1),
-(248, 'asignar roles a usuarios', 0),
-(249, 'ver el precio del dólar', 0),
-(250, 'ver notificaciones', 0),
-(251, 'ver modal de ayuda', 0),
-(252, 'ver carrito de compra', 1),
-(253, 'ver detalles de promociones', 1),
-(254, 'ver bitácora', 0),
-(255, 'transformar imagenes', 1),
-(256, 'ver dashboard', 0),
-(257, 'ver historial de cambio', 0),
-(258, 'actualizar cambio de divisas', 0),
-(259, 'ver detalles de las ventas', 0),
-(260, 'ver ventas despachadas', 0),
-(261, 'ver ventas sin cancelar', 0),
-(262, 'ver pedidos en espera', 1),
-(263, 'ver pedidos rechazados', 1),
-(264, 'gestionar ventas', 1),
-(265, 'ver reportes', 1),
-(266, 'imprimir reportes de ventas', 0),
-(267, 'imprimir reportes de productos', 1),
-(268, 'imprimir comandas', 1),
-(269, 'asignar roles a usuarios', 0),
-(270, 'ver el precio del dólar', 0),
-(271, 'ver notificaciones', 0),
-(272, 'ver modal de ayuda', 0),
-(273, 'ver carrito de compra', 1),
-(274, 'ver detalles de promociones', 1),
-(275, 'ver bitácora', 0),
-(276, 'transformar imagenes', 1),
-(277, 'ver dashboard', 0),
-(278, 'ver historial de cambio', 0),
-(279, 'actualizar cambio de divisas', 0),
-(280, 'ver detalles de las ventas', 0),
-(281, 'ver ventas despachadas', 0),
-(282, 'ver ventas sin cancelar', 0),
-(283, 'ver pedidos en espera', 1),
-(284, 'ver pedidos rechazados', 1),
-(285, 'gestionar ventas', 1),
-(286, 'ver reportes', 1),
-(287, 'imprimir reportes de ventas', 0),
-(288, 'imprimir reportes de productos', 1),
-(289, 'imprimir comandas', 1),
-(290, 'asignar roles a usuarios', 0),
-(291, 'ver el precio del dólar', 0),
-(292, 'ver notificaciones', 0),
-(293, 'ver modal de ayuda', 0),
-(294, 'ver carrito de compra', 1),
-(295, 'ver detalles de promociones', 1),
-(296, 'ver bitácora', 0),
-(297, 'transformar imagenes', 1),
-(298, 'ver dashboard', 0),
-(299, 'ver historial de cambio', 0),
-(300, 'actualizar cambio de divisas', 0),
-(301, 'ver detalles de las ventas', 0),
-(302, 'ver ventas despachadas', 0),
-(303, 'ver ventas sin cancelar', 0),
-(304, 'ver pedidos en espera', 1),
-(305, 'ver pedidos rechazados', 1),
-(306, 'gestionar ventas', 1),
-(307, 'ver reportes', 1),
-(308, 'imprimir reportes de ventas', 0),
-(309, 'imprimir reportes de productos', 1),
-(310, 'imprimir comandas', 1),
-(311, 'asignar roles a usuarios', 0),
-(312, 'ver el precio del dólar', 0),
-(313, 'ver notificaciones', 0),
-(314, 'ver modal de ayuda', 0),
-(315, 'ver carrito de compra', 1),
-(316, 'ver detalles de promociones', 1),
-(317, 'ver bitácora', 0),
-(318, 'transformar imagenes', 1),
-(319, 'ver dashboard', 0),
-(320, 'ver historial de cambio', 0),
-(321, 'actualizar cambio de divisas', 0),
-(322, 'ver detalles de las ventas', 0),
-(323, 'ver ventas despachadas', 0),
-(324, 'ver ventas sin cancelar', 0),
-(325, 'ver pedidos en espera', 1),
-(326, 'ver pedidos rechazados', 1),
-(327, 'gestionar ventas', 1),
-(328, 'ver reportes', 1),
-(329, 'imprimir reportes de ventas', 0),
-(330, 'imprimir reportes de productos', 1),
-(331, 'imprimir comandas', 1),
-(332, 'asignar roles a usuarios', 0),
-(333, 'ver el precio del dólar', 0),
-(334, 'ver notificaciones', 0),
-(335, 'ver modal de ayuda', 0),
-(336, 'ver carrito de compra', 1),
-(337, 'ver detalles de promociones', 1),
-(338, 'ver bitácora', 0),
-(339, 'transformar imagenes', 1),
-(340, 'ver dashboard', 0),
-(341, 'ver historial de cambio', 0),
-(342, 'actualizar cambio de divisas', 0),
-(343, 'ver detalles de las ventas', 0),
-(344, 'ver ventas despachadas', 0),
-(345, 'ver ventas sin cancelar', 0),
-(346, 'ver pedidos en espera', 1),
-(347, 'ver pedidos rechazados', 1),
-(348, 'gestionar ventas', 1),
-(349, 'ver reportes', 1),
-(350, 'imprimir reportes de ventas', 0),
-(351, 'imprimir reportes de productos', 1),
-(352, 'imprimir comandas', 1),
-(353, 'asignar roles a usuarios', 0),
-(354, 'ver el precio del dólar', 0),
-(355, 'ver notificaciones', 0),
-(356, 'ver modal de ayuda', 0),
-(357, 'ver carrito de compra', 1),
-(358, 'ver detalles de promociones', 1),
-(359, 'ver bitácora', 0),
-(360, 'transformar imagenes', 1),
-(361, 'ver dashboard', 0),
-(362, 'ver historial de cambio', 0),
-(363, 'actualizar cambio de divisas', 0),
-(364, 'ver detalles de las ventas', 0),
-(365, 'ver ventas despachadas', 0),
-(366, 'ver ventas sin cancelar', 0),
-(367, 'ver pedidos en espera', 1),
-(368, 'ver pedidos rechazados', 1),
-(369, 'gestionar ventas', 1),
-(370, 'ver reportes', 1),
-(371, 'imprimir reportes de ventas', 0),
-(372, 'imprimir reportes de productos', 1),
-(373, 'imprimir comandas', 1),
-(374, 'asignar roles a usuarios', 0),
-(375, 'ver el precio del dólar', 0),
-(376, 'ver notificaciones', 0),
-(377, 'ver modal de ayuda', 0),
-(378, 'ver carrito de compra', 1),
-(379, 'ver detalles de promociones', 1),
-(380, 'ver bitácora', 0),
-(381, 'transformar imagenes', 1),
-(382, 'ver dashboard', 0),
-(383, 'ver historial de cambio', 0),
-(384, 'actualizar cambio de divisas', 0),
-(385, 'ver detalles de las ventas', 0),
-(386, 'ver ventas despachadas', 0),
-(387, 'ver ventas sin cancelar', 0),
-(388, 'ver pedidos en espera', 1),
-(389, 'ver pedidos rechazados', 1),
-(390, 'gestionar ventas', 1),
-(391, 'ver reportes', 1),
-(392, 'imprimir reportes de ventas', 0),
-(393, 'imprimir reportes de productos', 1),
-(394, 'imprimir comandas', 1),
-(395, 'asignar roles a usuarios', 0),
-(396, 'ver el precio del dólar', 0),
-(397, 'ver notificaciones', 0),
-(398, 'ver modal de ayuda', 0),
-(399, 'ver carrito de compra', 1),
-(400, 'ver detalles de promociones', 1),
-(401, 'ver bitácora', 0),
-(402, 'transformar imagenes', 1),
-(403, 'ver dashboard', 0),
-(404, 'ver historial de cambio', 0),
-(405, 'actualizar cambio de divisas', 0),
-(406, 'ver detalles de las ventas', 0),
-(407, 'ver ventas despachadas', 0),
-(408, 'ver ventas sin cancelar', 0),
-(409, 'ver pedidos en espera', 1),
-(410, 'ver pedidos rechazados', 1),
-(411, 'gestionar ventas', 1),
-(412, 'ver reportes', 1),
-(413, 'imprimir reportes de ventas', 0),
-(414, 'imprimir reportes de productos', 1),
-(415, 'imprimir comandas', 1),
-(416, 'asignar roles a usuarios', 0),
-(417, 'ver el precio del dólar', 0),
-(418, 'ver notificaciones', 0),
-(419, 'ver modal de ayuda', 0),
-(420, 'ver carrito de compra', 1),
-(421, 'ver detalles de promociones', 1),
-(422, 'ver bitácora', 0),
-(423, 'transformar imagenes', 1),
-(424, 'ver dashboard', 0),
-(425, 'ver historial de cambio', 0),
-(426, 'actualizar cambio de divisas', 0),
-(427, 'ver detalles de las ventas', 0),
-(428, 'ver ventas despachadas', 0),
-(429, 'ver ventas sin cancelar', 0),
-(430, 'ver pedidos en espera', 1),
-(431, 'ver pedidos rechazados', 1),
-(432, 'gestionar ventas', 1),
-(433, 'ver reportes', 1),
-(434, 'imprimir reportes de ventas', 0),
-(435, 'imprimir reportes de productos', 1),
-(436, 'imprimir comandas', 1),
-(437, 'asignar roles a usuarios', 0),
-(438, 'ver el precio del dólar', 0),
-(439, 'ver notificaciones', 0),
-(440, 'ver modal de ayuda', 0),
-(441, 'ver carrito de compra', 1),
-(442, 'ver detalles de promociones', 1),
-(443, 'ver bitácora', 0),
-(444, 'transformar imagenes', 1),
-(445, 'ver dashboard', 0),
-(446, 'ver historial de cambio', 0),
-(447, 'actualizar cambio de divisas', 0),
-(448, 'ver detalles de las ventas', 0),
-(449, 'ver ventas despachadas', 0),
-(450, 'ver ventas sin cancelar', 0),
-(451, 'ver pedidos en espera', 1),
-(452, 'ver pedidos rechazados', 1),
-(453, 'gestionar ventas', 1),
-(454, 'ver reportes', 1),
-(455, 'imprimir reportes de ventas', 0),
-(456, 'imprimir reportes de productos', 1),
-(457, 'imprimir comandas', 1),
-(458, 'asignar roles a usuarios', 0),
-(459, 'ver el precio del dólar', 0),
-(460, 'ver notificaciones', 0),
-(461, 'ver modal de ayuda', 0),
-(462, 'ver carrito de compra', 1),
-(463, 'ver detalles de promociones', 1),
-(464, 'ver bitácora', 0),
-(465, 'transformar imagenes', 1),
-(466, 'ver dashboard', 0),
-(467, 'ver historial de cambio', 0),
-(468, 'actualizar cambio de divisas', 0),
-(469, 'ver detalles de las ventas', 0),
-(470, 'ver ventas despachadas', 0),
-(471, 'ver ventas sin cancelar', 0),
-(472, 'ver pedidos en espera', 1),
-(473, 'ver pedidos rechazados', 1),
-(474, 'gestionar ventas', 1),
-(475, 'ver reportes', 1),
-(476, 'imprimir reportes de ventas', 0),
-(477, 'imprimir reportes de productos', 1),
-(478, 'imprimir comandas', 1),
-(479, 'asignar roles a usuarios', 0),
-(480, 'ver el precio del dólar', 0),
-(481, 'ver notificaciones', 0),
-(482, 'ver modal de ayuda', 0),
-(483, 'ver carrito de compra', 1),
-(484, 'ver detalles de promociones', 1),
-(485, 'ver bitácora', 0),
-(486, 'transformar imagenes', 1),
-(487, 'ver dashboard', 0),
-(488, 'ver historial de cambio', 0),
-(489, 'actualizar cambio de divisas', 0),
-(490, 'ver detalles de las ventas', 0),
-(491, 'ver ventas despachadas', 0),
-(492, 'ver ventas sin cancelar', 0),
-(493, 'ver pedidos en espera', 1),
-(494, 'ver pedidos rechazados', 1),
-(495, 'gestionar ventas', 1),
-(496, 'ver reportes', 1),
-(497, 'imprimir reportes de ventas', 0),
-(498, 'imprimir reportes de productos', 1),
-(499, 'imprimir comandas', 1),
-(500, 'asignar roles a usuarios', 0),
-(501, 'ver el precio del dólar', 0),
-(502, 'ver notificaciones', 0),
-(503, 'ver modal de ayuda', 0),
-(504, 'ver carrito de compra', 1),
-(505, 'ver detalles de promociones', 1),
-(506, 'ver bitácora', 0),
-(507, 'transformar imagenes', 1),
-(508, 'ver dashboard', 0),
-(509, 'ver historial de cambio', 0),
-(510, 'actualizar cambio de divisas', 0),
-(511, 'ver detalles de las ventas', 0),
-(512, 'ver ventas despachadas', 0),
-(513, 'ver ventas sin cancelar', 0),
-(514, 'ver pedidos en espera', 1),
-(515, 'ver pedidos rechazados', 1),
-(516, 'gestionar ventas', 1),
-(517, 'ver reportes', 1),
-(518, 'imprimir reportes de ventas', 0),
-(519, 'imprimir reportes de productos', 1),
-(520, 'imprimir comandas', 1),
-(521, 'asignar roles a usuarios', 0),
-(522, 'ver el precio del dólar', 0),
-(523, 'ver notificaciones', 0),
-(524, 'ver modal de ayuda', 0),
-(525, 'ver carrito de compra', 1),
-(526, 'ver detalles de promociones', 1),
-(527, 'ver bitácora', 0),
-(528, 'transformar imagenes', 1),
-(529, 'ver dashboard', 0),
-(530, 'ver historial de cambio', 0),
-(531, 'actualizar cambio de divisas', 0),
-(532, 'ver detalles de las ventas', 0),
-(533, 'ver ventas despachadas', 0),
-(534, 'ver ventas sin cancelar', 0),
-(535, 'ver pedidos en espera', 1),
-(536, 'ver pedidos rechazados', 1),
-(537, 'gestionar ventas', 1),
-(538, 'ver reportes', 1),
-(539, 'imprimir reportes de ventas', 0),
-(540, 'imprimir reportes de productos', 1),
-(541, 'imprimir comandas', 1),
-(542, 'asignar roles a usuarios', 0),
-(543, 'ver el precio del dólar', 0),
-(544, 'ver notificaciones', 0),
-(545, 'ver modal de ayuda', 0),
-(546, 'ver carrito de compra', 1),
-(547, 'ver detalles de promociones', 1),
-(548, 'ver bitácora', 0),
-(549, 'transformar imagenes', 1),
-(550, 'ver dashboard', 0),
-(551, 'ver historial de cambio', 0),
-(552, 'actualizar cambio de divisas', 0),
-(553, 'ver detalles de las ventas', 0),
-(554, 'ver ventas despachadas', 0),
-(555, 'ver ventas sin cancelar', 0),
-(556, 'ver pedidos en espera', 1),
-(557, 'ver pedidos rechazados', 1),
-(558, 'gestionar ventas', 1),
-(559, 'ver reportes', 1),
-(560, 'imprimir reportes de ventas', 0),
-(561, 'imprimir reportes de productos', 1),
-(562, 'imprimir comandas', 1),
-(563, 'asignar roles a usuarios', 0),
-(564, 'ver el precio del dólar', 0),
-(565, 'ver notificaciones', 0),
-(566, 'ver modal de ayuda', 0),
-(567, 'ver carrito de compra', 1),
-(568, 'ver detalles de promociones', 1),
-(569, 'ver bitácora', 0),
-(570, 'transformar imagenes', 1),
-(571, 'ver dashboard', 0),
-(572, 'ver historial de cambio', 0),
-(573, 'actualizar cambio de divisas', 0),
-(574, 'ver detalles de las ventas', 0),
-(575, 'ver ventas despachadas', 0),
-(576, 'ver ventas sin cancelar', 0),
-(577, 'ver pedidos en espera', 1),
-(578, 'ver pedidos rechazados', 1),
-(579, 'gestionar ventas', 1),
-(580, 'ver reportes', 1),
-(581, 'imprimir reportes de ventas', 0),
-(582, 'imprimir reportes de productos', 1),
-(583, 'imprimir comandas', 1),
-(584, 'asignar roles a usuarios', 0),
-(585, 'ver el precio del dólar', 0),
-(586, 'ver notificaciones', 0),
-(587, 'ver modal de ayuda', 0),
-(588, 'ver carrito de compra', 1),
-(589, 'ver detalles de promociones', 1),
-(590, 'ver bitácora', 0),
-(591, 'transformar imagenes', 1),
-(592, 'ver historial de cambio del iva', 1),
-(593, 'actualizar cambio del iva', 1),
-(594, 'ver inventario', 1);
 
 -- --------------------------------------------------------
 
@@ -1554,7 +503,7 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 
 CREATE TABLE `precios_materias_primas` (
   `id_precio_materia_prima` int(11) NOT NULL,
-  `id_materia_prima` int(11) NOT NULL,
+  `id_materia_prima` varchar(20) NOT NULL,
   `precio_materia_prima` float NOT NULL,
   `fecha_cambio` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
@@ -1568,11 +517,28 @@ CREATE TABLE `precios_materias_primas` (
 
 CREATE TABLE `precios_productos` (
   `id_precio_producto` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
   `precio_producto` float NOT NULL,
   `fecha_cambio` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `precios_productos`
+--
+
+INSERT INTO `precios_productos` (`id_precio_producto`, `id_producto`, `precio_producto`, `fecha_cambio`, `status`) VALUES
+(5, 'PROD-26114-00001-80', 10, '2026-04-25 17:05:33', 0),
+(6, 'PROD-26114-00002-35', 1, '2026-04-25 18:38:07', 0),
+(7, 'PROD-26114-00003-42', 1, '2026-04-25 19:14:56', 0),
+(8, 'PROD-26114-00003-42', 0, '2026-04-26 09:21:32', 0),
+(9, 'PROD-26115-00001-16', 7.89, '2026-04-26 09:25:30', 0),
+(10, 'PROD-26115-00001-16', 89, '2026-04-26 10:31:29', 0),
+(11, 'PROD-26115-00002-14', 1, '2026-04-26 11:52:38', 0),
+(12, 'PROD-26115-00003-20', 120, '2026-04-26 12:01:43', 0),
+(13, 'PROD-26115-00004-58', 10, '2026-04-26 12:02:45', 0),
+(14, 'PROD-26115-00005-85', 1, '2026-04-26 12:03:56', 0),
+(15, 'PROD-26115-00006-00', 1, '2026-04-26 12:21:23', 0);
 
 -- --------------------------------------------------------
 
@@ -1596,7 +562,7 @@ CREATE TABLE `precios_rutas` (
 
 CREATE TABLE `precios_servicios` (
   `id_precio_servicio` int(11) NOT NULL,
-  `id_servicio` int(11) NOT NULL,
+  `id_servicio` varchar(20) NOT NULL,
   `precio_servicio` float NOT NULL,
   `fecha_cambio` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
@@ -1612,7 +578,7 @@ CREATE TABLE `presentaciones` (
   `id_presentacion` int(11) NOT NULL,
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_presentacion` varchar(50) NOT NULL,
-  `cantidad_pmp` int(15) NOT NULL,
+  `cantidad_pmp` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1621,10 +587,51 @@ CREATE TABLE `presentaciones` (
 --
 
 INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_presentacion`, `cantidad_pmp`, `status`) VALUES
-(1, 2, 'PIPA', 200, 1),
+(1, 2, 'POR LITRO', 1, 1),
 (2, 2, 'BIDÓN', 20, 1),
-(3, 2, 'GRANEL', 1, 1),
-(4, 2, 'PIPE', 100, 0);
+(3, 2, 'PIPAS', 200, 1),
+(32, 2, 'ANDERON', 100, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `presentaciones_productos`
+--
+
+CREATE TABLE `presentaciones_productos` (
+  `id_producto_presentacion` int(11) NOT NULL,
+  `id_presentacion` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `presentaciones_productos`
+--
+
+INSERT INTO `presentaciones_productos` (`id_producto_presentacion`, `id_presentacion`, `id_producto`, `status`) VALUES
+(16, 1, 'PROD-26114-00001-80', 0),
+(17, 2, 'PROD-26114-00001-80', 0),
+(18, 3, 'PROD-26114-00001-80', 0),
+(19, 1, 'PROD-26114-00002-35', 0),
+(57, 2, 'PROD-26114-00003-42', 0),
+(58, 3, 'PROD-26114-00003-42', 0),
+(60, 1, 'PROD-26115-00001-16', 0),
+(61, 1, 'PROD-26115-00002-14', 0),
+(62, 2, 'PROD-26115-00002-14', 0),
+(63, 3, 'PROD-26115-00002-14', 0),
+(64, 1, 'PROD-26115-00003-20', 0),
+(65, 2, 'PROD-26115-00003-20', 0),
+(66, 3, 'PROD-26115-00003-20', 0),
+(67, 1, 'PROD-26115-00004-58', 0),
+(68, 2, 'PROD-26115-00004-58', 0),
+(69, 3, 'PROD-26115-00004-58', 0),
+(70, 1, 'PROD-26115-00005-85', 0),
+(71, 2, 'PROD-26115-00005-85', 0),
+(72, 3, 'PROD-26115-00005-85', 0),
+(73, 1, 'PROD-26115-00006-00', 0),
+(74, 2, 'PROD-26115-00006-00', 0),
+(75, 3, 'PROD-26115-00006-00', 0);
 
 -- --------------------------------------------------------
 
@@ -1633,7 +640,7 @@ INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_pre
 --
 
 CREATE TABLE `producciones` (
-  `id_produccion` int(11) NOT NULL,
+  `id_produccion` varchar(20) NOT NULL,
   `fecha_produccion` datetime NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1643,17 +650,17 @@ CREATE TABLE `producciones` (
 --
 
 INSERT INTO `producciones` (`id_produccion`, `fecha_produccion`, `status`) VALUES
-(26, '2026-02-25 18:10:13', 1),
-(27, '2026-02-25 18:10:55', 1),
-(28, '2026-02-25 18:11:29', 1),
-(29, '2026-02-25 18:28:00', 1),
-(30, '2026-03-01 08:15:32', 1),
-(31, '2026-03-01 08:16:17', 1),
-(32, '2026-03-01 08:44:57', 1),
-(34, '2026-03-01 09:00:33', 1),
-(35, '2026-03-01 09:32:25', 1),
-(36, '2026-03-29 13:11:33', 1),
-(37, '2026-03-29 13:13:01', 1);
+('26', '2026-02-25 18:10:13', 1),
+('27', '2026-02-25 18:10:55', 1),
+('28', '2026-02-25 18:11:29', 1),
+('29', '2026-02-25 18:28:00', 1),
+('30', '2026-03-01 08:15:32', 1),
+('31', '2026-03-01 08:16:17', 1),
+('32', '2026-03-01 08:44:57', 1),
+('34', '2026-03-01 09:00:33', 1),
+('35', '2026-03-01 09:32:25', 1),
+('36', '2026-03-29 13:11:33', 1),
+('37', '2026-03-29 13:13:01', 1);
 
 -- --------------------------------------------------------
 
@@ -1662,18 +669,32 @@ INSERT INTO `producciones` (`id_produccion`, `fecha_produccion`, `status`) VALUE
 --
 
 CREATE TABLE `productos` (
-  `id_producto` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
   `id_unidad_medida` int(11) NOT NULL,
   `id_categoria_producto` int(11) NOT NULL,
-  `nombre_producto` varchar(100) NOT NULL,
-  `precio_producto_divisas` float NOT NULL,
-  `precio_producto_bcv` float NOT NULL,
+  `nombre_producto` varchar(50) NOT NULL,
+  `precio_producto` float NOT NULL,
   `stock_producto` int(15) NOT NULL,
   `stock_minimo_producto` int(15) NOT NULL,
   `mostrar_ecommerce` tinyint(1) NOT NULL,
   `foto_producto` varchar(100) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `productos`
+--
+
+INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `id_categoria_producto`, `nombre_producto`, `precio_producto`, `stock_producto`, `stock_minimo_producto`, `mostrar_ecommerce`, `foto_producto`, `status`) VALUES
+('PROD-26114-00001-80', 2, 1, 'JABÓN LÍQUIDO', 10, 100, 5, 1, '', 0),
+('PROD-26114-00002-35', 2, 1, 'JABÓN LÍQUIDO', 1, 100, 5, 1, 'productos_2026-04-25_18_38_07_43.jpg?v=2026-04-25_18_39_39', 0),
+('PROD-26114-00003-42', 1, 1, 'JABÓN LÍQUIDO', 0, 1008, 5, 1, 'productos_2026-04-25_19_19_48.jpg?v=2026-04-26_09_03_50', 0),
+('PROD-26115-00001-16', 2, 1, 'JBNA LÍQUIDO', 89, 100, 5, 1, 'productos_2026-04-26_09_25_30_58.png', 0),
+('PROD-26115-00002-14', 2, 1, 'ANDERSON', 1, 1000, 5, 1, 'productos_2026-04-26_11_52_38_9.jpg', 0),
+('PROD-26115-00003-20', 2, 1, 'hjjj', 120, 100, 5, 1, 'productos_2026-04-26_12_01_43_14.jpg', 0),
+('PROD-26115-00004-58', 1, 1, 'JBNA LÍQUIDO', 10, 100, 5, 1, 'productos_2026-04-26_12_02_44_85.jpg', 0),
+('PROD-26115-00005-85', 2, 2, 'JBNA LÍQUIDO', 1, 100, 5, 1, '', 0),
+('PROD-26115-00006-00', 2, 1, 'JABÓN LÍQUIDO', 1, 0, 5, 1, '', 0);
 
 -- --------------------------------------------------------
 
@@ -1683,9 +704,9 @@ CREATE TABLE `productos` (
 
 CREATE TABLE `productos_compras` (
   `id_producto_compra` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
-  `id_compra` int(11) NOT NULL,
-  `cantidad_producto` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
+  `id_compra` varchar(20) NOT NULL,
+  `cantidad_producto` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1697,22 +718,9 @@ CREATE TABLE `productos_compras` (
 
 CREATE TABLE `productos_facturas` (
   `id_producto_factura` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
-  `id_factura` int(11) NOT NULL,
-  `cantidad_producto` int(10) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `productos_presentaciones`
---
-
-CREATE TABLE `productos_presentaciones` (
-  `id_producto_presentacion` int(11) NOT NULL,
-  `id_presentacion` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
+  `cantidad_producto` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1724,8 +732,8 @@ CREATE TABLE `productos_presentaciones` (
 
 CREATE TABLE `productos_producciones` (
   `id_producto_produccion` int(11) NOT NULL,
-  `id_produccion` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
+  `id_produccion` varchar(20) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
   `cantidad_producida` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1738,9 +746,9 @@ CREATE TABLE `productos_producciones` (
 
 CREATE TABLE `productos_servicios_facturas` (
   `id_producto_servicio_factura` int(11) NOT NULL,
-  `id_producto` int(11) NOT NULL,
+  `id_producto` varchar(20) NOT NULL,
   `id_servicio_factura` int(11) NOT NULL,
-  `cantidad_producto` int(10) NOT NULL,
+  `cantidad_producto` float NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -1774,57 +782,36 @@ INSERT INTO `proveedores` (`rif_proveedor`, `razon_social_proveedor`, `telefono_
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `referencias_detalles_pagos`
+--
+
+CREATE TABLE `referencias_detalles_pagos` (
+  `id_referencia_detalle_pago` int(11) NOT NULL,
+  `id_detalle_pago` int(11) NOT NULL,
+  `referencia_pago` int(6) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `repartidores`
 --
 
 CREATE TABLE `repartidores` (
-  `cedula_repartidor` int(11) NOT NULL,
+  `cedula_repartidor` varchar(20) NOT NULL,
   `nombre_repartidor` varchar(50) NOT NULL,
   `apellido_repartidor` varchar(50) NOT NULL,
   `telefono_repartidor` varchar(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Estructura de tabla para la tabla `resultados_bitacora`
+-- Volcado de datos para la tabla `repartidores`
 --
 
-CREATE TABLE `resultados_bitacora` (
-  `id_resultado_bitacora` int(11) NOT NULL,
-  `texto_resultado_bitacora` varchar(30) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `resultados_bitacora`
---
-
-INSERT INTO `resultados_bitacora` (`id_resultado_bitacora`, `texto_resultado_bitacora`, `status`) VALUES
-(1, 'éxito', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `roles`
---
-
-CREATE TABLE `roles` (
-  `id_rol` int(11) NOT NULL,
-  `nombre_rol` varchar(50) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `roles`
---
-
-INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
-(1, 'ADMINISTRADOR', 1),
-(2, 'OFICINISTA', 1),
-(3, 'CLIENTE', 1),
-(15, 'SUUMM', 0);
+INSERT INTO `repartidores` (`cedula_repartidor`, `nombre_repartidor`, `apellido_repartidor`, `telefono_repartidor`, `status`) VALUES
+('V30485684', 'ANDERSON', 'FREITEZ', '04169484649', 1);
 
 -- --------------------------------------------------------
 
@@ -1846,10 +833,9 @@ CREATE TABLE `rutas` (
 --
 
 INSERT INTO `rutas` (`id_ruta`, `nombre_ruta`, `precio_ruta`, `minimo_km_ruta`, `maximo_km_ruta`, `status`) VALUES
-(1, 'CENTRO', 0, 0, 0, 0),
-(2, 'CENTRQ', 0, 0, 0, 0),
-(3, 'CENTRIMO', 1, 17, 2, 0),
-(4, 'CENTRO', 1, 1, 2, 1);
+(1, 'CERCANO', 0.5, 0, 2, 1),
+(2, 'LEJANO', 1, 3, 5, 1),
+(3, 'FUERA DEL ALCANCE', 2, 6, 1000, 1);
 
 -- --------------------------------------------------------
 
@@ -1858,7 +844,7 @@ INSERT INTO `rutas` (`id_ruta`, `nombre_ruta`, `precio_ruta`, `minimo_km_ruta`, 
 --
 
 CREATE TABLE `servicios` (
-  `id_servicio` int(11) NOT NULL,
+  `id_servicio` varchar(20) NOT NULL,
   `id_unidad_medida` int(11) NOT NULL,
   `nombre_servicio` varchar(100) NOT NULL,
   `precio_servicio` float NOT NULL,
@@ -1872,9 +858,9 @@ CREATE TABLE `servicios` (
 --
 
 INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `precio_servicio`, `mostrar_ecommerce`, `foto_servicio`, `status`) VALUES
-(1, 2, 'FUMIGACION', 100, 0, '', 1),
-(2, 1, 'FUMIGACIONT', 122, 0, '', 1),
-(3, 2, 'FUMIGACION 2', 12, 0, '', 1);
+('1', 2, 'FUMIGACION', 100, 0, '', 1),
+('2', 1, 'FUMIGACIONT', 122, 0, '', 1),
+('3', 2, 'FUMIGACION 2', 12, 0, '', 1);
 
 -- --------------------------------------------------------
 
@@ -1883,10 +869,10 @@ INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `
 --
 
 CREATE TABLE `servicios_facturas` (
-  `id_servicios_factura` int(11) NOT NULL,
-  `id_factura` int(11) NOT NULL,
-  `id_servicio` int(11) NOT NULL,
-  `cantidad_servicio` int(10) NOT NULL,
+  `id_servicio_factura` int(11) NOT NULL,
+  `id_factura` varchar(20) NOT NULL,
+  `id_servicio` varchar(20) NOT NULL,
+  `cantidad_servicio` float NOT NULL,
   `es_precio_mapfre` tinyint(1) NOT NULL,
   `precio_servicio_mapfre` float DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
@@ -1895,21 +881,16 @@ CREATE TABLE `servicios_facturas` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tipos_notificaciones`
+-- Estructura de tabla para la tabla `sucursales_empresas_envios`
 --
 
-CREATE TABLE `tipos_notificaciones` (
-  `id_tipo_notificacion` int(11) NOT NULL,
-  `nombre_tipo_notificacion` varchar(30) NOT NULL,
+CREATE TABLE `sucursales_empresas_envios` (
+  `id_sucursal_empresa_envios` int(11) NOT NULL,
+  `id_empresa_envios` int(11) NOT NULL,
+  `id_direccion` int(11) NOT NULL,
+  `nombre_sucursal_empresa` varchar(50) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `tipos_notificaciones`
---
-
-INSERT INTO `tipos_notificaciones` (`id_tipo_notificacion`, `nombre_tipo_notificacion`, `status`) VALUES
-(1, 'info', 1);
 
 -- --------------------------------------------------------
 
@@ -1939,63 +920,9 @@ INSERT INTO `unidades_medidas` (`id_unidad_medida`, `nombre_unidad_medida`, `sim
 (7, 'MILLA', 'ML', 2, 0),
 (8, 'MILLAS', 'MLA', 1000000, 1);
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `usuarios`
---
-
-CREATE TABLE `usuarios` (
-  `cedula_usuario` int(11) NOT NULL,
-  `id_rol` int(11) NOT NULL,
-  `nombre_usuario` varchar(50) NOT NULL,
-  `apellido_usuario` varchar(50) NOT NULL,
-  `usuario_usuario` varchar(50) NOT NULL,
-  `contrasena_usuario` varchar(255) NOT NULL,
-  `telefono_usuario` varchar(11) NOT NULL,
-  `correo_usuario` varchar(150) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `usuarios`
---
-
-INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `status`) VALUES
-(1234567, 1, 'ANDERS', 'DAVID', 'ander1234', '$2y$10$tnkCgC.SA4fIWZ1jyJ1Nc.at2Ke5PF0PpZbGwmnBxjFZAeAltJjMW', '12345678901', 'ander2@gmail.com', 0),
-(12121212, 3, 'ANDER', 'FREITEZ', 'Ander1234', '$2y$10$wlJJpoPxUW08gNRFImD3tuyZFY8tdalmvILxE1N5AdbFKalU9FRsu', '04169000000', 'ander@gmail.com', 0),
-(30485682, 2, 'ANDERSON', 'FREITEZ', 'Ander12345', '$2y$10$AEx18yoxgMJwFCK1CNJHXeEZ9rYjjQtdsiUHQskN7Rmy8AU/Uh8yS', '04169484648', 'andersonfreitez62@gmail.com', 0),
-(30485683, 3, 'ANDERSON', 'FREITEZ', 'Ander1234', '$2y$10$VnBXa/h1NQ3Ohj7Upz6M5uywadRezaoEu0t7zeUpHtXc3m1jsJls.', '04169484649', 'andersonfreitez16@gmail.com', 1),
-(30485684, 1, 'ANDERSON', 'FREITEZ', 'Ander123', '$2y$10$3xuW0Z34n9oScdoEDKoo1.OWgDGnch8iJQn2zbeI/Ci0PRP9qCQke', '04169484649', 'andersonfreitez6@gmail.com', 1),
-(30485685, 1, 'ANDERSON', 'APELLIDO', 'Ander4321', '$2y$10$dZ.w3dX5fWLZgwRx1KOaz.kop/X/Qjb.oiHikcChNvFVbGypxkMT6', '04169484649', 'andersonfreitez16@gmail.com', 0);
-
 --
 -- Índices para tablas volcadas
 --
-
---
--- Indices de la tabla `accesos`
---
-ALTER TABLE `accesos`
-  ADD PRIMARY KEY (`id_acceso`),
-  ADD KEY `id_rol_acceso_fk` (`id_rol`),
-  ADD KEY `id_permiso_acceso_fk` (`id_permiso`),
-  ADD KEY `id_modulo_acceso_fk` (`id_modulo`);
-
---
--- Indices de la tabla `acciones`
---
-ALTER TABLE `acciones`
-  ADD PRIMARY KEY (`id_accion`);
-
---
--- Indices de la tabla `acciones_resagadas_usuarios`
---
-ALTER TABLE `acciones_resagadas_usuarios`
-  ADD PRIMARY KEY (`id_accion_resagada`),
-  ADD KEY `id_accion_acciones_resagadas_fk` (`id_accion`),
-  ADD KEY `id_modulo_acciones_resagadas_fk` (`id_modulo`),
-  ADD KEY `cedula_usuario_acciones_resagadas_fk` (`cedula_usuario`);
 
 --
 -- Indices de la tabla `bancos`
@@ -2004,14 +931,12 @@ ALTER TABLE `bancos`
   ADD PRIMARY KEY (`id_banco`);
 
 --
--- Indices de la tabla `bitacora`
+-- Indices de la tabla `bancos_detalles_pagos`
 --
-ALTER TABLE `bitacora`
-  ADD PRIMARY KEY (`id_bitacora`),
-  ADD KEY `cedula_usuario_bitacora_fk` (`cedula_usuario`),
-  ADD KEY `id_modulo_bitacora_fk` (`id_modulo`),
-  ADD KEY `id_accion_bitacora_fk` (`id_accion`),
-  ADD KEY `id_resultado_bitacora_bitacora_fk` (`id_resultado_bitacora`);
+ALTER TABLE `bancos_detalles_pagos`
+  ADD PRIMARY KEY (`id_banco_detalle_pago`),
+  ADD KEY `id_detalle_pago_bancos_detalles_pagos_fk` (`id_detalle_pago`),
+  ADD KEY `id_banco_bancos_detalles_pagos_fk` (`id_banco`);
 
 --
 -- Indices de la tabla `cambios_iva`
@@ -2024,7 +949,7 @@ ALTER TABLE `cambios_iva`
 --
 ALTER TABLE `cambios_monedas`
   ADD PRIMARY KEY (`id_cambio_moneda`),
-  ADD KEY `id_moneda_cambio_fk` (`id_moneda`);
+  ADD KEY `id_moneda_cambios_monedas_fk` (`id_moneda`);
 
 --
 -- Indices de la tabla `categorias_productos`
@@ -2046,22 +971,29 @@ ALTER TABLE `compras`
   ADD KEY `rif_proveedor_compras_fk` (`rif_proveedor`);
 
 --
+-- Indices de la tabla `comprobantes_pagos`
+--
+ALTER TABLE `comprobantes_pagos`
+  ADD PRIMARY KEY (`id_comprobante_pago`),
+  ADD KEY `id_pago_comprobantes_pagos_fk` (`id_pago`);
+
+--
 -- Indices de la tabla `deliveries`
 --
 ALTER TABLE `deliveries`
   ADD PRIMARY KEY (`id_delivery`),
-  ADD KEY `id_factura_delivery_fk` (`id_factura`),
+  ADD KEY `id_direccion_deliveries_fk` (`id_direccion`),
   ADD KEY `cedula_repartidor_deliveries_fk` (`cedula_repartidor`),
-  ADD KEY `id_direccion_deliveries_fk` (`id_direccion`);
+  ADD KEY `id_factura_delivery_fk` (`id_factura`);
 
 --
 -- Indices de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
   ADD PRIMARY KEY (`id_detalle_pago`),
-  ADD KEY `id_pago_detalle_pago_fk` (`id_pago`),
-  ADD KEY `id_moneda_detalle_pago_fk` (`id_moneda`),
-  ADD KEY `id_metodo_pago_detalle_pago_fk` (`id_metodo_pago`);
+  ADD KEY `id_pago_detalles_pagos_fk` (`id_pago`),
+  ADD KEY `id_metodo_pago_detalles_pagos_fk` (`id_metodo_pago`),
+  ADD KEY `id_moneda_detalles_pagos_fk` (`id_moneda`);
 
 --
 -- Indices de la tabla `direcciones`
@@ -2069,8 +1001,8 @@ ALTER TABLE `detalles_pagos`
 ALTER TABLE `direcciones`
   ADD PRIMARY KEY (`id_direccion`),
   ADD KEY `id_ruta_direcciones_fk` (`id_ruta`),
-  ADD KEY `id_latitud_direccion_direccion_fk` (`id_latitud_direccion`),
-  ADD KEY `id_longitud_direccion_fk` (`id_longitud_direccion`);
+  ADD KEY `id_latitud_direccion_direcciones_fk` (`id_latitud_direccion`),
+  ADD KEY `id_longitud_direccion_direcciones_fk` (`id_longitud_direccion`);
 
 --
 -- Indices de la tabla `empresas_envios`
@@ -2083,7 +1015,7 @@ ALTER TABLE `empresas_envios`
 --
 ALTER TABLE `envios_terceros`
   ADD PRIMARY KEY (`id_envio_tercero`),
-  ADD KEY `id_empresa_envios_envios_terceros_fk` (`id_empresa_envios`),
+  ADD KEY `id_sucursal_empresa_envios_envios_terceros_fk` (`id_sucursal_empresa_envios`),
   ADD KEY `id_factura_envios_terceros_fk` (`id_factura`);
 
 --
@@ -2093,12 +1025,6 @@ ALTER TABLE `facturas`
   ADD PRIMARY KEY (`id_factura`),
   ADD KEY `rif_cedula_cliente_venta_fk` (`rif_cedula_cliente`),
   ADD KEY `id_cambio_iva_venta` (`id_cambio_iva`);
-
---
--- Indices de la tabla `iconos_notificaciones`
---
-ALTER TABLE `iconos_notificaciones`
-  ADD PRIMARY KEY (`id_icono_notificacion`);
 
 --
 -- Indices de la tabla `latitudes_direcciones`
@@ -2117,15 +1043,15 @@ ALTER TABLE `longitudes_direcciones`
 --
 ALTER TABLE `materias_primas`
   ADD PRIMARY KEY (`id_materia_prima`),
-  ADD KEY `id_unidad_medida_materia_prima_fk` (`id_unidad_medida`);
+  ADD KEY `id_unidad_medida_materias_primas_fk` (`id_unidad_medida`);
 
 --
 -- Indices de la tabla `materias_primas_compras`
 --
 ALTER TABLE `materias_primas_compras`
   ADD PRIMARY KEY (`id_materia_prima_compra`),
-  ADD KEY `id_compra_materias_primas_compras_fk` (`id_compra`),
-  ADD KEY `id_materia_prima_materias_primas_compras_fk` (`id_materia_prima`);
+  ADD KEY `id_materia_prima_materias_primas_compras_fk` (`id_materia_prima`),
+  ADD KEY `id_compra_materias_primas_compras_fk` (`id_compra`);
 
 --
 -- Indices de la tabla `materias_primas_presentaciones`
@@ -2140,15 +1066,15 @@ ALTER TABLE `materias_primas_presentaciones`
 --
 ALTER TABLE `materias_primas_producciones`
   ADD PRIMARY KEY (`id_materia_prima_produccion`),
-  ADD KEY `id_materia_prima_producciones_materias_primas_fk` (`id_materia_prima`),
-  ADD KEY `id_produccion_producciones_materias_primas_fk` (`id_produccion`);
+  ADD KEY `id_materia_prima_materias_primas_producciones_fk` (`id_materia_prima`),
+  ADD KEY `id_produccion_materias_primas_producciones_fk` (`id_produccion`);
 
 --
 -- Indices de la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
   ADD PRIMARY KEY (`id_materia_prima_producto`),
-  ADD KEY `id_materia_primas_materias_primas_productos_fk` (`id_materia_prima`),
+  ADD KEY `id_materia_prima_materias_primas_productos_fk` (`id_materia_prima`),
   ADD KEY `id_producto_materias_primas_productos_fk` (`id_producto`);
 
 --
@@ -2158,32 +1084,10 @@ ALTER TABLE `metodos_pagos`
   ADD PRIMARY KEY (`id_metodo_pago`);
 
 --
--- Indices de la tabla `modulos`
---
-ALTER TABLE `modulos`
-  ADD PRIMARY KEY (`id_modulo`);
-
---
 -- Indices de la tabla `monedas`
 --
 ALTER TABLE `monedas`
   ADD PRIMARY KEY (`id_moneda`);
-
---
--- Indices de la tabla `notificaciones`
---
-ALTER TABLE `notificaciones`
-  ADD PRIMARY KEY (`id_notificacion`),
-  ADD KEY `id_icono_notificacion_notificaciones_fk` (`id_icono_notificacion`),
-  ADD KEY `id_tipo_notificacion_notificaciones_fk` (`id_tipo_notificacion`);
-
---
--- Indices de la tabla `notificaciones_usuarios`
---
-ALTER TABLE `notificaciones_usuarios`
-  ADD PRIMARY KEY (`id_notificacion_usuario`),
-  ADD KEY `cedula_usuario_notificacion_fk` (`cedula_usuario`),
-  ADD KEY `id_notificacion_notificacion_fk` (`id_notificacion`);
 
 --
 -- Indices de la tabla `pagos`
@@ -2191,12 +1095,6 @@ ALTER TABLE `notificaciones_usuarios`
 ALTER TABLE `pagos`
   ADD PRIMARY KEY (`id_pago`),
   ADD KEY `id_venta_pago_fk` (`id_factura`);
-
---
--- Indices de la tabla `permisos`
---
-ALTER TABLE `permisos`
-  ADD PRIMARY KEY (`id_permiso`);
 
 --
 -- Indices de la tabla `precios_materias_primas`
@@ -2217,7 +1115,7 @@ ALTER TABLE `precios_productos`
 --
 ALTER TABLE `precios_rutas`
   ADD PRIMARY KEY (`id_precio_ruta`),
-  ADD KEY `id_ruta_precios_ruta_fk` (`id_ruta`);
+  ADD KEY `id_ruta_precios_rutas_fk` (`id_ruta`);
 
 --
 -- Indices de la tabla `precios_servicios`
@@ -2234,6 +1132,14 @@ ALTER TABLE `presentaciones`
   ADD KEY `id_unidad_medida_presentaciones_fk` (`id_unidad_medida`);
 
 --
+-- Indices de la tabla `presentaciones_productos`
+--
+ALTER TABLE `presentaciones_productos`
+  ADD PRIMARY KEY (`id_producto_presentacion`),
+  ADD KEY `id_presentacion_productos_presentaciones_fk` (`id_presentacion`),
+  ADD KEY `id_producto_productos_presentaciones_fk` (`id_producto`);
+
+--
 -- Indices de la tabla `producciones`
 --
 ALTER TABLE `producciones`
@@ -2244,7 +1150,7 @@ ALTER TABLE `producciones`
 --
 ALTER TABLE `productos`
   ADD PRIMARY KEY (`id_producto`),
-  ADD KEY `id_unidad_medida_producto_fk` (`id_unidad_medida`),
+  ADD KEY `id_unidad_medida_productos_fk` (`id_unidad_medida`),
   ADD KEY `id_categoria_producto_productos_fk` (`id_categoria_producto`);
 
 --
@@ -2252,40 +1158,32 @@ ALTER TABLE `productos`
 --
 ALTER TABLE `productos_compras`
   ADD PRIMARY KEY (`id_producto_compra`),
-  ADD KEY `id_compra_productos_compras_fk` (`id_compra`),
-  ADD KEY `id_producto_productos_compras_fk` (`id_producto`);
+  ADD KEY `id_producto_productos_compras_fk` (`id_producto`),
+  ADD KEY `id_compra_productos_compras_fk` (`id_compra`);
 
 --
 -- Indices de la tabla `productos_facturas`
 --
 ALTER TABLE `productos_facturas`
   ADD PRIMARY KEY (`id_producto_factura`),
-  ADD KEY `id_venta_productos_ventas_fk` (`id_factura`),
-  ADD KEY `id_producto_productos_ventas_fk` (`id_producto`);
-
---
--- Indices de la tabla `productos_presentaciones`
---
-ALTER TABLE `productos_presentaciones`
-  ADD PRIMARY KEY (`id_producto_presentacion`),
-  ADD KEY `id_producto_presentacion_fk` (`id_producto`),
-  ADD KEY `id_presentacion_productos_presentacion_fk` (`id_presentacion`);
+  ADD KEY `id_producto_productos_facturas_fk` (`id_producto`),
+  ADD KEY `id_factura_productos_facturas_fk` (`id_factura`);
 
 --
 -- Indices de la tabla `productos_producciones`
 --
 ALTER TABLE `productos_producciones`
   ADD PRIMARY KEY (`id_producto_produccion`),
-  ADD KEY `id_produccion_productos_produccion_fk` (`id_produccion`),
-  ADD KEY `id_producto_productos_produccion_fk` (`id_producto`);
+  ADD KEY `id_produccion_productos_producciones_fk` (`id_produccion`),
+  ADD KEY `id_producto_productos_producciones_fk` (`id_producto`);
 
 --
 -- Indices de la tabla `productos_servicios_facturas`
 --
 ALTER TABLE `productos_servicios_facturas`
   ADD PRIMARY KEY (`id_producto_servicio_factura`),
-  ADD KEY `id_producto_productos_servicios_ventas_fk` (`id_producto`),
-  ADD KEY `id_servicio_venta_productos_servicios_ventas_fk` (`id_servicio_factura`);
+  ADD KEY `id_producto_productos_servicios_facturas_fk` (`id_producto`),
+  ADD KEY `id_servicio_factura_productos_servicios_facturas_fk` (`id_servicio_factura`);
 
 --
 -- Indices de la tabla `proveedores`
@@ -2294,22 +1192,17 @@ ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`rif_proveedor`);
 
 --
+-- Indices de la tabla `referencias_detalles_pagos`
+--
+ALTER TABLE `referencias_detalles_pagos`
+  ADD PRIMARY KEY (`id_referencia_detalle_pago`),
+  ADD KEY `id_detalle_pago_referencias_detalles_pagos_fk` (`id_detalle_pago`);
+
+--
 -- Indices de la tabla `repartidores`
 --
 ALTER TABLE `repartidores`
   ADD PRIMARY KEY (`cedula_repartidor`);
-
---
--- Indices de la tabla `resultados_bitacora`
---
-ALTER TABLE `resultados_bitacora`
-  ADD PRIMARY KEY (`id_resultado_bitacora`);
-
---
--- Indices de la tabla `roles`
---
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id_rol`);
 
 --
 -- Indices de la tabla `rutas`
@@ -2328,15 +1221,17 @@ ALTER TABLE `servicios`
 -- Indices de la tabla `servicios_facturas`
 --
 ALTER TABLE `servicios_facturas`
-  ADD PRIMARY KEY (`id_servicios_factura`),
-  ADD KEY `id_venta_servicios_ventas_fk` (`id_factura`),
-  ADD KEY `id_servicio_servicios_ventas_fk` (`id_servicio`);
+  ADD PRIMARY KEY (`id_servicio_factura`),
+  ADD KEY `id_factura_servicios_facturas_fk` (`id_factura`),
+  ADD KEY `id_servicio_servicios_facturas_fk` (`id_servicio`);
 
 --
--- Indices de la tabla `tipos_notificaciones`
+-- Indices de la tabla `sucursales_empresas_envios`
 --
-ALTER TABLE `tipos_notificaciones`
-  ADD PRIMARY KEY (`id_tipo_notificacion`);
+ALTER TABLE `sucursales_empresas_envios`
+  ADD PRIMARY KEY (`id_sucursal_empresa_envios`),
+  ADD KEY `id_empresa_envios_sucursales_empresas_envios_fk` (`id_empresa_envios`),
+  ADD KEY `id_direccion_sucursales_empresas_envios_fk` (`id_direccion`);
 
 --
 -- Indices de la tabla `unidades_medidas`
@@ -2345,51 +1240,26 @@ ALTER TABLE `unidades_medidas`
   ADD PRIMARY KEY (`id_unidad_medida`);
 
 --
--- Indices de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`cedula_usuario`),
-  ADD KEY `id_rol_usuario_fk` (`id_rol`);
-
---
 -- AUTO_INCREMENT de las tablas volcadas
 --
-
---
--- AUTO_INCREMENT de la tabla `accesos`
---
-ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=586;
-
---
--- AUTO_INCREMENT de la tabla `acciones`
---
-ALTER TABLE `acciones`
-  MODIFY `id_accion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
-
---
--- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
---
-ALTER TABLE `acciones_resagadas_usuarios`
-  MODIFY `id_accion_resagada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=262;
 
 --
 -- AUTO_INCREMENT de la tabla `bancos`
 --
 ALTER TABLE `bancos`
-  MODIFY `id_banco` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_banco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `bitacora`
+-- AUTO_INCREMENT de la tabla `bancos_detalles_pagos`
 --
-ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
+ALTER TABLE `bancos_detalles_pagos`
+  MODIFY `id_banco_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
 --
 ALTER TABLE `cambios_iva`
-  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
@@ -2401,31 +1271,19 @@ ALTER TABLE `cambios_monedas`
 -- AUTO_INCREMENT de la tabla `categorias_productos`
 --
 ALTER TABLE `categorias_productos`
-  MODIFY `id_categoria_producto` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `compras`
---
-ALTER TABLE `compras`
-  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT de la tabla `deliveries`
---
-ALTER TABLE `deliveries`
-  MODIFY `id_delivery` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_categoria_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
-  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `empresas_envios`
@@ -2434,52 +1292,28 @@ ALTER TABLE `empresas_envios`
   MODIFY `id_empresa_envios` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `envios_terceros`
---
-ALTER TABLE `envios_terceros`
-  MODIFY `id_envio_tercero` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `facturas`
---
-ALTER TABLE `facturas`
-  MODIFY `id_factura` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `iconos_notificaciones`
---
-ALTER TABLE `iconos_notificaciones`
-  MODIFY `id_icono_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
 -- AUTO_INCREMENT de la tabla `latitudes_direcciones`
 --
 ALTER TABLE `latitudes_direcciones`
-  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `longitudes_direcciones`
 --
 ALTER TABLE `longitudes_direcciones`
-  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `materias_primas`
---
-ALTER TABLE `materias_primas`
-  MODIFY `id_materia_prima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_compras`
 --
 ALTER TABLE `materias_primas_compras`
-  MODIFY `id_materia_prima_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_materia_prima_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_presentaciones`
 --
 ALTER TABLE `materias_primas_presentaciones`
-  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_producciones`
@@ -2491,49 +1325,19 @@ ALTER TABLE `materias_primas_producciones`
 -- AUTO_INCREMENT de la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
-  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pagos`
 --
 ALTER TABLE `metodos_pagos`
-  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT de la tabla `modulos`
---
-ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=254;
+  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
 --
 ALTER TABLE `monedas`
   MODIFY `id_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT de la tabla `notificaciones`
---
-ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT de la tabla `notificaciones_usuarios`
---
-ALTER TABLE `notificaciones_usuarios`
-  MODIFY `id_notificacion_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=185;
-
---
--- AUTO_INCREMENT de la tabla `pagos`
---
-ALTER TABLE `pagos`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `permisos`
---
-ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=595;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_materias_primas`
@@ -2545,7 +1349,7 @@ ALTER TABLE `precios_materias_primas`
 -- AUTO_INCREMENT de la tabla `precios_productos`
 --
 ALTER TABLE `precios_productos`
-  MODIFY `id_precio_producto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_precio_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_rutas`
@@ -2563,19 +1367,13 @@ ALTER TABLE `precios_servicios`
 -- AUTO_INCREMENT de la tabla `presentaciones`
 --
 ALTER TABLE `presentaciones`
-  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
--- AUTO_INCREMENT de la tabla `producciones`
+-- AUTO_INCREMENT de la tabla `presentaciones_productos`
 --
-ALTER TABLE `producciones`
-  MODIFY `id_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT de la tabla `productos`
---
-ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `presentaciones_productos`
+  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_compras`
@@ -2587,13 +1385,7 @@ ALTER TABLE `productos_compras`
 -- AUTO_INCREMENT de la tabla `productos_facturas`
 --
 ALTER TABLE `productos_facturas`
-  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `productos_presentaciones`
---
-ALTER TABLE `productos_presentaciones`
-  MODIFY `id_producto_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_producciones`
@@ -2608,16 +1400,10 @@ ALTER TABLE `productos_servicios_facturas`
   MODIFY `id_producto_servicio_factura` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `resultados_bitacora`
+-- AUTO_INCREMENT de la tabla `referencias_detalles_pagos`
 --
-ALTER TABLE `resultados_bitacora`
-  MODIFY `id_resultado_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de la tabla `roles`
---
-ALTER TABLE `roles`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+ALTER TABLE `referencias_detalles_pagos`
+  MODIFY `id_referencia_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `rutas`
@@ -2626,22 +1412,16 @@ ALTER TABLE `rutas`
   MODIFY `id_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `servicios`
---
-ALTER TABLE `servicios`
-  MODIFY `id_servicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
 -- AUTO_INCREMENT de la tabla `servicios_facturas`
 --
 ALTER TABLE `servicios_facturas`
-  MODIFY `id_servicios_factura` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_servicio_factura` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `tipos_notificaciones`
+-- AUTO_INCREMENT de la tabla `sucursales_empresas_envios`
 --
-ALTER TABLE `tipos_notificaciones`
-  MODIFY `id_tipo_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `sucursales_empresas_envios`
+  MODIFY `id_sucursal_empresa_envios` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `unidades_medidas`
@@ -2654,41 +1434,29 @@ ALTER TABLE `unidades_medidas`
 --
 
 --
--- Filtros para la tabla `accesos`
+-- Filtros para la tabla `bancos_detalles_pagos`
 --
-ALTER TABLE `accesos`
-  ADD CONSTRAINT `id_modulo_acceso_fk` FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_permiso_acceso_fk` FOREIGN KEY (`id_permiso`) REFERENCES `permisos` (`id_permiso`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_rol_acceso_fk` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `acciones_resagadas_usuarios`
---
-ALTER TABLE `acciones_resagadas_usuarios`
-  ADD CONSTRAINT `cedula_usuario_acciones_resagadas_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_accion_acciones_resagadas_fk` FOREIGN KEY (`id_accion`) REFERENCES `acciones` (`id_accion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_modulo_acciones_resagadas_fk` FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `bitacora`
---
-ALTER TABLE `bitacora`
-  ADD CONSTRAINT `cedula_usuario_bitacora_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_accion_bitacora_fk` FOREIGN KEY (`id_accion`) REFERENCES `acciones` (`id_accion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_modulo_bitacora_fk` FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_resultado_bitacora_bitacora_fk` FOREIGN KEY (`id_resultado_bitacora`) REFERENCES `resultados_bitacora` (`id_resultado_bitacora`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `bancos_detalles_pagos`
+  ADD CONSTRAINT `id_banco_bancos_detalles_pagos_fk` FOREIGN KEY (`id_banco`) REFERENCES `bancos` (`id_banco`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_detalle_pago_bancos_detalles_pagos_fk` FOREIGN KEY (`id_detalle_pago`) REFERENCES `detalles_pagos` (`id_detalle_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `cambios_monedas`
 --
 ALTER TABLE `cambios_monedas`
-  ADD CONSTRAINT `id_moneda_cambio_fk` FOREIGN KEY (`id_moneda`) REFERENCES `monedas` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_moneda_cambios_monedas_fk` FOREIGN KEY (`id_moneda`) REFERENCES `monedas` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `compras`
 --
 ALTER TABLE `compras`
   ADD CONSTRAINT `rif_proveedor_compras_fk` FOREIGN KEY (`rif_proveedor`) REFERENCES `proveedores` (`rif_proveedor`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `comprobantes_pagos`
+--
+ALTER TABLE `comprobantes_pagos`
+  ADD CONSTRAINT `id_pago_comprobantes_pagos_fk` FOREIGN KEY (`id_pago`) REFERENCES `pagos` (`id_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `deliveries`
@@ -2702,24 +1470,24 @@ ALTER TABLE `deliveries`
 -- Filtros para la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
-  ADD CONSTRAINT `id_metodo_pago_detalle_pago_fk` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodos_pagos` (`id_metodo_pago`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_moneda_detalle_pago_fk` FOREIGN KEY (`id_moneda`) REFERENCES `monedas` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_pago_detalle_pago_fk` FOREIGN KEY (`id_pago`) REFERENCES `pagos` (`id_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_metodo_pago_detalles_pagos_fk` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodos_pagos` (`id_metodo_pago`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_moneda_detalles_pagos_fk` FOREIGN KEY (`id_moneda`) REFERENCES `monedas` (`id_moneda`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_pago_detalles_pagos_fk` FOREIGN KEY (`id_pago`) REFERENCES `pagos` (`id_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  ADD CONSTRAINT `id_latitud_direccion_direccion_fk` FOREIGN KEY (`id_latitud_direccion`) REFERENCES `latitudes_direcciones` (`id_latitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_longitud_direccion_fk` FOREIGN KEY (`id_longitud_direccion`) REFERENCES `longitudes_direcciones` (`id_longitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_latitud_direccion_direcciones_fk` FOREIGN KEY (`id_latitud_direccion`) REFERENCES `latitudes_direcciones` (`id_latitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_longitud_direccion_direcciones_fk` FOREIGN KEY (`id_longitud_direccion`) REFERENCES `longitudes_direcciones` (`id_longitud_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_ruta_direcciones_fk` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id_ruta`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `envios_terceros`
 --
 ALTER TABLE `envios_terceros`
-  ADD CONSTRAINT `id_empresa_envios_envios_terceros_fk` FOREIGN KEY (`id_empresa_envios`) REFERENCES `empresas_envios` (`id_empresa_envios`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_factura_envios_terceros_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_factura_envios_terceros_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_sucursal_empresa_envios_envios_terceros_fk` FOREIGN KEY (`id_sucursal_empresa_envios`) REFERENCES `sucursales_empresas_envios` (`id_sucursal_empresa_envios`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `facturas`
@@ -2732,7 +1500,7 @@ ALTER TABLE `facturas`
 -- Filtros para la tabla `materias_primas`
 --
 ALTER TABLE `materias_primas`
-  ADD CONSTRAINT `id_unidad_medida_materia_prima_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_unidad_medida_materias_primas_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `materias_primas_compras`
@@ -2752,35 +1520,21 @@ ALTER TABLE `materias_primas_presentaciones`
 -- Filtros para la tabla `materias_primas_producciones`
 --
 ALTER TABLE `materias_primas_producciones`
-  ADD CONSTRAINT `id_materia_prima_producciones_materias_primas_fk` FOREIGN KEY (`id_materia_prima`) REFERENCES `materias_primas` (`id_materia_prima`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_produccion_producciones_materias_primas_fk` FOREIGN KEY (`id_produccion`) REFERENCES `producciones` (`id_produccion`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_materia_prima_materias_primas_producciones_fk` FOREIGN KEY (`id_materia_prima`) REFERENCES `materias_primas` (`id_materia_prima`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_produccion_materias_primas_producciones_fk` FOREIGN KEY (`id_produccion`) REFERENCES `producciones` (`id_produccion`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
-  ADD CONSTRAINT `id_materia_primas_materias_primas_productos_fk` FOREIGN KEY (`id_materia_prima`) REFERENCES `materias_primas` (`id_materia_prima`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_materia_prima_materias_primas_productos_fk` FOREIGN KEY (`id_materia_prima`) REFERENCES `materias_primas` (`id_materia_prima`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `id_producto_materias_primas_productos_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `notificaciones`
---
-ALTER TABLE `notificaciones`
-  ADD CONSTRAINT `id_icono_notificacion_notificaciones_fk` FOREIGN KEY (`id_icono_notificacion`) REFERENCES `iconos_notificaciones` (`id_icono_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_tipo_notificacion_notificaciones_fk` FOREIGN KEY (`id_tipo_notificacion`) REFERENCES `tipos_notificaciones` (`id_tipo_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `notificaciones_usuarios`
---
-ALTER TABLE `notificaciones_usuarios`
-  ADD CONSTRAINT `cedula_usuario_notificacion_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_notificacion_notificacion_fk` FOREIGN KEY (`id_notificacion`) REFERENCES `notificaciones` (`id_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  ADD CONSTRAINT `id_venta_pago_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_factura_pagos_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `precios_materias_primas`
@@ -2798,7 +1552,7 @@ ALTER TABLE `precios_productos`
 -- Filtros para la tabla `precios_rutas`
 --
 ALTER TABLE `precios_rutas`
-  ADD CONSTRAINT `id_ruta_precios_ruta_fk` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id_ruta`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_ruta_precios_rutas_fk` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id_ruta`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `precios_servicios`
@@ -2813,11 +1567,18 @@ ALTER TABLE `presentaciones`
   ADD CONSTRAINT `id_unidad_medida_presentaciones_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `presentaciones_productos`
+--
+ALTER TABLE `presentaciones_productos`
+  ADD CONSTRAINT `id_presentacion_productos_presentaciones_fk` FOREIGN KEY (`id_presentacion`) REFERENCES `presentaciones` (`id_presentacion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_producto_productos_presentaciones_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `productos`
 --
 ALTER TABLE `productos`
   ADD CONSTRAINT `id_categoria_producto_productos_fk` FOREIGN KEY (`id_categoria_producto`) REFERENCES `categorias_productos` (`id_categoria_producto`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_unidad_medida_producto_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_unidad_medida_productos_fk` FOREIGN KEY (`id_unidad_medida`) REFERENCES `unidades_medidas` (`id_unidad_medida`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `productos_compras`
@@ -2830,29 +1591,28 @@ ALTER TABLE `productos_compras`
 -- Filtros para la tabla `productos_facturas`
 --
 ALTER TABLE `productos_facturas`
-  ADD CONSTRAINT `id_producto_productos_ventas_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_venta_productos_ventas_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `productos_presentaciones`
---
-ALTER TABLE `productos_presentaciones`
-  ADD CONSTRAINT `id_presentacion_productos_presentacion_fk` FOREIGN KEY (`id_presentacion`) REFERENCES `presentaciones` (`id_presentacion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_producto_presentacion_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_factura_productos_facturas_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_producto_productos_facturas_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `productos_producciones`
 --
 ALTER TABLE `productos_producciones`
-  ADD CONSTRAINT `id_produccion_productos_produccion_fk` FOREIGN KEY (`id_produccion`) REFERENCES `producciones` (`id_produccion`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_producto_productos_produccion_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_produccion_productos_producciones_fk` FOREIGN KEY (`id_produccion`) REFERENCES `producciones` (`id_produccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_producto_productos_producciones_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `productos_servicios_facturas`
 --
 ALTER TABLE `productos_servicios_facturas`
-  ADD CONSTRAINT `id_producto_productos_servicios_ventas_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_servicio_venta_productos_servicios_ventas_fk` FOREIGN KEY (`id_servicio_factura`) REFERENCES `servicios_facturas` (`id_servicios_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_producto_productos_servicios_facturas_fk` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_servicio_factura_productos_servicios_facturas_fk` FOREIGN KEY (`id_servicio_factura`) REFERENCES `servicios_facturas` (`id_servicio_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `referencias_detalles_pagos`
+--
+ALTER TABLE `referencias_detalles_pagos`
+  ADD CONSTRAINT `id_detalle_pago_referencias_detalles_pagos_fk` FOREIGN KEY (`id_detalle_pago`) REFERENCES `detalles_pagos` (`id_detalle_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `servicios`
@@ -2864,14 +1624,15 @@ ALTER TABLE `servicios`
 -- Filtros para la tabla `servicios_facturas`
 --
 ALTER TABLE `servicios_facturas`
-  ADD CONSTRAINT `id_servicio_servicios_ventas_fk` FOREIGN KEY (`id_servicio`) REFERENCES `servicios` (`id_servicio`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `id_venta_servicios_ventas_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `id_factura_servicios_facturas_fk` FOREIGN KEY (`id_factura`) REFERENCES `facturas` (`id_factura`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_servicio_servicios_facturas_fk` FOREIGN KEY (`id_servicio`) REFERENCES `servicios` (`id_servicio`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `usuarios`
+-- Filtros para la tabla `sucursales_empresas_envios`
 --
-ALTER TABLE `usuarios`
-  ADD CONSTRAINT `id_rol_usuario_fk` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `sucursales_empresas_envios`
+  ADD CONSTRAINT `id_direccion_sucursales_empresas_envios_fk` FOREIGN KEY (`id_direccion`) REFERENCES `direcciones` (`id_direccion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_empresa_envios_sucursales_empresas_envios_fk` FOREIGN KEY (`id_empresa_envios`) REFERENCES `empresas_envios` (`id_empresa_envios`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

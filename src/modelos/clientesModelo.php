@@ -258,42 +258,19 @@ class clientesModelo extends conexion
   }
   private function registrarClientesP()
   {
-    $datos_registro_cliente = [
-      [
-        "campo_nombre" => "rif_cedula_cliente",
-        "campo_marcador" => ":rif_cedula",
-        "campo_valor" => $this->rif_cedula_cliente
+    $ultimoID = $this->guardarDatos2([
+      "tabla" => 'clientes',
+      'datos'=> [
+        "rif_cedula_cliente"=> $this->rif_cedula_cliente,
+        "razon_social_cliente"=>$this->razon_social_cliente,
+        "telefono_cliente"=>$this->telefono_cliente,
+        "correo_cliente"=> $this->correo_cliente,
+        "direccion_cliente"=>$this->direccion_cliente
       ],
-      [
-        "campo_nombre" => "razon_social_cliente",
-        "campo_marcador" => ":razon_social",
-        "campo_valor" => $this->razon_social_cliente,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "telefono_cliente",
-        "campo_marcador" => ":telefono",
-        "campo_valor" => $this->telefono_cliente
-      ],
-      [
-        "campo_nombre" => "correo_cliente",
-        "campo_marcador" => ":correo",
-        "campo_valor" => $this->correo_cliente
-      ],
-      [
-        "campo_nombre" => "direccion_cliente",
-        "campo_marcador" => ":direccion",
-        "campo_valor" => $this->direccion_cliente
-      ],
-    ];
-
-    $condicion = [
-      "condicion_campo" => "rif_cedula_cliente",
-      "condicion_marcador" => ":rif_cedula",
-      "condicion_valor" => $this->rif_cedula_cliente
-    ];
-
-    $ultimoID = $this->guardarDatos('clientes', $datos_registro_cliente, $condicion);
+      'WHERE'=>[
+        'rif_cedula_cliente'=>$this->rif_cedula_cliente
+      ]
+    ]);
 
     if ($ultimoID !== false && $ultimoID > 0) {
       $alerta = [
@@ -359,7 +336,7 @@ class clientesModelo extends conexion
           "campo_valor" => $this->direccion_cliente
         ]
       ],
-      "condiciones" => [
+      "WHERE" => [
         [
           "condicion_campo" => "rif_cedula_cliente",
           "condicion_marcador" => ":rif_cedula",
