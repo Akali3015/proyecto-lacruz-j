@@ -13,9 +13,19 @@
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/sweetalert2.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/notifier.min.css">
+  <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/datepicker-bs5.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/iconos/uicons/css/all/all.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/node_modules/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/plugins/driver.min.css">
   <link rel="stylesheet" href="/proyecto-lacruz-j/src/assets/css/header.css">
+
 </head>
 
 <body>
+
+  <!-- Espiner de carga -->
+  <div id="spinnerCarga" class="d-none">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>

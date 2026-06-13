@@ -1,0 +1,229 @@
+/* ══════════════════════════════════════════════════════
+   facturacion.css — Estilos del módulo de Facturación
+   ══════════════════════════════════════════════════════ */
+
+/* Cabecera del modal */
+.fact-header-grad {
+  background: linear-gradient(135deg, #1a56db, #0ea5e9);
+}
+
+/* ── Estado de la factura en la DataTable ── */
+.fact-badge-activa {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #fff;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.fact-badge-anulada {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  color: #fff;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Estado vacío en tabs ── */
+.fact-empty-state {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem 1rem;
+}
+.fact-empty-state i {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: .5rem;
+}
+
+/* ── Tabla de items dentro de los tabs ── */
+.fact-items-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+.fact-items-table thead th {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 8px 12px;
+  border: none;
+}
+.fact-items-table tbody tr {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  border-radius: 8px;
+  transition: box-shadow .2s;
+}
+.fact-items-table tbody tr:hover {
+  box-shadow: 0 3px 10px rgba(26,86,219,.12);
+}
+.fact-items-table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  border: none;
+}
+.fact-items-table tbody td:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.fact-items-table tbody td:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── Panel de totales ── */
+.fact-totales-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+}
+.fact-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: .9rem;
+  color: #475569;
+}
+.fact-total-row:last-child {
+  border-bottom: none;
+}
+.fact-total-grande {
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a56db;
+  border-top: 2px solid #1a56db !important;
+  border-bottom: none;
+}
+
+/* ── Dashboard de tarjetas ── */
+.fact-dashboard-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  transition: transform .2s, box-shadow .2s;
+}
+.fact-dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+}
+
+/* ── Modal de detalles ── */
+.fact-detalle-seccion {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.fact-detalle-seccion h6 {
+  font-weight: 700;
+  color: #1a56db;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+  margin-bottom: 1rem;
+}
+
+/* ── Botón borrar fila ── */
+.fact-btn-borrar {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .2s;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.fact-btn-borrar:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ── Input de cantidad en tabla ── */
+.fact-qty-input {
+  width: 80px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  padding: 4px 6px;
+  font-size: .9rem;
+}
+.fact-qty-input:focus {
+  outline: none;
+  border-color: #1a56db;
+  box-shadow: 0 0 0 2px rgba(26,86,219,.15);
+}
+
+/* ── Nombre de producto/servicio ── */
+.fact-item-nombre {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: .9rem;
+}
+.fact-item-sub {
+  font-size: .78rem;
+  color: #64748b;
+}
+
+/* ── Mapfre switch ── */
+.fact-mapfre-row {
+  background: #eff6ff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .82rem;
+  color: #1e40af;
+}
+
+/* ── Oscurecer modal padre cuando se abre selector encima ── */
+.fact-modal-dimmed .modal-content {
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* ── Estilos para secciones del detalle de factura ── */
+.fact-seccion-productos {
+  background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%); /* Azul oscuro-claro degradado suave */
+  border-left: 4px solid #3b82f6;
+}
+
+.fact-seccion-servicios {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e0e7ff 100%); /* Morado a Azul degradado suave */
+  border-left: 4px solid #a855f7;
+}
+
+.fact-seccion-delivery {
+  background: #ffffff; /* Blanco */
+  border-left: 4px solid #e2e8f0;
+}
+
+/* Gradients for sub-modals */
+.fact-purple-blue-grad {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+  border: none !important;
+}
+
+.fact-repartidor-grad {
+  background: linear-gradient(135deg, #6f42c1, #001f3f, #0d6efd) !important;
+  border: none !important;
+}
+
+.fact-pagos-grad {
+  background: linear-gradient(90deg, #6b6bff, #8a8aff) !important;
+  border: none !important;
+}

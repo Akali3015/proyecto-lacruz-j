@@ -3,11 +3,13 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on('DOMContentLoaded', async function (e) {
-  await listarDataTable({
+  listarDataTable({
     encabezados: {
       "id_metodo_pago": "ID",
       "nombre_metodo_pago": "NOMBRE",
@@ -28,6 +30,50 @@ $(document).on('DOMContentLoaded', async function (e) {
       necesita_banco_receptor: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
       necesita_referencia: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
     },
+  });
+  driverAyuda('metodos-pago', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Método de Pago',
+          description: 'Haz clic aquí para agregar un nuevo método de pago al sistema. Ejemplos: Transferencia, Pago Móvil, Zelle, Efectivo, etc.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Métodos de Pago',
+          description: 'Aquí puedes ver todos los métodos de pago registrados y sus características.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Método',
+          description: 'Modifica las características de cualquier método de pago haciendo clic en este botón.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Método',
+          description: 'Elimina métodos de pago que ya no sean necesarios. Ten cuidado porque puede afectar pagos registrados.',
+          side: 'left'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de métodos de pago. Estos se utilizan en el proceso de facturación y cobros.',
+          side: 'top'
+        }
+      }
+    ]
   });
 })
 
@@ -56,11 +102,11 @@ $(document).on('click', '.botonEliminar', function (e) {
 $(document).off('click', '.botonEditar');
 $(document).on('click', '.botonEditar', async function (e) {
   e.preventDefault();
-  
+
   // Obtener los datos (esta función ya llena los inputs de texto automáticamente)
   const datos = await obtenerDatosRegistro({ boton: this, campoId: 'id_metodo_pago', modulo: 'metodos-pago' });
   const form = $($(this).attr('data-bs-target')).find('form');
-  
+
   /* // Sincronizar switches
   form.find('input[type="checkbox"]').each(function() {
     const name = $(this).attr('name');
@@ -71,8 +117,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'metodos-pago');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

@@ -6,47 +6,30 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_materia_prima'] ?? "";
-  $idUnidadMedida = $_POST['id_unidad_medida'] ?? "";
-  $nombre = $_POST['nombre_materia_prima'] ?? "";
-  $stock = $_POST['stock_materia_prima'] ?? "";
-  $precio = $_POST['precio_materia_prima'] ?? "";
-  $presentaciones = $_POST['presentaciones'] ?? [];
-
   $objeto = new materiasPrimasModelo();
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
 
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarMateriasPrimas();
-      echo json_encode($resultado);
-      exit();
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarMateriasPrimas($id);
-      echo json_encode($resultado);
-      exit();
-    case "listarPresentaciones":
-      $resultado = $objeto->obtenerPresentacionesMateriasPrimas($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarMateriasPrimas($_POST);
+      break;
     case "registrar":
-      $presentaciones = $_POST['presentaciones'] ?? [];
-      $resultado = $objeto->registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $precio, $presentaciones);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->registrarMateriasPrimas($_POST);
+      break;
     case "actualizar":
-      $presentaciones = $_POST['presentaciones'] ?? [];
-      $resultado = $objeto->actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $precio, $presentaciones);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarMateriasPrimas($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarMateriasPrimas($id);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->eliminarMateriasPrimas($_POST);
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

@@ -2,7 +2,7 @@
 
 namespace src\controladores;
 
-use src\modelos\permisosModelo;
+use src\modelos\accesosModelo;
 use src\modelos\traitModelo;
 
 class frontController
@@ -17,11 +17,10 @@ class frontController
 
   public function __construct()
   {
-
-    $this->objPermisos = new permisosModelo();
+    $this->objPermisos = new accesosModelo();
     $salidasFueraDeSesion = ['productos'];
-
     $this->controladores = [
+      'accesos',
       'bancos',
       'bitacora',
       'cambiosIva',
@@ -29,12 +28,16 @@ class frontController
       'clientes',
       'compras',
       'empresasEnvios',
+      'facturacion',
       'insumos',
+      'inventario',
       'iva',
       'materiasPrimas',
       'mensajesWS',
       'metodos-pago',
+      'modulos',
       'monedas',
+      'ordenesServicios',
       'pedidos',
       'permisos',
       'presentaciones',
@@ -48,12 +51,11 @@ class frontController
       'roles',
       'rutas',
       'servicios',
+      'sucursalesEmpresasEnvios',
       'unidadesMedidas',
       'usuarios',
-      'ventas',
     ];
     $this->vistasEstaticas = [
-      'dashboard',
       'home',
       '404'
     ];
@@ -135,7 +137,6 @@ class frontController
       $this->redireccionarUsuario();
     }
   }
-  
   private function transformarCuerpoAPost()
   {
     if ($_SERVER["REQUEST_METHOD"] == 'POST') {

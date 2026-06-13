@@ -3,68 +3,37 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
-use PDO;
-use PDOException;
-use Exception;
 
-class rutasModelo extends conexion
-{
-  private $idRuta;
-  private $nombreRuta;
-  private $precioRuta;
-  private $minimoKmRuta;
-  private $maximoKmRuta;
-  private $kmRecorrido;
+class rutasModelo extends conexion {
+  private int $idRuta = 0;
+  private string $nombreRuta = '';
+  private float $precioRuta = 0;
+  private float $minimoKmRuta = 0;
+  private float $maximoKmRuta = 0;
+  private float $kmRecorrido = 0;
 
-  public function seleccionarRutas($id = null, $tipoConsulta = null, $km = null)
-  {
-    $this->idRuta = $id;
-    $this->kmRecorrido = $km;
-
-    $campos = [];
-    if ($this->idRuta != null && $this->idRuta != "") {
-      $campos[] = [
-        "campo_nombre" => 'id_ruta',
-        "campo_valor" => $this->idRuta,
-        "formulario_nombre" => "id de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => 'rutas',
-        "debeExistir" => true
-      ];
-    }
-    if ($this->kmRecorrido != null && $this->kmRecorrido != "") {
-      $campos[] = [
-        "campo_valor" => $this->kmRecorrido,
-        "formulario_nombre" => "km de recorrido",
-        "requerido" => true,
-        "minimo" => minRegexCantidadItem,
-        "maximo" => maxRegexCantidadItem,
-        "expresion_re" => regexCantidadItem,
-      ];
-    }
-    if ($campos != []) {
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      }
-    }
-    return $this->seleccionarRutasP($tipoConsulta);
-  }
-  public function registrarRutas($nombre, $precio, $minimoKm, $maximoKm)
-  {
-    try {
-      $this->nombreRuta = $nombre;
-      $this->precioRuta = $precio;
-      $this->minimoKmRuta = $minimoKm;
-      $this->maximoKmRuta = $maximoKm;
-      $campos = [
-        [
+  public function validarRutas(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        "id_ruta" => [
+          "campo_nombre" => "id_ruta",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "id de la ruta",
+          "requerido" => true,
+          "minimo" => minRegexId,
+          "maximo" => maxRegexId,
+          "expresion_re" => regexId,
+          "tabla" => "rutas",
+          "debeExistir" => true,
+          "debeSerUnico" => true
+        ],
+        "nombre_ruta" => [
           "campo_nombre" => "nombre_ruta",
-          "campo_valor" => $this->nombreRuta,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "nombre de la ruta",
           "requerido" => true,
           "minimo" => minRegexNombreObj,
@@ -73,168 +42,204 @@ class rutasModelo extends conexion
           "tabla" => "rutas",
           "debeSerUnico" => true,
         ],
-        [
-          "campo_valor" => $this->precioRuta,
+        "precio_ruta" => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "precio de la ruta",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
+          'comaPunto' => true,
         ],
-        [
-          "campo_valor" => $this->minimoKmRuta,
+        "minimo_km_ruta" => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "mínimo de km de la ruta",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
+          'comaPunto' => true,
         ],
-        [
-          "campo_valor" => $this->maximoKmRuta,
+        "maximo_km_ruta" => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "máximo de km de la ruta",
+          "requerido" => true,
+          "minimo" => minRegexPrecio,
+          "maximo" => maxRegexPrecio,
+          "expresion_re" => regexPrecio,
+          'comaPunto' => true,
+        ],
+        "km_recorrido" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "la cantidad de km recorridos",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
         ],
       ];
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarRutasP();
-      }
-    } catch (PDOException $e) {
-      error_log("Error: " . $e->getMessage());
-      throw new Exception("Error al registrar el ruta en la base de datos: " . $e->getMessage());
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
+    return $this->limpiar_Verificar($campos);
   }
-  public function actualizarRutas($id, $nombre, $precio, $minimoKm, $maximoKm)
-  {
-    $this->idRuta = $id;
-    $this->nombreRuta = $nombre;
-    $this->precioRuta = $precio;
-    $this->minimoKmRuta = $minimoKm;
-    $this->maximoKmRuta = $maximoKm;
+  public function seleccionarRutas(array $info) {
+    $campos = [];
+    if (isset($info['id_ruta'])) {
+      $campos[] = 'id_ruta';
+    }
+    if (isset($info['km_recorrido'])) {
+      $campos[] = 'km_recorrido';
+    }
+    if ($campos != []) {
+      $resultado = $this->validarRutas([
+        'infoVal' => &$info,
+        'camposVal' => $campos,
+      ]);
+      if ($resultado) return $resultado;
+    }
 
-    //Arrays para las validaciones
-    $respuesta = $this->limpiar_Verificar([
-      [
-        "campo_nombre" => "id_ruta",
-        "campo_valor" => $this->idRuta,
-        "formulario_nombre" => "id de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "rutas",
-        "debeExistir" => true,
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "nombre_ruta",
-        "campo_valor" => $this->nombreRuta,
-        "formulario_nombre" => "nombre de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "rutas",
-        "debeSerUnico" => true,
-      ],
-      [
-        "campo_valor" => $this->precioRuta,
-        "formulario_nombre" => "precio de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
-      ],
-      [
-        "campo_valor" => $this->minimoKmRuta,
-        "formulario_nombre" => "mínimo de km de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
-      ],
-      [
-        "campo_valor" => $this->maximoKmRuta,
-        "formulario_nombre" => "máximo de km de la ruta",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
+    $this->idRuta = $info['id_ruta'] ?? 0;
+    $this->kmRecorrido = $info['km_recorrido'] ?? 0;
+    return $this->seleccionarRutasP($info);
+  }
+  public function registrarRutas(array $info) {
+    $resultado = $this->validarRutas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'nombre_ruta',
+        'precio_ruta',
+        'minimo_km_ruta',
+        'maximo_km_ruta'
       ],
     ]);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    }
+    if ($resultado) return $resultado;
+
+    $this->nombreRuta = $info['nombre_ruta'];
+    $this->precioRuta = (float)$info['precio_ruta'];
+    $this->minimoKmRuta = (float)$info['minimo_km_ruta'];
+    $this->maximoKmRuta = (float)$info['maximo_km_ruta'];
+    return $this->registrarRutasP();
+  }
+  public function actualizarRutas(array $info) {
+
+    $resultado = $this->validarRutas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_ruta',
+        'nombre_ruta',
+        'precio_ruta',
+        'minimo_km_ruta',
+        'maximo_km_ruta'
+      ],
+    ]);
+    if ($resultado) return $resultado;
+
+    $this->idRuta = $info['id_ruta'];
+    $this->nombreRuta = $info['nombre_ruta'];
+    $this->precioRuta = (float) $info['precio_ruta'];
+    $this->minimoKmRuta = (float)$info['minimo_km_ruta'];
+    $this->maximoKmRuta = (float)$info['maximo_km_ruta'];
+
+
     return $this->actualizarRutasP();
   }
-  public function eliminarRutas($id)
-  {
-    $this->idRuta = $id;
-    $respuesta = $this->limpiar_Verificar([[
-      "campo_nombre" => "id_ruta",
-      "campo_valor" => $this->idRuta,
-      "formulario_nombre" => "id de la ruta",
-      "requerido" => true,
-      "minimo" => minRegexId,
-      "maximo" => maxRegexId,
-      "expresion_re" => regexId,
-      "debeExistir" => true,
-      "tabla" => "rutas"
-    ]]);
-    if ($respuesta !== false) {
-      return $respuesta;
-    } else {
-      return $this->eliminarRutasP();
-    }
+  public function eliminarRutas(array $info) {
+    $resultado = $this->validarRutas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_ruta',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+
+    $this->idRuta = $info['id_ruta'];
+    return $this->eliminarRutasP();
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarRutasP($tipoConsulta)
-  {
+  private function seleccionarRutasP(array $info) {
+    $ruta = [];
     if ($this->idRuta == null || $this->idRuta == "") {
-      $resultado = $this->seleccionarDatos2([
-        'campos' => '*',
-        'tabla' => 'rutas',
-      ]);
-      $resultado = $resultado->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-      $instruccionesBD = [
-        'campos' => '*',
-        'tabla' => 'rutas',
-        'WHERE' => [
-          "id_ruta" => $this->idRuta,
-        ]
-      ];
-      if ($tipoConsulta == 'porKm') {
-        $instruccionesBD['WHERE'] = [
-          'minimo_km_ruta' => '<= ' . $this->kmRecorrido,
-          'maximo_km_ruta' => '>= ' . $this->kmRecorrido,
-        ];
-      };
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
-      if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "ruta no encontrada",
-          "texto" => "La ruta que ha intentado buscar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
+      switch ($info['tipoConsulta'] ?? '') {
+        case 'porKm':
+          $this->kmRecorrido = ceil($this->kmRecorrido);
+          $resultado = $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'rutas',
+            'WHERE' => [
+              'minimo_km_ruta' => '<= ' . $this->kmRecorrido,
+              'maximo_km_ruta' => '>= ' . $this->kmRecorrido,
+            ],
+            'ORDER' => 'maximo_km_ruta DESC'
+          ])->fetch();
+          if (!isset($resultado['precio_ruta'])) {
+            return  [
+              'tipo' => 'simple',
+              'titulo' => 'Sin rutas disponibles',
+              'texto' => 'No hay rutas estipuladas para esa direccion',
+              'icono' => 'error'
+            ];
+          }
+          return $resultado;
+        case 'porCoordenadas':
+          $infoDireccion = $this->calcularKmPorCarretera($info['coordenadas']);
+          if (isset($infoDireccion['icono'])) return $infoDireccion;
+          return [
+            'km_recorrido' => $infoDireccion['km_recorrido'],
+            'nombre_direccion' => $infoDireccion['nombre_direccion'],
+          ];
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'rutas',
+          ])->fetchAll();
       }
-      $resultado = $resultado->fetch(PDO::FETCH_ASSOC);
+    } else {
+      switch ($info['tipoConsulta'] ?? '') {
+        case 'porFecha':
+          return $this->seleccionarDatos2([
+            'campos' => '
+              ru.id_ruta,ru.nombre_ruta,ru.minimo_km_ruta,ru.maximo_km_ruta,
+              (
+                SELECT pr.precio_ruta FROM precios_rutas as pr
+                WHERE pr.id_ruta = ru.id_ruta && fecha_cambio <= "' . $info['fecha'] . '"
+                ORDER BY pr.id_precio_ruta DESC
+                LIMIT 1
+              ) as precio_ruta_fecha
+            ',
+            'tabla' => 'rutas as ru',
+            'WHERE' => [
+              'id_ruta' => $this->idRuta,
+            ],
+          ])->fetch();
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'rutas',
+            'WHERE' => [
+              "id_ruta" => $this->idRuta,
+            ]
+          ])->fetch();
+      }
     }
-    return $resultado;
   }
-  private function registrarRutasP()
-  {
-    $ultimoId = $this->guardarDatos2([
+  private function registrarRutasP() {
+    $objBitacora = new bitacoraModelo();
+    $alertaError = function () use ($objBitacora) {
+      $this->rollback();
+      $objBitacora->registrarBitacora('rutas', 'registrar', 'fallido', true);
+      return [
+        "tipo" => "simple",
+        "titulo" => "Ruta no registrada",
+        "texto" => "La ruta no ha sido registrada exitosamente",
+        "icono" => "error",
+      ];
+    };
+    $resultado = $this->guardarDatos2([
       'tabla' => 'rutas',
       'datos' => [
         "nombre_ruta" => $this->nombreRuta,
@@ -243,26 +248,28 @@ class rutasModelo extends conexion
         "maximo_km_ruta" => $this->maximoKmRuta,
       ]
     ]);
-    if ($ultimoId !== false && $ultimoId > 0) {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Ruta registrada",
-        "texto" => "La ruta ha sido registrado exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Ruta no registrada",
-        "texto" => "La ruta no ha sido registrada exitosamente",
-        "icono" => "error",
-      ];
-    }
-    return $alerta;
+    if ($resultado == false || $resultado <= 0) return $alertaError();
+    $objBitacora->registrarBitacora('rutas', 'registrar', 'éxito');
+    $this->commit();
+    return   [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Ruta registrada",
+      "texto" => "La ruta ha sido registrado exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function actualizarRutasP()
-  {
+  private function actualizarRutasP() {
+    $objBitacora = new bitacoraModelo();
+    $alertaError = function () use ($objBitacora) {
+      $this->rollback();
+      $objBitacora->registrarBitacora('rutas', 'actualizar', 'fallido', true);
+      return [
+        "tipo" => "simple",
+        "titulo" => "Sin cambios realizados",
+        "texto" => "No se realizó ningún cambio en la ruta",
+        "icono" => "warning",
+      ];
+    };
     $resultado = $this->actualizarDatos2([
       "tabla" => "rutas",
       "datos" => [
@@ -275,49 +282,40 @@ class rutasModelo extends conexion
         "id_ruta" => $this->idRuta,
       ]
     ]);
-
-    if ($resultado == false || $resultado <= 0) {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Sin cambios realizados",
-        "texto" => "No se realizó ningún cambio en la ruta",
-        "icono" => "warning",
-      ];
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Ruta actualizada",
-        "texto" => "La ruta ha sido actualizada exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    }
-    return $alerta;
+    if ($resultado == false || $resultado <= 0) return $alertaError();
+    $objBitacora->registrarBitacora('rutas', 'actualizar', 'éxito');
+    $this->commit();;
+    return  [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Ruta actualizada",
+      "texto" => "La ruta ha sido actualizada exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function eliminarRutasP()
-  {
+  private function eliminarRutasP() {
+    $objBitacora = new bitacoraModelo();
     $eliminarUsuario = $this->eliminarDatos2([
       'tabla' => "rutas",
       'WHERE' => [
         "id_ruta" => $this->idRuta
       ]
     ]);
-    if ($eliminarUsuario->rowCount() == 1) {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Ruta eliminada",
-        "texto" => "La ruta ha sido eliminada con éxito",
-        "icono" => "success"
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
+    if ($eliminarUsuario <= 0) {
+      $objBitacora->registrarBitacora('rutas', 'eliminar', 'fallido', true);
+      return [
         "tipo" => "simple",
         "titulo" => "Ruta no encontrado",
         "texto" => "La ruta no existe en la Base de Datos",
         "icono" => "error"
       ];
     }
-    return $alerta;
+    $objBitacora->registrarBitacora('rutas', 'eliminar', 'éxito');
+    $this->commit();
+    return [
+      "tipo" => "simple",
+      "titulo" => "Ruta eliminada",
+      "texto" => "La ruta ha sido eliminada con éxito",
+      "icono" => "success"
+    ];
   }
 }

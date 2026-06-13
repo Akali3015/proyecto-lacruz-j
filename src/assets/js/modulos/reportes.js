@@ -1,5 +1,7 @@
 //#region [ IMPORTACIONES ] COMIENZO
-import { alertasAjax, encabezadosPeticiones, rutaAbsoluta } from './global.js';
+import {
+  alertasAjax, encabezadosPeticiones, rutaAbsoluta, enviarFormulario
+} from './global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
@@ -46,7 +48,7 @@ async function generarReporteCompras() {
   formData.forEach((value, key) => {
     datos[key] = value;
   });
-  datos.reporte = 'reporte_compras';
+  datos.reporte = 'reporteCompras';
 
   Swal.fire({
     title: 'Generando reporte',
@@ -84,7 +86,11 @@ async function generarCierreCaja() {
   formData.forEach((value, key) => {
     datos[key] = value;
   });
-  datos.reporte = 'reporte_cierre_caja';
+  if (!datos.fecha_cierre) {
+    Swal.fire('Error', 'Debe seleccionar una fecha de cierre', 'error');
+    return;
+  }
+  datos.reporte = 'reporteCierre';
 
   Swal.fire({
     title: 'Generando reporte',
@@ -120,7 +126,7 @@ async function generarReporteProductos(event) {
   formData.forEach((value, key) => {
     datos[key] = value;
   });
-  datos.reporte = 'reporte_productos';
+  datos.reporte = 'reporteProductos';
 
   Swal.fire({
     title: 'Generando reporte',
@@ -155,7 +161,7 @@ async function generarReporteServicios(event) {
   formData.forEach((value, key) => {
     datos[key] = value;
   });
-  datos.reporte = 'reporte_servicios';
+  datos.reporte = 'reporteServicios';
 
   Swal.fire({
     title: 'Generando reporte',
@@ -190,25 +196,115 @@ async function cargarItemsVentas() {
   if (tipo === 'especifico') {
     divItem.style.display = 'block';
 
-    // Aquí puedes hacer una petición AJAX para cargar los items
+    const filtro = document.getElementById('filtro_items_ventas')?.value || 'todos';
+    let accion = '';
+    switch (filtro) {
+      case 'productos':
+        accion = 'listar_productos';
+        break;
+      case 'servicios':
+        accion = 'listar_servicios';
+        break;
+      default:
+        accion = 'listar_items';
+    }
 
-    let resultado = await fetch(rutaAbsoluta + 'reportes', {
-      method: 'POST',
-      headers: encabezadosPeticiones,
-      body: JSON.stringify({ accion: 'listar_items' })
-    })
-      .then(response => response.json())
-      .then(data => {
-        selectItem.innerHTML = '<option value="">Seleccione un item</option>';
+    // Petición AJAX para cargar los items 
+    try {
+      let response = await fetch(rutaAbsoluta + 'reportes', {
+        method: 'POST',
+        headers: encabezadosPeticiones,
+        body: JSON.stringify({ accion: accion })
+      });
+
+      let data = await response.json();
+      selectItem.innerHTML = '<option value="">Seleccione un item</option>';
+
+      if (data.length === 0) {
+        selectItem.innerHTML += '<option value="" disabled>No hay items disponibles</option>';
+      } else {
         data.forEach(item => {
-          selectItem.innerHTML += `<option value="${item.id_producto_servicio}">${item.nombre_producto_servicio}</option>`;
+          selectItem.innerHTML += `<option value="${item.id_producto_servicio}">
+            ${item.nombre_producto_servicio} ${item.tipo ? `(${item.tipo})` : ''}
+          </option>`;
         });
-      })
-      .catch(error => console.error('Error cargando items:', error));
+      }
+
+    } catch (error) {
+      console.error('Error cargando items:', error);
+      selectItem.innerHTML = '<option value="">Error al cargar items</option>';
+    }
+
   } else {
     divItem.style.display = 'none';
   }
 }
+// Función específica para cargar solo productos
+async function cargarSoloProductos() {
+  try {
+    let response = await fetch(rutaAbsoluta + 'reportes', {
+      method: 'POST',
+      headers: encabezadosPeticiones,
+      body: JSON.stringify({ accion: 'listar_productos' })
+    });
+
+    let data = await response.json();
+    const selectItem = document.getElementById('id_item_ventas');
+
+    selectItem.innerHTML = '<option value="">Seleccione un producto</option>';
+    data.forEach(producto => {
+      selectItem.innerHTML += `<option value="${producto.id_producto_servicio}">
+        ${producto.nombre_producto_servicio} - Stock: ${producto.stock || 'N/A'}
+      </option>`;
+    });
+
+  } catch (error) {
+    console.error('Error cargando productos:', error);
+  }
+}
+// Función específica para cargar solo servicios
+async function cargarSoloServicios() {
+  try {
+    let response = await fetch(rutaAbsoluta + 'reportes', {
+      method: 'POST',
+      headers: encabezadosPeticiones,
+      body: JSON.stringify({ accion: 'listar_servicios' })
+    });
+
+    let data = await response.json();
+    const selectItem = document.getElementById('id_item_ventas');
+
+    selectItem.innerHTML = '<option value="">Seleccione un servicio</option>';
+    data.forEach(servicio => {
+      selectItem.innerHTML += `<option value="${servicio.id_producto_servicio}">
+        ${servicio.nombre_producto_servicio} - Duración: ${servicio.duracion || 'N/A'}
+      </option>`;
+    });
+
+  } catch (error) {
+    console.error('Error cargando servicios:', error);
+  }
+}
+
+// Función para cambiar el filtro y recargar los items
+function cambiarFiltroItems() {
+  const filtro = document.getElementById('filtro_items_ventas').value;
+  const selectItem = document.getElementById('id_item_ventas');
+
+  selectItem.innerHTML = '<option value="">Cargando...</option>';
+
+  switch (filtro) {
+    case 'productos':
+      cargarSoloProductos();
+      break;
+    case 'servicios':
+      cargarSoloServicios();
+      break;
+    default:
+      cargarItemsVentas();
+  }
+}
+
 // Función para cargar materias primas en compras
 async function cargarMateriasPrimas() {
   const tipo = document.getElementById('tipo_materia').value;
@@ -244,29 +340,262 @@ function mostrarCamposPeriodo(tipo) {
   divPersonalizado.style.display = periodo === 'personalizado' ? 'flex' : 'none';
   divEspecifico.style.display = (periodo === 'mes' || periodo === 'anio') ? 'flex' : 'none';
 }
+async function renderizarGraficas() {
+
+  // Ventas por año
+  const data = [
+    { year: 2010, count: 10 },
+    { year: 2011, count: 20 },
+    { year: 2012, count: 15 },
+    { year: 2013, count: 25 },
+    { year: 2014, count: 22 },
+    { year: 2015, count: 30 },
+    { year: 2016, count: 28 },
+    { year: 2017, count: 24 },
+    { year: 2018, count: 21 },
+    { year: 2019, count: 23 },
+    { year: 2020, count: 27 },
+    { year: 2021, count: 28 },
+    { year: 2022, count: 33 },
+    { year: 2023, count: 23 },
+    { year: 2024, count: 56 },
+    { year: 2025, count: 78 },
+    { year: 2026, count: 99 },
+    { year: 2027, count: 11 },
+    { year: 2028, count: 34 },
+    { year: 2029, count: 43 },
+    { year: 2030, count: 45 },
+    { year: 2031, count: 67 },
+    { year: 2032, count: 12 },
+    { year: 2033, count: 23 }
+  ];
+  new Chart($('#grafica1')[0], {
+    type: 'bar',
+    data: {
+      labels: data.map(row => row.year),
+      datasets: [
+        {
+          label: ' Nro de ventas: ',
+          data: data.map(row => row.count),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 159, 64, 0.5)',
+            'rgba(255, 205, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(153, 102, 255, 0.5)',
+            'rgba(201, 203, 207, 0.5)'
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)'
+          ],
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    },
+  });
+
+  // Indice de unidades vendidas de cada producto ventas en la semana
+  let datosProductos = [
+    { producto: 'Jabon', 'Unidades Vendidas': 111, unidad_medida: 'Litros' },
+    { producto: 'Cloro', 'Unidades Vendidas': 257, unidad_medida: 'Litros' },
+    { producto: 'Desinfectante', 'Unidades Vendidas': 40, unidad_medida: 'Litros' },
+    { producto: 'AZUFRE', 'Unidades Vendidas': 499, unidad_medida: 'Kilos' },
+  ];
+  new Chart($('#grafica2')[0], {
+    type: 'pie',
+    data: {
+      labels: datosProductos.map(row => row.producto),
+      datasets: [
+        {
+          label: datosProductos.map(producto => producto.unidad_medida),
+          data: datosProductos.map(row => row['Unidades Vendidas']),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 205, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(153, 102, 255, 0.5)',
+            'rgba(201, 203, 207, 0.5)'
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)'
+          ],
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let value = context.parsed || 0;
+              let unidadMedida = context.dataset.label[context.dataIndex]
+              return ` ${value} ${unidadMedida} `;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  //Porcentaje de ingresos de productos vs servicios
+  let promedioProductosServicios = [
+    { item: 'Productos', promedio: 37 },
+    { item: 'Servicios', promedio: 63 },
+  ];
+  new Chart($('#grafica3')[0], {
+    type: 'doughnut',
+    data: {
+      labels: promedioProductosServicios.map(item => item.item),
+      datasets: [
+        {
+          label: ' Porcentaje equivalente',
+          data: promedioProductosServicios.map(row => row.promedio),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(75, 192, 192)',
+          ],
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let label = context.label || '';
+              let value = context.parsed || 0;
+              return ` ${label}: ${value}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  //Top 10 mejores clientes de la empresa
+  let comprasPorCliente = [
+    { nombre_cliente: 'ANDERSON FREITEZ', promedioCompras: 37 },
+    { nombre_cliente: 'CARLOS HURTADO', promedioCompras: 63 },
+    { nombre_cliente: 'JANGELY LACRUZ', promedioCompras: 22 },
+    { nombre_cliente: 'OMAR SHALOM', promedioCompras: 47 },
+    { nombre_cliente: 'YEISON CARREÑO ', promedioCompras: 90 },
+    { nombre_cliente: 'ANDERSON FREITEZ', promedioCompras: 37 },
+    { nombre_cliente: 'CARLOS HURTADO', promedioCompras: 63 },
+    { nombre_cliente: 'JANGELY LACRUZ', promedioCompras: 22 },
+    { nombre_cliente: 'OMAR SHALOM', promedioCompras: 47 },
+    { nombre_cliente: 'YEISON CARREÑO ', promedioCompras: 90 },
+  ];
+  new Chart($('#grafica4')[0], {
+    type: 'bar',
+    data: {
+      labels: comprasPorCliente.map(cliente => cliente.nombre_cliente),
+      datasets: [
+        {
+          label: ' Aporte total($) ',
+          data: data.map(row => row.count),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 159, 64, 0.5)',
+            'rgba(255, 205, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(153, 102, 255, 0.5)',
+            'rgba(201, 203, 207, 0.5)'
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)'
+          ],
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let value = context.formattedValue || 0;
+              return ` ${value}$`;
+            }
+          }
+        }
+      }
+    },
+  });
+}
+
+
 //#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 // Evento de carga de la pagina
-document.addEventListener('DOMContentLoaded', function () {
-  // Aca vas a cargar solo aquellas funciones que busquen los datos iniciales, como las materias primas y demas
+$(document).on('DOMContentLoaded', function () {
+  let i = 0;
+  while ($(`#Datepicker${i}`).length > 0) {
+    $(`#Datepicker${i}`).datepicker({
+      format: 'dd-mm-yyyy',
+      language: 'es',
+      todayHighlight: true
+    });
+    i++;
+  }
 });
 
 // Asignar evento al formulario de ventas
-$(document).off('submit', '#formReporteVentas')
-$(document).on('submit', '#formReporteVentas', function (e) {
+$(document).off('submit', '.formular')
+$(document).on('submit', '.formular', function (e) {
   e.preventDefault();
   generarReporteVentas();
-})
+});
 
 // Asignar evento al formulario de ventas
-$(document).off('submit', '#formReporteCompras')
-$(document).on('submit', '#formReporteCompras', function (e) {
+// Evento para el envío de formularios (Registro y Actualización)
+$(document).off('submit', '.formularioAjax');
+$(document).on('submit', '.formularioAjax', function (e) {
   e.preventDefault();
-  generarReporteCompras();
-})
-
+  enviarFormulario({
+    'formulario': this,
+    'modulo': 'reportes',
+  });
+});
 // Asignar evento al formulario de ventas
 $(document).off('submit', '#formCierreCaja')
 $(document).on('submit', '#formCierreCaja', function (e) {

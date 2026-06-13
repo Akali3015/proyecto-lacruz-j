@@ -2,7 +2,6 @@
 
 use src\modelos\mensajesWSModelo;
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $datos = $_POST['metadatos'] ?? file_get_contents('php://input');
     $datos = json_decode($datos, true);
@@ -15,31 +14,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ob_clean();
     switch ($accion) {
         case "listarNotificaciones":
-            $resultado = $modeloWS->Notificaciones_Sel();
+            $resultado = $modeloWS->seleccionarNotificaciones();
             echo json_encode($resultado);
             exit();
         case "seleccionarUnaNot":
-            $resultado = $modeloWS->Notificaciones_Sel($idNotificacion);
+            $resultado = $modeloWS->seleccionarNotificaciones($idNotificacion);
             echo json_encode($resultado);
             exit();
         case "registrarNoti":
-            $resultado = $modeloWS->Notificaciones_Reg($notificacion);
+            $resultado = $modeloWS->registrarNotificaciones($notificacion);
             echo json_encode($resultado);
             exit();
         case "marcarTodasNotComoLeidas":
-            $resultado = $modeloWS->Notificaciones_Act('marcarTodasComoLeidas');
+            $resultado = $modeloWS->actualizarNotificaciones('marcarTodasComoLeidas');
             echo json_encode($resultado);
             exit();
         case "eliminarTodasNot":
-            $resultado = $modeloWS->Notificaciones_Eli();
+            $resultado = $modeloWS->eliminarNotificaciones();
             echo json_encode($resultado);
             exit();
         case "listarAccionesResagadas":
-            $resultado = $modeloWS->Acciones_Resagadas_Sel();
+            $resultado = $modeloWS->seleccionarAccionesResagadas();
             echo json_encode($resultado);
             exit();
         case "eliminarAccionResagada":
-            $resultado = $modeloWS->Acciones_Eli($AccionMsj);
+            $resultado = $modeloWS->eliminarAccionesResagadas($AccionMsj);
             echo json_encode($resultado);
             exit();
         default:

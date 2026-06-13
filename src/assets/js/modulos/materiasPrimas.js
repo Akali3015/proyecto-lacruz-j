@@ -4,215 +4,67 @@ import {
   listarDataTable, cargarInputsActualizarQNR, extraerDatosAjax,
   pedirDatosAjax, instanciasDatatable, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
-//#region [VARIABLES O CONSTANTES GLOBALES] COMIENZO
-let todasLasPresentaciones = [];
-let presentacionesCache = {};
-//#endregion [VARIABLES O CONSTANTES GLOBALES] FIN
-
 //#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
-function cargarTodasLasPresentacionesEnSegundoPlano() {
-  setTimeout(async () => {
-    try {
-      const instruccionesPe = {
-        'modulo': 'presentaciones',
-        'datosPe': { 'accion': 'listar' }
-      };
-
-      const respuesta = await pedirDatosAjax(instruccionesPe);
-
-      if (respuesta && !respuesta.tipo && Array.isArray(respuesta)) {
-        todasLasPresentaciones = respuesta;
-        console.log('Presentaciones precargadas en segundo plano:', todasLasPresentaciones.length);
-      }
-    } catch (error) {
-      console.error('Error al precargar presentaciones:', error);
-    }
-  }, 500);
-}
-function actualizarDataTableMateriasPrimas() {
-  if (instanciasDatatable && instanciasDatatable.length > 0) {
-    instanciasDatatable.forEach(instancia => {
-      if (instancia.table().node().classList.contains('tabla-ajax')) {
-        instancia.ajax.reload(null, false);
-        console.log('DataTable actualizado');
-      }
-    });
-  }
-}
-async function cargarPresentacionesEnModal(modal, presentacionesSeleccionadas = []) {
-  try {
-    const contenedor = modal.find('.contenedor-presentaciones');
-    const inputsOcultos = modal.find('.inputs-ocultos-presentaciones');
-
-    contenedor.html(`
-            <div class="col-12">
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando presentaciones...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Cargando presentaciones...</p>
-                </div>
+async function renderizarPresentaciones() {
+  let presentacionesBD = await pedirDatosAjax({
+    modulo: "presentaciones",
+    datosPe: { accion: "listar" },
+  });
+  let html = "";
+  for (let i = 0; i < presentacionesBD.length; i++) {
+    let {
+      id_presentacion,
+      nombre_presentacion,
+      cantidad_pmp,
+      nombre_unidad_medida
+    } = presentacionesBD[i]
+    html += `
+      <div class="filaPresentacion col-lg-4 mb-3">
+        <div class="form-check card-presentacion p-3 border rounded">
+          <input 
+            name="presentaciones-${i}"
+            class="checkbox-presentacion d-none" 
+            type="checkbox" 
+            value="${id_presentacion}"
+          >
+          <div class="form-check-label w-100">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>${nombre_presentacion}</strong>
+              <span class="badge bg-info">${cantidad_pmp} ${nombre_unidad_medida}</span>
             </div>
-        `);
-
-    inputsOcultos.empty();
-
-    if (todasLasPresentaciones.length === 0) {
-      try {
-        const instruccionesPe = {
-          'modulo': 'presentaciones',
-          'datosPe': { 'accion': 'listar' }
-        };
-
-        const respuesta = await pedirDatosAjax(instruccionesPe);
-
-        if (respuesta && !respuesta.tipo && Array.isArray(respuesta)) {
-          todasLasPresentaciones = respuesta;
-        } else {
-          throw new Error('No se pudieron cargar las presentaciones');
-        }
-      } catch (error) {
-        console.error('Error al cargar presentaciones:', error);
-        contenedor.html(`
-                    <div class="col-12">
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Error al cargar presentaciones. Por favor, recargue la página.
-                        </div>
-                    </div>
-                `);
-        return;
-      }
-    }
-
-    contenedor.empty();
-
-    if (todasLasPresentaciones.length === 0) {
-      contenedor.html(`
-                <div class="col-12">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        No hay presentaciones registradas.
-                    </div>
-                </div>
-            `);
-      return;
-    }
-
-    const idsSeleccionados = presentacionesSeleccionadas.map(p => String(p.id_presentacion));
-    const fragment = document.createDocumentFragment();
-
-    todasLasPresentaciones.forEach((presentacion) => {
-      const idPresentacion = String(presentacion.id_presentacion);
-      const nombrePresentacion = presentacion.nombre_presentacion;
-      const cantidad = presentacion.cantidad_pmp;
-      const unidadMedida = presentacion.nombre_unidad_medida || '';
-      const estaSeleccionada = idsSeleccionados.includes(idPresentacion);
-
-      const divCol = document.createElement('div');
-      divCol.className = 'col-md-4 mb-3';
-      divCol.innerHTML = `
-                <div class="form-check card-presentacion ${estaSeleccionada ? 'border-primary bg-light' : ''} p-3 border rounded">
-                    <input class="form-check-input checkbox-presentacion" 
-                           type="checkbox" 
-                           id="presentacion_${idPresentacion}"
-                           value="${idPresentacion}"
-                           ${estaSeleccionada ? 'checked' : ''}>
-                    <label class="form-check-label w-100" for="presentacion_${idPresentacion}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>${nombrePresentacion}</strong>
-                            <span class="badge bg-info">${cantidad} ${unidadMedida}</span>
-                        </div>
-                    </label>
-                </div>
-            `;
-
-      fragment.appendChild(divCol);
-
-      const inputOculto = `
-                <input type="hidden" 
-                       name="presentaciones[]" 
-                       class="hidden-presentacion"
-                       id="hidden_presentacion_${idPresentacion}" 
-                       value="${estaSeleccionada ? idPresentacion : ''}" 
-                       ${estaSeleccionada ? '' : 'disabled'}>
-            `;
-      inputsOcultos.append(inputOculto);
-    });
-
-    contenedor.append(fragment);
-
-  } catch (error) {
-    console.error('Error al cargar presentaciones:', error);
-    const contenedor = modal.find('.contenedor-presentaciones');
-    contenedor.html(`
-            <div class="col-12">
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error al cargar presentaciones: ${error.message}
-                </div>
-            </div>
-        `);
+          </div>
+        </div>
+      </div>
+    `;
   }
+  $(".contenedor-presentaciones").empty().append(html);
 }
-async function obtenerPresentacionesSeleccionadas(idMateriaPrima) {
-  if (presentacionesCache[idMateriaPrima]) {
-    return presentacionesCache[idMateriaPrima];
-  }
-
-  try {
-    const instrucciones = {
-      'modulo': 'materiasPrimas',
-      'datosPe': {
-        'accion': 'listarPresentaciones',
-        'id_materia_prima': idMateriaPrima
-      }
-    };
-
-    const respuesta = await pedirDatosAjax(instrucciones);
-    if (respuesta && !respuesta.tipo && Array.isArray(respuesta)) {
-      presentacionesCache[idMateriaPrima] = respuesta;
-      return respuesta;
-    }
-    return [];
-
-  } catch (error) {
-    console.error('Error al obtener presentaciones seleccionadas:', error);
-    return [];
-  }
-}
-function inicializarEventosPresentacionesModal(modal) {
-  modal.off('change', '.checkbox-presentacion');
-
-  modal.on('change', '.checkbox-presentacion', function () {
-    const idPresentacion = $(this).val();
-    const estaMarcado = $(this).is(':checked');
-    const inputOculto = modal.find(`#hidden_presentacion_${idPresentacion}`);
-
-    if (estaMarcado) {
-      inputOculto.val(idPresentacion).prop('disabled', false);
-      $(this).closest('.card-presentacion').addClass('bg-light border-primary');
+function habilitarDeshabilitarPresentacion(cambio = null) {
+  let card = $(this);
+  let checkBox = card.find('.checkbox-presentacion')
+  if (cambio) {
+    if (cambio == 'habilitar') {
+      checkBox.prop('checked', false);
+      card.removeClass('bg-light border-primary')
     } else {
-      inputOculto.val('').prop('disabled', true);
-      $(this).closest('.card-presentacion').removeClass('bg-light border-primary');
+      checkBox.prop('checked', true);
+      card.addClass('bg-light border-primary')
     }
-  });
-
-  modal.find('.btn-seleccionar-todas').off('click').on('click', function () {
-    modal.find('.checkbox-presentacion').prop('checked', true).trigger('change');
-  });
-
-  modal.find('.btn-deseleccionar-todas').off('click').on('click', function () {
-    modal.find('.checkbox-presentacion').prop('checked', false).trigger('change');
+  }
+  card.toggleClass("bg-light border-primary")
+  checkBox.prop("checked", function (i, val) {
+    return !val;
   });
 }
 //#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on('DOMContentLoaded', async function (e) {
-  await listarDataTable({
+  listarDataTable({
     encabezados: {
       "id_materia_prima": "ID",
       "nombre_unidad_medida": "UNIDAD DE MEDIDA",
@@ -232,8 +84,7 @@ $(document).on('DOMContentLoaded', async function (e) {
       precio_materia_prima: (info) => { return info.valor + '$'; },
     },
   });
-
-  let instrucciones = {
+  extraerDatosAjax({
     'modulosPeticion': ['unidadesMedidas'],
     'accionesPeticion': [{ 'accion': 'listar' }],
     'tipoElemento': ['select'],
@@ -245,24 +96,87 @@ $(document).on('DOMContentLoaded', async function (e) {
         'textoDefault': 'Seleccione una unidad de medida'
       }
     ]
-  }
-  extraerDatosAjax(instrucciones);
-
-  cargarTodasLasPresentacionesEnSegundoPlano();
+  });
+  renderizarPresentaciones();
+  driverAyuda('materiasPrimas', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Materia Prima',
+          description: 'Haz clic aquí para agregar una nueva materia prima al sistema. Las materias primas se utilizan en la fabricación de productos.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Materias Primas',
+          description: 'Aquí puedes ver todas las materias primas registradas, su stock actual y precio.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Materia Prima',
+          description: 'Modifica los datos de cualquier materia prima haciendo clic en este botón.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Materia Prima',
+          description: 'Elimina materias primas que ya no sean necesarias. Ten cuidado porque puede afectar productos asociados.',
+          side: 'left'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de materias primas. Puedes registrar, editar o eliminar materias primas para controlar tu inventario.',
+          side: 'top'
+        }
+      }
+    ]
+  });
 })
 
-$(document).off('submit', '.formularioAjax');
-$(document).on('submit', '.formularioAjax', function (e) {
-  e.preventDefault();
+$(document).off("click", ".card-presentacion");
+$(document).on("click", ".card-presentacion", function (e) {
+  habilitarDeshabilitarPresentacion.call(this);
+});
 
-  enviarFormulario({
+$(document).off("click", ".btn-seleccionar-todas");
+$(document).on("click", ".btn-seleccionar-todas", function (e) {
+  $(this).closest(".modal").find(".card-presentacion").each((i, card) => {
+    habilitarDeshabilitarPresentacion.call(card, 'habilitar');
+  })
+});
+
+$(document).off("click", ".btn-deseleccionar-todas");
+$(document).on("click", ".btn-deseleccionar-todas", function (e) {
+  $(this).closest(".modal").find(".card-presentacion").each((i, card) => {
+    habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
+  })
+});
+
+$(document).off('submit', '.formularioAjax');
+$(document).on('submit', '.formularioAjax', async function (e) {
+  e.preventDefault();
+  let resultado = await enviarFormulario({
     'formulario': this,
-    'modulo': 'materiasPrimas'
-  }).then(() => {
-    actualizarDataTableMateriasPrimas();
-  }).catch(error => {
-    console.error('Error al enviar formulario:', error);
-  });
+    'modulo': 'materiasPrimas',
+    'convertirJSON': true,
+  })
+  if (resultado['icono'] && resultado['icono'] == 'success') {
+    $(this).closest('.modal').find('.card-presentacion').each((i, card) => {
+      habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
+    })
+  }
+
 });
 
 $(document).off('click', '.botonEliminar');
@@ -279,55 +193,36 @@ $(document).on('click', '.botonEliminar', function (e) {
   });
 });
 
-$(document).on('show.bs.modal', '.modalRegistrar', async function () {
-  const modal = $(this);
-
-  await cargarPresentacionesEnModal(modal);
-  inicializarEventosPresentacionesModal(modal);
-});
-
-$(document).on('show.bs.modal', '.modalActualizar', async function () {
-  const modal = $(this);
-  const idMateriaPrima = modal.find('input[name="id_materia_prima"]').val();
-
-  if (idMateriaPrima) {
-    const presentacionesSeleccionadas = await obtenerPresentacionesSeleccionadas(idMateriaPrima);
-    await cargarPresentacionesEnModal(modal, presentacionesSeleccionadas);
-    inicializarEventosPresentacionesModal(modal);
-  }
-});
-
 $(document).off('click', '.botonEditar');
 $(document).on('click', '.botonEditar', async function (e) {
   e.preventDefault();
-  const idMateriaPrima = $(this).attr('value');
   const modalTarget = $(this).attr('data-bs-target');
   const modal = $(modalTarget);
-  modal.find('input[name="id_materia_prima"]').val(idMateriaPrima);
-  await obtenerDatosRegistro({
+  let infoCompleta = await obtenerDatosRegistro({
     boton: this,
     campoId: 'id_materia_prima',
-    modulo: 'materiasPrima',
+    modulo: 'materiasPrimas',
   });
-  delete presentacionesCache[idMateriaPrima];
-  modal.modal('show');
-  modal.one('shown.bs.modal', function () {
-    cargarInputsActualizarQNR.call(modal.find('form'));
-  });
-});
+  console.log(infoCompleta);
+  cargarInputsActualizarQNR.call(modal.find('form'));
 
-$(document).on('hidden.bs.modal', '.modalActualizar', function () {
-  const modal = $(this);
-  const idMateriaPrima = modal.find('input[name="id_materia_prima"]').val();
+  $(modal).find('.card-presentacion').each((i, card) => {
+    let idPre = $(card).find('.checkbox-presentacion').val();
+    let idBuscado = infoCompleta.presentaciones.find(p => {
+      return p.id_presentacion == idPre
+    })
+    if (idBuscado) {
+      habilitarDeshabilitarPresentacion.call(card, 'habilitar');
+    } else {
+      habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
+    }
+  })
 
-  if (idMateriaPrima) {
-    delete presentacionesCache[idMateriaPrima];
-  }
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'materiasPrimas');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

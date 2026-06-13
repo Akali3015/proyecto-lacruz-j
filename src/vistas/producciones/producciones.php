@@ -133,7 +133,7 @@ echo $componente->listaDataTable($instruccionesLista);
       <div class="row align-items-center">
         <div class="col-md-5">
           <select class="form-select form-select-sm selectProductos"
-            name="productos-[INDICE]-id"
+            name="productos-[INDICE]-id_producto"
             required>
             <option value="">Seleccione Producto</option>
           </select>
@@ -151,7 +151,7 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="col-md-2">
           <input type="number"
             class="form-control form-control-sm cantidad-producto"
-            name="productos-[INDICE]-cantidad"
+            name="productos-[INDICE]-cantidad_producida"
             min="0.01"
             step="0.01"
             value="1"
@@ -170,3 +170,56 @@ echo $componente->listaDataTable($instruccionesLista);
     </div>
   </div>
 </template>
+
+<!-- Modal para Consultar Producción -->
+<div class="modal fade modalConsultar" tabindex="-1" aria-labelledby="modalConsultarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+        <h5 class="modal-title" id="modalConsultarLabel">
+          <i class="fas fa-info-circle me-2"></i> Consultar Producción
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-2">
+              <small class="text-muted">ID Producción</small>
+              <h6 class="mb-0 textoIdProduccion">-</h6>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-2">
+              <small class="text-muted">Fecha de Producción</small>
+              <h6 class="mb-0 textoFechaProduccion">-</h6>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <h6 class="mb-3"><i class="fas fa-boxes me-2"></i>Productos Producidos</h6>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad Producida</th>
+                <th>Unidad de Medida</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyProductosConsulta">
+              <tr>
+                <td colspan="3" class="text-center text-muted">Cargando...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,9 +10,9 @@
 */
 @font-face {
     font-family: "uicons-regular-chubby";
-    src: url("https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-chubby/webfonts/uicons-regular-chubby.woff2") format("woff2"),
-    url("https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-chubby/webfonts/uicons-regular-chubby.woff") format("woff"),
-    url("https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-chubby/webfonts/uicons-regular-chubby.eot#iefix") format("embedded-opentype");
+    src: url("../../webfonts/uicons-regular-chubby.woff2") format("woff2"),
+    url("../../webfonts/uicons-regular-chubby.woff") format("woff"),
+    url("../../webfonts/uicons-regular-chubby.eot#iefix") format("embedded-opentype");
     font-display: swap;
 }
     i[class^="fi-rc-"]:before, i[class*=" fi-rc-"]:before, span[class^="fi-rc-"]:before, span[class*="fi-rc-"]:before {

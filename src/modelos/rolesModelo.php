@@ -4,52 +4,35 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use PDO;
-use PDOException;
-use Exception;
 use src\modelos\bitacoraModelo;
 
-class rolesModelo extends conexion
-{
-  private $idRol;
-  private $nombreRol;
+class rolesModelo extends conexion {
+  private int $idRol = 0;
+  private string $nombreRol = '';
 
-  public function seleccionarRoles($id = null)
-  {
-    $this->idRol = $id;
-
-    if ($this->idRol != null && $this->idRol != "") {
-      //Arrays para las validaciones
-      $campos = [
-        [
-          "campo_nombre" => 'id_rol',
-          "campo_valor" => $this->idRol,
+  public function validarRoles(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        "id_rol" => [
+          "campo_nombre" => "id_rol",
+          "campo_valor" => &$valor,
           "formulario_nombre" => "id del rol",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
-          "tabla" => 'roles',
+          "tabla" => "roles",
           'BD' => 'seguridad',
-          "debeExistir" => true
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      }
-    }
-    return $this->seleccionarRolesP();
-  }
-  public function registrarRoles($nombre)
-  {
-    try {
-      $this->nombreRol = $nombre;
-      $campos = [
-        [
+          "debeExistir" => true,
+          "debeSerUnico" => true
+        ],
+        "nombre_rol" => [
           "campo_nombre" => "nombre_rol",
-          "campo_valor" => $this->nombreRol,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "nombre del rol",
           "requerido" => true,
           "minimo" => minRegexNombrePer,
@@ -57,94 +40,70 @@ class rolesModelo extends conexion
           "expresion_re" => regexNombrePer,
           "tabla" => "roles",
           'BD' => 'seguridad',
-          "debeSerUnico" => true,
-        ]
+          "debeSerUnico" => true
+        ],
       ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) return $respuesta;
-      return $this->registrarRolesP();
-    } catch (PDOException $e) {
-      error_log("Error: " . $e->getMessage());
-      throw new Exception("Error al registrar el rol en la base de datos: " . $e->getMessage());
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
+    return $this->limpiar_Verificar($campos);
   }
-  public function actualizarRoles($id, $nombre)
-  {
-    $this->idRol = $id;
-    $this->nombreRol = $nombre;
-
-    //Arrays para las validaciones
-    $campos = [
-      [
-        "campo_nombre" => "id_rol",
-        "campo_valor" => $this->idRol,
-        "formulario_nombre" => "id del rol",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "roles",
-        'BD' => 'seguridad',
-        "debeExistir" => true,
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "nombre_rol",
-        "campo_valor" => $this->nombreRol,
-        "formulario_nombre" => "nombre del rol",
-        "requerido" => true,
-        "minimo" => minRegexNombrePer,
-        "maximo" => maxRegexNombrePer,
-        "expresion_re" => regexNombrePer,
-        "tabla" => "roles",
-        'BD' => 'seguridad',
-        "debeSerUnico" => true
-      ],
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarRolesP();
+  public function seleccionarRoles($info = NULL) {
+    if (($info['id_rol'] ?? '') != "") {
+      $resultado = $this->validarRoles([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_rol',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idRol = $info['id_rol'];
     }
+    return $this->seleccionarRolesP();
   }
-  public function eliminarRoles($id)
-  {
-    /*Limpiar Inyección de SQL */
-    $this->idRol = $id;
+  public function registrarRoles(array $info) {
+    $resultado = $this->validarRoles([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'nombre_rol',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->nombreRol = $info['nombre_rol'];
 
-    //Arrays para las validaciones
-    $campos = [
-      [
-        "campo_nombre" => "id_rol",
-        "campo_valor" => $this->idRol,
-        "formulario_nombre" => "id del rol",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "debeExistir" => true,
-        "camposDiferentes" => 1,
-        "tabla" => "roles",
-        'BD' => 'seguridad',
-      ]
-    ];
+    return $this->registrarRolesP();
+  }
+  public function actualizarRoles(array $info) {
+    $resultado = $this->validarRoles([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_rol',
+        'nombre_rol',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idRol = $info['id_rol'];
+    $this->nombreRol = $info['nombre_rol'];
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarRolesP();
-    }
+    return $this->actualizarRolesP();
+  }
+  public function eliminarRoles(array $info) {
+    $resultado = $this->validarRoles([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_rol',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idRol = $info['id_rol'];
+    return $this->eliminarRolesP();
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarRolesP()
-  {
+  private function seleccionarRolesP() {
     if ($this->idRol == null || $this->idRol == "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '*',
@@ -176,8 +135,7 @@ class rolesModelo extends conexion
       return $rol;
     }
   }
-  private function registrarRolesP()
-  {
+  private function registrarRolesP() {
     $objBitacora = new bitacoraModelo();
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'roles',
@@ -211,8 +169,7 @@ class rolesModelo extends conexion
     }
     return $alerta;
   }
-  private function actualizarRolesP()
-  {
+  private function actualizarRolesP() {
     $objBitacora = new bitacoraModelo();
     $resultado = $this->actualizarDatos2([
       'tabla' => 'roles',
@@ -248,8 +205,7 @@ class rolesModelo extends conexion
     }
     return $alerta;
   }
-  private function eliminarRolesP()
-  {
+  private function eliminarRolesP() {
     $objBitacora = new bitacoraModelo();
     $eliminarUsuario = $this->eliminarDatos2([
       "tabla" => "roles",
@@ -258,7 +214,7 @@ class rolesModelo extends conexion
         "id_rol" => $this->idRol
       ]
     ]);
-    if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
+    if ($eliminarUsuario == 1) { /*Para verificar si se hizo la eliminación o no */
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Rol eliminado",

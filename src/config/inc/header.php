@@ -6,7 +6,10 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
 
 ?>
 
-<input class="precioDolar" type="hidden">
+<input type="hidden" class="precioDolar">
+<input type="hidden" class="porcentajeIVA">
+<input type="hidden" class="cedulaIS" value="<?php echo ($_SESSION['cedula'] ?? '') ?>">
+<input type="hidden" class="rolIS" value="<?php echo ($_SESSION['rol'] ?? '') ?>">
 
 <nav class="headerPrincipal navbar navbar-expand-lg noselec shadow-sm py-2">
   <div class="container-fluid d-flex justify-content-between align-items-center">
@@ -20,7 +23,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
       <div class="nav-item d-flex justify-content-center align-items-center">
         <div class="bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill px-3 py-1 d-flex flex-column align-items-center justify-content-center shadow-sm">
           <h6 class="contenedorPrecioDolar p-0 m-0 text-white fw-bold lh-1 d-flex align-items-center" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-            1<span class="text-green-500 me-1">$</span> ≈ <span class="ms-1 precio_dolar">484.74</span> <span class="ms-1 small opacity-75">Bs</span>
+            1<span class="text-green-500 me-1">$</span> ≈ <span class="ms-1 precio_dolar">0.0</span> <span class="ms-1 small opacity-75">Bs</span>
           </h6>
           <small class="tipoDeDolarPrecio m-0 p-0 d-none d-md-block" style="font-size: 0.6rem;">
             <a href="https://www.bcv.org.ve/" target="_blank" class="text-white">Tasa BCV</a>
@@ -55,10 +58,18 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
           </ul>
         </div>
       </div>
+      <!-- Ayuda -->
+      <div class="nav-item">
+        <button class="btn text-white btnAyudaFlotante p-2 me-1 rounded-circle hover-opacity"
+          id="btnAyudaInteractiva"
+          title="Ayuda interactiva del sistema">
+          <i class="fi fi-rr-interrogation fs-4"></i>
+        </button>
+      </div>
       <!-- Carrito -->
       <div class="nav-item">
-        <a href="#" class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center" 
-           data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" style="width: 40px; height: 40px;">
+        <a href="#" class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center"
+          data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" style="width: 40px; height: 40px;">
           <i class="fi fi-rr-shopping-cart fs-4"></i>
           <span class="nroItemsPedido d-none position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary" style="font-size: 0.65rem; min-width: 18px; padding: 2px;">
             0
@@ -70,16 +81,15 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
         <a class="nav-link d-flex align-items-center p-1 rounded-pill hover-bg-white-10" href="#" role="button" aria-expanded="false"
           data-bs-toggle="dropdown" data-bs-auto-close="outside">
           <div class="user-avatar text-warning d-flex align-items-center justify-content-center overflow-hidden border border-2 border-white border-opacity-25" style="width: 36px; height: 36px; border-radius: 50%;">
-            <img 
-              src="<?php echo $fotoPerfil; ?>" 
+            <img
+              src="<?php echo $fotoPerfil; ?>"
               data-tabla_bd="usuarios"
               data-campo_id="cedula_usuario"
-              data-valor_id="<?php echo $_SESSION['cedula']?>"
-              style="width: 100%; height: 100%; object-fit: cover;"
-            >
+              data-valor_id="<?php echo $_SESSION['cedula'] ?? '' ?>"
+              style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div class="ms-2 d-none d-md-block me-1">
-            <span class="user-name d-block fw-bold text-white lh-1" style="font-size: 0.9rem;"><?php echo $_SESSION['usuario']; ?></span>
+            <span class="user-name d-block fw-bold text-white lh-1" style="font-size: 0.9rem;"><?php echo $_SESSION['usuario'] ?? ''; ?></span>
             <small class="text-white text-opacity-75" style="font-size: 0.7rem;">En línea</small>
           </div>
           <i class="fi fi-rr-angle-small-down fs-6 text-white d-none d-md-block ms-1"></i>
@@ -90,22 +100,22 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               style="width: 120px; height: 120px; background-color: rgba(255,255,255,0.1); top: -30px; right: -30px;">
             </div>
             <div class="d-flex align-items-center position-relative">
-              <img 
+              <img
                 src="<?php echo $fotoPerfil; ?>" alt="Perfil"
                 class="fotoRegistro estiloFotoRegistro imgG-60 shadow-sm"
+                data-modulo="usuarios"
                 data-tabla_bd="usuarios"
                 data-campo_id="cedula_usuario"
-                data-valor_id="<?php echo $_SESSION['cedula'];?>"
+                data-valor_id="<?php echo $_SESSION['cedula'] ?? ''; ?>"
                 data-campo_foto="foto_usuario"
                 data-accion_act="actualizarFoto"
                 data-accion_eli="eliminarFoto"
                 data-label_foto="Actualizar Foto de Perfil"
                 data-texto_alerta="Tu foto de perfil volverá a la configuración predeterminada"
-                data-foto_default="perfilDefaultUsuario.png"
-              >
+                data-foto_default="perfilDefaultUsuario.png">
               <div class="ms-3">
-                <h6 class="mb-0 fw-bold"><?php echo $_SESSION['nombre'] . ' ' . $_SESSION['apellido'] ?></h6>
-                <small class="text-white text-opacity-75"><?php echo $_SESSION['nombreRol']; ?></small>
+                <h6 class="mb-0 fw-bold"><?php echo ($_SESSION['nombre'] ?? '') . ' ' . ($_SESSION['apellido'] ?? '') ?></h6>
+                <small class="text-white text-opacity-75"><?php echo $_SESSION['nombreRol'] ?? '' ?></small>
               </div>
             </div>
           </div>
@@ -113,7 +123,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
             <a
               data-bs-toggle="modal"
               data-bs-target=".modalPerfil"
-              value="<?php echo $_SESSION['cedula'] ?>"
+              value="<?php echo $_SESSION['cedula'] ?? '' ?>"
               claseFormulario=".formularioPerfil"
               class="btnEditarPerfil dropdown-item d-flex align-items-center py-2 px-3 rounded mb-1 text-muted fw-semibold"
               href="#">
@@ -198,12 +208,6 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               <h5 class="text-primary">Cambiar Contraseña</h5>
               <div class="form-text mb-3">
                 Completa estos campos solo si deseas cambiar tu contraseña.
-              </div>
-              <div class="mb-3 form-group">
-                <label for="clave_actual" class="form-label">Contraseña Actual</label>
-                <input autocomplete="off" type="password" class="form-control" name="contrasena3_usuario"
-                  pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
-                  maxlength="<?php echo maxRegexContrasena  ?>">
               </div>
               <div class="mb-3 form-group">
                 <label for="clave_nueva" class="form-label">Nueva Contraseña</label>
@@ -523,7 +527,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
                 <div class="pago-total-item pago-total-grand">
                   <span class="pago-total-label fw-bold d-flex">
                     <i class="fi fi-br-check me-2 fs-6"></i>
-                    TOTAL
+                    TOTAL + IVA
                   </span>
                   <div class="d-flex">
                     <span class="sumaTotalPedido fw-bold me-2">5.00</span>
@@ -590,13 +594,15 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               <div class="input-group pago-input-group">
                 <span class="input-group-text pago-input-icon"><i class="fi fi-rr-credit-card"></i></span>
                 <select class="form-select pago-input selectMetodoPagoPedido" name="pagos-[INDICES]-id_metodo_pago" required>
-                  <option value="">Selecciona un método</option>
-                  <option value="1">Transferencia</option>
-                  <option value="2">Pago Móvil</option>
-                  <option value="3">Zelle</option>
-                  <option value="4">Zinli</option>
-                  <option value="5">Binance</option>
-                  <option value="5">Efectivo</option>
+                </select>
+              </div>
+            </div>
+            <!-- Moneda -->
+            <div class="col-lg-4 d-none">
+              <label class="campoFinoForm">Moneda</label>
+              <div class="input-group pago-input-group">
+                <span class="input-group-text pago-input-icon"><i class="fi fi-rr-dollar"></i></span>
+                <select class="form-select pago-input selectMonedaPagoPedido" name="pagos-[INDICES]-id_moneda" required>
                 </select>
               </div>
             </div>
@@ -616,21 +622,6 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
                   minlength="<?php echo minRegexPrecioFront ?>"
                   maxlength="<?php echo maxRegexPrecioFront ?>"
                   required>
-                <span class="signoPrecio input-group-text pago-input-icon border-0 bg-transparent ps-1 pe-3">Bs</span>
-              </div>
-            </div>
-            <!-- Moneda -->
-            <div class="col-lg-4 d-none">
-              <label class="campoFinoForm">Moneda</label>
-              <div class="input-group pago-input-group">
-                <span class="input-group-text pago-input-icon"><i class="fi fi-rr-dollar"></i></span>
-                <select class="form-select pago-input selectMonedaPagoPedido" name="pagos-[INDICES]-id_moneda" required>
-                  <option value="">Selecciona moneda</option>
-                  <option value="1">Dólares (USD)</option>
-                  <option value="2">Bolívares (Bs)</option>
-                  <option value="3">Euros (EUR)</option>
-                  <option value="4">Yuanes (YU)</option>
-                </select>
               </div>
             </div>
             <!-- Referencia -->
@@ -658,14 +649,6 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               <div class="input-group pago-input-group">
                 <span class="input-group-text pago-input-icon"><i class="fi fi-rr-send-money"></i></span>
                 <select disabled class="form-select pago-input selectBancoEmisorPagoPedido" name="pagos-[INDICES]-id_banco_emisor" required>
-                  <option value="">Banco del cliente</option>
-                  <option value="1">Banesco</option>
-                  <option value="2">BBVA Provincial</option>
-                  <option value="3">Mercantil</option>
-                  <option value="4">Banco de Venezuela</option>
-                  <option value="5">BNC</option>
-                  <option value="6">Bicentenario</option>
-                  <option value="7">Venezolano de Crédito</option>
                 </select>
               </div>
             </div>
@@ -675,14 +658,6 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               <div class="input-group pago-input-group">
                 <span class="input-group-text pago-input-icon"><i class="fi fi-rr-bank"></i></span>
                 <select disabled class="form-select pago-input selectBancoReceptorPagoPedido" name="pagos-[INDICES]-id_banco_receptor" required>
-                  <option value="">Banco de la empresa</option>
-                  <option value="1">Banesco</option>
-                  <option value="2">BBVA Provincial</option>
-                  <option value="3">Mercantil</option>
-                  <option value="4">Banco de Venezuela</option>
-                  <option value="5">BNC</option>
-                  <option value="6">Bicentenario</option>
-                  <option value="7">Venezolano de Crédito</option>
                 </select>
               </div>
             </div>
@@ -735,7 +710,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
 <!-- MAPA DE PAGO DEL PEDIDO [ FIN ] -->
 
 <!-- MODAL ACTUALIZAR FOTO DE PERFIL [ COMIENZO ] -->
-<div class="modal fade" id="modalActualizarFotoPerfil" tabindex="-1" aria-labelledby="modalActualizarFotoPerfilLabel" aria-hidden="true">
+<div class="modal fade zindex1080" id="modalActualizarFotoPerfil" tabindex="-1" aria-labelledby="modalActualizarFotoPerfilLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
       <div class="modal-header border-0 pb-0 justify-content-end p-3">
@@ -777,3 +752,51 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
   </div>
 </div>
 <!-- MODAL ACTUALIZAR FOTO DE PERFIL [ FIN ] -->
+
+<!-- MODAL DE AYUDA INTERACTIVA [ COMIENZO ] -->
+<div class="modal fade" id="modalAyudaInteractiva" tabindex="-1" aria-labelledby="modalAyudaInteractivaLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+                <div class="d-flex align-items-center">
+                    <i class="fi fi-rr-interrogation fs-3 me-2"></i>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" id="modalAyudaInteractivaLabel">
+                            Ayuda Interactiva
+                        </h5>
+                        <small class="text-white opacity-75">Selecciona el módulo que deseas explorar</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="p-3 border-bottom bg-light">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-0 rounded-start-pill ps-3">
+                        <i class="fi fi-rr-search text-muted"></i>
+                    </span>
+                    <input type="text" id="buscadorModulosAyuda" class="form-control border-0 py-2" placeholder="Buscar módulo..." style="outline: none;">
+                    <button class="btn btn-light border-0 rounded-end-pill px-3" type="button" id="btnLimpiarBusquedaAyuda">
+                        <i class="fi fi-rr-cross-small"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CUERPO DEL MODAL -->
+            <div class="modal-body p-3">
+                <div id="contenedorModulosAyuda" style="max-height: 500px; overflow-y: auto;">
+                    <div class="text-center py-5 d-none" id="sinResultadosAyuda">
+                        <i class="fi fi-rr-search-alt fs-1 text-muted mb-3"></i>
+                        <p class="text-muted">No se encontraron módulos con ese nombre</p>
+                    </div>
+                    <div class="row g-3" id="listaModulosAyuda"></div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL DE AYUDA INTERACTIVA [ FIN ] -->

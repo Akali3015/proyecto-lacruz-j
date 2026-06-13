@@ -3,6 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, extraerDatosAjax, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -24,8 +26,7 @@ $(document).on('DOMContentLoaded', async function (e) {
     campoIdBtn: 'id_presentacion',
     botones: 'CRUD',
   });
-
-  let instrucciones = {
+  await extraerDatosAjax({
     'modulosPeticion': ['unidadesMedidas'],
     'accionesPeticion': [{ 'accion': 'listar' }],
     'tipoElemento': ['select'],
@@ -37,8 +38,51 @@ $(document).on('DOMContentLoaded', async function (e) {
         'textoDefault': 'Seleccione una unidad de medida'
       }
     ]
-  }
-  extraerDatosAjax(instrucciones)
+  });
+  driverAyuda('presentaciones', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Presentación',
+          description: 'Haz clic aquí para agregar una nueva presentación al sistema. Las presentaciones definen cómo se venden los productos (ej: Litro, Kilo, Unidad).',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Presentaciones',
+          description: 'Aquí puedes ver todas las presentaciones registradas, su unidad de medida y cantidad asociada.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Presentación',
+          description: 'Modifica los datos de cualquier presentación haciendo clic en este botón.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Presentación',
+          description: 'Elimina presentaciones que ya no sean necesarias. Ten cuidado porque puede afectar productos y materias primas asociadas.',
+          side: 'left'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de presentaciones. Las presentaciones se usan para definir las diferentes formas de venta de productos y materias primas.',
+          side: 'top'
+        }
+      }
+    ]
+  });
 })
 
 //Evento para el envío de formularios
@@ -75,8 +119,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'presentaciones');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

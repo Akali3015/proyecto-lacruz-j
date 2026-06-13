@@ -6,19 +6,20 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_bitacora'] ?? "";
 
   $objeto = new bitacoraModelo();
   ob_clean();
+  $resultado=[
+    'icono'=>'error',
+    'titulo'=>'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
       $resultado = $objeto->seleccionarBitacora();
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

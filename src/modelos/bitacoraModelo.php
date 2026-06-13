@@ -4,52 +4,22 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use PDO;
-use PDOException;
-use Exception;
 
-class bitacoraModelo extends conexion
-{
-  private $idBitacora;
-  private $moduloBitacora;
-  private $accionBitacora;
-  private $resultadoBitacora;
-  private $commit;
+class bitacoraModelo extends conexion {
+  private int $idBitacora = 0;
+  private string $moduloBitacora = '';
+  private string $accionBitacora = '';
+  private string $resultadoBitacora = '';
+  private int $commit = 0;
 
-  public function seleccionarBitacora($id = null)
-  {
-    $this->idBitacora = $id;
-
-    if ($this->idBitacora != null && $this->idBitacora != "") {
-      $campos = [
-        [
-          "campo_nombre" => 'id_bitacora',
-          "campo_valor" => $this->idBitacora,
-          "formulario_nombre" => "id de la bitacora",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => 'bitacora',
-          'BD' => 'seguridad',
-          "debeExistir" => true,
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      }
-    }
+  public function seleccionarBitacora() {
     return $this->seleccionarBitacoraP();
   }
-  public function registrarBitacora($modulo, $accion, $resultado, $hacerCommit=null)
-  {
-
+  public function registrarBitacora(string $modulo, string $accion, string $resultado, bool|null $hacerCommit = null) {
     $this->moduloBitacora = $modulo;
     $this->accionBitacora = $accion;
     $this->resultadoBitacora = $resultado;
-    $this->commit = $hacerCommit??false;
+    $this->commit = $hacerCommit ?? false;
 
     $campos = [
       [
@@ -85,8 +55,7 @@ class bitacoraModelo extends conexion
     if ($respuesta !== false) return $respuesta;
     return $this->registrarBitacoraP();
   }
-  private function seleccionarBitacoraP()
-  {
+  private function seleccionarBitacoraP() {
     if ($this->idBitacora == null || $this->idBitacora == "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '
@@ -103,34 +72,27 @@ class bitacoraModelo extends conexion
       $Bitacora = $resultado->fetchAll(PDO::FETCH_ASSOC);
       return $Bitacora;
     } else {
-      $instruccionesBD = [
+      $resultado = $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'bitacora',
         'BD' => 'seguridad',
         'WHERE' => [
           "id_bitacora" => $this->idBitacora,
         ]
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-
+      ]);
       if ($resultado->rowCount() <= 0) {
-        $alerta = [
+        return [
           "tipo" => "simple",
           "titulo" => "Bitacora no encontrada",
           "texto" => "La bitacora seleccionada no ha sido encontrada en la base de datos",
           "icono" => "error"
         ];
-        return $alerta;
-        exit();
-      } else {
-        $bitacora = $resultado->fetch(PDO::FETCH_ASSOC);
       }
-
+      $bitacora = $resultado->fetch();
       return $bitacora;
     }
   }
-  private function registrarBitacoraP()
-  {
+  private function registrarBitacoraP() {
     //modulo
     $idModulo = $this->VEYSNEC([
       'RSEN' => true,
@@ -154,7 +116,7 @@ class bitacoraModelo extends conexion
       ],
     ]);
     if ($ultimoId !== false && $ultimoId > 0) {
-      if($this->commit) $this->commit();
+      if ($this->commit) $this->commit();
       return false;
     } else {
       $alerta = [

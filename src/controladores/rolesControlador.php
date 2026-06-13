@@ -6,35 +6,29 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_rol'] ?? "";
-  $nombre = $_POST['nombre_rol'] ?? "";
   $objeto = new rolesModelo();
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarRoles();
-      echo json_encode($resultado);
-      exit();
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarRoles($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarRoles($_POST);
+      break;
     case "registrar":
-      $resultado = $objeto->registrarRoles($nombre);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->registrarRoles($_POST);
+      break;
     case "actualizar":
-      $resultado = $objeto->actualizarRoles($id, $nombre);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarRoles($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarRoles($id);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->eliminarRoles($_POST);
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

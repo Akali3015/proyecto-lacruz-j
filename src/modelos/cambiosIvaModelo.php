@@ -6,24 +6,21 @@ use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
 use PDO;
-use PDOException;
-use Exception;
 
-class cambiosIvaModelo extends conexion
-{
-  private $idCambio;
-  private $montoCambioIva;
+class cambiosIvaModelo extends conexion {
+  private int $idCambio = 0;
+  private float $montoCambioIva = 0;
 
-  public function seleccionarCambiosIva($id = null)
-  {
-    $this->idCambio = $id;
-
-    if ($this->idCambio != null && $this->idCambio != "") {
-      //Arrays para las validaciones
-      $campos = [
-        [
+  public function validarCambiosIva(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'id_cambio_iva' => [
           "campo_nombre" => 'id_cambio_iva',
-          "campo_valor" => $this->idCambio,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "id del cambio",
           "requerido" => true,
           "minimo" => minRegexId,
@@ -31,76 +28,79 @@ class cambiosIvaModelo extends conexion
           "expresion_re" => regexId,
           "tabla" => 'cambios_iva',
           "debeExistir" => true
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->seleccionarCambiosIvaP();
-      }
-    } else {
-      return $this->seleccionarCambiosIvaP();
-    }
-  }
-  public function registrarCambiosIva($monto)
-  {
-    try {
-      $this->montoCambioIva = $monto;
-      $campos = [
-        [
-          "campo_valor" => $this->montoCambioIva,
+        ],
+        'monto_cambio_iva' => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "monto del IVA",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
+          "noCero" => true,
         ],
       ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarCambiosIvaP();
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      if ($campo == 'monto_cambio_iva' && $infoVal[$campo] > 100) {
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Porcentaje superior al 100%',
+          'texto' => 'No puede estipular un porcentaje de más del 100%',
+          'icono' => 'error',
+        ];
       }
-    } catch (PDOException $e) {
-      error_log("Error: " . $e->getMessage());
-      throw new Exception("Error al registrar el rol en la base de datos: " . $e->getMessage());
+      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
+    return $this->limpiar_Verificar($campos);
+  }
+  public function seleccionarCambiosIva(array $info) {
+    if (($info['id_cambio_iva'] ?? '') != "") {
+      $resultado = $this->validarCambiosIva([
+        'infoVal' => &$info,
+        'camposVal' => ['id_cambio_iva'],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idCambio = $info['id_cambio_iva'];
+    }
+    return $this->seleccionarCambiosIvaP($info);
+  }
+  public function registrarCambiosIva(array $info) {
+    $resultado = $this->validarCambiosIva([
+      'infoVal' => &$info,
+      'camposVal' => ['monto_cambio_iva'],
+    ]);
+
+    if ($resultado) return $resultado;
+    $this->montoCambioIva = $info['monto_cambio_iva'];
+    return $this->registrarCambiosIvaP();
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarCambiosIvaP()
-  {
+  private function seleccionarCambiosIvaP(array $info) {
     if ($this->idCambio == null || $this->idCambio == "") {
-      $instruccionesBD = [
-        'campos' => '*',
-        'tabla' => 'cambios_iva',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      $roles = $resultado->fetchAll(PDO::FETCH_ASSOC);
-      return $roles;
+      if (($info['tipoConsulta'] ?? '') == 'ivaActual') {
+        return $this->seleccionarDatos2([
+          'campos' => '*',
+          'tabla' => 'cambios_iva',
+          'ORDER' => 'id_cambio_iva DESC',
+          'LIMIT' => 1
+        ])->fetch();
+      } else {
+        return $this->seleccionarDatos2([
+          'campos' => '*',
+          'tabla' => 'v_cambios_iva_todos',
+        ])->fetchAll();
+      }
     } else {
-
-        /*Hacemos la consulta */;
-
-      $instruccionesBD = [
+      $resultado = $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'cambios_iva',
         'WHERE' => [
-          [
-            "condicion_campo" => "id_cambio",
-            "condicion_marcador" => ":ID",
-            "condicion_valor" => $this->idCambio,
-            "comparacion" => "="
-          ]
+          "id_cambio" => $this->idCambio,
         ]
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
+      ]);
       if ($resultado->rowCount() <= 0) {
         $alerta = [
           "tipo" => "simple",
@@ -116,35 +116,19 @@ class cambiosIvaModelo extends conexion
       return $rol;
     }
   }
-  private function registrarCambiosIvaP()
-  {
-    $datos_registro_cambio_iva = [
-      [
-        "campo_nombre" => "monto_cambio_iva",
-        "campo_marcador" => ":monto",
-        "campo_valor" => $this->montoCambioIva,
-      ],
-      [
-        "campo_nombre" => "fecha_cambio_iva",
-        "campo_marcador" => ":fecha",
-        "campo_valor" => $this->FechaHora_Sel('fecha_hora_BD'),
+  private function registrarCambiosIvaP() {
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'cambios_iva',
+      'datos' => [
+        "monto_cambio_iva" => $this->montoCambioIva,
+        "fecha_cambio_iva" => $this->FechaHora_Sel('fecha_hora_BD'),
       ]
-    ];
-
-    $ultimoId = $this->guardarDatos('cambios_iva', $datos_registro_cambio_iva);
+    ]);
     $objetoBitacora = new bitacoraModelo();
-    if ($ultimoId !== false && $ultimoId > 0) {
-      $alerta = [
-        "tipo" => "limpiar",
-        "titulo" => "Valor Actualizado",
-        "texto" => "El valor del IVA ha sido actualizado exitosamente",
-        "icono" => "success",
-      ];
-      $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'éxito');
-      $this->commit();
-    } else {
-      $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido');
-      $alerta = [
+    if ($ultimoId == false || $ultimoId <= 0) {
+      $this->rollback();
+      $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', true);
+      return [
         "tipo" => "simple",
         "titulo" => "Valor no actualizado",
         "texto" => "El valor del IVA no ha sido registrado exitosamente",
@@ -152,10 +136,11 @@ class cambiosIvaModelo extends conexion
       ];
     }
     $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS(
+    $resultado = $objetoNot->enviarMensajesWS(
       [
         "receptor" => [
           'tipo' => 'todosSinExcepcion',
+          'cedula' => 30485684
         ],
         'cuerpo' => [
           [
@@ -170,15 +155,25 @@ class cambiosIvaModelo extends conexion
             'accion' => 'alertar',
             'alerta' => [
               'tipo' => 'simple',
-              'titulo' => 'Precio del IVA actualizado',
-              'texto' => 'El precio del IVA ha sido actualizado',
+              'titulo' => 'IVA actualizado',
+              'texto' => 'El precio del IVA acaba de ser actualizado',
               'icono' => 'info',
               'notifier' => true,
             ]
-          ]
+          ],
         ],
-      ]
+        'noCommit' => true
+      ],
     );
-    return $alerta;
+    // if (isset($resultado['error'])) return $resultado;
+
+    $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'éxito');
+    $this->commit();
+    return [
+      "tipo" => "limpiar",
+      "titulo" => "Valor Actualizado",
+      "texto" => "El valor del IVA ha sido actualizado exitosamente",
+      "icono" => "success",
+    ];
   }
 }

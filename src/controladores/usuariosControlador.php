@@ -6,111 +6,56 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   $accion = $_POST["accion"];
-  $cedula = $_POST['cedula_usuario'] ?? "";
-  $nombre = $_POST['nombre_usuario'] ?? "";
-  $apellido = $_POST['apellido_usuario'] ?? "";
-  $correo = $_POST['correo_usuario'] ?? "";
-  $telefono = $_POST['telefono_usuario'] ?? "";
-  $rol = $_POST['id_rol'] ?? "";
-  $usuario = $_POST['usuario_usuario'] ?? "";
-  $contrasena1 = $_POST['contrasena1_usuario'] ?? "";
-  $contrasena2 = $_POST['contrasena2_usuario'] ?? "";
-  $contrasena3 = $_POST['contrasena3_usuario'] ?? "";
-  $foto = $_FILES['foto_usuario'] ?? "";
 
   $objetoUsuarios = new usuariosModelo();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'accion no reconocida'
+  ];
   ob_clean();
   if (!empty($_SESSION['cedula'])) {
     switch ($accion) {
       case "listar":
-        $resultado = $objetoUsuarios->seleccionarUsuarios();
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->seleccionarUsuarios($_POST);
+        break;
       case "registrar":
-        $resultado = $objetoUsuarios->registrarUsuarios(
-          $cedula,
-          $rol,
-          $nombre,
-          $apellido,
-          $telefono,
-          $correo,
-          $usuario,
-          $contrasena1,
-          $contrasena2
-        );
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->registrarUsuarios($_POST);
+        break;
       case "eliminar":
-        $resultado = $objetoUsuarios->eliminarUsuarios($cedula);
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->eliminarUsuarios($_POST);
+        break;
       case "seleccionarUno":
-        $resultado = $objetoUsuarios->seleccionarUsuarios($cedula);
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->seleccionarUsuarios($_POST);
+        break;
       case "actualizar":
-        $resultado = $objetoUsuarios->actualizarUsuarios(
-          $cedula,
-          $nombre,
-          $apellido,
-          $correo,
-          $telefono,
-          $rol,
-          $usuario,
-          $contrasena1,
-          $contrasena2,
-          $contrasena3,
-        );
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->actualizarUsuarios($_POST);
+        break;
       case "cerrarSesion":
         $resultado = $objetoUsuarios->cerrarSesionUsuarios();
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        break;
       case "actualizarFoto":
-        $resultado = $objetoUsuarios->actualizarFotosUsuarios($_SESSION['cedula'], $foto);
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->actualizarFotosUsuarios($_POST);
+        break;
       case "eliminarFoto":
-        $resultado = $objetoUsuarios->eliminarFotosUsuarios($_SESSION['cedula']);
-        $objetoUsuarios->DECORE($resultado);
-        exit();
-      default:
-        $objetoUsuarios->DECORE(["error" => "Acción no reconocida"]);
-        exit();
+        $resultado = $objetoUsuarios->eliminarFotosUsuarios($_POST);
+        break;
     }
   } elseif (isset($accion)) {
     switch ($accion) {
       case 'iniciarSesion':
-        $resultado = $objetoUsuarios->iniciarSesionUsuarios($usuario, $contrasena1);
-        $objetoUsuarios->DECORE($resultado);
-        exit();
+        $resultado = $objetoUsuarios->iniciarSesionUsuarios($_POST);
+        break;
       case 'registrar':
-        $resultado = $objetoUsuarios->registrarUsuarios(
-          $cedula,
-          $rol,
-          $nombre,
-          $apellido,
-          $telefono,
-          $correo,
-          $usuario,
-          $contrasena1,
-          $contrasena2
-        );
-        if ($resultado['icono'] == 'success') {
+        $resultado = $objetoUsuarios->registrarUsuarios($_POST);
+        if (($resultado['icono']) == 'success') {
           $resultado['tipo'] = 'alertarYredireccionar';
           $resultado['url'] = APP_URL;
         }
-        $objetoUsuarios->DECORE($resultado);
-        exit();
-      default:
-        $objetoUsuarios->DECORE(["error" => "Acción no reconocida"]);
-        exit();
+        break;
     }
-  } else {
-    $objetoUsuarios->DECORE(["error" => "Acción no reconocida"]);
-    exit();
   }
+  $objetoUsuarios->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   if (isset($url2) && $url2 != "") {
     if (is_file("src/vistas/usuarios/" . $url2 . ".php")) {

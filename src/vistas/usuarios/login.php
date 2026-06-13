@@ -11,6 +11,8 @@
           </div>
           <form method="POST" class="formularioAjax login" action="usuarios" novalidate>
             <input type="hidden" name="accion" value="iniciarSesion">
+            <input type="hidden" name="Anti-CSRF" value="83eu92839dh9d">
+
             <div class="form-floating mb-3">
               <input type="text" class="form-control" name="usuario_usuario" placeholder="Usuario" required>
               <label for="usuario">Usuario</label>
@@ -18,6 +20,10 @@
             <div class="form-floating mb-4">
               <input type="password" class="form-control" name="contrasena1_usuario" placeholder="Contraseña" required>
               <label for="clave">Contraseña</label>
+            </div>
+
+            <div class="d-flex justify-content-center mb-4">
+              <div class="g-recaptcha" data-sitekey="6LdSVPgsAAAAAMmHarx-2gZ5zUWdGHM91UouPOE-"></div>
             </div>
 
             <div class="d-grid mb-3">
@@ -51,14 +57,40 @@
       </div>
       <div class="modal-body">
         <form class="formularioAjax validar login" method="POST" action="usuarios" id="registroForm" novalidate>
+          <input type="hidden" name="Anti-CSRF" value="83eu92839dh9d">
           <input type="hidden" name="accion" value="registrar">
           <input type="hidden" name="id_rol" value="3">
 
           <div class="form-group mb-3">
-            <label for="cedula" class="form-label">Cédula</label>
-            <input type="text" class="form-control" name="cedula_usuario" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" pattern="<?php echo regexCedulaRif ?>" required>
-            <div class="form-text">Solo números (6-10 dígitos)</div>
-            <div class="invalid-feedback"></div>
+            <label for="codigo_cedula_usuario" class="form-label">Cédula</label>
+            <div class="input-group">
+              <select
+                data-prefijo=".selectCodigoCedula"
+                data-cuerpo=".inputCedula"
+                class="input-group-text selectCodigoCedula"
+                name="codigo_cedula_usuario"
+                required>
+                <option value="V">V</option>
+                <option value="E">E</option>
+                <option value="J">J</option>
+                <option value="G">G</option>
+                <option value="C">C</option>
+                <option value="P">P</option>
+              </select>
+              <input
+                type="text"
+                class=" form-control inputCedula noRepetir"
+                name="cedula_usuario"
+                pattern="<?php echo regexCedulaRifLetra ?>"
+                minlength="<?php echo minRegexCedulaRif ?>"
+                maxlength="<?php echo maxRegexCedulaRif ?>"
+                minlengthC="<?php echo minRegexCedulaRif ?>"
+                maxlengthC="<?php echo maxRegexCedulaRif ?>"
+                required
+                data-prefijo=".selectCodigoCedula"
+                data-cuerpo=".inputCedula">
+            </div>
+            <div class="form-text">Solo números (7-10 dígitos)</div>
           </div>
           <div class="form-group mb-3">
             <label for="cedula" class="form-label">Nombre</label>
@@ -71,14 +103,49 @@
             <div class="invalid-feedback"></div>
           </div>
           <div class="form-group mb-3">
-            <label for="telefono" class="form-label">Teléfono</label>
-            <input type="tel" class="form-control" name="telefono_usuario" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" pattern="<?php echo regexTelefono ?>" required>
+            <label for="prefijo_telefono_usuario" class="form-label">Teléfono</label>
+            <div class="input-group">
+              <select
+                data-prefijo=".selectPrefijoTelefono"
+                data-cuerpo="."
+                class="input-group-text selectPrefijoTelefono"
+                name="prefijo_telefono_usuario"
+                required>
+                <option value="0416">0416</option>
+                <option value="0426">0426</option>
+                <option value="0424">0424</option>
+                <option value="0414">0414</option>
+                <option value="0412">0412</option>
+                <option value="0422">0422</option>
+                <option value="0212">0212</option>
+                <option value="0251">0251</option>
+                <option value="0241">0241</option>
+                <option value="0257">0257</option>
+                <option value="0257">0257</option>
+              </select>
+              <input
+                data-prefijo=".selectPrefijoTelefono"
+                data-cuerpo=".telefonoUsuario"
+                type="text"
+                class="form-control telefonoUsuario noRepetir"
+                name="telefono_usuario"
+                pattern="<?php echo regexTelefono ?>"
+                minlength="<?php echo minRegexCuerpoTelefono ?>"
+                maxlength="<?php echo maxRegexCuerpoTelefono ?>"
+                minlengthC="<?php echo minRegexTelefono ?>"
+                maxlengthC="<?php echo maxRegexTelefono ?>"
+                required>
+            </div>
             <div class="form-text">Formato: xxxx-xxxxxxx</div>
-            <div class="invalid-feedback"></div>
           </div>
           <div class="form-group mb-3">
             <label for="correo" class="form-label">Correo electrónico</label>
             <input type="email" class="form-control" name="correo_usuario" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" pattern="<?php echo regexCorreo ?>" required>
+            <div class="invalid-feedback"></div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="direccion_usuario" class="form-label">Dirección</label>
+            <input type="email" class="form-control" name="direccion_usuario" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" pattern="<?php echo regexDescripcion ?>" required>
             <div class="invalid-feedback"></div>
           </div>
           <div class="form-group mb-3">

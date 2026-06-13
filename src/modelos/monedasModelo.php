@@ -2,404 +2,277 @@
 
 namespace src\modelos;
 
-use PDO;
 use src\config\connect\conexion;
+use PDO;
 
-class monedasModelo extends conexion
-{
+class monedasModelo extends conexion {
 
-  private $idMoneda;
-  private $nombreMoneda;
-  private $simboloMoneda;
-  private $valorMoneda;
+  private int $idMoneda = 0;
+  private string $nombreMoneda = '';
+  private string $simboloMoneda = '';
+  private float $valorMoneda = 0;
 
-  /*Métodos para tomas datos de las views y asignarlos a los atributos*/
-  public function seleccionarMonedas($id = null)
-  {
-    $this->idMoneda = $id;
-    if ($this->idMoneda != "") {
-      $campos = [
-        [
+  public function validarMonedas(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'id_moneda' => [
           "campo_nombre" => "id_moneda",
-          "campo_valor" => $this->idMoneda,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "id",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
           "tabla" => "monedas",
-          "debeExistir" => true
-        ]
+          "debeSerUnico" => true,
+          "debeExistir" => true,
+        ],
+        'valor_moneda' => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "valor",
+          "requerido" => true,
+          "minimo" => minRegexPrecio,
+          "maximo" => maxRegexPrecio,
+          "expresion_re" => regexPrecio,
+          'comaPunto' => true
+        ],
+        'nombre_moneda' => [
+          "campo_nombre" => "nombre_moneda",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "nombre de la moneda",
+          "requerido" => true,
+          "minimo" => minRegexNombreObj,
+          "maximo" => maxRegexNombreObj,
+          "expresion_re" => regexNombreObj,
+          "tabla" => "monedas",
+          "debeSerUnico" => true,
+        ],
+        'simbolo_moneda' => [
+          "campo_nombre" => "simbolo_moneda",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "simbolo de la moneda",
+          "requerido" => true,
+          "minimo" => minRegexSimboloMoneda,
+          "maximo" => maxRegexSimboloMoneda,
+          "expresion_re" => regexSimboloMoneda,
+          "tabla" => "monedas",
+          "debeSerUnico" => true,
+        ],
       ];
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      switch ($campo) {
+        case 'presentaciones':
+          if (($infoVal['presentaciones'] ?? []) == []) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Sin presentaciones',
+              'texto' => 'No has enviado las presentaciones de la materia prima',
+              'icono' => 'warning',
+            ];
+          }
+          foreach ($infoVal['presentaciones'] as &$pre) {
+            $campos[] = $funcionAsignadora('id_presentacion', $pre);
+          }
+          unset($idPre);
+          break;
 
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
+        default:
+          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
+          break;
       }
     }
-
-    return $this->seleccionarMonedasP();
+    return $this->limpiar_Verificar($campos);
   }
-  public function seleccionarCambiosMonedas()
-  {
+  public function seleccionarMonedas(array $info) {
+    if (($info['id_moneda'] ?? '') != '') {
+      $resultado = $this->validarMonedas([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_moneda',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idMoneda = $info['id_moneda'];
+    }
+    return $this->seleccionarMonedasP($info);
+  }
+  public function seleccionarCambiosMonedas() {
     return $this->seleccionarCambiosMonedasP();
   }
-  public function registrarMonedas($nombreMoneda, $simboloMoneda, $valorMoneda)
-  {
-    $this->nombreMoneda = $nombreMoneda;
-    $this->valorMoneda = $valorMoneda;
-    $this->simboloMoneda = $simboloMoneda;
+  public function registrarMonedas(array $info) {
 
-    $campos = [
-      [
-        "campo_nombre" => "nombre_moneda",
-        "campo_valor" => $this->nombreMoneda,
-        "formulario_nombre" => "nombre",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "monedas",
-        "debeSerUnico" => true,
+    $resultado = $this->validarMonedas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'valor_moneda',
+        'nombre_moneda',
+        'simbolo_moneda'
       ],
-      [
-        "campo_valor" => $this->valorMoneda,
-        "formulario_nombre" => "valor",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
-      ],
-      [
-        "campo_nombre" => "simbolo_moneda",
-        "campo_valor" => $this->simboloMoneda,
-        "formulario_nombre" => "símbolo",
-        "requerido" => true,
-        "minimo" => minRegexSimboloMoneda,
-        "maximo" => maxRegexSimboloMoneda,
-        "expresion_re" => regexSimboloMoneda,
-        "tabla" => "monedas",
-        "debeSerUnico" => true
-      ]
-    ];
+    ]);
+    if ($resultado) return $resultado;
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->registrarMonedasP();
-    }
+    $this->nombreMoneda = $info['nombre_moneda'];
+    $this->simboloMoneda = $info['simbolo_moneda'];
+    $this->valorMoneda = $info['valor_moneda'];
+
+    return $this->registrarMonedasP();
   }
-  public function actualizarMonedas($tipoAct, $idMoneda, $valorMoneda, $nombreMoneda = null, $simboloMoneda = null)
-  {
-    $this->idMoneda = $idMoneda;
-    $this->nombreMoneda = $nombreMoneda;
-    $this->simboloMoneda = $simboloMoneda;
-    $this->valorMoneda = $valorMoneda;
-
-    $campos = [
-      [
-        "campo_nombre" => "id_moneda",
-        "campo_valor" => $this->idMoneda,
-        "formulario_nombre" => "id",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "monedas",
-        "debeExistir" => true
-      ],
-      [
-        "campo_valor" => $this->valorMoneda,
-        "formulario_nombre" => "valor",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexPrecio,
-      ]
-    ];
-
-    if ($tipoAct == 'completa' && $nombreMoneda != '' && $simboloMoneda != '') {
-      $campos[] = [
-        "campo_nombre" => "nombre_moneda",
-        "campo_valor" => $this->nombreMoneda,
-        "formulario_nombre" => "nombre",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "monedas",
-        "debeSerUnico" => true
-      ];
-      $campos[] = [
-        "campo_nombre" => "simbolo_moneda",
-        "campo_valor" => $this->simboloMoneda,
-        "formulario_nombre" => "símbolo",
-        "requerido" => true,
-        "minimo" => minRegexSimboloMoneda,
-        "maximo" => maxRegexSimboloMoneda,
-        "expresion_re" => regexSimboloMoneda,
-        "tabla" => "monedas",
-        "debeSerUnico" => true
-      ];
+  public function actualizarMonedas(array $info) {
+    $campos = ['id_moneda', 'valor_moneda'];
+    if (($info['tipoAct'] ?? '') == 'completa') {
+      array_push($campos, 'nombre_moneda', 'simbolo_moneda');
     }
+    $resultado = $this->validarMonedas([
+      'infoVal' => &$info,
+      'camposVal' => $campos,
+    ]);
+    if ($resultado) return $resultado;
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarMonedasP($tipoAct);
-    }
+    $this->idMoneda = $info['id_moneda'];
+    $this->nombreMoneda = $info['nombre_moneda'] ?? '';
+    $this->simboloMoneda = $info['simbolo_moneda'] ?? '';
+    $this->valorMoneda = $info['valor_moneda'];
+
+    return $this->actualizarMonedasP($info['tipoAct'] ?? NULL);
   }
-  public function eliminarMonedas($idMoneda)
-  {
-    $this->idMoneda = $idMoneda;
-
-    $campos = [
-      [
-        "campo_nombre" => "id_moneda",
-        "campo_valor" => $this->idMoneda,
-        "formulario_nombre" => "id",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "monedas",
-        "debeExistir" => true
-      ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarMonedasP();
-    }
+  public function eliminarMonedas(array &$info) {
+    $resultado = $this->validarMonedas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_moneda',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idMoneda = $info['id_moneda'];
+    return $this->eliminarMonedasP();
   }
 
-  /*Métodos privados para interactuar con la base de datos*/
-  private function seleccionarMonedasP()
-  {
-
+  private function seleccionarMonedasP(array $info) {
     if ($this->idMoneda == null || $this->idMoneda == "") {;
-      $instruccionesBD = [
-        'campos' => '*',
-        'tabla' => 'monedas',
-        'ORDER' => 'nombre_moneda'
-      ];
-      $datos = $this->seleccionarDatos($instruccionesBD);/*la ejecutamos*/
-      $datos = $datos->fetchAll(PDO::FETCH_ASSOC); /*Creamos el arrays de tipo asociativo*/
-      return $datos; /*Devolvemos*/
+      switch ($info['tipoConsulta'] ?? '') {
+        case 'divisasPorFecha':
+          return $this->seleccionarDatos2([
+            'campos' => '
+              mo.id_moneda,mo.nombre_moneda,mo.simbolo_moneda,
+              (
+                SELECT cm.valor_moneda 
+                FROM cambios_monedas as cm 
+                WHERE cm.id_moneda= mo.id_moneda
+                ORDER BY cm.id_cambio_moneda DESC
+                LIMIT 1
+              ) as valor_fecha_moneda
+            ',
+            'tabla' => 'monedas as mo',
+            'datosJoins' => [
+              'cambios_monedas as cm' => 'mo.id_moneda = cm.id_moneda'
+            ],
+            'WHERE' => [
+              'cm.fecha_cambio' => '<= ' . $info['fecha'],
+            ],
+            'GROUP' => 'mo.id_moneda',
+            'ORDER' => 'cm.id_cambio_moneda DESC'
+          ])->fetchAll(PDO::FETCH_UNIQUE);
+        case 'indexadosPorId':
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'monedas',
+          ])->fetchAll(PDO::FETCH_UNIQUE);
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'monedas',
+            'ORDER' => 'nombre_moneda'
+          ])->fetchAll();
+      }
     } else {
-
-        /*Hacemos la consulta */;
-      $instruccionesBD = [
+      return $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'monedas',
         'WHERE' => [
-          [
-            'condicion_campo' => 'id_moneda',
-            'condicion_marcador' => ':Id',
-            'condicion_valor' => $this->idMoneda,
-            'comparacion' => '=',
-          ]
+          'id_moneda' => $this->idMoneda,
         ],
         'ORDER' => 'nombre_moneda'
-      ];
-      $datos = $this->seleccionarDatos($instruccionesBD);
-
-      /*Verificamos que el moneda seleccionado exista */
-      if ($datos->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Moneda no encontrada",
-          "texto" => "La moneda que ha intentado actualizar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
-        exit();
-      } else {
-        $datos = $datos->fetch(PDO::FETCH_ASSOC);/*Hacemos el arrays */
-      }
-      return $datos;
+      ])->fetch();
     }
   }
-  private function seleccionarCambiosMonedasP()
-  {
-
-    $instruccionesBD = [
-      'campos' => 'cm.id_cambio_moneda, mo.nombre_moneda, cm.valor_moneda, cm.fecha_cambio',
-      'tabla' => 'cambios_monedas AS cm',
-      'PEL' => 'cm',
-      'datosJoins' => [
-        [
-          "tablaDestino" => "monedas AS mo",
-          "conexionLo" => "cm.id_moneda = mo.id_moneda"
-        ]
-      ]
-    ];
-    $datos = $this->seleccionarDatos($instruccionesBD);
-    $datos = $datos->fetchAll();
-    return $datos;
+  private function seleccionarCambiosMonedasP() {
+    return $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'v_cambios_monedas_todos',
+    ])->fetchAll();
   }
-  private function registrarMonedasP()
-  {
-    $datos_registro_monedas = [
-      [
-        "campo_nombre" => "nombre_moneda",
-        "campo_marcador" => ":nombre",
-        "campo_valor" => $this->nombreMoneda,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "simbolo_moneda",
-        "campo_marcador" => ":simbolo",
-        "campo_valor" => $this->simboloMoneda
-      ],
-      [
-        "campo_nombre" => "valor_moneda",
-        "campo_marcador" => ":valor",
-        "campo_valor" => $this->valorMoneda,
-        "comaPunto" => true,
-      ],
-    ];
-    $ultimoId = $this->guardarDatos('monedas', $datos_registro_monedas);
-    if ($ultimoId !== false && $ultimoId > 0) {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Moneda registrada",
-        "texto" => "La moneda ha sido registrada exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
+  private function registrarMonedasP() {
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'monedas',
+      'datos' => [
+        "nombre_moneda" => $this->nombreMoneda,
+        "simbolo_moneda" => $this->simboloMoneda,
+        "valor_moneda" => $this->valorMoneda,
+      ]
+    ]);
+    if ($ultimoId == false || $ultimoId <= 0) {
+      return [
         "tipo" => "simple",
         "titulo" => "Moneda no registrada",
         "texto" => "La moneda no ha sido registrado exitosamente",
         "icono" => "error",
       ];
     }
-    return $alerta;
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Moneda registrada",
+      "texto" => "La moneda ha sido registrada exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function actualizarMonedasP($tipoAct)
-  {
-
-    $datosMoneda = $this->seleccionarMonedas($this->idMoneda);
-    $valorActualMo = $datosMoneda['valor_moneda'];
-
+  private function actualizarMonedasP($tipoAct = null) {
     $instruccionesBD = [
       "tabla" => "monedas",
       "datos" => [
-        [
-          "campo_nombre" => "valor_moneda",
-          "campo_marcador" => ":precio",
-          "campo_valor" => $this->valorMoneda,
-          "comaPunto" => true,
-        ],
+        "valor_moneda" => $this->valorMoneda,
       ],
       "WHERE" => [
-        [
-          "condicion_campo" => "id_moneda",
-          "condicion_marcador" => ":id",
-          "condicion_valor" => $this->idMoneda,
-          "comparacion" => "="
-        ]
+        "id_moneda" => $this->idMoneda,
       ]
     ];
     if ($tipoAct == 'completa') {
-      $instruccionesBD['datos'][] = [
-        "campo_nombre" => "nombre_moneda",
-        "campo_marcador" => ":nombre",
-        "campo_valor" => $this->nombreMoneda,
-        "ponerEnMayusculas" => true
-      ];
-      $instruccionesBD['datos'][] = [
-        "campo_nombre" => "simbolo_moneda",
-        "campo_marcador" => ":simbolo",
-        "campo_valor" => $this->simboloMoneda
-      ];
+      $instruccionesBD['datos']['nombre_moneda'] = $this->nombreMoneda;
+      $instruccionesBD['datos']['simbolo_moneda'] = $this->simboloMoneda;
     }
-
-    $resultado = $this->actualizarDatos($instruccionesBD);
+    $resultado = $this->actualizarDatos2($instruccionesBD);
     if ($resultado == false || $resultado <= 0) {
-      $alertaError = [
+      $this->rollback();
+      return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
         "texto" => "No se realizó ningún cambio en la moneda",
         "icono" => "warning",
       ];
-    } else {
-      $alertaExito = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Moneda actualizada",
-        "texto" => "La moneda ha sido actualizado exitosamente",
-        "icono" => "success",
-      ];
     }
-    if (isset($alertaError)) {
-      $this->rollback();
-      return $alertaError;
-      exit();
-    }
-
-    //Comenzamos la segunda transacción [Insertar el cambio en el historial]
-    if ($valorActualMo != $this->valorMoneda) {
-      $datos_registro_cambio = [
-        [
-          "campo_nombre" => "id_moneda",
-          "campo_marcador" => ":moneda",
-          "campo_valor" => $this->idMoneda
-        ],
-        [
-          "campo_nombre" => "valor_moneda",
-          "campo_marcador" => ":valor",
-          "campo_valor" => $this->valorMoneda,
-          "comaPunto" => true,
-        ],
-        [
-          "campo_nombre" => "fecha_cambio",
-          "campo_marcador" => ":fecha",
-          "campo_valor" => $this->FechaHora_Sel('fecha_hora_BD')
-        ],
-      ];
-      $resultado = $this->guardarDatos('cambios_monedas', $datos_registro_cambio);
-      if ($resultado !== false && $resultado > 0) {
-        $alertaExito = [
-          "tipo" => "limpiarYcerrar",
-          "titulo" => "Valor actualizado",
-          "texto" => "El valor de la moneda ha sido actualizado exitosamente",
-          "icono" => "success",
-        ];
-      } else {
-        $alertaError = [
-          "tipo" => "simple",
-          "titulo" => "Valor no actualizado",
-          "texto" => "El valor de la moneda no se ha podido actualizar",
-          "icono" => "error",
-        ];
-      }
-    }
-
-    if (isset($alertaError)) {
-      $this->rollback();
-      return $alertaError;
-      exit();
-    } else {
-      $this->commit();
-      return $alertaExito;
-      exit();
-    }
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Moneda actualizada",
+      "texto" => "La moneda ha sido actualizado exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function eliminarMonedasP()
-  {
-    $eliminarUsuario = $this->eliminarDatos("monedas", "id_moneda", $this->idMoneda);
-    if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
-
+  private function eliminarMonedasP() {
+    $resultado = $this->eliminarDatos2([
+      'tabla' => "monedas",
+      'WHERE' => [
+        "id_moneda" => $this->idMoneda
+      ]
+    ]);
+    if ($resultado == 1) {
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Moneda eliminada",

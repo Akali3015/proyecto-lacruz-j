@@ -3,6 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -22,6 +24,50 @@ $(document).on('DOMContentLoaded', async function (e) {
     },
     campoIdBtn: 'id_unidad_medida',
     botones: 'CRUD',
+  });
+  driverAyuda('unidadesMedidas', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Unidad de Medida',
+          description: 'Haz clic aquí para agregar una nueva unidad de medida al sistema. Las unidades se utilizan en productos, materias primas y servicios.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Unidades de Medida',
+          description: 'Aquí puedes ver todas las unidades de medida registradas, su símbolo y equivalencia.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Unidad',
+          description: 'Modifica los datos de cualquier unidad de medida haciendo clic en este botón.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Unidad',
+          description: 'Elimina unidades de medida que ya no sean necesarias. Ten cuidado porque puede afectar productos, materias primas y servicios asociados.',
+          side: 'left'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de unidades de medida. Estas se utilizan en productos, materias primas, servicios y presentaciones.',
+          side: 'top'
+        }
+      }
+    ]
   });
 })
 
@@ -59,8 +105,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'unidadesMedidas');
 })
 

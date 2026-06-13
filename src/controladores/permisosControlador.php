@@ -3,36 +3,33 @@
 use src\modelos\permisosModelo;
 use src\config\inc\componentesModelo;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
+
   $accion = $_POST["accion"];
+  $objeto = new permisosModelo();
   ob_clean();
-
-  $accion = $_POST["accion"] ?? '';
-  $idRol = $_POST['id_rol'] ?? '';
-  $idModulo = $_POST['id_modulo'] ?? "";
-  $idPermiso = $_POST['id_permiso'] ?? "";
-  $cambio = $_POST['cambio'] ?? "";
-
-  $modeloPermisos = new permisosModelo();
-
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $modeloPermisos->listarPermisos($idRol);
-      echo json_encode($resultado);
-      exit();
-    case "listarPorRol":
-      $resultado = $modeloPermisos->seleccionarPermisosPorRol();
-      echo json_encode($resultado);
-      exit();
+    case "seleccionarUno": 
+      $resultado = $objeto->seleccionarPermisos($_POST);
+      break;
+    case "registrar":
+      $resultado = $objeto->registrarPermisos($_POST);
+      break;
     case "actualizar":
-      $resultado = $modeloPermisos->actualizarPermisos($idRol, $idModulo, $idPermiso, $cambio);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->actualizarPermisos($_POST);
+      break;
+    case "eliminar":
+      $resultado = $objeto->eliminarPermisos($_POST);
+      break;
   }
-} else {
+  $objeto->DECORE($resultado);
+  exit();
+} elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

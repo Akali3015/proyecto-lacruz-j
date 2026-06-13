@@ -7,10 +7,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
 
   $accion = $_POST['accion'] ?? "";
   $objeto = new productosModelo();
+
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
     case "seleccionarUno":
+    case "listarEcommerce":
+    case "listarPresentaciones":
       $resultado = $objeto->seleccionarProductos($_POST);
       break;
     case "registrar":
@@ -23,14 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
       $resultado = $objeto->eliminarProductos($_POST);
       break;
     case "actualizarFoto":
-      $resultado = $objeto->actualizarFotosProductos($_POST);
+      $resultado = $objeto->actualizarFotPreProd($_POST);
       break;
     case "eliminarFoto":
-      $resultado = $objeto->eliminarFotosProductos($_POST);
+      $resultado = $objeto->eliminarFotPreProd($_POST);
       break;
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
   }
   $objeto->DECORE($resultado);
   exit();

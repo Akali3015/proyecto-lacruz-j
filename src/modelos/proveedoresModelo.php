@@ -4,61 +4,26 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use PDO;
-use PDOException;
-use Exception;
 
-class proveedoresModelo extends conexion
-{
+class proveedoresModelo extends conexion {
+  private string $rifProveedor = '';
+  private string $razonSocialProveedor = '';
+  private string $telefonoProveedor = '';
+  private string $correoProveedor = '';
+  private string $direccionProveedor = '';
 
-  private $rif_proveedor;
-  private $razon_social_proveedor;
-  private $telefono_proveedor;
-  private $correo_proveedor;
-  private $direccion_proveedor;
+  public function validarProveedores(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
 
-  public function seleccionarProveedor($rif = null)
-  {
-
-    $this->rif_proveedor = $rif;
-
-    if ($this->rif_proveedor != null && $this->rif_proveedor != "") {
-      // Arrays para las validaciones
-      $campos = [
-        [
-          "campo_valor" => $this->rif_proveedor,
-          "formulario_nombre" => "RIF",
-          "requerido" => true,
-          "minimo" => minRegexCedulaRifLetra,
-          "maximo" => maxRegexCedulaRifLetra,
-          "expresion_re" => regexCedulaRifLetra
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->seleccionarProveedorP();
-      }
-    } else {
-      return $this->seleccionarProveedorP();
-    }
-  }
-  public function registrarProveedor($rif, $razon, $telefono, $correo, $direccion)
-  {
-    try {
-      $this->rif_proveedor = $rif;
-      $this->razon_social_proveedor = $razon;
-      $this->telefono_proveedor = $telefono;
-      $this->correo_proveedor = $correo;
-      $this->direccion_proveedor = $direccion;
-
-      $campos = [
-        [
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'rif_proveedor' => [
           "campo_nombre" => "rif_proveedor",
-          "campo_valor" => $this->rif_proveedor,
-          "formulario_nombre" => "RIF del proveedor",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "RIF",
           "requerido" => true,
           "minimo" => minRegexCedulaRifLetra,
           "maximo" => maxRegexCedulaRifLetra,
@@ -66,9 +31,21 @@ class proveedoresModelo extends conexion
           "tabla" => "proveedores",
           "debeSerUnico" => true,
         ],
-        [
+        'rif_proveedor_act' => [
+          "campo_nombre" => "rif_proveedor",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "RIF",
+          "requerido" => true,
+          "minimo" => minRegexCedulaRifLetra,
+          "maximo" => maxRegexCedulaRifLetra,
+          "expresion_re" => regexCedulaRifLetra,
+          "tabla" => "proveedores",
+          "debeExistir" => true,
+          "debeSerUnico" => true,
+        ],
+        'razon_social_proveedor' => [
           "campo_nombre" => "razon_social_proveedor",
-          "campo_valor" => $this->razon_social_proveedor,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "razón social del proveedor",
           "requerido" => true,
           "minimo" => minRegexNombreObj,
@@ -77,227 +54,189 @@ class proveedoresModelo extends conexion
           "tabla" => "proveedores",
           "debeSerUnico" => true,
         ],
-        [
+        'telefono_proveedor' => [
           "campo_nombre" => "telefono_proveedor",
-          "campo_valor" => $this->telefono_proveedor,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "teléfono del proveedor",
           "requerido" => true,
           "minimo" => minRegexTelefono,
           "maximo" => maxRegexTelefono,
           "expresion_re" => regexTelefono,
+          "tabla" => 'proveedores',
+          "debeSerUnico" => true,
         ],
-        [
+        'correo_proveedor' => [
           "campo_nombre" => "correo_proveedor",
-          "campo_valor" => $this->correo_proveedor,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "correo electrónico del proveedor",
           "requerido" => true,
           "minimo" => minRegexCorreo,
           "maximo" => maxRegexCorreo,
           "expresion_re" => regexCorreo,
+          "tabla" => 'proveedores',
+          "debeSerUnico" => true,
         ],
-        [
-          "campo_nombre" => "direccion_proveedor",
-          "campo_valor" => $this->direccion_proveedor,
+        'direccion_proveedor' => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "dirección del proveedor",
           "requerido" => true,
           "minimo" => minRegexDescripcion,
           "maximo" => maxRegexDescripcion,
           "expresion_re" => regexDescripcion,
-        ]
+        ],
       ];
-
-
-      $respuesta = $this->limpiar_Verificar($campos);
-
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarProveedoresP();
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $valorForm  => $campoVal) {
+      if (is_numeric($valorForm)) $valorForm = $campoVal;
+      if ($campoVal == 'telefono_proveedor') {
+        if (($infoVal['telefono_proveedor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Telefono vacío',
+            'texto' => 'No puede enviar el formulario sin escribir el telefono',
+            'icono' => 'error'
+          ];
+        }
+        if (($infoVal['prefijo_telefono_proveedor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Telefono vacío',
+            'texto' => 'No puede enviar el formulario sin elegir el prefijo del teléfono',
+            'icono' => 'error'
+          ];
+        }
+        $infoVal['telefono_proveedor'] = $infoVal['prefijo_telefono_proveedor'] . $infoVal['telefono_proveedor'];
+      } elseif ($campoVal == 'rif_proveedor') {
+        if (($infoVal['codigo_rif_proveedor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'RIF vacío',
+            'texto' => 'No puede enviar el formulario sin seleccionar el prefijo del RIF del proveedor',
+            'icono' => 'error'
+          ];
+        }
+        if (($infoVal['rif_proveedor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'RIF vacío',
+            'texto' => 'No puede enviar el formulario sin escribir el RIF del proveedor',
+            'icono' => 'error'
+          ];
+        }
+        $infoVal['rif_proveedor'] = $infoVal['codigo_rif_proveedor'] . $infoVal['rif_proveedor'];
       }
-    } catch (PDOException $e) {
-      error_log("Error: " . $e->getMessage());
-      throw new Exception("Error al registrar el proveedor en la base de datos: " . $e->getMessage());
+      $campos[] = $funcionAsignadora($campoVal, $infoVal[$valorForm]);
     }
+    return $this->limpiar_Verificar($campos);
   }
-  public function actualizarProveedor($rif, $razon, $telefono, $correo, $direccion)
-  {
-    $this->rif_proveedor = $rif;
-    $this->razon_social_proveedor = $razon;
-    $this->telefono_proveedor = $telefono;
-    $this->correo_proveedor = $correo;
-    $this->direccion_proveedor = $direccion;
-    $campos = [
-      [
-        "campo_nombre" => "rif_proveedor",
-        "campo_valor" => $this->rif_proveedor,
-        "formulario_nombre" => "RIF",
-        "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
-        "tabla" => "proveedores",
-        "debeExistir" => true,
-      ],
-      [
-        "campo_nombre" => "razon_social_proveedor",
-        "campo_valor" => $this->razon_social_proveedor,
-        "formulario_nombre" => "razón social del proveedor",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "proveedores",
-        "debeSerUnico" => true,
-      ],
-      [
-        "campo_nombre" => "telefono_proveedor",
-        "campo_valor" => $this->telefono_proveedor,
-        "formulario_nombre" => "teléfono del proveedor",
-        "requerido" => true,
-        "minimo" => minRegexTelefono,
-        "maximo" => maxRegexTelefono,
-        "expresion_re" => regexTelefono,
-      ],
-      [
-        "campo_nombre" => "correo_proveedor",
-        "campo_valor" => $this->correo_proveedor,
-        "formulario_nombre" => "correo electrónico del proveedor",
-        "requerido" => true,
-        "minimo" => minRegexCorreo,
-        "maximo" => maxRegexCorreo,
-        "expresion_re" => regexCorreo,
-      ],
-      [
-        "campo_nombre" => "direccion_proveedor",
-        "campo_valor" => $this->direccion_proveedor,
-        "formulario_nombre" => "dirección del proveedor",
-        "requerido" => true,
-        "minimo" => minRegexDescripcion,
-        "maximo" => maxRegexDescripcion,
-        "expresion_re" => regexDescripcion,
-      ],
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarProveedoresP();
+  public function seleccionarProveedores(array $info) {
+    if (($info['rif_proveedor'] ?? '') != "") {
+      $resultado = $this->validarProveedores([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'rif_proveedor_act' => 'rif_proveedor',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->rifProveedor = $info['rif_proveedor'];
     }
+    return $this->seleccionarProveedoresP();
   }
-  public function eliminarProveedor($rif)
-  {
-    $this->rif_proveedor = $rif;
+  public function registrarProveedores(array $info) {
+    $resultado = $this->validarProveedores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'rif_proveedor',
+        'razon_social_proveedor',
+        'telefono_proveedor',
+        'correo_proveedor',
+        'direccion_proveedor',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    $campos = [
-      [
-        "campo_nombre" => "rif_proveedor",
-        "campo_valor" => $this->rif_proveedor,
-        "formulario_nombre" => "RIF del proveedor",
-        "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
-        "tabla" => "proveedores",
-        "debeExistir" => true,
-        "camposDiferentes" => 1
-      ]
-    ];
+    $this->rifProveedor = $info['rif_proveedor'];
+    $this->razonSocialProveedor = $info['razon_social_proveedor'];
+    $this->telefonoProveedor = $info['telefono_proveedor'];
+    $this->correoProveedor = $info['correo_proveedor'];
+    $this->direccionProveedor = $info['direccion_proveedor'];
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarProveedorP();
-    }
+    return $this->registrarProveedoresP();
+  }
+  public function actualizarProveedores(array $info) {
+    $resultado = $this->validarProveedores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'rif_proveedor' => 'rif_proveedor_act',
+        'razon_social_proveedor',
+        'telefono_proveedor',
+        'correo_proveedor',
+        'direccion_proveedor',
+      ],
+    ]);
+
+    if ($resultado) return $resultado;
+    $this->rifProveedor = $info['rif_proveedor'];
+    $this->razonSocialProveedor = $info['razon_social_proveedor'];
+    $this->telefonoProveedor = $info['telefono_proveedor'];
+    $this->correoProveedor = $info['correo_proveedor'];
+    $this->direccionProveedor = $info['direccion_proveedor'];
+
+    return $this->actualizarProveedoresP();
+  }
+  public function eliminarProveedores(array $info) {
+    $resultado = $this->validarProveedores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'rif_proveedor_act' => 'rif_proveedor',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->rifProveedor = $info['rif_proveedor'];
+
+    return $this->eliminarProveedoresP();
   }
 
   // PRIVADOS
-  private function seleccionarProveedorP()
-  {
-    if ($this->rif_proveedor == null || $this->rif_proveedor == "") {
-      $instruccionesBD = [
-        'campos' => 'rif_proveedor, razon_social_proveedor, telefono_proveedor, correo_proveedor, direccion_proveedor',
+  private function seleccionarProveedoresP() {
+    if ($this->rifProveedor == null || $this->rifProveedor == "") {
+      $resultado = $this->seleccionarDatos2([
+        'campos' => '
+          rif_proveedor, razon_social_proveedor, 
+          telefono_proveedor, correo_proveedor, direccion_proveedor
+        ',
         'tabla' => 'proveedores',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      $proveedor = $resultado->fetchAll(PDO::FETCH_ASSOC);
-      return $proveedor;
+      ]);
+      return $resultado->fetchAll();
     } else {
-
-      $instruccionesBD = [
-        'campos' => 'rif_proveedor, razon_social_proveedor, telefono_proveedor, correo_proveedor, direccion_proveedor',
+      return $this->seleccionarDatos2([
+        'campos' => '
+          rif_proveedor, razon_social_proveedor, 
+          telefono_proveedor, correo_proveedor, direccion_proveedor
+        ',
         'tabla' => 'proveedores',
         'WHERE' => [
-          [
-            "condicion_campo" => "rif_proveedor",
-            "condicion_marcador" => ":RIF",
-            "condicion_valor" => $this->rif_proveedor,
-            "comparacion" => "="
-          ]
+          "rif_proveedor" => $this->rifProveedor,
         ]
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Proveedor no encontrado",
-          "texto" => "El proveedor que ha intentado buscar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
-        exit();
-      } else {
-        $resultado = $resultado->fetch(PDO::FETCH_ASSOC);
-        $codigoRif = preg_replace('/[0-9]/', '', $resultado['rif_proveedor']);
-        $rif = preg_replace('/[a-zA-Z]/', '', $resultado['rif_proveedor']);
-        $resultado['codigo_rif_proveedor'] = $codigoRif;
-        $resultado['rif_proveedor'] = $rif;
-      }
-      return $resultado;
+      ])->fetch();
     }
   }
-  private function registrarProveedoresP()
-  {
-    $datos_registro_proveedor = [
-      [
-        "campo_nombre" => "rif_proveedor",
-        "campo_marcador" => ":rif_proveedor",
-        "campo_valor" => $this->rif_proveedor
+  private function registrarProveedoresP() {
+    $ultimoID = $this->guardarDatos2([
+      'tabla' => 'proveedores',
+      'datos' => [
+        "rif_proveedor" => $this->rifProveedor,
+        "razon_social_proveedor" => $this->razonSocialProveedor,
+        "telefono_proveedor" => $this->telefonoProveedor,
+        "correo_proveedor" => $this->correoProveedor,
+        "direccion_proveedor" => $this->direccionProveedor
       ],
-      [
-        "campo_nombre" => "razon_social_proveedor",
-        "campo_marcador" => ":razon_social",
-        "campo_valor" => $this->razon_social_proveedor,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "telefono_proveedor",
-        "campo_marcador" => ":telefono",
-        "campo_valor" => $this->telefono_proveedor
-      ],
-      [
-        "campo_nombre" => "correo_proveedor",
-        "campo_marcador" => ":correo",
-        "campo_valor" => $this->correo_proveedor
-      ],
-      [
-        "campo_nombre" => "direccion_proveedor",
-        "campo_marcador" => ":direccion",
-        "campo_valor" => $this->direccion_proveedor
-      ],
-    ];
-
-    $condicion = [
-      "condicion_campo" => "rif_proveedor",
-      "condicion_marcador" => ":rif_proveedor",
-      "condicion_valor" => $this->rif_proveedor
-    ];
-
-    $ultimoID = $this->guardarDatos('proveedores', $datos_registro_proveedor, $condicion);
+      'WHERE' => [
+        "rif_proveedor" => $this->rifProveedor
+      ]
+    ]);
 
     if ($ultimoID !== false && $ultimoID > 0) {
       $alerta = [
@@ -317,67 +256,59 @@ class proveedoresModelo extends conexion
     }
     return $alerta;
   }
-  private function actualizarProveedoresP()
-  {
-    $instruccionesBD = [
+  private function actualizarProveedoresP() {
+    $resultado = $this->seleccionarDatos2([
       "campos" => "rif_proveedor",
       "tabla" => "proveedores",
       'WHERE' => [
-        [
-          "condicion_campo" => "rif_proveedor",
-          "condicion_marcador" => ":rif_proveedor",
-          "condicion_valor" => $this->rif_proveedor,
-          "comparacion" => "="
-        ]
+        "rif_proveedor" => $this->rifProveedor,
       ]
-    ];
-    $resultado = $this->seleccionarDatos($instruccionesBD);
-    $proveedoresExistente = $resultado->fetch(PDO::FETCH_ASSOC);
+    ]);
+    $proveedoresExistente = $resultado->fetch();
 
-    if ($this->rif_proveedor == '') {
-      $this->rif_proveedor = $proveedoresExistente['rif_proveedor'];
+    if ($this->rifProveedor == '') {
+      $this->rifProveedor = $proveedoresExistente['rif_proveedor'];
     }
-    $instruccionesBD = [
+
+    $resultado = $this->actualizarDatos2([
       "tabla" => "proveedores",
       "datos" => [
         [
           "campo_nombre" => "rif_proveedor",
           "campo_marcador" => ":RIF",
-          "campo_valor" => $this->rif_proveedor
+          "campo_valor" => $this->rifProveedor
         ],
         [
           "campo_nombre" => "razon_social_proveedor",
           "campo_marcador" => ":razon_social",
-          "campo_valor" => $this->razon_social_proveedor,
+          "campo_valor" => $this->razonSocialProveedor,
           "ponerEnMayusculas" => true
         ],
         [
           "campo_nombre" => "telefono_proveedor",
           "campo_marcador" => ":telefono",
-          "campo_valor" => $this->telefono_proveedor
+          "campo_valor" => $this->telefonoProveedor
         ],
         [
           "campo_nombre" => "correo_proveedor",
           "campo_marcador" => ":correo",
-          "campo_valor" => $this->correo_proveedor
+          "campo_valor" => $this->correoProveedor
         ],
         [
           "campo_nombre" => "direccion_proveedor",
           "campo_marcador" => ":direccion",
-          "campo_valor" => $this->direccion_proveedor
+          "campo_valor" => $this->direccionProveedor
         ]
       ],
       "WHERE" => [
         [
           "condicion_campo" => "rif_proveedor",
           "condicion_marcador" => ":rif_proveedor",
-          "condicion_valor" => $this->rif_proveedor,
+          "condicion_valor" => $this->rifProveedor,
           "comparacion" => "="
         ]
       ]
-    ];
-
-    $resultado = $this->actualizarDatos($instruccionesBD);
+    ]);
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
         "tipo" => "simple",
@@ -396,10 +327,14 @@ class proveedoresModelo extends conexion
     }
     return $alerta;
   }
-  private function eliminarProveedorP()
-  {
-    $eliminarProveedor = $this->eliminarDatos('proveedores', 'rif_proveedor', $this->rif_proveedor);
-    if ($eliminarProveedor->rowCount() == 1) {
+  private function eliminarProveedoresP() {
+    $eliminarProveedor = $this->eliminarDatos2([
+      'tabla' => 'proveedores',
+      'WHERE' => [
+        'rif_proveedor' => $this->rifProveedor
+      ]
+    ]);
+    if ($eliminarProveedor == 1) {
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Proveedor eliminado",

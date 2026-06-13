@@ -28,7 +28,7 @@ echo $componente->listaDataTable($instruccionesLista);
 
             <div class="col-12 mb-3">
               <label class="form-label">Nombre de la Categoría</label>
-              <input type="text" class="form-control text-uppercase noRepetir" name="nombre_categoria"
+              <input type="text" class="form-control text-uppercase noRepetir" name="nombre_categoria_producto"
                 pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$"
                 minlength="3"
                 maxlength="50"
@@ -77,7 +77,7 @@ echo $componente->listaDataTable($instruccionesLista);
 
             <div class="col-12 mb-3">
               <label class="form-label">Nombre de la Categoría</label>
-              <input type="text" class="form-control text-uppercase noRepetir formularioActualizar" name="nombre_categoria"
+              <input type="text" class="form-control text-uppercase noRepetir formularioActualizar" name="nombre_categoria_producto"
                 pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$"
                 minlength="3"
                 maxlength="50"

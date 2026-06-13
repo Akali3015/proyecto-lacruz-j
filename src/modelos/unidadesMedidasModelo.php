@@ -4,311 +4,190 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use PDO;
-use PDOException;
-use Exception;
 
-class unidadesMedidasModelo extends conexion
-{
+class unidadesMedidasModelo extends conexion {
 
-  private $idUnidadMedida;
-  private $nombreUnidadMedida;
-  private $simboloUnidadMedida;
-  private $equivalenciaUB;
+  private int $idUnidadMedida = 0;
+  private string $nombreUnidadMedida = '';
+  private string $simboloUnidadMedida = '';
+  private float $equivalenciaUB = 0;
 
-  public function seleccionarUnidadesMedidas($id = null)
-  {
-    $this->idUnidadMedida = $id;
-
-    if ($this->idUnidadMedida != null && $this->idUnidadMedida != "") {
-      //Arrays para las validaciones
-      $campos = [
-        [
-          "campo_nombre" => 'id_unidad_medida',
-          "campo_valor" => $this->idUnidadMedida,
+  public function validarUnidadesMedidas(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        "id_unidad_medida" => [
+          "campo_nombre" => "id_unidad_medida",
+          "campo_valor" => &$valor,
           "formulario_nombre" => "id de la unidad de medida",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
-          "tabla" => 'unidades_medidas',
-          "debeExistir" => true
-        ]
+          "tabla" => "unidades_medidas",
+          "debeExistir" => true,
+          "debeSerUnico" => true
+        ],
+        "nombre_unidad_medida" => [
+          "campo_nombre" => "nombre_unidad_medida",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "nombre de la unidad de medida",
+          "requerido" => true,
+          "minimo" => minRegexNombreObj,
+          "maximo" => maxRegexNombreObj,
+          "expresion_re" => regexNombreObj,
+          "tabla" => "unidades_medidas",
+          "debeSerUnico" => true
+        ],
+        "simbolo_unidad_medida" => [
+          "campo_nombre" => "simbolo_unidad_medida",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "simbolo de la unidad de medida",
+          "requerido" => true,
+          "minimo" => minRegexSimboloMoneda,
+          "maximo" => maxRegexSimboloMoneda,
+          "expresion_re" => regexSimboloMoneda,
+          "tabla" => "unidades_medidas",
+          "debeSerUnico" => true,
+        ],
+        "equivalencia_ub" => [
+          "campo_nombre" => "equivalencia_ub",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "equivalencia de la unidad base",
+          "requerido" => true,
+          "minimo" => minRegexPrecio,
+          "maximo" => maxRegexPrecio,
+          "expresion_re" => regexPrecio,
+          "tabla" => "unidades_medidas",
+        ],
       ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->seleccionarUnidadesMedidasP();
-      }
-    } else {
-      return $this->seleccionarUnidadesMedidasP();
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
+    return $this->limpiar_Verificar($campos);
   }
-  public function registrarUnidadesMedidas($nombre, $simbolo, $equivalenciaUB)
-  {
-
-    $this->nombreUnidadMedida = $nombre;
-    $this->simboloUnidadMedida = $simbolo;
-    $this->equivalenciaUB = $equivalenciaUB;
-
-    $campos = [
-      [
-        "campo_nombre" => "nombre_unidad_medida",
-        "campo_valor" => $this->nombreUnidadMedida,
-        "formulario_nombre" => "nombre de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "unidades_medidas",
-        "debeSerUnico" => true,
-      ],
-      [ 
-        "campo_nombre" => "simbolo_unidad_medida",
-        "campo_valor" => $this->simboloUnidadMedida,
-        "formulario_nombre" => "simbolo de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexSimboloMoneda,
-        "maximo" => maxRegexSimboloMoneda,
-        "expresion_re" => regexSimboloMoneda,
-        "tabla" => "unidades_medidas",
-        "debeSerUnico" => true,
-      ],
-      [
-        "campo_valor" => $this->equivalenciaUB,
-        "formulario_nombre" => "equivalencia de la unidad base",
-        "requerido" => true,
-        "minimo" => minRegexEnteroGrande,
-        "maximo" => maxRegexEnteroGrande,
-        "expresion_re" => regexEnteroGrande,
-      ],
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->registrarUnidadesMedidasP();
+  public function seleccionarUnidadesMedidas(array $info) {
+    if (($info['id_unidad_medida'] ?? '') != '') {
+      $resultado = $this->validarUnidadesMedidas([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_unidad_medida',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idUnidadMedida = $info['id_unidad_medida'];
     }
+    return $this->seleccionarUnidadesMedidasP();
   }
-  public function actualizarUnidadesMedidas($id, $nombre, $simbolo, $equivalenciaUB)
-  {
-    $this->idUnidadMedida = $id;
-    $this->nombreUnidadMedida = $nombre;
-    $this->simboloUnidadMedida = $simbolo;
-    $this->equivalenciaUB = $equivalenciaUB;
-    $this->equivalenciaUB = $equivalenciaUB;
+  public function registrarUnidadesMedidas(array $info) {
+    $resultado = $this->validarUnidadesMedidas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'nombre_unidad_medida',
+        'simbolo_unidad_medida',
+        'equivalencia_ub',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    //Arrays para las validaciones
-    $campos = [
-      [
-        "campo_nombre" => "id_unidad_medida",
-        "campo_valor" => $this->idUnidadMedida,
-        "formulario_nombre" => "id de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "unidades_medidas",
-        "debeExistir" => true,
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "nombre_unidad_medida",
-        "campo_valor" => $this->nombreUnidadMedida,
-        "formulario_nombre" => "nombre de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "unidades_medidas",
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "simbolo_unidad_medida",
-        "campo_valor" => $this->simboloUnidadMedida,
-        "formulario_nombre" => "simbolo de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexSimboloMoneda,
-        "maximo" => maxRegexSimboloMoneda,
-        "expresion_re" => regexSimboloMoneda,
-        "tabla" => "unidades_medidas",
-        "debeSerUnico" => true,
-      ],
-      [
-        "campo_nombre" => "equivalencia_ub",
-        "campo_valor" => $this->equivalenciaUB,
-        "formulario_nombre" => "equivalencia de la unidad base",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
-        "tabla" => "unidades_medidas",
-      ],
-    ];
+    $this->nombreUnidadMedida = $info['nombre_unidad_medida'];
+    $this->simboloUnidadMedida = $info['simbolo_unidad_medida'];
+    $this->equivalenciaUB = $info['equivalencia_ub'];
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarUnidadesMedidasP();
-    }
+
+    return $this->registrarUnidadesMedidasP();
   }
-  public function eliminarUnidadesMedidas($id)
-  {
-    $this->idUnidadMedida = $id;
+  public function actualizarUnidadesMedidas(array $info) {
+    $resultado = $this->validarUnidadesMedidas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_unidad_medida',
+        'nombre_unidad_medida',
+        'simbolo_unidad_medida',
+        'equivalencia_ub',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    //Arrays para las validaciones
-    $campos = [
-      [
-        "campo_nombre" => "id_unidad_medida",
-        "campo_valor" => $this->idUnidadMedida,
-        "formulario_nombre" => "id de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "debeExistir" => true,
-        "camposDiferentes" => 1,
-        "tabla" => "unidades_medidas"
-      ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarUnidadesMedidasP();
-    }
+    $this->idUnidadMedida = $info['id_unidad_medida'];
+    $this->nombreUnidadMedida = $info['nombre_unidad_medida'];
+    $this->simboloUnidadMedida = $info['simbolo_unidad_medida'];
+    $this->equivalenciaUB = $info['equivalencia_ub'];
+    return $this->actualizarUnidadesMedidasP();
+  }
+  public function eliminarUnidadesMedidas(array $info) {
+    $resultado = $this->validarUnidadesMedidas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_unidad_medida',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idUnidadMedida = $info['id_unidad_medida'];
+    return $this->eliminarUnidadesMedidasP();
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarUnidadesMedidasP()
-  {
+  private function seleccionarUnidadesMedidasP() {
     if ($this->idUnidadMedida == null || $this->idUnidadMedida == "") {
-      $instruccionesBD = [
+      return $this->seleccionarDatos2([
         'campos' => '*',
-        'tabla' => 'unidades_medidas',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      $unidadesMedidas = $resultado->fetchAll(PDO::FETCH_ASSOC);
-      return $unidadesMedidas;
+        'tabla' => 'v_unidades_medidas_todas',
+      ])->fetchAll();
     } else {
-
-        /*Hacemos la consulta */;
-      $instruccionesBD = [
+      return $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'unidades_medidas',
         'WHERE' => [
-          [
-            "condicion_campo" => "id_unidad_medida",
-            "condicion_marcador" => ":ID",
-            "condicion_valor" => $this->idUnidadMedida,
-            "comparacion" => "="
-          ]
+          "id_unidad_medida" => $this->idUnidadMedida,
         ]
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Unidad de medida no encontrada",
-          "texto" => "La unidad de medida que ha intentado buscar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
-        exit();
-      } else {
-        $unidadMedida = $resultado->fetch(PDO::FETCH_ASSOC);
-      }
-      return $unidadMedida;
+      ])->fetch(PDO::FETCH_ASSOC);
     }
   }
-  private function registrarUnidadesMedidasP()
-  {
-    $datos_registro_unidades_medidas = [
-      [
-        "campo_nombre" => "nombre_unidad_medida",
-        "campo_marcador" => ":Nombre",
-        "campo_valor" => $this->nombreUnidadMedida,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "simbolo_unidad_medida",
-        "campo_marcador" => ":simbolo",
-        "campo_valor" => $this->simboloUnidadMedida,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "equivalencia_ub",
-        "campo_marcador" => ":equivalencia",
-        "campo_valor" => $this->equivalenciaUB,
-      ],
-    ];
-
-    $ultimoId = $this->guardarDatos('unidades_medidas', $datos_registro_unidades_medidas);
-    if ($ultimoId !== false && $ultimoId > 0) {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Unidad de medida registrada",
-        "texto" => "El Unidad de medida ha sido registrada exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
+  private function registrarUnidadesMedidasP() {
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'unidades_medidas',
+      'datos' => [
+        "nombre_unidad_medida" => $this->nombreUnidadMedida,
+        "simbolo_unidad_medida" => $this->simboloUnidadMedida,
+        "equivalencia_ub" => $this->equivalenciaUB,
+      ]
+    ]);
+    if ($ultimoId == false || $ultimoId <= 0) {
+      $this->rollback();
+      return [
         "tipo" => "simple",
         "titulo" => "Unidad de medida no registrada",
         "texto" => "El unidad de medida no ha sido registrada exitosamente",
         "icono" => "error",
       ];
     }
-    return $alerta;
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Unidad de medida registrada",
+      "texto" => "El Unidad de medida ha sido registrada exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function actualizarUnidadesMedidasP()
-  {
-
-    $instruccionesBD = [
+  private function actualizarUnidadesMedidasP() {
+    $resultado = $this->actualizarDatos2([
       "tabla" => "unidades_medidas",
       "datos" => [
-        [
-          "campo_nombre" => "nombre_unidad_medida",
-          "campo_marcador" => ":Nombre",
-          "campo_valor" => $this->nombreUnidadMedida,
-          "ponerEnMayusculas" => true
-        ],
-        [
-          "campo_nombre" => "simbolo_unidad_medida",
-          "campo_marcador" => ":simbolo",
-          "campo_valor" => $this->simboloUnidadMedida,
-          "ponerEnMayusculas" => true
-        ],
-        [
-          "campo_nombre" => "equivalencia_ub",
-          "campo_marcador" => ":equivalencia",
-          "campo_valor" => $this->equivalenciaUB,
-        ],
-        [
-          "campo_nombre" => "equivalencia_ub",
-          "campo_marcador" => ":equivalencia",
-          "campo_valor" => $this->equivalenciaUB,
-        ],
+        "nombre_unidad_medida" => $this->nombreUnidadMedida,
+        "simbolo_unidad_medida" => $this->simboloUnidadMedida,
+        "equivalencia_ub" => $this->equivalenciaUB,
       ],
       "WHERE" => [
-        [
-          "condicion_campo" => "id_unidad_medida",
-          "condicion_marcador" => ":id",
-          "condicion_valor" => $this->idUnidadMedida,
-          "comparacion" => "="
-        ]
+        "id_unidad_medida" => $this->idUnidadMedida,
       ]
-    ];
-    $resultado = $this->actualizarDatos($instruccionesBD);
+    ]);
 
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
@@ -328,11 +207,14 @@ class unidadesMedidasModelo extends conexion
     }
     return $alerta;
   }
-  private function eliminarUnidadesMedidasP()
-  {
-    $eliminarUsuario = $this->eliminarDatos("unidades_medidas", "id_unidad_medida", $this->idUnidadMedida);
-    if ($eliminarUsuario->rowCount() == 1) { /*Para verificar si se hizo la eliminación o no */
-
+  private function eliminarUnidadesMedidasP() {
+    $eliminarUsuario = $this->eliminarDatos2([
+      'tabla' => "unidades_medidas",
+      'WHERE' => [
+        "id_unidad_medida" => $this->idUnidadMedida
+      ]
+    ]);
+    if ($eliminarUsuario == 1) {
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Unidad de medida eliminada",

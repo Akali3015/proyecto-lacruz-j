@@ -6,39 +6,39 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $codigoRifCedula = $_POST['codigo_rif_cedula_cliente'] ?? "";
-  $rifCedulaCliente = $_POST['rif_cedula_cliente'] ?? "";
-  $rifCedulaCompleto = $codigoRifCedula . $rifCedulaCliente;
-  $razon = $_POST['razon_social_cliente'] ?? "";
-  $telefono = $_POST['telefono_cliente'] ?? "";
-  $correo = $_POST['correo_cliente'] ?? "";
-  $direccion = $_POST['direccion_cliente'] ?? "";
 
   $objeto = new clientesModelo();
   ob_clean();
+  $resultado=[
+    'icono'=>'error',
+    'titulo'=>'Acción no reconocida'
+  ];
   switch ($accion) {
     case 'listar':
-      $resultado = $objeto->seleccionarCliente();
+      $resultado = $objeto->seleccionarClientes($_POST);
       echo json_encode($resultado);
       exit();
     case 'seleccionarUno':
-      $resultado = $objeto->seleccionarCliente($rifCedulaCompleto);
+      $resultado = $objeto->seleccionarClientes($_POST);
       echo json_encode($resultado);
       exit();
     case 'registrar':
-      $resultado = $objeto->registrarCliente($rifCedulaCompleto, $razon, $telefono, $correo, $direccion);
+      $resultado = $objeto->registrarClientes($_POST);
       echo json_encode($resultado);
       exit();
     case 'actualizar':
-      $resultado = $objeto->actualizarCliente($rifCedulaCompleto, $razon, $telefono, $correo, $direccion);
+      $resultado = $objeto->actualizarClientes($_POST);
       echo json_encode($resultado);
       exit();
     case 'eliminar':
-      $resultado = $objeto->eliminarCliente($rifCedulaCompleto);
+      $resultado = $objeto->eliminarClientes($_POST);
       echo json_encode($resultado);
       exit();
     default:
-      echo json_encode(["error" => "Acción no reconocida"]);
+      $modeloCambiosIva->DECORE([
+        'icono' => 'error',
+        'titulo' => 'Acción no reconocida'
+      ]);
       exit();
   }
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {

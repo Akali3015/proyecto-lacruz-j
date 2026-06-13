@@ -1,0 +1,176 @@
+/* ============================
+   Sección: Productos del Servicio
+   ============================ */
+
+.serv-productos-card {
+  border: 1px solid rgba(78, 84, 200, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.serv-productos-card:hover {
+  box-shadow: 0 4px 20px rgba(78, 84, 200, 0.12);
+}
+
+.serv-productos-header {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.serv-productos-header .serv-header-title {
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.serv-productos-header .serv-header-title i {
+  font-size: 1.1rem;
+}
+.serv-productos-header .serv-badge-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.serv-productos-body {
+  padding: 16px;
+  background: #f8f9fc;
+}
+
+/* Tabla de productos */
+.serv-productos-body .table {
+  margin-bottom: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.serv-productos-body .table thead th {
+  background: #eef0f8;
+  color: #4e54c8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  padding: 10px 14px;
+}
+.serv-productos-body .table tbody tr {
+  transition: background-color 0.2s ease;
+}
+.serv-productos-body .table tbody tr:hover {
+  background-color: #eef0fa;
+}
+.serv-productos-body .table tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+  border-color: #e8eaf6;
+  font-size: 0.88rem;
+}
+
+/* Icono del producto en la fila */
+.serv-prod-nombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.serv-prod-nombre .serv-prod-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.serv-prod-nombre .serv-prod-icon i {
+  color: #4e54c8;
+  font-size: 0.9rem;
+}
+
+/* Input de cantidad estilizado */
+.serv-productos-body .input-cantidad-producto {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  text-align: center;
+  font-weight: 600;
+  max-width: 110px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.serv-productos-body .input-cantidad-producto:focus {
+  border-color: #4e54c8;
+  box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+}
+
+/* Botón eliminar */
+.serv-btn-eliminar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #dc3545;
+  transition: all 0.2s ease;
+}
+.serv-btn-eliminar:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+  transform: scale(1.05);
+}
+
+/* Estado vacío */
+.serv-empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: #9ca3af;
+}
+.serv-empty-state i {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+.serv-empty-state p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+/* Botón agregar producto */
+.serv-btn-agregar {
+  width: 100%;
+  border: 2px dashed rgba(78, 84, 200, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  color: #4e54c8;
+  font-weight: 600;
+  font-size: 0.88rem;
+  background: transparent;
+  transition: all 0.25s ease;
+  margin-top: 12px;
+}
+.serv-btn-agregar:hover {
+  background: rgba(78, 84, 200, 0.06);
+  border-color: #4e54c8;
+  color: #4e54c8;
+  transform: translateY(-1px);
+}
+
+/* Oscurecer modal padre cuando se abre un modal hijo encima */
+.fact-modal-dimmed .modal-content {
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}

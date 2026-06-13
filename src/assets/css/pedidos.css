@@ -36,9 +36,6 @@
 
 /* Contenedor principal de la tabla para que parezca una lista limpia */
 .listarItemsPedido {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
@@ -73,7 +70,7 @@
 }
 
 .listarItemsPedido .precio_usd {
-  color: #b48600;
+  color: #00ff37;
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -84,4 +81,6 @@
   object-fit: cover;
   border-radius: 0.5rem;
   background-color: #f3f4f6;
+  flex: none;
+  flex-shrink: 0;
 }

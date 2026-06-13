@@ -5,215 +5,292 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use PDO;
 
-class metodosPagoModelo extends conexion
-{
-  private $idMetodo;
-  private $nombre;
-  private $nMoneda;
-  private $nBancoEmi;
-  private $nBancoRec;
-  private $nReferencia;
+class metodosPagoModelo extends conexion {
+  private int $idMetodoPago = 0;
+  private string $nombreMetodoPago = '';
+  private int $necesitaMoneda = 0;
+  private int $necesitaBancoEmisor = 0;
+  private int $necesitaBancoReceptor = 0;
+  private int $necesitaReferencia = 0;
+  private int $mostrarEcommerce = 0;
 
-  public function seleccionarMetodosPagos($id = null)
-  {
-    $this->idMetodo = $id;
-    if ($this->idMetodo != null && $this->idMetodo != "") {
-      $campos = [
-        ["campo_nombre" => 'id_metodo_pago', "campo_valor" => $this->idMetodo, "formulario_nombre" => "ID", "requerido" => true, "expresion_re" => regexId, "tabla" => 'metodos_pagos', "debeExistir" => true]
+  public function validarMetodosPagos(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'id_metodo_pago' => [
+          "campo_nombre" => "id_metodo_pago",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "ID",
+          "minimo" => minRegexId,
+          "maximo" => maxRegexId,
+          "expresion_re" => regexId,
+          "tabla" => "metodos_pagos",
+          "requerido" => true,
+          "debeSerUnico" => true,
+          "debeExistir" => true,
+        ],
+        "nombre_metodo_pago" => [
+          "campo_nombre" => "nombre_metodo_pago",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "nombre",
+          "requerido" => true,
+          "minimo" => minRegexNombreObj,
+          "maximo" => maxRegexNombreObj,
+          "expresion_re" => regexNombreObj,
+          "tabla" => "metodos_pagos",
+          "debeSerUnico" => true
+        ],
+        "necesita_moneda" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "si necesita moneda",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ],
+        "necesita_banco_emisor" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "si necesita banco emisor",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ],
+        "necesita_banco_receptor" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "si necesita banco receptor",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ],
+        "necesita_referencia" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "si necesita referencia",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ],
+        "mostrar_ecommerce" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "si necesita referencia",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ]
       ];
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) return $respuesta;
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      switch ($campo) {
+        case 'presentaciones':
+          if (($infoVal['presentaciones'] ?? []) == []) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Sin presentaciones',
+              'texto' => 'No has enviado las presentaciones de la materia prima',
+              'icono' => 'warning',
+            ];
+          }
+          foreach ($infoVal['presentaciones'] as &$pre) {
+            $campos[] = $funcionAsignadora('id_presentacion', $pre);
+          }
+          unset($idPre);
+          break;
+        case 'necesita_banco_emisor':
+        case 'necesita_banco_receptor':
+        case 'necesita_moneda':
+        case 'necesita_referencia':
+        case 'mostrar_ecommerce':
+          $infoVal[$campo] = $infoVal[$campo] ?? 0;
+          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
+          break;
+        default:
+          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
+          break;
+      }
     }
-    return $this->seleccionarMetodosPagosP();
+    return $this->limpiar_Verificar($campos);
   }
+  public function seleccionarMetodosPagos(array $info) {
 
-  public function registrarMetodosPagos($datos)
-  {
-    $this->idMetodo = $datos['id_metodo_pago'];
-    $this->nombre = $datos['nombre_metodo_pago'];
-    $this->nMoneda = $datos['necesita_moneda'] ?? 0;
-    $this->nBancoEmi = $datos['necesita_banco_emisor'] ?? 0;
-    $this->nBancoRec = $datos['necesita_banco_receptor'] ?? 0;
-    $this->nReferencia = $datos['necesita_referencia'] ?? 0;
+    if (($info['id_metodo_pago'] ?? '') != '') {
+      $resultado = $this->validarMetodosPagos([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_metodo_pago',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idMetodoPago = $info['id_metodo_pago'];
+    }
+    return $this->seleccionarMetodosPagosP($info);
+  }
+  public function registrarMetodosPagos(array $info) {
+    $resultado = $this->validarMetodosPagos([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'nombre_metodo_pago',
+        'necesita_moneda',
+        'necesita_banco_emisor',
+        'necesita_banco_receptor',
+        'necesita_referencia',
+        'mostrar_ecommerce'
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    $campos = [
-      [
-        "campo_nombre" => "id_metodo_pago",
-        "campo_valor" => &$this->idMetodo,
-        "formulario_nombre" => "ID",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "metodos_pagos",
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "nombre_metodo_pago",
-        "campo_valor" => &$this->nombre,
-        "formulario_nombre" => "nombre",
-        "requerido" => true,
-        "minimo" => 3,
-        "maximo" => 50,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "metodos_pagos",
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "necesita_moneda",
-        "campo_valor" => &$this->nMoneda,
-        "formulario_nombre" => "especificar moneda"
-      ],
-      [
-        "campo_nombre" => "necesita_banco_emisor",
-        "campo_valor" => &$this->nBancoEmi,
-        "formulario_nombre" => "banco emisor"
-      ],
-      [
-        "campo_nombre" => "necesita_banco_receptor",
-        "campo_valor" => &$this->nBancoRec,
-        "formulario_nombre" => "banco receptor"
-      ],
-      [
-        "campo_nombre" => "necesita_referencia",
-        "campo_valor" => &$this->nReferencia,
-        "formulario_nombre" => "número de referencia"
-      ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) return $respuesta;
+    $this->nombreMetodoPago = $info['nombre_metodo_pago'];
+    $this->necesitaMoneda = $info['necesita_moneda'];
+    $this->necesitaBancoEmisor = $info['necesita_banco_emisor'];
+    $this->necesitaBancoReceptor = $info['necesita_banco_receptor'];;
+    $this->necesitaReferencia = $info['necesita_referencia'];
+    $this->mostrarEcommerce = $info['mostrar_ecommerce'];
 
     return $this->registrarMetodosPagosP();
   }
+  public function actualizarMetodosPagos(array $info) {
+    $resultado = $this->validarMetodosPagos([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_metodo_pago',
+        'nombre_metodo_pago',
+        'necesita_moneda',
+        'necesita_banco_emisor',
+        'necesita_banco_receptor',
+        'necesita_referencia',
+        'mostrar_ecommerce'
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-  public function actualizarMetodosPagos($id, $datos)
-  {
-    $this->idMetodo = $id;
-    $this->nombre = $datos['nombre_metodo_pago'];
-    $this->nMoneda = $datos['necesita_moneda'] ?? 0;
-    $this->nBancoEmi = $datos['necesita_banco_emisor'] ?? 0;
-    $this->nBancoRec = $datos['necesita_banco_receptor'] ?? 0;
-    $this->nReferencia = $datos['necesita_referencia'] ?? 0;
+    $this->idMetodoPago = $info['id_metodo_pago'];
+    $this->nombreMetodoPago = $info['nombre_metodo_pago'];
+    $this->necesitaMoneda = $info['necesita_moneda'];
+    $this->necesitaBancoEmisor = $info['necesita_banco_emisor'];
+    $this->necesitaBancoReceptor = $info['necesita_banco_receptor'];;
+    $this->necesitaReferencia = $info['necesita_referencia'];
+    $this->mostrarEcommerce = $info['mostrar_ecommerce'];
 
-    $campos = [
-      [
-        "campo_nombre" => "id_metodo_pago",
-        "campo_valor" => &$this->idMetodo,
-        "formulario_nombre" => "ID",
-        "requerido" => true,
-        "debeExistir" => true,
-        "tabla" => "metodos_pagos"
-      ],
-      [
-        "campo_nombre" => "nombre_metodo_pago",
-        "campo_valor" => &$this->nombre,
-        "formulario_nombre" => "nombre",
-        "requerido" => true,
-        "minimo" => 3,
-        "maximo" => 50,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "metodos_pagos",
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "necesita_moneda",
-        "campo_valor" => &$this->nMoneda,
-        "formulario_nombre" => "especificar moneda"
-      ],
-      [
-        "campo_nombre" => "necesita_banco_emisor",
-        "campo_valor" => &$this->nBancoEmi,
-        "formulario_nombre" => "banco emisor"
-      ],
-      [
-        "campo_nombre" => "necesita_banco_receptor",
-        "campo_valor" => &$this->nBancoRec,
-        "formulario_nombre" => "banco receptor"
-      ],
-      [
-        "campo_nombre" => "necesita_referencia",
-        "campo_valor" => &$this->nReferencia,
-        "formulario_nombre" => "número de referencia"
-      ]
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) return $respuesta;
     return $this->actualizarMetodosPagosP();
   }
+  public function eliminarMetodosPagos(array $info) {
+    $resultado = $this->validarMetodosPagos([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_metodo_pago',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-  public function eliminarMetodosPagos($id)
-  {
-    $this->idMetodo = $id;
-    $campos = [
-      ["campo_nombre" => "id_metodo_pago", "campo_valor" => $this->idMetodo, "formulario_nombre" => "ID", "requerido" => true, "debeExistir" => true, "tabla" => "metodos_pagos"]
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) return $respuesta;
+    $this->idMetodoPago = $info['id_metodo_pago'];
 
     return $this->eliminarMetodosPagosP();
   }
 
-  private function seleccionarMetodosPagosP()
-  {
-    $instrucciones = [
-      'campos' => '*',
-      'tabla' => 'metodos_pagos',
-      'ORDER' => 'nombre_metodo_pago ASC'
-    ];
-    if ($this->idMetodo != null) {
-      $instrucciones['WHERE'] = ["id_metodo_pago" => $this->idMetodo];
-      return $this->seleccionarDatos2($instrucciones)->fetch(PDO::FETCH_ASSOC);
-    }
-    return $this->seleccionarDatos2($instrucciones)->fetchAll(PDO::FETCH_ASSOC);
-  }
+  private function seleccionarMetodosPagosP(array $info) {
+    if ($this->idMetodoPago != 0 && $this->idMetodoPago != '') {
+      return $this->seleccionarDatos2([
+        'campos' => '*',
+        'tabla' => 'metodos_pagos',
+        'WHERE' => [
+          'id_metodo_pago' => $this->idMetodoPago
+        ],
+      ])->fetch();
+    } else {
+      switch ($info['tipoConsulta'] ?? "") {
+        case 'paraEcommerce':
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'metodos_pagos',
+            'WHERE' => [
+              'mostrar_ecommerce' => 1
+            ],
+          ])->fetchAll();
+        case 'indexadosPorId':
 
-  private function registrarMetodosPagosP()
-  {
-    $datos = [
-      "id_metodo_pago" => $this->idMetodo,
-      "nombre_metodo_pago" => $this->nombre,
-      "necesita_moneda" => $this->nMoneda,
-      "necesita_banco_emisor" => $this->nBancoEmi,
-      "necesita_banco_receptor" => $this->nBancoRec,
-      "necesita_referencia" => $this->nReferencia,
-      "status" => 1
-    ];
-    $resultado = $this->guardarDatos2(['tabla' => 'metodos_pagos', 'datos' => $datos]);
-    if ($resultado > 0) {
-      $this->commit();
-      return ["tipo" => "limpiarYcerrar", "titulo" => "Registro Exitoso", "texto" => "Método de pago registrado", "icono" => "success"];
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'metodos_pagos',
+          ])->fetchAll(PDO::FETCH_UNIQUE);
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'metodos_pagos',
+          ])->fetchAll();
+      }
     }
-    $this->rollback();
-    return ["tipo" => "simple", "titulo" => "Error", "texto" => "No se pudo registrar", "icono" => "error"];
   }
-
-  private function actualizarMetodosPagosP()
-  {
-    $instrucciones = [
+  private function registrarMetodosPagosP() {
+    $resultado = $this->guardarDatos2([
       'tabla' => 'metodos_pagos',
       'datos' => [
-        "nombre_metodo_pago" => $this->nombre,
-        "necesita_moneda" => $this->nMoneda,
-        "necesita_banco_emisor" => $this->nBancoEmi,
-        "necesita_banco_receptor" => $this->nBancoRec,
-        "necesita_referencia" => $this->nReferencia
-      ],
-      'WHERE' => ["id_metodo_pago" => $this->idMetodo]
-    ];
-    $resultado = $this->actualizarDatos2($instrucciones);
-    if ($resultado !== false) {
-      $this->commit();
-      return ["tipo" => "limpiarYcerrar", "titulo" => "Actualización Exitosa", "texto" => "Método actualizado", "icono" => "success"];
+        "id_metodo_pago" => $this->idMetodoPago,
+        "nombre_metodo_pago" => $this->nombreMetodoPago,
+        "necesita_moneda" => $this->necesitaMoneda,
+        "necesita_banco_emisor" => $this->necesitaBancoEmisor,
+        "necesita_banco_receptor" => $this->necesitaBancoReceptor,
+        "necesita_referencia" => $this->necesitaReferencia,
+        "mostrar_ecommerce" => $this->mostrarEcommerce,
+      ]
+    ]);
+    if ($resultado <= 0) {
+      $this->rollback();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "No se pudo registrar",
+        "icono" => "error"
+      ];
     }
-    $this->rollback();
-    return ["tipo" => "simple", "titulo" => "Error", "texto" => "Ocurrió un error al procesar la solicitud", "icono" => "error"];
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Registro Exitoso",
+      "texto" => "Método de pago registrado",
+      "icono" => "success"
+    ];
   }
-
-  private function eliminarMetodosPagosP()
-  {
-    $resultado = $this->eliminarDatos2(['tabla' => 'metodos_pagos', 'WHERE' => ["id_metodo_pago" => $this->idMetodo]]);
-    if ($resultado) {
+  private function actualizarMetodosPagosP() {
+    $resultado = $this->actualizarDatos2([
+      'tabla' => 'metodos_pagos',
+      'datos' => [
+        "nombre_metodo_pago" => $this->nombreMetodoPago,
+        "necesita_moneda" => $this->necesitaMoneda,
+        "necesita_banco_emisor" => $this->necesitaBancoEmisor,
+        "necesita_banco_receptor" => $this->necesitaBancoReceptor,
+        "necesita_referencia" => $this->necesitaReferencia,
+        "mostrar_ecommerce" => $this->mostrarEcommerce,
+      ],
+      'WHERE' => ["id_metodo_pago" => $this->idMetodoPago]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      $this->rollback();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Ocurrió un error al procesar la solicitud",
+        "icono" => "error"
+      ];
+    }
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Actualización Exitosa",
+      "texto" => "Método actualizado",
+      "icono" => "success"
+    ];
+  }
+  private function eliminarMetodosPagosP() {
+    $resultado = $this->eliminarDatos2(['tabla' => 'metodos_pagos', 'WHERE' => ["id_metodo_pago" => $this->idMetodoPago]]);
+    if ($resultado > 0) {
       $this->commit();
       return ["tipo" => "simple", "titulo" => "Eliminado", "texto" => "El método ha sido desactivado", "icono" => "success"];
     }

@@ -6,38 +6,29 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_unidad_medida'] ?? "";
-  $nombre = $_POST['nombre_unidad_medida'] ?? "";
-  $simbolo = $_POST['simbolo_unidad_medida'] ?? "";
-  $equivalencia_ub = $_POST['equivalencia_ub'] ?? "";
-
   $objeto = new unidadesMedidasModelo();
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarUnidadesMedidas();
-      echo json_encode($resultado);
-      exit();
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarUnidadesMedidas($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarUnidadesMedidas($_POST);
+      break;
     case "registrar":
-      $resultado = $objeto->registrarUnidadesMedidas($nombre, $simbolo, $equivalencia_ub);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->registrarUnidadesMedidas($_POST);
+      break;
     case "actualizar":
-      $resultado = $objeto->actualizarUnidadesMedidas($id, $nombre, $simbolo, $equivalencia_ub);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarUnidadesMedidas($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarUnidadesMedidas($id);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->eliminarUnidadesMedidas($_POST);
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

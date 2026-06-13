@@ -26,17 +26,13 @@ echo $componente->listaDataTable($instruccionesLista);
       <form class="formularioAjax validar" method="POST" action="" novalidate>
         <div class="modal-body">
           <input type="hidden" name="accion" value="registrar">
-          <div class="mb-3">
-            <label class="form-label fw-bold">ID del Método</label>
-            <input type="text" class="form-control noRepetir" name="id_metodo_pago" required pattern="<?php echo regexId ?>" minlength="<?php echo minRegexId ?>" maxlength="<?php echo maxRegexId ?>">
-          </div>
-          <div class="mb-4">
+          <div class="col-md-12 mb-4">
             <label class="form-label fw-bold">Nombre del Método</label>
-            <input type="text" class="form-control" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
+            <input type="text" class="form-control noRepetir" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
           </div>
           <div class="card bg-light p-3">
             <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>
-            <div class="form-check form-switch mb-2">
+             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" name="necesita_moneda" value="1" id="regMon">
               <label class="form-check-label" for="regMon">¿Requiere especificar Moneda?</label>
             </div>
@@ -51,6 +47,10 @@ echo $componente->listaDataTable($instruccionesLista);
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" name="necesita_referencia" value="1" id="regRef">
               <label class="form-check-label" for="regRef">¿Requiere Número de Referencia?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" name="mostrar_ecommerce" value="1">
+              <label class="form-check-label" for="regRef">¿Se debe mostrar en el ecommerce?</label>
             </div>
           </div>
         </div>
@@ -74,14 +74,11 @@ echo $componente->listaDataTable($instruccionesLista);
       <form class="formularioAjax validar" method="POST" action="" novalidate>
         <div class="modal-body">
           <input type="hidden" name="accion" value="actualizar">
+          <input type="hidden" class="form-control formularioActualizar" name="id_metodo_pago" required pattern="<?php echo regexId ?>">
 
-          <div class="mb-3">
-            <label class="form-label fw-bold">ID del Método</label>
-            <input type="text" class="form-control noRepetir formularioActualizar" name="id_metodo_pago" required readonly pattern="<?php echo regexId ?>">
-          </div>
           <div class="mb-4">
             <label class="form-label fw-bold">Nombre del Método</label>
-            <input type="text" class="form-control" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
+            <input type="text" class="form-control noRepetir" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
           </div>
           <div class="card bg-light p-3">
             <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>
@@ -100,6 +97,10 @@ echo $componente->listaDataTable($instruccionesLista);
             <div class="form-check form-switch mb-2">
               <input class="form-check-input formularioActualizar" value="1" type="checkbox" name="necesita_referencia" id="regRef">
               <label class="form-check-label" for="regRef">¿Requiere Número de Referencia?</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input formularioActualizar" type="checkbox" name="mostrar_ecommerce" value="1">
+              <label class="form-check-label" for="regRef">¿Se debe mostrar en el ecommerce?</label>
             </div>
           </div>
         </div>

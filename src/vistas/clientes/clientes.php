@@ -32,7 +32,12 @@ echo $componente->listaDataTable($instruccionesLista);
             <div class="col-md-6 mb-3">
               <label for="rif_cedula_cliente" class="form-label">RIF/Cédula</label>
               <div class="input-group">
-                <select class="input-group-text selectCodigoRIF" name="codigo_rif_cedula_cliente" required>
+                <select
+                  data-prefijo=".selectCodigoRIF"
+                  data-cuerpo=".inputRifCedula"
+                  class="input-group-text selectCodigoRIF"
+                  name="codigo_rif_cedula_cliente"
+                  required>
                   <option value="V">V</option>
                   <option value="E">E</option>
                   <option value="J">J</option>
@@ -40,7 +45,18 @@ echo $componente->listaDataTable($instruccionesLista);
                   <option value="C">C</option>
                   <option value="P">P</option>
                 </select>
-                <input type="text" class=" form-control noRepetir" name="rif_cedula_cliente" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+                <input
+                  type="text"
+                  class=" form-control inputRifCedula noRepetir"
+                  name="rif_cedula_cliente"
+                  pattern="<?php echo regexCedulaRifLetra ?>"
+                  minlength="<?php echo minRegexCedulaRif ?>"
+                  maxlength="<?php echo maxRegexCedulaRif ?>"
+                  minlengthC="<?php echo minRegexCedulaRif ?>"
+                  maxlengthC="<?php echo maxRegexCedulaRif ?>"
+                  required
+                  data-prefijo=".selectCodigoRIF"
+                  data-cuerpo=".inputRifCedula">
               </div>
             </div>
             <div class="col-md-6 mb-3">
@@ -48,8 +64,39 @@ echo $componente->listaDataTable($instruccionesLista);
               <input type="text" class="form-control noRepetir" name="razon_social_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="telefono_cliente" class="form-label">Teléfono</label>
-              <input type="text" class="form-control noRepetir" name="telefono_cliente" pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" required>
+              <label for="prefijo_telefono_cliente" class="form-label">Teléfono</label>
+              <div class="input-group">
+                <select
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo="."
+                  class="input-group-text selectPrefijoTelefono"
+                  name="prefijo_telefono_cliente"
+                  required>
+                  <option value="0416">0416</option>
+                  <option value="0426">0426</option>
+                  <option value="0424">0424</option>
+                  <option value="0414">0414</option>
+                  <option value="0412">0412</option>
+                  <option value="0422">0422</option>
+                  <option value="0212">0212</option>
+                  <option value="0251">0251</option>
+                  <option value="0241">0241</option>
+                  <option value="0257">0257</option>
+                  <option value="0257">0257</option>
+                </select>
+                <input
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo=".telefonoCliente"
+                  type="text"
+                  class="form-control telefonoCliente noRepetir"
+                  name="telefono_cliente"
+                  pattern="<?php echo regexTelefono ?>"
+                  minlength="<?php echo minRegexCuerpoTelefono ?>"
+                  maxlength="<?php echo maxRegexCuerpoTelefono ?>"
+                  minlengthC="<?php echo minRegexTelefono ?>"
+                  maxlengthC="<?php echo maxRegexTelefono ?>"
+                  required>
+              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="correo_cliente" class="form-label">Correo Electrónico</label>
@@ -89,27 +136,46 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="actualizar">
-            <div class="col-md-6 mb-3 d-none">
-              <label for="rif_cedula_cliente" class="form-label">RIF/Cédula</label>
-              <div class="input-group">
-                <select class="input-group-text selectCodigoRIF formularioActualizar" name="codigo_rif_cedula_cliente" required>
-                  <option value="V">V</option>
-                  <option value="E">E</option>
-                  <option value="J">J</option>
-                  <option value="G">G</option>
-                  <option value="C">C</option>
-                  <option value="P">P</option>
-                </select>
-                <input type="text" class=" form-control noRepetir formularioActualizar" name="rif_cedula_cliente" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
-              </div>
-            </div>
+            <input type="hidden" class="formularioActualizar" name="rif_cedula_cliente">
             <div class="col-md-6 mb-3">
               <label for="razon_social_cliente" class="form-label">Razón Social</label>
               <input type="text" class="form-control formularioActualizar noRepetir" name="razon_social_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="telefono_cliente" class="form-label">Teléfono</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="telefono_cliente" pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" required>
+              <label for="prefijo_telefono_cliente" class="form-label">Teléfono</label>
+              <div class="input-group">
+                <select
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo="."
+                  class="input-group-text selectPrefijoTelefono"
+                  name="prefijo_telefono_cliente"
+                  required>
+                  <option value="0416">0416</option>
+                  <option value="0426">0426</option>
+                  <option value="0424">0424</option>
+                  <option value="0414">0414</option>
+                  <option value="0412">0412</option>
+                  <option value="0422">0422</option>
+                  <option value="0212">0212</option>
+                  <option value="0251">0251</option>
+                  <option value="0241">0241</option>
+                  <option value="0257">0257</option>
+                  <option value="0257">0257</option>
+                </select>
+                <input
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo=".telefonoCliente"
+                  type="text"
+                  class="form-control formularioActualizar telefonoCliente noRepetir"
+                  name="telefono_cliente"
+                  pattern="<?php echo regexTelefono ?>"
+                  minlength="<?php echo minRegexCuerpoTelefono ?>"
+                  maxlength="<?php echo maxRegexCuerpoTelefono ?>"
+                  minlengthC="<?php echo minRegexTelefono ?>"
+                  maxlengthC="<?php echo maxRegexTelefono ?>"
+                  required
+                >
+              </div>
             </div>
             <div class="col-md-12 mb-3">
               <label for="correo_cliente" class="form-label">Correo Electrónico</label>

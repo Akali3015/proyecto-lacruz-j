@@ -3,6 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -23,6 +25,51 @@ $(document).on('DOMContentLoaded', async function (e) {
     },
     campoIdBtn: 'id_ruta',
     botones: 'CRUD',
+  });
+  driverAyuda('rutas', {
+    pasos:
+      [
+        {
+          element: 'button[data-bs-target=".modalRegistrar"]',
+          popover: {
+            title: 'Registrar Rutas',
+            description: 'Haz clic aquí para registrar una nueva ruta al sistema.Las ruta son necesarias para las direcciones del sistema',
+            side: 'bottom',
+            align: 'start'
+          }
+        },
+        {
+          element: '.tabla-ajax',
+          popover: {
+            title: 'Lista de Rutas',
+            description: 'Aquí puedes ver todas las rutas registradas del sistema.',
+            side: 'top'
+          }
+        },
+        {
+          element: '.botonEditar',
+          popover: {
+            title: 'Editar Rutas',
+            description: 'Modifica el nombre, precio, Minimo Km y Maximo KM de cualquier ruta haciendo clic en este botón.',
+            side: 'left'
+          }
+        },
+        {
+          element: '.botonEliminar',
+          popover: {
+            title: 'Eliminar Rutas',
+            description: 'Elimina las Rutas que ya no sean necesarios.',
+            side: 'left'
+          }
+        },
+        {
+          popover: {
+            title: '¡Ayuda completada!',
+            description: 'Ya conoces la gestion de rutas. Da click en finaliar para acabar la ayuda.',
+            side: 'top'
+          }
+        }
+      ]
   });
 })
 
@@ -60,8 +107,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'rutas');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

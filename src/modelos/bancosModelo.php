@@ -5,112 +5,141 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use PDO;
 
-class bancosModelo extends conexion
-{
-  private $idBanco;
-  private $nombreBanco;
+class bancosModelo extends conexion {
+  private int $idBanco = 0;
+  private string $nombreBanco = '';
 
-  public function seleccionarBancos($id = null)
-  {
-    $this->idBanco = $id;
-    if ($this->idBanco != null && $this->idBanco != "") {
-      $campos = [
-        [
-          "campo_nombre" => 'id_banco',
-          "campo_valor" => $this->idBanco,
-          "formulario_nombre" => "ID del banco",
+  public function validarBancos(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => $camposVal,
+    ] = $instruccionesVal;
+
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'id_banco' => [
+          "campo_nombre" => "id_banco",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "id del banco",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
           "expresion_re" => regexId,
-          "tabla" => 'bancos',
-          "debeExistir" => true
-        ]
+          "tabla" => "bancos",
+          "debeSerUnico" => true,
+          "debeExistir" => true,
+        ],
+        'nombre_banco' => [
+          "campo_nombre" => "nombre_banco",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "nombre del banco",
+          "requerido" => true,
+          "minimo" => minRegexNombreObj,
+          "maximo" => maxRegexNombreObj,
+          "expresion_re" => regexNombreObj,
+          "tabla" => "bancos",
+          "debeSerUnico" => true,
+        ],
       ];
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-      }
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
-    return $this->seleccionarBancosP();
+    return $this->limpiar_Verificar($campos);
   }
-  public function registrarBancos($nombre)
-  {
-    $this->nombreBanco = $nombre;
-
-    $campos = [
-      [
-        "campo_nombre" => "nombre_banco",
-        "campo_valor" => $this->nombreBanco,
-        "formulario_nombre" => "nombre del banco",
-        "requerido" => true,
-        "minimo" => 3,
-        "maximo" => 50,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "bancos",
-        "debeSerUnico" => true,
-      ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
+  public function seleccionarBancos(array $info) {
+    if (($info['id_banco'] ?? '') != "") {
+      $resultado = $this->validarBancos([
+        'infoVal' => &$info,
+        'camposVal' => ['id_banco'],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idBanco = $info['id_banco'];
     }
+    return $this->seleccionarBancosP($info);
+  }
+  public function registrarBancos(array $info) {
+    $resultado = $this->validarBancos([
+      'infoVal' => &$info,
+      'camposVal' => ['nombre_banco'],
+    ]);
+    if ($resultado) return $resultado;
+
+    $this->nombreBanco = $info['nombre_banco'];
     return $this->registrarBancosP();
   }
-  public function actualizarBancos($id, $nombre)
-  {
-    $this->idBanco = $id;
-    $this->nombreBanco = $nombre;
+  public function actualizarBancos(array $info) {
+    $resultado = $this->validarBancos([
+      'infoVal' => &$info,
+      'camposVal' => ['id_banco', 'nombre_banco'],
+    ]);
 
-    $campos = [
-      ["campo_nombre" => "id_banco", "campo_valor" => $this->idBanco, "formulario_nombre" => "ID del banco", "requerido" => true, "debeExistir" => true, "tabla" => "bancos"],
-      ["campo_nombre" => "nombre_banco", "campo_valor" => $this->nombreBanco, "formulario_nombre" => "nombre del banco", "requerido" => true, "minimo" => 3, "maximo" => 50, "expresion_re" => regexNombreObj, "tabla" => "bancos", "debeSerUnico" => true]
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-    }
+    if ($resultado) return $resultado;
+    $this->idBanco = $info['id_banco'];
+    $this->nombreBanco = $info['nombre_banco'];
     return $this->actualizarBancosP();
   }
-  public function eliminarBancos($id)
-  {
-    $this->idBanco = $id;
-    $campos = [
-      ["campo_nombre" => "id_banco", "campo_valor" => $this->idBanco, "formulario_nombre" => "ID del banco", "requerido" => true, "debeExistir" => true, "tabla" => "bancos"]
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-    }
+  public function eliminarBancos(array $info) {
+    $resultado = $this->validarBancos([
+      'infoVal' => &$info,
+      'camposVal' => ['id_banco'],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idBanco = $info['id_banco'];
     return $this->eliminarBancosP();
   }
-  private function seleccionarBancosP()
-  {
-    $instrucciones = [
-      'campos' => '*',
+
+  private function seleccionarBancosP(array $info) {
+    if ($this->idBanco != '' && $this->idBanco != 0) {
+      return $this->seleccionarDatos2([
+        'campos' => '*',
+        'tabla' => 'bancos',
+        'WHERE' => [
+          'id_banco' => $this->idBanco
+        ]
+      ])->fetch();
+    } else {
+      switch (($info['tipoConsulta'] ?? '')) {
+        case 'indexadosPorId':
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'bancos',
+          ])->fetchAll(PDO::FETCH_UNIQUE);
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'bancos',
+          ])->fetchAll();
+      }
+    }
+  }
+  private function registrarBancosP() {
+    $resultado = $this->guardarDatos2([
       'tabla' => 'bancos',
-      'ORDER' => 'nombre_banco ASC'
+      'datos' =>  [
+        "nombre_banco" => $this->nombreBanco
+      ]
+    ]);
+    if ($resultado <= 0) {
+      $this->rollback();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "No se pudo registrar",
+        "icono" => "error"
+      ];
+    }
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Registro Exitoso",
+      "texto" => "El banco ha sido registrado",
+      "icono" => "success"
     ];
-    if ($this->idBanco != null) {
-      $instrucciones['WHERE'] = ["id_banco" => $this->idBanco];
-      return $this->seleccionarDatos2($instrucciones)->fetch(PDO::FETCH_ASSOC);
-    }
-    return $this->seleccionarDatos2($instrucciones)->fetchAll(PDO::FETCH_ASSOC);
   }
-  private function registrarBancosP()
-  {
-    $datos = ["nombre_banco" => $this->nombreBanco, "status" => 1];
-    $resultado = $this->guardarDatos2(['tabla' => 'bancos', 'datos' => $datos]);
-    if ($resultado > 0) {
-      $this->commit();
-      return ["tipo" => "limpiarYcerrar", "titulo" => "Registro Exitoso", "texto" => "El banco ha sido registrado", "icono" => "success"];
-    }
-    $this->rollback();
-    return ["tipo" => "simple", "titulo" => "Error", "texto" => "No se pudo registrar", "icono" => "error"];
-  }
-  private function actualizarBancosP()
-  {
+  private function actualizarBancosP() {
     $resultado = $this->actualizarDatos2([
       'tabla' => 'bancos',
       'datos' => [
@@ -130,12 +159,35 @@ class bancosModelo extends conexion
       ];
     }
     $this->rollback();
-    return ["tipo" => "simple", "titulo" => "Error", "texto" => "No hubo cambios", "icono" => "info"];
+    return [
+      "tipo" => "simple",
+      "titulo" => "Error",
+      "texto" => "No hubo cambios",
+      "icono" => "info"
+    ];
   }
-  private function eliminarBancosP()
-  {
-    $resultado = $this->eliminarDatos2(['tabla' => 'bancos', 'WHERE' => ["id_banco" => $this->idBanco]]);
+  private function eliminarBancosP() {
+    $resultado = $this->eliminarDatos2([
+      'tabla' => 'bancos',
+      'WHERE' => [
+        "id_banco" => $this->idBanco
+      ]
+    ]);
+    if ($resultado <= 0) {
+      $this->rollback();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Eliminación Fallida",
+        "texto" => "El banco no pudo ser eliminado",
+        "icono" => "error"
+      ];
+    }
     $this->commit();
-    return ["tipo" => "simple", "titulo" => "Eliminado", "texto" => "El banco ha sido desactivado", "icono" => "success"];
-}
+    return [
+      "tipo" => "simple",
+      "titulo" => "Banco eliminado",
+      "texto" => "El banco ha sido eliminado exitosamente",
+      "icono" => "success"
+    ];
+  }
 }

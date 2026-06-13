@@ -6,36 +6,46 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_servicio'] ?? "";
-  $idUnidadMedida = $_POST['id_unidad_medida'] ?? "";
-  $nombre = $_POST['nombre_servicio'] ?? "";
-  $precio = $_POST['precio_servicio'] ?? "";
-
   $objeto = new serviciosModelo();
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
-    case "listar":
-      $resultado = $objeto->seleccionarServicios();
+    case 'listar':
+      $resultado = $objeto->seleccionarServicios($_POST);
       echo json_encode($resultado);
       exit();
-    case "seleccionarUno":
-      $resultado = $objeto->seleccionarServicios($id);
+    case 'seleccionarUno':
+      $resultado = $objeto->seleccionarServicios($_POST);
       echo json_encode($resultado);
       exit();
-    case "registrar":
-      $resultado = $objeto->registrarServicios($idUnidadMedida, $nombre, $precio);
+    case 'registrar':
+      $resultado = $objeto->registrarServicio($_POST);
       echo json_encode($resultado);
       exit();
-    case "actualizar":
-      $resultado = $objeto->actualizarServicios($id, $idUnidadMedida, $nombre, $precio);
+    case 'actualizar':
+      $resultado = $objeto->actualizarServicio($_POST);
       echo json_encode($resultado);
       exit();
-    case "eliminar":
-      $resultado = $objeto->eliminarServicios($id);
+    case 'eliminar':
+      $resultado = $objeto->eliminarServicio($_POST);
+      echo json_encode($resultado);
+      exit();
+    case 'actualizarFoto':
+      $resultado = $objeto->actualizarFotoServicio($_POST);
+      echo json_encode($resultado);
+      exit();
+    case 'eliminarFoto':
+      $resultado = $objeto->eliminarFotoServicio($_POST);
       echo json_encode($resultado);
       exit();
     default:
-      echo json_encode(["error" => "Acción no reconocida"]);
+      $objeto->DECORE([
+        'icono' => 'error',
+        'titulo' => 'Acción no reconocida'
+      ]);
       exit();
   }
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {

@@ -6,38 +6,32 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $id = $_POST['id_presentacion'] ?? "";
-  $idUnidadMedida = $_POST['id_unidad_medida'] ?? "";
-  $nombre = $_POST['nombre_presentacion'] ?? "";
-  $cantidadPmp = $_POST['cantidad_pmp'] ?? "";
 
   $objeto = new presentacionesModelo();
   ob_clean();
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarPresentaciones();
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarPresentaciones($_POST);
+      break;
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarPresentaciones($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarPresentaciones($_POST);
+      break;
     case "registrar":
-      $resultado = $objeto->registrarPresentaciones($id, $idUnidadMedida, $nombre, $cantidadPmp);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->registrarPresentaciones($_POST);
+      break;
     case "actualizar":
-      $resultado = $objeto->actualizarPresentaciones($id, $idUnidadMedida, $nombre, $cantidadPmp);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarPresentaciones($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarPresentaciones($id);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->eliminarPresentaciones($_POST);
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

@@ -4,58 +4,41 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
-use PDO;
-use PDOException;
-use Exception;
 
 class materiasPrimasModelo extends conexion
 {
-  private $idMateriaPrima;
-  private $idUnidadMedida;
-  private $nombreMateriaPrima;
-  private $costoMateriaPrima;
-  private $stockMateriaPrima;
+  private string $idMateriaPrima = '';
+  private string $idUnidadMedida = '';
+  private string $nombreMateriaPrima = '';
+  private float $precioMateriaPrima = 0;
+  private int $stockMateriaPrima = 0;
+  private int $stockMinimoMateriaPrima = 0;
+  private array $presentaciones = [];
 
-  public function seleccionarMateriasPrimas($id = null)
+  public function validarMateriasPrimas(array $instruccionesVal)
   {
-    $this->idMateriaPrima = $id;
-
-    if ($this->idMateriaPrima != null && $this->idMateriaPrima != "") {
-      $campos = [
-        [
-          "campo_nombre" => 'id_materia_prima',
-          "campo_valor" => $this->idMateriaPrima,
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'id_materia_prima' => [
+          "campo_nombre" => "id_materia_prima",
+          "campo_valor" => &$valor,
           "formulario_nombre" => "id de la materia prima",
           "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => 'materias_primas',
+          "minimo" => minRegexIdSeguro,
+          "maximo" => maxRegexIdSeguro,
+          "expresion_re" => regexIdSeguro,
+          "tabla" => "materias_primas",
+          "debeSerUnico" => true,
           "debeExistir" => true,
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      }
-    }
-    return $this->seleccionarMateriasPrimasP();
-  }
-  public function registrarMateriasPrimas($idUnidadMedida, $nombre, $stock, $precio, $presentaciones)
-  {
-    try {
-      $this->idUnidadMedida = $idUnidadMedida;
-      $this->nombreMateriaPrima = $nombre;
-      $this->costoMateriaPrima = $precio;
-      $this->stockMateriaPrima = $stock;
-
-      $campos = [
-        [
+        ],
+        'id_unidad_medida' => [
           "campo_nombre" => "id_unidad_medida",
-          "campo_valor" => $this->idUnidadMedida,
-          "formulario_nombre" => "unidades de medida",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "unidad de medida",
           "requerido" => true,
           "minimo" => minRegexId,
           "maximo" => maxRegexId,
@@ -63,9 +46,9 @@ class materiasPrimasModelo extends conexion
           "tabla" => "unidades_medidas",
           "debeExistir" => true,
         ],
-        [
+        'nombre_materia_prima' => [
           "campo_nombre" => "nombre_materia_prima",
-          "campo_valor" => $this->nombreMateriaPrima,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "nombre de la materia prima",
           "requerido" => true,
           "minimo" => minRegexNombreObj,
@@ -74,197 +57,147 @@ class materiasPrimasModelo extends conexion
           "tabla" => "materias_primas",
           "debeSerUnico" => true,
         ],
-        [
-          "campo_nombre" => "precio_materia_prima",
-          "campo_valor" => $this->costoMateriaPrima,
-          "formulario_nombre" => "precio de la materia prima",
+        'precio_materia_prima' => [
+          "campo_valor" => &$valor,
+          'comaPunto' => true,
+          "formulario_nombre" => "precio de la matería prima",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
-          "tabla" => "materias_primas",
         ],
-        [
+        'stock_materia_prima' => [
           "campo_nombre" => "stock_materia_prima",
-          "campo_valor" => $this->stockMateriaPrima,
-          "formulario_nombre" => "stock de la materia prima",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "stock",
           "requerido" => true,
           "minimo" => minRegexCantidadItem,
           "maximo" => maxRegexCantidadItem,
           "expresion_re" => regexCantidadItem,
-          "tabla" => "materias_primas",
+        ],
+        'stock_minimo_materia_prima' => [
+          "campo_nombre" => "stock_minimo_materia_prima",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "stock mínimo",
+          "requerido" => true,
+          "minimo" => minRegexCantidadItem,
+          "maximo" => maxRegexCantidadItem,
+          "expresion_re" => regexCantidadItem,
+        ],
+        'id_presentacion' => [
+          "campo_nombre" => "id_presentacion",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "presentación",
+          "requerido" => true,
+          "minimo" => minRegexIdSeguro,
+          "maximo" => maxRegexIdSeguro,
+          "expresion_re" => regexIdSeguro,
+          "tabla" => "presentaciones",
+          "debeExistir" => true,
         ],
       ];
-
-      if (!empty($presentaciones)) {
-        foreach ($presentaciones as $idPresentacion) {
-          if ($idPresentacion != '') {
-            $campos[] = [
-              "campo_nombre" => "id_presentacion",
-              "campo_valor" => $idPresentacion,
-              "formulario_nombre" => "presentación",
-              "requerido" => false,
-              "minimo" => minRegexId,
-              "maximo" => maxRegexId,
-              "expresion_re" => regexId,
-              "tabla" => "presentaciones",
-              "debeExistir" => true,
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      switch ($campo) {
+        case 'presentaciones':
+          if (($infoVal['presentaciones'] ?? []) == []) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Sin presentaciones',
+              'texto' => 'No has enviado las presentaciones de la materia prima',
+              'icono' => 'warning',
             ];
           }
-        }
-      }
+          foreach ($infoVal['presentaciones'] as &$pre) {
+            $campos[] = $funcionAsignadora('id_presentacion', $pre);
+          }
+          unset($idPre);
+          break;
 
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarMateriasPrimasP($presentaciones);
-      }
-    } catch (PDOException $e) {
-      error_log("Error en MateriasPrimas->registrar(): " . $e->getMessage());
-      throw new Exception("Error al registrar la materia prima en la base de datos: " . $e->getMessage());
-    }
-  }
-  public function actualizarMateriasPrimas($id, $idUnidadMedida, $nombre, $stock, $precio, $presentaciones)
-  {
-    $this->idMateriaPrima = $id;
-    $this->idUnidadMedida = $idUnidadMedida;
-    $this->nombreMateriaPrima = $nombre;
-    $this->costoMateriaPrima = $precio;
-    $this->stockMateriaPrima = $stock;
-
-    $campos = [
-      [
-        "campo_nombre" => "id_materia_prima",
-        "campo_valor" => $this->idMateriaPrima,
-        "formulario_nombre" => "id de la materia prima",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "materias_primas",
-        "debeExistir" => true,
-      ],
-      [
-        "campo_nombre" => "id_unidad_medida",
-        "campo_valor" => $this->idUnidadMedida,
-        "formulario_nombre" => "id de la unidad de medida",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "unidades_medidas",
-        "debeExistir" => true,
-      ],
-      [
-        "campo_nombre" => "nombre_materia_prima",
-        "campo_valor" => $this->nombreMateriaPrima,
-        "formulario_nombre" => "nombre de la materia prima",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "materias_primas",
-      ],
-      [
-        "campo_nombre" => "precio_materia_prima",
-        "campo_valor" => $this->costoMateriaPrima,
-        "formulario_nombre" => "precio de la materia prima",
-        "requerido" => true,
-        "minimo" => minRegexPrecio,
-        "maximo" => maxRegexPrecio,
-        "expresion_re" => regexPrecio,
-        "tabla" => "materias_primas",
-      ],
-      [
-        "campo_nombre" => "stock_materia_prima",
-        "campo_valor" => $this->stockMateriaPrima,
-        "formulario_nombre" => "stock de la materia prima",
-        "requerido" => true,
-        "minimo" => minRegexCantidadItem,
-        "maximo" => maxRegexCantidadItem,
-        "expresion_re" => regexCantidadItem,
-        "tabla" => "materias_primas",
-      ],
-    ];
-
-    if (!empty($presentaciones)) {
-      foreach ($presentaciones as $idPresentacion) {
-        if ($idPresentacion != '') {
-          $campos[] = [
-            "campo_nombre" => "id_presentacion",
-            "campo_valor" => $idPresentacion,
-            "formulario_nombre" => "presentación",
-            "requerido" => false,
-            "minimo" => minRegexId,
-            "maximo" => maxRegexId,
-            "expresion_re" => regexId,
-            "tabla" => "presentaciones",
-            "debeExistir" => true,
-          ];
-        }
+        default:
+          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
+          break;
       }
     }
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarMateriasPrimasP($presentaciones);
-    }
+    return $this->limpiar_Verificar($campos);
   }
-  public function eliminarMateriasPrimas($id)
+  public function seleccionarMateriasPrimas($info = null)
   {
-    $this->idMateriaPrima = $id;
-
-    $campos = [
-      [
-        "campo_nombre" => "id_materia_prima",
-        "campo_valor" => $this->idMateriaPrima,
-        "formulario_nombre" => "id",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "debeExistir" => true,
-        "tabla" => "materias_primas",
-      ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarMateriasPrimasP();
+    if (isset($info['id_materia_prima'])) {
+      $resultado = $this->validarMateriasPrimas([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_materia_prima',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idMateriaPrima = $info['id_materia_prima'];
     }
+    return $this->seleccionarMateriasPrimasP();
   }
-  public function obtenerPresentacionesMateriasPrimas($idMateriaPrima)
+  public function registrarMateriasPrimas(array $info)
   {
-    $this->idMateriaPrima = $idMateriaPrima;
+    $resultado = $this->validarMateriasPrimas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_unidad_medida',
+        'nombre_materia_prima',
+        'precio_materia_prima',
+        'stock_materia_prima',
+        'stock_minimo_materia_prima',
+        'presentaciones',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    $campos = [
-      [
-        "campo_nombre" => 'id_materia_prima',
-        "campo_valor" => $this->idMateriaPrima,
-        "formulario_nombre" => "id de la materia prima",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => 'materias_primas',
-        "debeExistir" => true,
-      ]
-    ];
+    $this->idUnidadMedida = $info['id_unidad_medida'];
+    $this->nombreMateriaPrima = $info['nombre_materia_prima'];
+    $this->precioMateriaPrima = $info['precio_materia_prima'];
+    $this->stockMateriaPrima = $info['stock_materia_prima'];
+    $this->stockMinimoMateriaPrima = $info['stock_minimo_materia_prima'];
+    $this->presentaciones = $info['presentaciones'];
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-    }
+    return $this->registrarMateriasPrimasP();
+  }
+  public function actualizarMateriasPrimas(array $info)
+  {
+    $resultado = $this->validarMateriasPrimas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_materia_prima',
+        'id_unidad_medida',
+        'nombre_materia_prima',
+        'precio_materia_prima',
+        'stock_materia_prima',
+        'stock_minimo_materia_prima',
+        'presentaciones',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    return $this->obtenerPresentacionesMateriasPrimasP();
+    $this->idMateriaPrima = $info['id_materia_prima'];
+    $this->idUnidadMedida = $info['id_unidad_medida'];
+    $this->nombreMateriaPrima = $info['nombre_materia_prima'];
+    $this->precioMateriaPrima = $info['precio_materia_prima'];
+    $this->stockMateriaPrima = $info['stock_materia_prima'];
+    $this->stockMinimoMateriaPrima = $info['stock_minimo_materia_prima'];
+    $this->presentaciones = $info['presentaciones'];
+
+    return $this->actualizarMateriasPrimasP();
+  }
+  public function eliminarMateriasPrimas(array $info)
+  {
+    $resultado = $this->validarMateriasPrimas([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_materia_prima',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idMateriaPrima = $info['id_materia_prima'];
+    return $this->eliminarMateriasPrimasP();
   }
 
   private function seleccionarMateriasPrimasP()
@@ -273,102 +206,93 @@ class materiasPrimasModelo extends conexion
       $instruccionesBD = [
         'campos' => '
           mp.id_materia_prima, mp.nombre_materia_prima,
-          um.nombre_unidad_medida, mp.stock_materia_prima, mp.precio_materia_prima
+          um.nombre_unidad_medida, mp.stock_materia_prima, 
+          mp.stock_minimo_materia_prima, 
+          mp.precio_materia_prima,mp.id_unidad_medida
         ',
         'tabla' => 'materias_primas as mp',
-        'PEL' => 'mp',
         'datosJoins' => [
-          [
-            "tablaDestino" => "unidades_medidas as um",
-            "conexionLo" => "mp.id_unidad_medida = um.id_unidad_medida",
-          ]
+          "unidades_medidas as um" => "mp.id_unidad_medida = um.id_unidad_medida",
         ]
       ];
-
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      $MateriasPrimas = $resultado->fetchAll(PDO::FETCH_ASSOC);
-
-      return $MateriasPrimas;
+      return $this->seleccionarDatos2($instruccionesBD)->fetchAll();
     } else {
-      $instruccionesBD = [
+      //Datos generales
+      $materiaPrima = $this->seleccionarDatos2([
         'campos' => '*',
-        'tabla' => 'materias_primas',
+        'tabla' => 'materias_primas as mp',
         'WHERE' => [
-          [
-            "condicion_campo" => "id_materia_prima",
-            "condicion_marcador" => ":id",
-            "condicion_valor" => $this->idMateriaPrima,
-            "comparacion" => "=",
-          ]
+          "id_materia_prima" => $this->idMateriaPrima,
+        ],
+        'datosJoins' => [
+          'unidades_medidas as um' => 'mp.id_unidad_medida = um.id_unidad_medida'
         ]
-      ];
+      ])->fetch();
 
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-
-      if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Materia prima no encontrada",
-          "texto" => "La materia prima que ha intentado actualizar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
-        exit();
-      } else {
-        $materiaPrima = $resultado->fetch(PDO::FETCH_ASSOC);
-      }
+      //Presentaciones
+      $presentaciones = $this->seleccionarDatos2([
+        'campos' => '*',
+        'tabla' => 'presentaciones_materias_primas as prmp',
+        'WHERE' => [
+          "id_materia_prima" => $this->idMateriaPrima,
+        ],
+        'datosJoins' => [
+          'presentaciones as pr' => 'prmp.id_presentacion = pr.id_presentacion'
+        ]
+      ])->fetchAll() ?? [];
+      $materiaPrima['presentaciones'] = $presentaciones;
       return $materiaPrima;
     }
   }
-  private function registrarMateriasPrimasP($presentaciones)
+  private function registrarMateriasPrimasP()
   {
-    $datos_registro_materias_primas = [
-      [
-        "campo_nombre" => "id_unidad_medida",
-        "campo_marcador" => ":unidadMedida",
-        "campo_valor" => $this->idUnidadMedida,
-      ],
-      [
-        "campo_nombre" => "nombre_materia_prima",
-        "campo_marcador" => ":nombre",
-        "campo_valor" => $this->nombreMateriaPrima,
-        "ponerEnMayusculas" => true,
-      ],
-      [
-        "campo_nombre" => "stock_materia_prima",
-        "campo_marcador" => ":stock",
-        "campo_valor" => $this->stockMateriaPrima,
-      ],
-      [
-        "campo_nombre" => "precio_materia_prima",
-        "campo_marcador" => ":precio",
-        "campo_valor" => $this->costoMateriaPrima,
-      ],
-    ];
-    $ultimoId = $this->guardarDatos('materias_primas', $datos_registro_materias_primas);
-    if (!empty($presentaciones)) {
-      foreach ($presentaciones as $idPresentacion) {
+    $idMateriaPrima = $this->generarCodSeg([
+      'tablaBD' => 'materias_primas',
+      'prefijo' => 'MATE',
+      'campoID' => 'id_materia_prima'
+    ]);
+    $ultimoId = $this->guardarDatos2([
+      'tabla' => 'materias_primas',
+      'datos' => [
+        'id_materia_prima' => $idMateriaPrima,
+        "id_unidad_medida" => $this->idUnidadMedida,
+        "nombre_materia_prima" => $this->nombreMateriaPrima,
+        "stock_materia_prima" => $this->stockMateriaPrima,
+        "stock_minimo_materia_prima" => $this->stockMinimoMateriaPrima,
+        "precio_materia_prima" => $this->precioMateriaPrima,
+      ]
+    ]);
+    if ($ultimoId == false || $ultimoId < 1) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Materia prima no registrada',
+        'texto' => 'La materia prima no ha podido ser registrada',
+        'icono' => 'error',
+      ];
+    }
+    if (!empty($this->presentaciones)) {
+      foreach ($this->presentaciones as $idPresentacion) {
         if ($idPresentacion != '') {
-          $datos_presentacion = [
-            [
-              "campo_nombre" => "id_materia_prima",
-              "campo_marcador" => ":id_materia_prima",
-              "campo_valor" => $ultimoId,
-            ],
-            [
-              "campo_nombre" => "id_presentacion",
-              "campo_marcador" => ":id_presentacion",
-              "campo_valor" => $idPresentacion,
-            ],
-          ];
-
-          $this->guardarDatos('materias_primas_presentaciones', $datos_presentacion);
+          $ultimoId = $this->guardarDatos2([
+            'tabla' => 'presentaciones_materias_primas',
+            'datos' => [
+              'id_materia_prima' => $idMateriaPrima,
+              "id_presentacion" => $idPresentacion,
+            ]
+          ]);
+          if ($ultimoId == false || $ultimoId < 1) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Presentación no registrada',
+              'texto' => 'La presentación de la materia prima no ha podido ser registrada',
+              'icono' => 'error',
+            ];
+          }
         }
       }
     }
     $modeloBitacora = new bitacoraModelo();
     if ($ultimoId !== false && $ultimoId > 0) {
-
       $alerta = [
         "tipo" => "limpiarYcerrar",
         "titulo" => "Materia prima registrada",
@@ -386,151 +310,147 @@ class materiasPrimasModelo extends conexion
       ];
       $modeloBitacora->registrarBitacora("Materias Primas", "Registrar", "Fallido");
     }
-
     return $alerta;
   }
-  private function actualizarMateriasPrimasP($presentaciones)
+  private function actualizarMateriasPrimasP()
   {
-    $instruccionesBD = [
-      "tabla" => "materias_primas",
-      "datos" => [
-        [
-          "campo_nombre" => "id_materia_prima",
-          "campo_marcador" => ":id",
-          "campo_valor" => $this->idMateriaPrima,
-          "debeExistir" => true,
-        ],
-        [
-          "campo_nombre" => "id_unidad_medida",
-          "campo_marcador" => ":unidadMedida",
-          "campo_valor" => $this->idUnidadMedida,
-        ],
-        [
-          "campo_nombre" => "nombre_materia_prima",
-          "campo_marcador" => ":nombre",
-          "campo_valor" => $this->nombreMateriaPrima,
-          "ponerEnMayusculas" => true,
-        ],
-        [
-          "campo_nombre" => "stock_materia_prima",
-          "campo_marcador" => ":stock",
-          "campo_valor" => $this->stockMateriaPrima,
-        ],
-        [
-          "campo_nombre" => "precio_materia_prima",
-          "campo_marcador" => ":precio",
-          "campo_valor" => $this->costoMateriaPrima,
-        ],
+    $MAT = 0;
+    $PRE = 0;
+
+    $objBitacora = new bitacoraModelo();
+    $error = function ($objBi) {
+      $this->rollback();
+      $objBi->registrarBitacora("Materias Primas", "Registrar", "Fallido", true);
+    };
+
+    $dataActual = $this->seleccionarMateriasPrimas([
+      'id_materia_prima' => $this->idMateriaPrima
+    ]);
+
+    $resultado = $this->actualizarDatos2([
+      'tabla' => 'materias_primas',
+      'datos' => [
+        "id_unidad_medida" => $this->idUnidadMedida,
+        "nombre_materia_prima" => $this->nombreMateriaPrima,
+        "stock_materia_prima" => $this->stockMateriaPrima,
+        "stock_minimo_materia_prima" => $this->stockMinimoMateriaPrima,
+        "precio_materia_prima" => $this->precioMateriaPrima,
       ],
-      "WHERE" => [
-        [
-          "condicion_campo" => "id_materia_prima",
-          "condicion_marcador" => ":id",
-          "condicion_valor" => $this->idMateriaPrima,
-          "comparacion" => "=",
-        ]
+      'WHERE' => [
+        'id_materia_prima' => $this->idMateriaPrima
       ]
-    ];
+    ]);
+    if ($resultado != false && $resultado > 0) $MAT++;
 
-    $eliminarPresentaciones = $this->eliminarDatos(
-      "materias_primas_presentaciones",
-      "id_materia_prima",
-      $this->idMateriaPrima
-    );
-
-    if (!empty($presentaciones)) {
-      foreach ($presentaciones as $idPresentacion) {
+    if ($dataActual['presentaciones'] != []) {
+      $resultado = $this->eliminarDatos2([
+        'tabla' => "presentaciones_materias_primas",
+        'WHERE' => ["id_materia_prima" => $this->idMateriaPrima],
+        'fisico' => true
+      ]);
+      if ($resultado <= 0) {
+        $error($objBitacora);
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Presentaciones no eliminadas',
+          'texto' => 'Las presentaciones de la materia prima no han podido ser eliminadas',
+          'icono' => 'error',
+        ];
+      }
+      $PRE += $resultado;
+    }
+    if (!empty($this->presentaciones)) {
+      foreach ($this->presentaciones as $idPresentacion) {
         if ($idPresentacion != '') {
-          $datos_presentacion = [
-            [
-              "campo_nombre" => "id_materia_prima",
-              "campo_marcador" => ":id_materia_prima",
-              "campo_valor" => $this->idMateriaPrima,
-            ],
-            [
-              "campo_nombre" => "id_presentacion",
-              "campo_marcador" => ":id_presentacion",
-              "campo_valor" => $idPresentacion,
-            ],
-          ];
-
-          $this->guardarDatos('materias_primas_presentaciones', $datos_presentacion);
+          $ultimoId = $this->guardarDatos2([
+            'tabla' => 'presentaciones_materias_primas',
+            'datos' => [
+              'id_materia_prima' => $this->idMateriaPrima,
+              "id_presentacion" => $idPresentacion,
+            ]
+          ]);
+          if ($ultimoId == false || $ultimoId < 1) {
+            $error($objBitacora);
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Presentación no registrada',
+              'texto' => 'La presentación de la materia prima no ha podido ser registrada',
+              'icono' => 'error',
+            ];
+          }
+          $PRE++;
         }
       }
-    }
+    };
 
-    $resultado = $this->actualizarDatos($instruccionesBD);
-    $modeloBitacora = new bitacoraModelo();
-    if ($resultado == false && $resultado > 0) {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Sin cambios realizados",
-        "texto" => "No se han realizado cambios en el registro",
-        "icono" => "warning",
+    if ($PRE == 0 && $MAT == 0) {
+      $error($objBitacora);
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Sin cambios',
+        'texto' => 'La materia prima no ha sido actualizada',
+        'icono' => 'warning',
       ];
-      $modeloBitacora->registrarBitacora("Materias Primas", "Actualizar", "Fallido");
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Materia prima actualizada",
-        "texto" => "La materia prima ha sido actualizada exitosamente",
-        "icono" => "success",
-      ];
-      $modeloBitacora->registrarBitacora("Materias Primas", "Actualizar", "Exito");
-      $this->commit();
     }
-    return $alerta;
+    $objBitacora->registrarBitacora("Materias Primas", "Actualizar", "Exito");
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Materia prima actualizada",
+      "texto" => "La materia prima ha sido actualizada exitosamente",
+      "icono" => "success"
+    ];
   }
   private function eliminarMateriasPrimasP()
   {
+    $objBitacora = new bitacoraModelo();
+    $error = function ($objBi) {
+      $this->rollback();
+      $objBi->registrarBitacora("Materias Primas", "Eliminar", "Fallido", true);
+    };
+    $dataActual = $this->seleccionarMateriasPrimas([
+      'id_materia_prima' => $this->idMateriaPrima
+    ]);
 
-    $eliminarMateriaPrima = $this->eliminarDatos("materias_primas", "id_materia_prima", $this->idMateriaPrima);
-    $modeloBitacora = new bitacoraModelo();
-
-    if ($eliminarMateriaPrima->rowCount() == 1) {
-      $this->commit();
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Materia prima eliminada",
-        "texto" => "La materia prima ha sido eliminada con éxito",
-        "icono" => "success"
-      ];
-      $modeloBitacora->registrarBitacora("Materias Primas", "Eliminar", "Exito");
-      $this->commit();
-    } else {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Materia prima no encontrada",
-        "texto" => "La materia prima no existe en la Base de Datos",
-        "icono" => "error"
-      ];
-      $modeloBitacora->registrarBitacora("Materias Primas", "Eliminar", "Fallido");
+    // Presentaciones
+    if ($dataActual['presentaciones'] != []) {
+      $resultado = $this->eliminarDatos2([
+        'tabla' => "presentaciones_materias_primas",
+        'WHERE' => ["id_materia_prima" => $this->idMateriaPrima],
+      ]);
+      if ($resultado <= 0) {
+        $error($objBitacora);
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Presentaciones no eliminadas',
+          'texto' => 'Las presentaciones de la materia prima no han podido ser eliminadas',
+          'icono' => 'error',
+        ];
+      }
     }
-    return $alerta;
-  }
-  private function obtenerPresentacionesMateriasPrimasP()
-  {
-    $instruccionesBD = [
-      'campos' => 'mp.id_presentacion, p.nombre_presentacion',
-      'tabla' => 'materias_primas_presentaciones as mp',
-      'PEL' => 'mp',
-      'datosJoins' => [
-        [
-          "tablaDestino" => "presentaciones as p",
-          "conexionLo" => "mp.id_presentacion = p.id_presentacion",
-        ]
-      ],
-      'WHERE' => [
-        [
-          "condicion_campo" => "mp.id_materia_prima",
-          "condicion_marcador" => ":id",
-          "condicion_valor" => $this->idMateriaPrima,
-          "comparacion" => "=",
-        ]
-      ]
-    ];
 
-    $resultado = $this->seleccionarDatos($instruccionesBD);
-    return $resultado->fetchAll(PDO::FETCH_ASSOC);
+    //Registro principal
+    $resultado = $this->eliminarDatos2([
+      'tabla' => "materias_primas",
+      'WHERE' => ["id_materia_prima" => $this->idMateriaPrima],
+    ]);
+    if ($resultado <= 0) {
+      $error($objBitacora);
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Materia Prima no eliminada',
+        'texto' => 'La materia prima no ha podido ser eliminada',
+        'icono' => 'error',
+      ];
+    }
+
+    $objBitacora->registrarBitacora("Materias Primas", "Eliminar", "Exito");
+    $this->commit();
+    return [
+      "tipo" => "simple",
+      "titulo" => "Materia prima eliminada",
+      "texto" => "La materia prima ha sido eliminada con éxito",
+      "icono" => "success"
+    ];
   }
 }

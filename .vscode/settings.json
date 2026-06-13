@@ -121,5 +121,11 @@
     "YEISON",
     "Záéíóúü"
   ],
-  "editor.foldingStrategy": "indentation"
+  "editor.foldingStrategy": "indentation",
+  "php.analysis.excludePaths": [
+    "${workspaceFolder}/obfuscado"
+  ],
+  "files.exclude": {
+    "**/obfuscado": true
+  }
 }

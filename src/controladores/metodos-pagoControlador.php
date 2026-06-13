@@ -4,27 +4,29 @@ use src\modelos\metodosPagoModelo;
 use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
+
   $objeto = new metodosPagoModelo();
   $accion = $_POST["accion"];
-  $id = $_POST['id_metodo_pago'] ?? "";
   ob_clean();
-  $resultado = [];
-
+  $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarMetodosPagos();
+      $resultado = $objeto->seleccionarMetodosPagos($_POST);
       break;
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarMetodosPagos($id);
+      $resultado = $objeto->seleccionarMetodosPagos($_POST);
       break;
     case "registrar":
       $resultado = $objeto->registrarMetodosPagos($_POST);
       break;
     case "actualizar":
-      $resultado = $objeto->actualizarMetodosPagos($id, $_POST);
+      $resultado = $objeto->actualizarMetodosPagos($_POST);
       break;
     case "eliminar":
-      $resultado = $objeto->eliminarMetodosPagos($id);
+      $resultado = $objeto->eliminarMetodosPagos($_POST);
       break;
   }
   $objeto->DECORE($resultado);

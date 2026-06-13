@@ -3,6 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -20,6 +22,51 @@ $(document).on('DOMContentLoaded', async function (e) {
     },
     campoIdBtn: 'id_rol',
     botones: 'CRUD',
+  });
+  driverAyuda('roles', {
+    pasos:
+      [
+        {
+          element: 'button[data-bs-target=".modalRegistrar"]',
+          popover: {
+            title: 'Registrar Rol',
+            description: 'Haz clic aquí para agregar un nuevo rol al sistema. Los roles son asignados a los usuarios',
+            side: 'bottom',
+            align: 'start'
+          }
+        },
+        {
+          element: '.tabla-ajax',
+          popover: {
+            title: 'Lista de Roles',
+            description: 'Aquí puedes ver todos los roles registrados del sistema.',
+            side: 'top'
+          }
+        },
+        {
+          element: '.botonEditar',
+          popover: {
+            title: 'Editar Roles',
+            description: 'Modifica el nombre de cualquier rol haciendo clic en este botón.',
+            side: 'left'
+          }
+        },
+        {
+          element: '.botonEliminar',
+          popover: {
+            title: 'Eliminar Roles',
+            description: 'Elimina roles que ya no sean necesarios.',
+            side: 'left'
+          }
+        },
+        {
+          popover: {
+            title: '¡Ayuda completada!',
+            description: 'Ya conoces la gestión de roles. Da click en finaliar para acabar la ayuda.',
+            side: 'top'
+          }
+        }
+      ]
   });
 })
 
@@ -57,8 +104,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'roles');
 })
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

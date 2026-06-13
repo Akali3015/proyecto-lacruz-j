@@ -4,34 +4,126 @@ namespace src\modelos;
 
 use PDO;
 use src\config\connect\conexion;
+use src\modelos\accesosModelo;
 
-class mensajesWSModelo extends conexion
-{
+class mensajesWSModelo extends conexion {
 
-  private $idNotificacion;
-  private $cedulaUsuario;
-  private $instruccionesNoti;
-  private $instruccionesAccion;
+  private int $idNotificacion = 0;
+  private string $cedulaUsuario = '';
+  private array $instruccionesNoti = [];
+  private array $instruccionesAccion = [];
 
   /*Métodos para tomas datos de las views y asignarlos a los atributos*/
-  public function Notificaciones_Sel($id = null)
-  {
+  public function buscarUsuariosReceptores(array $instrucciones) {
+    $receptor = $instrucciones['tipo'];
+    $cedula = $instrucciones['cedula'] ?? false;
+    $rol = $instrucciones['rol'] ?? false;
+    $permisos = $instrucciones['permisos'] ?? false;
+    $receptoresAceptados = [
+      'todosSinExcepcion',
+      'todos',
+      'rol',
+      'porPermisos',
+      'cedula'
+    ];
+    if (!in_array($receptor, $receptoresAceptados)) {
+      return [
+        'tipo' => '',
+        'icono' => 'error',
+        'titulo' => "Tipo de receptor no admitido",
+        'texto' => 'El receptor que has estipulado en las instrucciones ',
+      ];
+    }
+    $cedulasUsuarios = [];
+    switch ($receptor) {
+      case 'todosSinExcepcion':
+        $cedulasUsuarios = $this->seleccionarDatos2([
+          'campos' => 'cedula_usuario',
+          'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
+        ])->fetchAll(PDO::FETCH_COLUMN);
+        break;
+      case 'todos':
+        $cedulasUsuarios = $this->seleccionarDatos2([
+          'campos' => 'cedula_usuario',
+          'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
+          'WHERE' => [
+            'cedula_usuario' => '!= ' . $_SESSION['cedula']
+          ],
+        ])->fetchAll(PDO::FETCH_COLUMN);
+        break;
+      case 'rol':
+        $cedulasUsuarios = $this->seleccionarDatos2([
+          'campos' => 'us.cedula_usuario',
+          'tabla' => 'usuarios as us',
+          "BD" => "seguridad",
+          'datosJoins' => [
+            'roles as ro' => 'us.id_rol = ro.id_rol',
+          ],
+          'WHERE' => [
+            'ro.nombre_rol' => $rol,
+          ],
+        ])->fetchAll(PDO::FETCH_COLUMN);
+        break;
+      case 'porPermisos':
+        $rolesTotales = $this->seleccionarDatos2([
+          'tabla' => 'roles',
+          'campos' => 'id_rol',
+          'BD' => 'seguridad'
+        ])->fetchAll(PDO::FETCH_COLUMN);
+        $objAccesos = new accesosModelo();
+        $idsValidos = [];
+        foreach ($rolesTotales as $idRol) {
+          $permisosRol = $objAccesos->seleccionarPermisosPorRol($idRol);
+          $tieneTodosLosPermisos = true;
+          foreach ($permisos as $modulo => $permisosMo) {
+            if (is_array($permisosMo)) {
+              foreach ($permisosMo as $permisoMoInd) {
+                if (!in_array($permisoMoInd, ($permisosRol[$modulo] ?? []))) $tieneTodosLosPermisos = false;
+              }
+            } else {
+              if (!in_array($permisosMo, ($permisosRol[$modulo] ?? []))) $tieneTodosLosPermisos = false;
+            }
+          }
+          if ($tieneTodosLosPermisos) $idsValidos[] = $idRol;
+        }
+        foreach ($idsValidos as $idRol) {
+          $cedulasUsuarios += $this->seleccionarDatos2([
+            'tabla' => 'usuarios',
+            'campos' => 'cedula_usuario',
+            'BD' => 'seguridad',
+            'WHERE' => [
+              'id_rol' => $idRol
+            ]
+          ])->fetchAll(PDO::FETCH_COLUMN);
+        }
+        break;
+      case 'cedula':
+        $cedulasUsuarios[] = $cedula;
+        break;
+      default:
+        break;
+    }
+    return $cedulasUsuarios;
+  }
+  public function seleccionarNotificaciones($id = 0) {
     $this->idNotificacion = $id;
     $this->cedulaUsuario = $_SESSION['cedula'];
-
+    
     $campos = [[
       "campo_nombre" => "cedula_usuario",
       "campo_valor" => &$this->cedulaUsuario,
       "formulario_nombre" => "cédula",
       "requerido" => true,
-      "minimo" => minRegexCedulaRif,
-      "maximo" => maxRegexCedulaRif,
-      "expresion_re" => regexCedulaRif,
+      "minimo" => minRegexCedulaRifLetra,
+      "maximo" => maxRegexCedulaRifLetra,
+      "expresion_re" => regexCedulaRifLetra,
       "tabla" => "usuarios",
       "BD" => "seguridad",
       "debeExistir" => true,
     ]];
-    if ($this->idNotificacion != "") {
+    if ($this->idNotificacion != 0) {
       $campos[] = [
         "campo_nombre" => "id_notificacion",
         "campo_valor" => &$this->idNotificacion,
@@ -51,11 +143,10 @@ class mensajesWSModelo extends conexion
       return $respuesta;
       exit();
     } else {
-      return $this->seleccionarNotificaciones();
+      return $this->seleccionarNotificacionesP();
     }
   }
-  public function Notificaciones_Reg($instruccionesNoti)
-  {
+  public function registrarNotificaciones(array $instruccionesNoti) {
     if (is_string($instruccionesNoti)) {
       $instruccionesNoti = json_decode($instruccionesNoti, true);
     }
@@ -63,24 +154,14 @@ class mensajesWSModelo extends conexion
     $this->instruccionesNoti = $instruccionesNoti;
     [
       "tipo" => &$tipo,
-      "receptor" => &$receptor,
       "titulo" => &$titulo,
       "texto" => &$texto,
       "icono" => &$icono,
       "tiempo" => &$tiempo,
-      "cedula" => &$cedula,
-      "rol" => &$rol,
+      "cedulasReceptores" => &$cedulasReceptores,
     ] = $this->instruccionesNoti;
 
     $campos = [
-      [
-        "campo_valor" => &$receptor,
-        "formulario_nombre" => "receptor de la notificación",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-      ],
       [
         "campo_valor" => &$titulo,
         "formulario_nombre" => "título de la notificación",
@@ -122,7 +203,7 @@ class mensajesWSModelo extends conexion
         "expresion_re" => regexId,
       ],
     ];
-    if ($cedula) {
+    foreach ($cedulasReceptores as &$cedula) {
       $campos[] = [
         "campo_nombre" => "cedula_usuario",
         "campo_valor" => &$cedula,
@@ -136,30 +217,11 @@ class mensajesWSModelo extends conexion
         "debeExistir" => true
       ];
     }
-    if ($rol) {
-      $campos[] = [
-        "campo_nombre" => "nombre_rol",
-        "campo_valor" => &$rol,
-        "formulario_nombre" => "rol de los usuarios",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "roles",
-        "BD" => "seguridad",
-        "debeExistir" => true
-      ];
-    }
-
     $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    }
-    return $this->registrarNotificaciones();
+    if ($respuesta !== false) return $respuesta;
+    return $this->registrarNotificacionesP();
   }
-  public function Notificaciones_Act($cambio)
-  {
+  public function actualizarNotificaciones(string $cambio) {
     $campos = [
       [
         "campo_valor" => $cambio,
@@ -176,11 +238,10 @@ class mensajesWSModelo extends conexion
       return $respuesta;
       exit();
     } else {
-      return $this->actualizarNotificaciones($cambio);
+      return $this->actualizarNotificacionesP($cambio);
     }
   }
-  public function Notificaciones_Eli($id = null)
-  {
+  public function eliminarNotificaciones($id = null) {
     if ($id != null) {
       $this->idNotificacion = $id;
       $campos = [
@@ -206,11 +267,10 @@ class mensajesWSModelo extends conexion
       return $respuesta;
       exit();
     } else {
-      return $this->eliminarNotificaciones();
+      return $this->eliminarNotificacionesP();
     }
   }
-  public function Acciones_Resagadas_Sel()
-  {
+  public function seleccionarAccionesResagadas() {
     $campos = [
       [
         "campo_nombre" => "cedula_usuario",
@@ -231,19 +291,15 @@ class mensajesWSModelo extends conexion
       return $respuesta;
       exit();
     } else {
-      return $this->seleccionarAccionesResagadas();
+      return $this->seleccionarAccionesResagadasP();
     }
   }
-  public function Acciones_Resagadas_Reg($datosAccion)
-  {
+  public function registrarAccionesResagadas(array $datosAccion) {
     $this->instruccionesAccion = $datosAccion;
-
     [
       'accion' => &$accion,
       'modulo' => &$modulo,
-      'receptor' => &$tipoReceptor,
-      'cedula' => &$cedulaReceptor,
-      'rol' => &$rol
+      'cedulasReceptores' => &$cedulaReceptores,
     ] = $this->instruccionesAccion;
 
     $campos = [
@@ -263,17 +319,12 @@ class mensajesWSModelo extends conexion
         "maximo" => maxRegexNombreObj,
         "expresion_re" => regexNombreObj,
       ],
-      [
-        "campo_valor" => &$tipoReceptor,
-        "formulario_nombre" => "tipo de receptor resagada",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-      ],
-      [
+    ];
+
+    foreach ($cedulaReceptores as &$cedula) {
+      $campos[] = [
         "campo_nombre" => "cedula_usuario",
-        "campo_valor" => &$cedulaReceptor,
+        "campo_valor" => &$cedula,
         "formulario_nombre" => "cedula",
         "minimo" => minRegexCedulaRif,
         "maximo" => maxRegexCedulaRif,
@@ -281,25 +332,13 @@ class mensajesWSModelo extends conexion
         "tabla" => "usuarios",
         "BD" => "seguridad",
         "debeExistir" => true
-      ],
-      [
-        "campo_valor" => &$rol,
-        "formulario_nombre" => "rol",
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-      ],
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->Registrar_Acciones_Resagadas();
+      ];
     }
+    $respuesta = $this->limpiar_Verificar($campos);
+    if ($respuesta !== false) return $respuesta;
+    return $this->registrarAccionesResagadasP();
   }
-  public function Acciones_Eli($AON)
-  {
+  public function eliminarAccionesResagadas(array $AON) {
     $this->instruccionesAccion = $AON;
     $accion = $this->instruccionesAccion['accion'];
     $modulo = $this->instruccionesAccion['modulo'] ?? '';
@@ -326,12 +365,100 @@ class mensajesWSModelo extends conexion
       return $respuesta;
       exit();
     } else {
-      return $this->eliminarAcciones();
+      return $this->eliminarAccionesResagadasP();
+    }
+  }
+  public function enviarMensajesWS(array $instruccionesMsj) {
+
+    #region [REGISTRO DE LA ACCION O LA NOTIFICACIÓN EN LA BD]
+
+    $procesarInstrucciones = function ($instruccion) {
+      $registrarBD = function ($cuerpo, $receptor) {
+        $cedulasReceptores = $this->buscarUsuariosReceptores($receptor);
+        if ($cuerpo['accion'] == 'alertar') {
+          return $this->registrarNotificaciones([
+            'tipo' => $cuerpo['alerta']['tipo'],
+            'titulo' => $cuerpo['alerta']['titulo'],
+            'texto' => $cuerpo['alerta']['texto'],
+            'icono' => $cuerpo['alerta']['icono'],
+            'notifier' => $cuerpo['alerta']['notifier'],
+            'tiempo' => $cuerpo['alerta']['tiempo'] ?? 0,
+            'cedulasReceptores' => $cedulasReceptores,
+          ]);
+        } else {
+          return $this->registrarAccionesResagadas([
+            'accion' => $cuerpo['accion'],
+            'modulo' => $cuerpo['modulo'],
+            'cedulasReceptores' => $cedulasReceptores,
+          ]);
+        }
+      };
+      if (count($instruccion['cuerpo']) > 1) {
+        foreach ($instruccion['cuerpo'] as $cuerpoInd) {
+          $resultado = $registrarBD($cuerpoInd, $instruccion['receptor']);
+          if ($resultado != false) return $resultado;
+        }
+      } else {
+        $resultado = $registrarBD($instruccion['cuerpo'], $instruccion['receptor']);
+        if ($resultado != false) return $resultado;
+      }
+    };
+    if (isset($instruccionesMsj['receptor'])) {
+      $resultado = $procesarInstrucciones($instruccionesMsj);
+      if ($resultado != false) return $resultado;
+    } else {
+      foreach ($instruccionesMsj as $instruccionInd) {
+        $resultado = $procesarInstrucciones($instruccionInd);
+        if ($resultado != false) return $resultado;
+      }
+    }
+    #endregion [REGISTRO DE LA ACCION O LA NOTIFICACIÓN EN LA BD]
+
+    #region [DIFUSIÓN POR EL WEBSOCKET]
+    $emisor = [
+      "emisor" => [
+        "cedula" => $_SESSION['cedula'],
+        "rol" => $_SESSION['nombreRol']
+      ]
+    ];
+    $estructuraEnvio = [];
+    if (isset($instruccionesMsj['receptor'])) {
+      $cedulasReceptores = $this->buscarUsuariosReceptores($instruccionesMsj['receptor']);
+      $estructuraEnvio[] = $emisor + [
+        'cuerpo' => $instruccionesMsj['cuerpo'],
+        'cedulasReceptores' => $cedulasReceptores
+      ];
+    } else {
+      foreach ($instruccionesMsj as $instruccion) {
+        $cedulasReceptores = $this->buscarUsuariosReceptores($instruccion['receptor']);
+        $estructuraEnvio[] = $emisor + [
+          'cuerpo' => $instruccion['cuerpo'],
+          'cedulasReceptores' => $cedulasReceptores
+        ];
+      }
+    }
+
+    $resultado = $this->hacerPeticionesAPIs([
+      "url" =>
+      "https://apithevinanode-production.up.railway.app/api/enviar-mensajes-ws",
+      // "https://api-the-vina-node.onrender.com/api/enviar-mensajes-ws",
+      // "http://localhost:1235/api/enviar-mensajes-ws",
+      "metodo" => "POST",
+      "datosPe" => $estructuraEnvio,
+      "enviarComoJSON" => true
+    ]);
+    #endregion [DIFUSIÓN POR EL WEBSOCKET]
+
+    if (!isset($resultado['error'])) {
+      if (!isset($instruccionesMsj['noCommit'])) $this->commit();
+      return ['resultado' => $resultado];
+    } else {
+      $this->rollback();
+      return ['error' => $resultado];
     }
   }
 
-  private function seleccionarNotificaciones()
-  {
+  private function seleccionarNotificacionesP() {
     if ($this->idNotificacion != null && $this->idNotificacion != "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '
@@ -389,17 +516,14 @@ class mensajesWSModelo extends conexion
       return $notificaciones;
     }
   }
-  private function registrarNotificaciones()
-  {
+  private function registrarNotificacionesP() {
     [
       "tipo" => &$tipo,
-      "receptor" => &$receptor,
       "titulo" => &$titulo,
       "texto" => &$texto,
       "icono" => &$icono,
       "tiempo" => &$tiempo,
-      "cedula" => &$cedula,
-      "rol" => &$rol,
+      "cedulasReceptores" => &$cedulasReceptores,
     ] = $this->instruccionesNoti;
 
     //Id icono
@@ -421,51 +545,7 @@ class mensajesWSModelo extends conexion
       ],
     ]);
 
-    // BÚSQUEDA DE LOS USUARIOS
-    $cedulasUsuarios = false;
-    switch ($receptor) {
-      case 'todosSinExcepcion':
-        $instruccionesBD = [
-          'campos' => 'cedula_usuario',
-          'tabla' => 'usuarios as us',
-          "BD" => "seguridad",
-        ];
-        break;
-      case 'todos':
-        $instruccionesBD = [
-          'campos' => 'cedula_usuario',
-          'tabla' => 'usuarios as us',
-          "BD" => "seguridad",
-          'WHERE' => [
-            'cedula_usuario' => '!= ' . $_SESSION['cedula']
-          ],
-        ];
-        break;
-      case 'rol':
-        $instruccionesBD = [
-          'campos' => 'us.cedula_usuario',
-          'tabla' => 'usuarios as us',
-          "BD" => "seguridad",
-          'datosJoins' => [
-            'roles as ro' => 'us.id_rol = ro.id_rol',
-          ],
-          'WHERE' => [
-            'ro.nombre_rol' => $rol,
-          ],
-        ];
-        break;
-      case 'cedula':
-        $cedulasUsuarios = $cedula;
-        break;
-      default:
-        break;
-    }
-
     // PROCESO DE ASOCIAR LA NOTIFICACION A EL O LOS USUARIOS
-    if ($cedulasUsuarios == false) {
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
-      $cedulasUsuarios = $resultado->fetchAll(PDO::FETCH_COLUMN);
-    }
     $asociarCedulaANotificacion = function ($cedula, $infoNot) {
       $ultimoId = $this->guardarDatos2([
         'tabla' => 'notificaciones',
@@ -480,19 +560,16 @@ class mensajesWSModelo extends conexion
           "fecha_creacion_notificacion" => $this->FechaHora_Sel('fecha_hora_BD'),
         ]
       ]);
-      if ($ultimoId == false && $ultimoId == 0) {
-        $alertaError = [
+      if ($ultimoId == false || $ultimoId == 0) {
+        return [
           "tipo" => "simple",
           "titulo" => "Notificación no registrada",
           "texto" => "La notificación no ha sido registrada al usuario",
           "icono" => "error",
         ];
-        return $alertaError;
-      } else {
-        return false;
       }
+      return false;
     };
-
     $infoNoti = [
       'id_icono_notificacion' => $idIcono,
       'id_tipo_notificacion' => $idTipoNotificacion,
@@ -500,29 +577,40 @@ class mensajesWSModelo extends conexion
       'titulo_notificacion' => $titulo,
       'texto_notificacion' => $texto,
     ];
-    if (is_array($cedulasUsuarios)) {
-      foreach ($cedulasUsuarios as $cedula) {
+    if (is_array($cedulasReceptores)) {
+      foreach ($cedulasReceptores as $cedula) {
         $resultado = $asociarCedulaANotificacion($cedula, $infoNoti);
-        if ($resultado != false) {
-          return $resultado;
-        }
+        if ($resultado != false) return $resultado;
       }
     } else {
-      $resultado = $asociarCedulaANotificacion($cedulasUsuarios, $infoNoti);
-      if ($resultado != false) {
-        return $resultado;
-      }
+      $resultado = $asociarCedulaANotificacion($cedulasReceptores, $infoNoti);
+      if ($resultado != false) return $resultado;
     }
-
-    if (!isset($alertaError)) {
-      return false;
-    } else {
-      return $alertaError;
-    }
+    return false;
   }
-  private function actualizarNotificaciones($cambio)
-  {
+  private function actualizarNotificacionesP(string $cambio) {
     if ($cambio == 'marcarTodasComoLeidas') {
+
+      $notSinMarcarComoLeidas = $this->seleccionarDatos2([
+        "tabla" => "notificaciones",
+        "BD" => "seguridad",
+        'campos' => 'id_notificacion',
+        'WHERE' => [
+          'status' => [
+            '!=' => [0, 2]
+          ],
+          "cedula_usuario" => $_SESSION['cedula'],
+        ]
+      ]);
+      if ($notSinMarcarComoLeidas->rowCount() <= 0) {
+        return [
+          "tipo" => "simple",
+          "titulo" => "Sin notificaciones no leídas",
+          "texto" => "No hay notificaciones sin leer",
+          "icono" => "warning",
+        ];
+      }
+
       $resultado = $this->actualizarDatos2([
         "tabla" => "notificaciones",
         "BD" => "seguridad",
@@ -535,26 +623,24 @@ class mensajesWSModelo extends conexion
         ]
       ]);
       if ($resultado == false || $resultado <= 0) {
-        $alerta = [
+        $this->rollback();
+        return [
           "tipo" => "simple",
           "titulo" => "Error al marcar como leídas",
           "texto" => "No se logró marcar las notificaciones como leídas",
           "icono" => "error",
         ];
-      } else {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Listo",
-          "texto" => "Notificaciones correctamente marcadas como leídas",
-          "icono" => "success",
-        ];
-        $this->commit();
       }
-      return $alerta;
+      $this->commit();
+      return [
+        "tipo" => "simple",
+        "titulo" => "Listo",
+        "texto" => "Notificaciones correctamente marcadas como leídas",
+        "icono" => "success",
+      ];
     }
   }
-  private function eliminarNotificaciones()
-  {
+  private function eliminarNotificacionesP() {
     $resultado = $this->eliminarDatos2([
       'tabla' => "notificaciones",
       "BD" => "seguridad",
@@ -562,7 +648,7 @@ class mensajesWSModelo extends conexion
         "cedula_usuario" => $_SESSION['cedula']
       ]
     ]);
-    if ($resultado->rowCount() > 0) {
+    if ($resultado > 0) {
 
       $alerta = [
         "tipo" => "simple",
@@ -581,8 +667,7 @@ class mensajesWSModelo extends conexion
     }
     return $alerta;
   }
-  private function seleccionarAccionesResagadas()
-  {
+  private function seleccionarAccionesResagadasP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => '
         aru.accion_resagada, mo.nombre_modulo
@@ -597,17 +682,13 @@ class mensajesWSModelo extends conexion
       ]
     ]);
 
-
     $resultado = $resultado->fetchAll(PDO::FETCH_ASSOC);
     return $resultado;
   }
-  private function Registrar_Acciones_Resagadas()
-  {
+  private function registrarAccionesResagadasP() {
     [
       'accion' => $accion,
-      'receptor' => $tipoReceptor,
-      'cedula' => $cedulaReceptor,
-      'rol' => $rol
+      'cedulasReceptores' => $cedulasReceptores,
     ] = $this->instruccionesAccion;
     $modulo = $this->instruccionesAccion['modulo'] ?? 'cualquiera';
 
@@ -620,53 +701,6 @@ class mensajesWSModelo extends conexion
         'nombre_modulo' => $modulo
       ],
     ]);
-
-    // BÚSQUEDA DE LOS USUARIOS
-    $cedulasUsuarios = false;
-    switch ($tipoReceptor) {
-      case 'todosSinExcepcion':
-        $instruccionesBD = [
-          'campos' => 'cedula_usuario',
-          'tabla' => 'usuarios',
-          "BD" => "seguridad",
-        ];
-        break;
-      case 'todos':
-        $instruccionesBD = [
-          'campos' => 'cedula_usuario',
-          'tabla' => 'usuarios',
-          "BD" => "seguridad",
-          'WHERE' => [
-            'cedula_usuario' => $_SESSION['cedula'],
-          ],
-        ];
-        break;
-      case 'rol':
-        $instruccionesBD = [
-          'campos' => 'us.cedula_usuario',
-          'tabla' => 'usuarios as us',
-          "BD" => "seguridad",
-          'datosJoins' => [
-            'roles as ro' => 'us.id_rol = ro.id_rol',
-          ],
-          'WHERE' => [
-            'ro.nombre_rol' => $rol,
-          ],
-        ];
-        break;
-      case 'cedula':
-        $cedulasUsuarios = $cedulaReceptor;
-        break;
-      default:
-
-        break;
-    }
-
-    // PROCESO DE ASOCIAR LA NOTIFICACION A EL O LOS USUARIOS
-    if ($cedulasUsuarios == false) {
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
-      $cedulasUsuarios = $resultado->fetchAll(PDO::FETCH_COLUMN);
-    }
 
     $asociarAccion = function ($cedula, $idModulo, $accion) {
       //Registramos la accion solo si ya no hay una vigente
@@ -681,39 +715,27 @@ class mensajesWSModelo extends conexion
         ],
       ]);
       if ($idAccionResagada == false && $idAccionResagada == 0) {
-        $alertaError = [
+        return [
           "tipo" => "simple",
           "titulo" => "Acción no registrada",
           "texto" => "La acción no ha sido registrada al usuario",
           "icono" => "error",
         ];
-        return $alertaError;
-      } else {
-        return false;
       }
-    };
-    if (is_array($cedulasUsuarios)) {
-      foreach ($cedulasUsuarios as $cedula) {
-        $resultado = $asociarAccion($cedula, $idModulo, $accion);
-        if ($resultado != false) {
-          return $resultado;
-        }
-      }
-    } else {
-      $resultado = $asociarAccion($cedulasUsuarios, $idModulo, $accion);
-      if ($resultado != false) {
-        return $resultado;
-      }
-    }
-
-    if (!isset($alertaError)) {
       return false;
+    };
+    if (is_array($cedulasReceptores)) {
+      foreach ($cedulasReceptores as $cedula) {
+        $resultado = $asociarAccion($cedula, $idModulo, $accion);
+        if ($resultado != false) return $resultado;
+      }
     } else {
-      return $alertaError;
+      $resultado = $asociarAccion($cedulasReceptores, $idModulo, $accion);
+      if ($resultado != false) return $resultado;
     }
+    return false;
   }
-  private function eliminarAcciones()
-  {
+  private function eliminarAccionesResagadasP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => 'id_modulo',
       'tabla' => 'modulos',
@@ -723,124 +745,21 @@ class mensajesWSModelo extends conexion
       ]
     ]);
     $idModulo = $resultado->fetch(PDO::FETCH_COLUMN);
-
-    $resultado = $this->seleccionarDatos2([
-      'campos' => 'id_accion',
-      'tabla' => 'acciones',
-      "BD" => "seguridad",
-      'WHERE' => [
-        'nombre_accion' => $this->instruccionesAccion['accion']
-      ]
-    ]);
-
-    $idAccion = $resultado->fetch(PDO::FETCH_COLUMN);
     $resultado = $this->eliminarDatos2([
       'tabla' => 'acciones_resagadas_usuarios',
       "BD" => "seguridad",
       'fisico' => true,
       'WHERE' => [
         'cedula_usuario' => $_SESSION['cedula'],
-        'id_accion' => $idAccion,
+        'accion_resagada' => $this->instruccionesAccion['accion'],
         'id_modulo' => $idModulo,
       ]
     ]);
-    if ($resultado->rowCount() > 0) {
-      $this->commit();
-      return 'Éxito';
-    } else {
+    if ($resultado <= 0) {
       $this->rollback();
       return 'Ocurrió un error';
     }
-  }
-  public function enviarMensajesWS($instruccionesMsj)
-  {
-    #region [REGISTRO DE LA ACCION O LA NOTIFICACIÓN EN LA BD]
-    $procesarInstrucciones = function ($instruccion) {
-      $registrarBD = function ($cuerpo, $receptor) {
-        if ($cuerpo['accion'] == 'alertar') {
-          return $this->Notificaciones_Reg([
-            'tipo' => $cuerpo['alerta']['tipo'],
-            'titulo' => $cuerpo['alerta']['titulo'],
-            'texto' => $cuerpo['alerta']['texto'],
-            'icono' => $cuerpo['alerta']['icono'],
-            'notifier' => $cuerpo['alerta']['notifier'],
-            'tiempo' => $cuerpo['alerta']['tiempo'] ?? 0,
-            'receptor' => $receptor['tipo'],
-            'cedula' => $receptor['cedula'] ?? false,
-            'rol' => $receptor['rol'] ?? false
-          ]);
-        } else {
-          return $this->Acciones_Resagadas_Reg([
-            'accion' => $cuerpo['accion'],
-            'modulo' => $cuerpo['modulo'],
-            'receptor' => $receptor['tipo'],
-            'cedula' => $receptor['cedula'] ?? false,
-            'rol' => $receptor['rol'] ?? false
-          ]);
-        }
-      };
-      if (count($instruccion['cuerpo']) > 1) {
-        foreach ($instruccion['cuerpo'] as $cuerpoInd) {
-          $resultado = $registrarBD($cuerpoInd, $instruccion['receptor']);
-          if ($resultado != false) {
-            return $resultado;
-          }
-        }
-      } else {
-        $resultado = $registrarBD($instruccion['cuerpo'], $instruccion['receptor']);
-        if ($resultado != false) {
-          return $resultado;
-        }
-      }
-    };
-    if (isset($instruccionesMsj['receptor'])) {
-      $resultado = $procesarInstrucciones($instruccionesMsj);
-
-      if ($resultado != false) {
-        return $resultado;
-      };
-    } else {
-      foreach ($instruccionesMsj as $instruccionInd) {
-        $resultado = $procesarInstrucciones($instruccionInd);
-        if ($resultado != false) {
-          return $resultado;
-        };
-      }
-    }
-    #endregion [REGISTRO DE LA ACCION O LA NOTIFICACIÓN EN LA BD]
-
-    #region [DIFUSIÓN POR EL WEBSOCKET]
-    $emisor = [
-      "emisor" => [
-        "cedula" => $_SESSION['cedula'],
-        "rol" => $_SESSION['nombreRol']
-      ]
-    ];
-    $estructuraEnvio = [];
-    if (isset($instruccionesMsj['receptor'])) {
-      $estructuraEnvio[] = $emisor + $instruccionesMsj;
-    } else {
-      foreach ($instruccionesMsj as $instruccion) {
-        $estructuraEnvio[] = $emisor + $instruccion;
-      }
-    }
-
-    $resultado = $this->hacerPeticionesAPIs([
-      "url" =>
-      // "http://localhost:1234/api/enviar-mensajes-ws",
-      "https://api-the-vina-node.onrender.com/api/enviar-mensajes-ws",
-      "metodo" => "POST",
-      "datosPe" => $estructuraEnvio,
-      "enviarComoJSON" => true
-    ]);
-    #endregion [DIFUSIÓN POR EL WEBSOCKET]
-
-    if (!isset($resultado['error'])) {
-      $this->commit();
-      return ['resultado' => $resultado];
-    } else {
-      $this->rollback();
-      return ['error' => $resultado];
-    }
+    $this->commit();
+    return 'Éxito';
   }
 }

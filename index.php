@@ -1,7 +1,8 @@
 <?php
 
+
 use src\controladores\frontController;
-use src\modelos\errorBD;
+use src\config\connect\errorBD;
 
 try {
   require_once 'vendor/autoload.php';
@@ -24,6 +25,7 @@ try {
     'Rastro' => $th->getTrace(),
   ];
   ob_end_clean();
+  $_SESSION['codigoRequest'] = 500;
   echo json_encode($error);
   exit();
   // echo 'Error: ' . $th->getCode();

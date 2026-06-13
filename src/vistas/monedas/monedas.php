@@ -40,7 +40,7 @@ echo $componente->listaDataTable($instruccionesLista);
                         </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Valor de la Moneda</label>
-                            <input type="text" class="form-control" name="valor_moneda" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required placeholder="Ej: 12.00">
+                            <input type="text" class="form-control dinero" name="valor_moneda" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required placeholder="Ej: 12.00">
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ echo $componente->listaDataTable($instruccionesLista);
                         </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Valor de la Moneda</label>
-                            <input type="text" class="form-control formularioActualizar" name="valor_moneda" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required placeholder="Ej: 12.00">
+                            <input type="text" class="form-control formularioActualizar dinero" name="valor_moneda" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required placeholder="Ej: 12.00">
                         </div>
                     </div>
                 </div>

@@ -103,3 +103,72 @@ select.bloqueado {
     appearance: none;
     background-image: none !important;
 }
+
+/* Nuevas clases para eliminar estilos en línea */
+.modal-header-custom {
+    background: linear-gradient(135deg, #1565C0, #42A5F5);
+    border: none;
+}
+
+.modal-body-custom {
+    background-color: #f8f9fa;
+}
+
+.header-global-item {
+    max-width: 340px;
+}
+
+.icon-primary-lg {
+    font-size: 1.2rem;
+}
+
+.text-uppercase-spaced {
+    letter-spacing: .5px;
+}
+
+.input-date-container {
+    flex-grow: 1;
+    max-width: 300px;
+    min-width: 200px;
+}
+
+.btn-add-item {
+    width: 50px;
+    height: 50px;
+    font-size: 1.6rem;
+    padding: 0;
+    line-height: 1;
+    background: #1565C0;
+    border: none;
+}
+
+.btn-save-custom {
+    background: linear-gradient(135deg, #1565C0, #42A5F5);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.modal-footer-custom {
+    border: 0;
+    background-color: #fff;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-cancel-custom {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.icon-hashtag-sm {
+    font-size: 1.1rem;
+}
+
+.info-display-box {
+    border: 1px solid #dee2e6;
+    background: #fff;
+}

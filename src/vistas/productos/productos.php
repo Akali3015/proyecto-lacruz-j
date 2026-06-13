@@ -3,39 +3,13 @@
 use src\config\inc\componentesModelo;
 
 $componente = new componentesModelo();
-?>
-<input type="hidden" class="nombreVista" value="productos">
-
-<style>
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    50% {
-      transform: scale(1.1);
-      opacity: 0.7;
-    }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .pulse-animation {
-    animation: pulse 2s infinite ease-in-out;
-  }
-</style>
-
-<?php
 $instruccionesLista = [
   'encabezado' => 'Gestionar Productos',
   'tituloBtnReg' => 'Registrar Producto',
 ];
 echo $componente->listaDataTable($instruccionesLista);
 ?>
+<input type="hidden" class="nombreVista" value="productos">
 
 <!-- Plantilla fila materias primas -->
 <template class="plantillaFilaMP d-none">
@@ -51,7 +25,8 @@ echo $componente->listaDataTable($instruccionesLista);
         type="text"
         name="materias_primas-[COD-FILA]-cantidad_materia_prima"
         class="form-control input-cantidad-materia dinero"
-        placeholder="Cantidad">
+        placeholder="Cantidad"
+      >
     </td>
     <td class="costo-unitario"></td>
     <td class=" subtotal"></td>
@@ -75,15 +50,15 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="registrar">
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
               <label class="form-label">Nombre del Producto</label>
               <input type="text" class="form-control noRepetir" name="nombre_producto" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
               <label class="form-label">Stock Inicial</label>
               <input type="number" class="form-control" name="stock_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="0" required>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
               <label class="form-label">Stock Mínimo</label>
               <input type="number" class="form-control" name="stock_minimo_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="5" required>
             </div>
@@ -98,23 +73,12 @@ echo $componente->listaDataTable($instruccionesLista);
               </select>
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Mostrar en E-Commerce</label>
-              <select class="form-select" name="mostrar_ecommerce" required>
-                <option value="1">Sí, mostrar en tienda</option>
-                <option value="0">No, esconder de tienda</option>
-              </select>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Foto del Producto</label>
-              <input class="form-control" type="file" name="foto_producto" accept="image/*" required>
-            </div>
-            <div class="col-md-3 mb-3">
               <label class="form-label">Precio Divisas ($)</label>
               <input type="text" class="form-control dinero" name="precio_producto" pattern="<?php echo regexPrecioFront; ?>" required>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
               <label class="form-label">Precio BCV (Bs)</label>
-              <input disabled type="text" class="form-control">
+              <input disabled type="text" class="form-control precioProductoBCV">
             </div>
             <div class="col-12 mb-3 campos-fabricado" style="display: none;">
               <label class="form-label">Materias Primas para Fabricación</label>
@@ -134,7 +98,9 @@ echo $componente->listaDataTable($instruccionesLista);
                   <tfoot>
                     <tr>
                       <td colspan="3" class="text-end"><strong>Total Costo:</strong></td>
-                      <td colspan="2"><strong id="totalCostoMaterias">0.00$</strong><input type="hidden" name="costo_total_materias" id="costoTotalMaterias" value="0"></td>
+                      <td colspan="2">
+                        <strong id="totalCostoMaterias">0.00$</strong>
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
@@ -144,14 +110,18 @@ echo $componente->listaDataTable($instruccionesLista);
             <div class="col-12 mb-3">
               <label class="form-label">Presentaciones Disponibles</label>
               <div class="form-text mb-2">Seleccione las presentaciones para este producto</div>
-              <div class="contenedor-presentaciones row"></div>
-              <div class="mt-3">
-                <button type="button" class="btn btn-outline-secondary btn-sm btn-seleccionar-todas"><i class="fas fa-check-square me-1"></i> Seleccionar todas</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm btn-deseleccionar-todas"><i class="fas fa-square me-1"></i> Deseleccionar todas</button>
+              <div class="mb-3 justify-content-between d-flex">
+                <div>
+                  <button type="button" class="btn btn-outline-secondary btn-sm btn-seleccionar-todas"><i class="fas fa-check-square me-1"></i> Seleccionar todas</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm btn-deseleccionar-todas"><i class="fas fa-square me-1"></i> Deseleccionar todas</button>
+                </div>
+                <div class="d-flex">
+                  <button type="button" class="btn btn-primary btn-sm d-flex me-1"><i class="fi fi-rs-camera p-1 me-1"></i>Foto de la presentación</button>
+                  <button type="button" class="btn btn-success btn-sm d-flex"><i class="fi fi-rs-marketplace-store p-1 me-1"></i>Mostrar o no en el ecommerce</button>
+                </div>
               </div>
+              <div class="contenedor-presentaciones row"></div>
             </div>
-            <div class="inputs-ocultos-presentaciones"></div>
-            <div id="inputsOcultosMaterias"></div>
           </div>
         </div>
         <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
@@ -211,7 +181,7 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Precio BCV (Bs)</label>
-              <input disabled type="text" class="form-control">
+              <input disabled type="text" class="form-control precioProductoBCV">
             </div>
             <div class="col-12 mb-3 campos-fabricado" style="display: none;">
               <label class="form-label">Materias Primas para Fabricación</label>
@@ -231,7 +201,9 @@ echo $componente->listaDataTable($instruccionesLista);
                   <tfoot>
                     <tr>
                       <td colspan="3" class="text-end"><strong>Total Costo:</strong></td>
-                      <td colspan="2"><strong id="totalCostoMateriasActualizar">0.00 Bs</strong><input type="hidden" name="costo_total_materias" id="costoTotalMateriasActualizar" value="0" class="formularioActualizar"></td>
+                      <td colspan="2">
+                        <strong id="totalCostoMaterias">0.00 Bs</strong>
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
@@ -247,13 +219,40 @@ echo $componente->listaDataTable($instruccionesLista);
                 <button type="button" class="btn btn-outline-secondary btn-sm btn-deseleccionar-todas"><i class="fas fa-square me-1"></i> Deseleccionar todas</button>
               </div>
             </div>
-            <div class="inputs-ocultos-presentaciones"></div>
-            <div id="inputsOcultosMateriasActualizar"></div>
           </div>
         </div>
         <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i> Cancelar</button>
           <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"><i class="fas fa-save me-2"></i> Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detalles presentaciones -->
+<div class="modal fade modalVerPresentaciones" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content border-0">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+        <h5 class="modal-title"><i class="fas fa-edit me-2"></i> Presentaciones del producto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form class="formularioAjax validar" method="POST" action="" novalidate enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="row">
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover tabla-presentaciones">
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i> Cerrar</button>
         </div>
       </form>
     </div>

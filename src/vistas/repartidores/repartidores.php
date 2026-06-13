@@ -30,9 +30,14 @@ echo $componente->listaDataTable($instruccionesLista);
           <div class="row">
             <input type="hidden" name="accion" value="registrar">
             <div class="col-md-6 mb-3">
-              <label for="cedula_repartidor" class="form-label">Cédula</label>
+              <label for="codigo_cedula_repartidor" class="form-label">Cédula</label>
               <div class="input-group">
-                <select class="input-group-text selectCodigoRIF" name="codigo_rif_cedula_repartidor" required>
+                <select
+                  data-prefijo=".selectCodigoCedula"
+                  data-cuerpo=".inputCedula"
+                  class="input-group-text selectCodigoCedula"
+                  name="codigo_cedula_repartidor"
+                  required>
                   <option value="V">V</option>
                   <option value="E">E</option>
                   <option value="J">J</option>
@@ -40,20 +45,62 @@ echo $componente->listaDataTable($instruccionesLista);
                   <option value="C">C</option>
                   <option value="P">P</option>
                 </select>
-                <input type="text" class=" form-control noRepetir" name="cedula_repartidor" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
+                <input
+                  type="text"
+                  class=" form-control inputCedula noRepetir"
+                  name="cedula_repartidor"
+                  pattern="<?php echo regexCedulaRifLetra ?>"
+                  minlength="<?php echo minRegexCedulaRif ?>"
+                  maxlength="<?php echo maxRegexCedulaRif ?>"
+                  minlengthC="<?php echo minRegexCedulaRif ?>"
+                  maxlengthC="<?php echo maxRegexCedulaRif ?>"
+                  required
+                  data-prefijo=".selectCodigoCedula"
+                  data-cuerpo=".inputCedula">
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="nombre_repartidor" class="form-label">Nombre</label>
-              <input type="text" class="form-control noRepetir" name="nombre_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control" name="nombre_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="apellido_repartidor" class="form-label">Apellido</label>
-              <input type="text" class="form-control noRepetir" name="apellido_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control" name="apellido_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
-            <div class="col-md-12 mb-3">
-              <label for="telefono_repartidor" class="form-label">Teléfono</label>
-              <input type="text" class="form-control noRepetir" name="telefono_repartidor" pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" required>
+            <div class="col-md-6 mb-3">
+              <label for="prefijo_telefono_repartidor" class="form-label">Teléfono</label>
+              <div class="input-group">
+                <select
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo="."
+                  class="input-group-text selectPrefijoTelefono"
+                  name="prefijo_telefono_repartidor"
+                  required>
+                  <option value="0416">0416</option>
+                  <option value="0426">0426</option>
+                  <option value="0424">0424</option>
+                  <option value="0414">0414</option>
+                  <option value="0412">0412</option>
+                  <option value="0422">0422</option>
+                  <option value="0212">0212</option>
+                  <option value="0251">0251</option>
+                  <option value="0241">0241</option>
+                  <option value="0257">0257</option>
+                  <option value="0257">0257</option>
+                </select>
+                <input
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo=".telefonoRepartidor"
+                  type="text"
+                  class="form-control telefonoRepartidor noRepetir"
+                  name="telefono_repartidor"
+                  pattern="<?php echo regexTelefono ?>"
+                  minlength="<?php echo minRegexCuerpoTelefono ?>"
+                  maxlength="<?php echo maxRegexCuerpoTelefono ?>"
+                  minlengthC="<?php echo minRegexTelefono ?>"
+                  maxlengthC="<?php echo maxRegexTelefono ?>"
+                  required>
+              </div>
             </div>
             <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -86,31 +133,49 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="actualizar">
-            <div class="col-md-6 mb-3 d-none">
-              <label for="cedula_repartidor" class="form-label">Cédula</label>
-              <div class="input-group">
-                <select class="input-group-text selectCodigoRIF" name="codigo_rif_cedula_repartidor" required>
-                  <option value="V">V</option>
-                  <option value="E">E</option>
-                  <option value="J">J</option>
-                  <option value="G">G</option>
-                  <option value="C">C</option>
-                  <option value="P">P</option>
-                </select>
-                <input type="text" class=" form-control noRepetir formularioActualizar" name="cedula_repartidor" pattern="<?php echo regexCedulaRif ?>" minlength="<?php echo minRegexCedulaRif ?>" maxlength="<?php echo maxRegexCedulaRif ?>" required>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
+            <input type="hidden" class=" form-control inputCedula formularioActualizar" name="cedula_repartidor">
+            <div class="col-md-4 mb-3">
               <label for="nombre_repartidor" class="form-label">Nombre</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control formularioActualizar" name="nombre_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
-            <div class="col-md-12 mb-3">
+            <div class="col-md-4 mb-3">
               <label for="apellido_repartidor" class="form-label">Apellido</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="apellido_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control formularioActualizar" name="apellido_repartidor" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
-            <div class="col-md-12 mb-3">
-              <label for="telefono_repartidor" class="form-label">Teléfono</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="telefono_repartidor" pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono ?>" maxlength="<?php echo maxRegexTelefono ?>" required>
+            <div class="col-md-4 mb-3">
+              <label for="prefijo_telefono_repartidor" class="form-label">Teléfono</label>
+              <div class="input-group">
+                <select
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo="."
+                  class="input-group-text selectPrefijoTelefono"
+                  name="prefijo_telefono_repartidor"
+                  required>
+                  <option value="0416">0416</option>
+                  <option value="0426">0426</option>
+                  <option value="0424">0424</option>
+                  <option value="0414">0414</option>
+                  <option value="0412">0412</option>
+                  <option value="0422">0422</option>
+                  <option value="0212">0212</option>
+                  <option value="0251">0251</option>
+                  <option value="0241">0241</option>
+                  <option value="0257">0257</option>
+                  <option value="0257">0257</option>
+                </select>
+                <input
+                  data-prefijo=".selectPrefijoTelefono"
+                  data-cuerpo=".telefonoRepartidor"
+                  type="text"
+                  class="form-control formularioActualizar telefonoRepartidor noRepetir"
+                  name="telefono_repartidor"
+                  pattern="<?php echo regexTelefono ?>"
+                  minlength="<?php echo minRegexCuerpoTelefono ?>"
+                  maxlength="<?php echo maxRegexCuerpoTelefono ?>"
+                  minlengthC="<?php echo minRegexTelefono ?>"
+                  maxlengthC="<?php echo maxRegexTelefono ?>"
+                  required>
+              </div>
             </div>
           </div>
         </div>

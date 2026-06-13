@@ -1,19 +1,18 @@
-//#region [ IMPORTACIONES ] COMIENZO
+// Importaciones
 import {
   enviarFormulario, listarDataTable, pedirDatosAjax
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-//#endregion [ IMPORTACIONES ] FIN
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
-//#region [VARIABLES GLOBALES] COMIENZO
+// Variables globales
 let proveedoresOptionsCache = '';
 let itemsCache = {
   'materia_prima': null,
   'producto': null
 };
-let itemsCompra = []; // Array global para almacenar items temporales
-//#endregion [VARIABLES GLOBALES] FIN
+let itemsCompra = []; // items temporales para la compra
 
-//#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
+// Funciones del modulo
 
 // Carga inicial de proveedores para cachear las opciones
 async function cargarOpcionesProveedores() {
@@ -56,18 +55,25 @@ async function cargarOpcionesProveedores() {
 }
 
 // Carga items por tipo y retorna las opciones HTML
-// Carga items por tipo y retorna las opciones HTML
 async function obtenerOpcionesItems(tipo, seleccionado = null) {
   // Si no está en caché, buscar datos
   if (!itemsCache[tipo]) {
-    let modulo = tipo === 'producto' ? 'productos' : 'materiasPrimas';
-
-    let items = await pedirDatosAjax({
-      modulo: modulo,
-      noGuardarLocal: true,
-      datosPe: { accion: 'listar' }
-    });
-
+    let items;
+    if (tipo === 'producto') {
+      // Pedimos las PRESENTACIONES de productos (cada una tiene su propio id_presentacion_producto
+      // que es el ID que se guarda en productos_compras)
+      items = await pedirDatosAjax({
+        modulo: 'compras',
+        noGuardarLocal: true,
+        datosPe: { accion: 'listarProductosParaCompra' }
+      });
+    } else {
+      items = await pedirDatosAjax({
+        modulo: 'materiasPrimas',
+        noGuardarLocal: true,
+        datosPe: { accion: 'listar' }
+      });
+    }
     // Guardar en caché el array de datos, validando que sea array
     itemsCache[tipo] = Array.isArray(items) ? items : [];
   }
@@ -82,7 +88,8 @@ async function obtenerOpcionesItems(tipo, seleccionado = null) {
 
       switch (tipo) {
         case 'producto':
-          id = item.id_producto;
+          // id_presentacion_producto es exactamente el campo que guarda productos_compras
+          id = item.id_presentacion_producto;
           nombre = item.nombre_producto;
           idUnidadMedida = item.id_unidad_medida;
           nombreUnidad = item.nombre_unidad_medida;
@@ -93,7 +100,6 @@ async function obtenerOpcionesItems(tipo, seleccionado = null) {
           idUnidadMedida = item.id_unidad_medida;
           nombreUnidad = item.nombre_unidad_medida;
           break;
-
       }
 
       // Comparación laxa (==) por si string vs number
@@ -110,7 +116,7 @@ async function obtenerOpcionesItems(tipo, seleccionado = null) {
   return opcionesHtml;
 }
 
-// Agregar una nueva fila al grid (CSS Grid Version)
+// Agregar fila al grid de compras
 async function agregarFila() {
   let index = $('.fila-compra').length;
 
@@ -120,55 +126,43 @@ async function agregarFila() {
   }
 
   // HTML de la fila adaptado a CSS Grid
-  let filaHtml = `
-        <div class="grid-compras-row fila-compra">
-            <!-- Proveedor -->
-            <div>
-                <select class="form-select selectProveedorFila" name="proveedor_${index}">
-                    ${proveedoresOptionsCache}
-                </select>
-            </div>
-
-            <!-- Tipo -->
-            <div>
-                <select class="form-select selectTipoFila">
-                    <option value="materia_prima">Materia Prima</option>
-                    <option value="producto">Producto</option>
-                </select>
-            </div>
-            
-            <!-- Artículo -->
-            <div>
-                <select class="form-select selectArticuloFila">
-                    <option value="">Cargando...</option>
-                </select>
-            </div>
-            
-            <!-- Unidad -->
-            <div>
-                <input type="text" class="form-control inputUnidadFila" disabled 
-                    style="background-color: #f8f9fa;">
-                <input type="hidden" class="inputUnidadIdFila">
-            </div>
-            
-            <!-- Cantidad -->
-            <div>
-                <input type="number" class="form-control inputCantidadFila" step="0.01" min="0.01" value="1">
-            </div>
-            
-            <!-- Acciones -->
-            <div class="text-center">
-                <button type="button" class="btn-borrar btnEliminarFila" title="Eliminar línea">
-                    <span style="font-size: 1.5rem; font-weight: bold; line-height: 1; margin-top: -3px;">&times;</span>
-                </button>
-            </div>
-        </div>
-    `;
+  let filaHtml = [
+    '<div class="grid-compras-row fila-compra">',
+    '<div>',
+    `<select class="form-select selectProveedorFila" name="proveedor_${index}">`,
+    proveedoresOptionsCache,
+    '</select>',
+    '</div>',
+    '<div>',
+    '<select class="form-select selectTipoFila">',
+    '<option value="materia_prima">Materia Prima</option>',
+    '<option value="producto">Producto</option>',
+    '</select>',
+    '</div>',
+    '<div>',
+    '<select class="form-select selectArticuloFila">',
+    '<option value="">Cargando...</option>',
+    '</select>',
+    '</div>',
+    '<div>',
+    '<input type="text" class="form-control inputUnidadFila"',
+    ' disabled style="background-color:#f8f9fa;">',
+    '<input type="hidden" class="inputUnidadIdFila">',
+    '</div>',
+    '<div>',
+    '<input type="number" class="form-control inputCantidadFila"',
+    ' step="0.01" min="0.01" value="1">',
+    '</div>',
+    '<div class="text-center">',
+    '<button type="button" class="btn-borrar btnEliminarFila" title="Eliminar línea">',
+    '<span style="font-size:1.5rem;font-weight:bold;line-height:1;">\u00d7</span>',
+    '</button>',
+    '</div>',
+    '</div>',
+  ].join('');
 
   let nuevaFila = $(filaHtml);
-  // Determinar qué contenedor usar según el modal activo
-  let contenedorId = $('.modalActualizar:visible').length ? '#contenedorItemsAct' : '#contenedorItems';
-  let contenedor = $(contenedorId);
+  let contenedor = $('#contenedorItems');
 
   contenedor.append(nuevaFila);
 
@@ -192,11 +186,9 @@ async function agregarFila() {
 }
 
 
-// Renderizar Tabla de Items (Usado en Edición)
+// Renderizar items en edicion
 async function actualizarTablaItems() {
-  // Determinar el contenedor correcto según el modal activo
-  let contenedorId = $('.modalActualizar:visible').length ? '#contenedorItemsAct' : '#contenedorItems';
-  let contenedor = $(contenedorId);
+  let contenedor = $('#contenedorItems');
   contenedor.empty();
 
   if (!itemsCompra || itemsCompra.length === 0) {
@@ -214,7 +206,7 @@ async function actualizarTablaItems() {
     let item = itemsCompra[i];
     let index = i;
 
-    // Pre-seleccionar Proveedor reemplazando string
+    // Pre-seleccionar Proveedor
     let pId = String(item.proveedorId || '').trim();
     let provOptions = proveedoresOptionsCache.replace(`value="${pId}"`, `value="${pId}" selected`);
 
@@ -231,8 +223,8 @@ async function actualizarTablaItems() {
                 <!-- Tipo -->
                 <div>
                     <select class="form-select selectTipoFila">
-                        <option value="materia_prima" ${item.TIPO === 'materia_prima' ? 'selected' : ''}>Materia Prima</option>
-                        <option value="producto" ${item.TIPO === 'producto' ? 'selected' : ''}>Producto</option>
+                        <option value="materia_prima" ${item.tipo === 'materia_prima' ? 'selected' : ''}>Materia Prima</option>
+                        <option value="producto" ${item.tipo === 'producto' ? 'selected' : ''}>Producto</option>
                     </select>
                 </div>
                 
@@ -273,7 +265,7 @@ async function actualizarTablaItems() {
       nuevaFila.find('.selectProveedorFila').val(pId);
     }
 
-    // Cargar opciones del artículo ya seleccionadas (Robustez Extrema)
+    // Cargar opciones del articulo
     let selectArticulo = nuevaFila.find('.selectArticuloFila');
     let aId = String(item.id || '').trim();
 
@@ -285,7 +277,7 @@ async function actualizarTablaItems() {
   actualizarContador();
 
   // Auto-scroll al fondo
-  let scrollContainer = $('.grid-compras-container');
+  let scrollContainer = $('#contenedorItems');
   if (scrollContainer.length) {
     scrollContainer.scrollTop(scrollContainer[0].scrollHeight);
   }
@@ -311,34 +303,191 @@ function actualizarBloqueoProveedor() {
   }
 }
 
-function inicializarModal() {
-  if ($('.modalRegistrar').length === 0) return;
+// Sin eventos directos aqui
 
-  $('.modalRegistrar').off('show.bs.modal').on('show.bs.modal', async function () {
-    let form = $(this).find('form');
-    let accion = form.find('input[name="accion"]').val();
+async function cargarDatosCompra(id, modo = 'editar') {
+  try {
+    let respuesta = await pedirDatosAjax({
+      modulo: 'compras',
+      noGuardarLocal: true,
+      datosPe: { accion: 'seleccionarUno', id_compra: id }
+    });
 
-    if (accion !== 'actualizar') {
-      // Limpiar caché para que siempre se vean productos/materias nuevos
-      itemsCache = { 'materia_prima': null, 'producto': null };
-      $('#contenedorItems').empty();
-      await cargarOpcionesProveedores();
-      await obtenerOpcionesItems('materia_prima');
-      await obtenerOpcionesItems('producto');
-      agregarFila();
+    if (!respuesta || respuesta.length === 0) {
+      Swal.fire('Error', 'No se pudieron cargar los datos de la compra', 'error');
+      return;
+    }
+
+    if (modo === 'editar') {
+      let modal = $('.modalRegistrar');
+      let form = modal.find('form');
+      let header = respuesta[0];
+
+      modal.find('.modal-title').html(
+        '<i class="fas fa-edit me-2"></i> Actualizar Compra'
+      );
+      form.find('input[name="accion"]').val('actualizar');
+      form.find('input[name="id_compra"]').val(id);
+      form.find('.textoSubmit').text('Actualizar Todo');
+      $('#btnLimpiarFormulario').hide();
+
+      let fechaFormat = header.fecha_compra.replace(' ', 'T').substring(0, 16);
+      form.find('input[name="fecha_compra"]').val(fechaFormat);
+
+      modal.find('.modo-edicion').removeClass('d-none').addClass('d-flex');
+      if (!proveedoresOptionsCache) await cargarOpcionesProveedores();
+      modal.find('.selectProveedorAct')
+        .prop('disabled', false)
+        .html(proveedoresOptionsCache)
+        .val(header.rif_proveedor);
+
+      itemsCompra = [];
+      respuesta.forEach(item => {
+        itemsCompra.push({
+          proveedorId: item.rif_proveedor,
+          tipo: item.TIPO.toLowerCase(),
+          id: item.id_item,
+          nombre: item.ARTICULO,
+          cantidad: parseFloat(item.cantidad_raw),
+          id_unidad_medida: item.id_unidad_medida,
+          nombre_unidad: item.nombre_unidad_medida || 'UNID'
+        });
+      });
+
+      await actualizarTablaItems();
+
+      // En modo edición se pueden cambiar tipo y artículo de cada fila
+      // y agregar/eliminar filas igual que en registro
+      $('.selectTipoFila, .selectArticuloFila').prop('disabled', false);
+      $('.btnEliminarFila').show();
+      $('#btnAgregarFila').show();
+
+      modal.modal('show');
+    }
+
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Error', 'Hubo un problema al cargar la compra', 'error');
+  }
+}
+
+function resetearFormularioCompra() {
+  let modal = $('.modalRegistrar');
+  let form = modal.find('form');
+
+  modal.find('.modal-title').html(
+    '<i class="fas fa-shopping-cart me-2"></i> Registrar Compra'
+  );
+  form.find('input[name="accion"]').val('registrar');
+  form.find('input[name="id_compra"]').val('');
+  form.find('.textoSubmit').text('Guardar Todo');
+  $('#btnLimpiarFormulario').show();
+
+  modal.find('.modo-edicion').addClass('d-none').removeClass('d-flex');
+
+  form.find('input, select, button').prop('disabled', false);
+  $('#btnAgregarFila').prop('disabled', false).show();
+
+  itemsCompra = [];
+  $('#contenedorItems').empty();
+
+  form[0].reset();
+
+  let now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  form.find('input[name="fecha_compra"]').val(now.toISOString().slice(0, 16));
+
+  agregarFila();
+}
+
+async function verDetallesCompra(idCompra) {
+  try {
+    let respuesta = await pedirDatosAjax({
+      modulo: 'compras',
+      noGuardarLocal: true,
+      datosPe: { accion: 'seleccionarUno', id_compra: idCompra }
+    });
+
+    if (!respuesta || respuesta.length === 0) {
+      Swal.fire('Error', 'No se encontraron datos de la compra', 'error');
+      return;
+    }
+
+    let header = respuesta[0];
+
+    $('#verIdCompra').text(header.id_compra || '-');
+
+    let fechaFormat = header.fecha_compra ?
+      new Date(header.fecha_compra.replace(' ', 'T')).toLocaleString('es-ES', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }) : '-';
+    $('#verFechaCompra').text(fechaFormat);
+
+    let tbody = $('#verItemsBody');
+    tbody.empty();
+
+    respuesta.forEach(item => {
+      let tipoLabel = item.TIPO === 'materia_prima' ? 'Materia Prima' : 'Producto';
+      let inicial = (item.PROVEEDOR || '-').charAt(0).toUpperCase();
+
+      let row = `
+                <div class="grid-compras-row" style="background-color: white;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 h-100 px-1">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
+                                 style="width:26px;height:26px;font-size:.7rem;background:linear-gradient(135deg,#f59e0b,#fbbf24);">
+                                ${inicial}
+                            </div>
+                            <span style="font-size:.82rem;">${item.PROVEEDOR || '-'}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge rounded-pill px-2 py-1"
+                              style="font-size:.75rem;background:${tipoLabel === 'Producto' ? 'linear-gradient(135deg,#10b981,#34d399)' : 'linear-gradient(135deg,#8b5cf6,#a78bfa)'}">
+                            ${tipoLabel}
+                        </span>
+                    </div>
+                    <div style="font-size:.85rem;font-weight:500;">${item.ARTICULO || '-'}</div>
+                    <div>
+                        <span class="badge bg-light text-dark border" style="font-size:.8rem;">
+                            ${item.nombre_unidad_medida || 'UNID'}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="fw-bold text-dark" style="font-size:.9rem;">${parseFloat(item.cantidad_raw).toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+      tbody.append(row);
+    });
+
+    let modal = new bootstrap.Modal($('#modalVerCompra')[0]);
+    modal.show();
+
+  } catch (error) {
+    console.error('Error al cargar detalles de compra:', error);
+    Swal.fire('Error', 'Hubo un problema al cargar los detalles de la compra', 'error');
+  }
+}
+// Fin de funciones
+
+// Eventos de la vista
+$(async function () {
+  const permisos = await pedirDatosAjax({
+    modulo: 'accesos',
+    noGuardarLocal: true,
+    datosPe: {
+      accion: 'listarPorRol'
     }
   });
-}
-//#endregion [FUNCIONES] FIN
 
-//#region [EVENTOS] COMIENZO
-$(document).on('DOMContentLoaded', async function () {
   await listarDataTable({
     encabezados: {
       "id_compra": "# COMPRA",
       "fecha_compra": "FECHA",
       "PROVEEDOR": "PROVEEDOR",
-      "total_articulos": "ARTÍCULOS",
+      "total_articulos": "ARTÍCULOS"
     },
     informacionPe: {
       'modulo': 'compras',
@@ -346,7 +495,6 @@ $(document).on('DOMContentLoaded', async function () {
     },
     campoIdBtn: 'id_compra',
     infoTratoEspecial: {
-      // Badge mejorado con ícono y degradado
       total_articulos: (info) => {
         let n = parseInt(info.valor) || 0;
         if (n === 0) return `<span class="badge bg-secondary rounded-pill px-2">Sin artículos</span>`;
@@ -357,23 +505,22 @@ $(document).on('DOMContentLoaded', async function () {
             ${n} artículo${n !== 1 ? 's' : ''}
         </span>`;
       },
-      // Fecha con dos líneas: fecha arriba, hora abajo
       fecha_compra: (info) => {
         if (!info.valor) return '-';
         let d = new Date(info.valor.replace(' ', 'T'));
         let fechaTexto = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
         let horaTexto = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         return `
-                    <div class="d-flex flex-column lh-sm">
+                    <div class="d-flex flex-column align-items-center lh-sm">
                         <span class="fw-semibold" style="font-size:.85rem;">${fechaTexto}</span>
-                        <span class="text-muted" style="font-size:.75rem;"><i class="fi fi-rr-clock me-1"></i>${horaTexto}</span>
+                        <span class="text-muted d-flex align-items-center mt-1" style="font-size:.75rem;">
+                            <i class="fi fi-rr-clock me-1"></i>${horaTexto}
+                        </span>
                     </div>`;
       },
-      // ID con chip
       id_compra: (info) => {
         return `<span class="badge bg-light text-dark border fw-bold px-2" style="font-size:.85rem;">#${info.valor}</span>`;
       },
-      // Proveedor con avatar avatar color
       PROVEEDOR: (info) => {
         if (!info.valor) return '-';
         let inicial = info.valor.charAt(0).toUpperCase();
@@ -390,14 +537,26 @@ $(document).on('DOMContentLoaded', async function () {
     botones: function (info) {
       let id = info['fila']['id_compra'];
       let boton = '<ul class="list-inline me-auto mb-0">';
-      if (window.ROL_USUARIO == 1) {
-        boton += `
-          <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
-              <a href="#" value="${id}" class="botonEditar avtar avtar-xs btn-link-success btn-pc-default">
-                  <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
-              </a>
-          </li>`;
+
+      if (permisos['compras']) {
+        if (permisos['compras'].includes('actualizar')) {
+          boton += `
+            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
+                <a href="#" value="${id}" class="botonEditar avtar avtar-xs btn-link-success btn-pc-default">
+                    <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
+                </a>
+            </li>`;
+        }
+        if (permisos['compras'].includes('eliminar')) {
+          boton += `
+            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                <a href="#" value="${id}" class="botonEliminar avtar avtar-xs btn-link-danger btn-pc-default">
+                    <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
+                </a>
+            </li>`;
+        }
       }
+
       boton += `
             <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver Detalles">
                 <a href="#" value="${id}" class="botonVer avtar avtar-xs btn-link-info btn-pc-default">
@@ -409,12 +568,29 @@ $(document).on('DOMContentLoaded', async function () {
     }
   });
 
-  inicializarModal();
+  cargarOpcionesProveedores();
 });
 
-// ────────────────────────────────────────────────────────────────
-// DASHBOARD ANALÍTICO — se renderiza cada vez que dibuja el DataTable
-// ────────────────────────────────────────────────────────────────
+// Eventos del Modal
+$(document).on('show.bs.modal', '.modalRegistrar', async function () {
+  let form = $(this).find('form');
+  let accion = form.find('input[name="accion"]').val();
+
+  if (accion !== 'actualizar') {
+    itemsCache = { 'materia_prima': null, 'producto': null };
+    $('#contenedorItems').empty();
+    await cargarOpcionesProveedores();
+    await obtenerOpcionesItems('materia_prima');
+    await obtenerOpcionesItems('producto');
+    agregarFila();
+  }
+});
+
+$(document).on('hidden.bs.modal', '.modalRegistrar', function () {
+  resetearFormularioCompra();
+});
+
+// Dashboard de estadisticas
 $(document).on('draw.dt', '.tabla-ajax', function () {
   let datosTabla = $(this).DataTable().rows().data().toArray();
   let totalCompras = datosTabla.length;
@@ -530,7 +706,7 @@ $(document).on('click', '.btnEliminarFila', function () {
   }
 });
 
-// Enviar formulario (RECOLECCIÓN DE DATOS DE LA GRID)
+// Enviar formulario y recolectar datos de la tabla
 $(document).on('submit', '.formularioAjax', async function (e) {
   e.preventDefault();
 
@@ -582,7 +758,7 @@ $(document).on('submit', '.formularioAjax', async function (e) {
   }
 
   $(this).find('input[name="rif_proveedor"]').remove();
-  $(this).find('input[name="detalles"]').remove();
+  $(this).find('.input-detalle-hidden').remove();
 
   $('<input>', {
     type: 'hidden',
@@ -590,11 +766,13 @@ $(document).on('submit', '.formularioAjax', async function (e) {
     value: detalles[0].proveedorId
   }).appendTo(this);
 
-  $('<input>', {
-    type: 'hidden',
-    name: 'detalles',
-    value: JSON.stringify(detalles)
-  }).appendTo(this);
+  // Enviar detalles como arreglos planos (flat structure)
+  detalles.forEach(d => {
+    $('<input>', { type: 'hidden', name: 'detalle_proveedorId[]', value: d.proveedorId, class: 'input-detalle-hidden' }).appendTo(this);
+    $('<input>', { type: 'hidden', name: 'detalle_tipo[]', value: d.tipo, class: 'input-detalle-hidden' }).appendTo(this);
+    $('<input>', { type: 'hidden', name: 'detalle_id[]', value: d.id, class: 'input-detalle-hidden' }).appendTo(this);
+    $('<input>', { type: 'hidden', name: 'detalle_cantidad[]', value: d.cantidad, class: 'input-detalle-hidden' }).appendTo(this);
+  });
 
   let respuesta = await enviarFormulario({
     'formulario': this,
@@ -621,228 +799,67 @@ $(document).on("click", ".botonVer", function (e) {
   verDetallesCompra(id);
 });
 
+// Evento para eliminar compra (con confirmación)
+$(document).on("click", ".botonEliminar", function (e) {
+  e.preventDefault();
+  let id = $(this).attr("value");
+
+  Swal.fire({
+    title: '¿Eliminar Compra #' + id + '?',
+    text: 'Esta acción desactivará la compra y sus artículos. No se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      let respuesta = await pedirDatosAjax({
+        modulo: 'compras',
+        noGuardarLocal: true,
+        datosPe: { accion: 'eliminar', id_compra: id }
+      });
+      if (respuesta && respuesta.icono === 'success') {
+        Swal.fire('Eliminado', respuesta.texto || 'Compra eliminada correctamente.', 'success');
+        $('.tabla-ajax').DataTable().ajax.reload(null, false);
+      } else {
+        Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo eliminar la compra.', 'error');
+      }
+    }
+  });
+});
+
 // Restaurar estado al cerrar el modal (para que el próximo "Registrar" esté limpio)
 $('.modalRegistrar').on('hidden.bs.modal', function () {
   resetearFormularioCompra();
 });
 
-async function cargarDatosCompra(id, modo = 'editar') {
-  try {
-    let respuesta = await pedirDatosAjax({
-      modulo: 'compras',
-      datosPe: {
-        accion: 'seleccionarUno',
-        id_compra: id
-      }
-    });
 
-    if (!respuesta || respuesta.length === 0) {
-      Swal.fire('Error', 'No se pudieron cargar los datos de la compra', 'error');
-      return;
-    }
-
-    // 1. Preparar el modal para edición
-    let modal = $('.modalRegistrar');
-    let form = modal.find('form');
-
-    // Cambiar títulos y acciones
-    // Cambiar títulos y acciones según el modo
-    if (modo === 'editar') {
-      modal.find('.modal-title').html('<i class="fas fa-edit me-2"></i> Actualizar Compra');
-      form.find('input[name="accion"]').val('actualizar');
-      form.find('button[type="submit"]').show().html('<i class="fas fa-save me-2"></i> Actualizar Todo');
-      $('#btnLimpiarFormulario').show();
-    } else {
-      // MODO VER
-      modal.find('.modal-title').html('<i class="fi fi-rs-eye me-2"></i> Detalles de Compra');
-      form.find('input[name="accion"]').val(''); // Sin acción
-      form.find('button[type="submit"]').hide(); // Ocultar guardar
-      $('#btnLimpiarFormulario').hide(); // Ocultar limpiar
-    }
-
-    // Habilitar todo inicialmente para asegurar que se puede escribir
-    form.find('input, select, button').prop('disabled', false);
-    $('#btnAgregarFila').prop('disabled', false);
-
-    // Agregar ID de compra si no existe input hidden
-    if (form.find('input[name="id_compra"]').length === 0) {
-      $('<input>').attr({
-        type: 'hidden',
-        name: 'id_compra',
-        class: 'formularioActualizar' // Para que se limpie si es necesario
-      }).appendTo(form);
-    }
-    form.find('input[name="id_compra"]').val(id);
-
-    // 2. Cargar Datos de Cabecera (del primer item)
-    let header = respuesta[0];
-
-    // Asignar Proveedor (Esperamos a que carguen las opciones si es necesario, pero asumimos que ya están en cache)
-    // Si no están, las forzamos
-    if ($('.selectProveedorAct').has('option[value="' + header.rif_proveedor + '"]').length == 0) {
-      // Si el proveedor no esta en la lista (raro), lo agregamos temporalmente
-      $('.selectProveedorAct').append(`<option value="${header.rif_proveedor}">${header.PROVEEDOR}</option>`);
-    }
-    $('.selectProveedorAct').val(header.rif_proveedor).trigger('change');
-    $('.selectProveedorFila').val(header.rif_proveedor); // Sincronizar select de fila
-
-    // Asignar Fecha (convertir formato si es necesario, datetime-local usa YYYY-MM-DDTHH:MM)
-    // La DB devuelve 'YYYY-MM-DD HH:MM:SS', quitamos los segundos y reemplazamos espacio por T
-    let fechaFormat = header.fecha_compra.replace(' ', 'T').substring(0, 16);
-    form.find('input[name="fecha_compra"]').val(fechaFormat);
-
-    // 3. Cargar Items
-    itemsCompra = []; // Limpiar array global
-
-    respuesta.forEach(item => {
-      itemsCompra.push({
-        proveedorId: item.rif_proveedor, // Usamos el del item o header
-        proveedorNombre: item.PROVEEDOR,
-        tipo: item.TIPO.toLowerCase(), // producto, insumo, materia_prima
-        id: item.id_item,
-        nombre: item.ARTICULO,
-        cantidad: parseFloat(item.cantidad_raw), // Valor crudo numérico
-        id_unidad_medida: item.id_unidad_medida,
-        nombre_unidad: item.nombre_unidad_medida || 'UNID'
-      });
-    });
-
-    // 4. Renderizar Tabla
-    await actualizarTablaItems();
-
-    // 5. Mostrar Modal
-    modal.modal('show');
-
-    // Si es modo ver, deshabilitar todo
-    if (modo === 'ver') {
-      form.find('input, select, textarea, button').prop('disabled', true);
-
-      // Botones de grid también
-      $('.btnEliminarFila').prop('disabled', true).hide();
-      $('#btnAgregarFila').prop('disabled', true).hide();
-
-      // Re-habilitar botón cerrar modal
-      form.find('button[data-bs-dismiss="modal"]').prop('disabled', false);
-    }
-
-  } catch (error) {
-    console.error(error);
-    Swal.fire('Error', 'Hubo un problema al cargar la compra', 'error');
+// Validación en tiempo real: campo cantidad de cada fila
+$(document).on('input', '.inputCantidadFila', function () {
+  let val = parseFloat($(this).val());
+  let invalido = isNaN(val) || val <= 0;
+  $(this).toggleClass('is-invalid', invalido);
+  if (invalido) {
+    $(this).next('.invalid-feedback').remove();
+    $(this).after(
+      '<div class="invalid-feedback">La cantidad debe ser mayor a 0</div>'
+    );
+  } else {
+    $(this).next('.invalid-feedback').remove();
   }
-}
+});
 
-function resetearFormularioCompra() {
-  let modal = $('.modalRegistrar');
-  let form = modal.find('form');
+// Validación en tiempo real: proveedor requerido
+$(document).on('change', '.selectProveedorFila', function () {
+  let invalido = !$(this).val();
+  $(this).toggleClass('is-invalid', invalido);
+});
 
-  // Restaurar a modo registro
-  modal.find('.modal-title').html('<i class="fas fa-shopping-cart me-2"></i> Registrar Compra');
-  form.find('input[name="accion"]').val('registrar');
-  form.find('button[type="submit"]').show().html('<i class="fas fa-save me-2"></i> Guardar Todo');
-  $('#btnLimpiarFormulario').show();
-  $('#btnAgregarFila').prop('disabled', false);
-
-  form.find('input, select, button').prop('disabled', false);
-  $('#btnAgregarFila').prop('disabled', false).show();
-  $('#btnLimpiarFormulario').show();
-
-  // Limpiar tabla e items
-  itemsCompra = [];
-  $('#contenedorItems').empty();
-
-  // Resetear form (valores)
-  form[0].reset();
-
-  // Reestablecer fecha actual
-  let now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  form.find('input[name="fecha_compra"]').val(now.toISOString().slice(0, 16));
-
-  // Agregar primera fila vacía
-  agregarFila();
-}
-
-// Nueva función para ver detalles de compra (Modal dedicado de solo lectura)
-async function verDetallesCompra(idCompra) {
-  try {
-    // 1. Obtener datos del backend
-    let respuesta = await pedirDatosAjax({
-      modulo: 'compras',
-      noGuardarLocal: true,
-      datosPe: {
-        accion: 'seleccionarUno',
-        id_compra: idCompra
-      }
-    });
-
-    if (!respuesta || respuesta.length === 0) {
-      Swal.fire('Error', 'No se encontraron datos de la compra', 'error');
-      return;
-    }
-
-    // 2. Obtener datos del header (primer elemento)
-    let header = respuesta[0];
-
-    // 3. Poblar información general
-    $('#verIdCompra').text(header.id_compra || '-');
-
-    // Formatear fecha para mostrar
-    let fechaFormat = header.fecha_compra ?
-      new Date(header.fecha_compra.replace(' ', 'T')).toLocaleString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : '-';
-    $('#verFechaCompra').text(fechaFormat);
-
-    // 4. Poblar grid de items (usando mismo estilo que registro)
-    let tbody = $('#verItemsBody');
-    tbody.empty();
-
-    respuesta.forEach(item => {
-      let tipoLabel = item.TIPO === 'materia_prima' ? 'Materia Prima' : 'Producto';
-      let inicial = (item.PROVEEDOR || '-').charAt(0).toUpperCase();
-
-      let row = `
-                <div class="grid-compras-row" style="background-color: white;">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 h-100 px-1">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                                 style="width:26px;height:26px;font-size:.7rem;background:linear-gradient(135deg,#f59e0b,#fbbf24);">
-                                ${inicial}
-                            </div>
-                            <span style="font-size:.82rem;">${item.PROVEEDOR || '-'}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="badge rounded-pill px-2 py-1"
-                              style="font-size:.75rem;background:${tipoLabel === 'Producto' ? 'linear-gradient(135deg,#10b981,#34d399)' : 'linear-gradient(135deg,#8b5cf6,#a78bfa)'}">
-                            ${tipoLabel}
-                        </span>
-                    </div>
-                    <div style="font-size:.85rem;font-weight:500;">${item.ARTICULO || '-'}</div>
-                    <div>
-                        <span class="badge bg-light text-dark border" style="font-size:.8rem;">
-                            ${item.nombre_unidad_medida || 'UNID'}
-                        </span>
-                    </div>
-                    <div>
-                        <span class="fw-bold text-dark" style="font-size:.9rem;">${parseFloat(item.cantidad_raw).toFixed(2)}</span>
-                    </div>
-                </div>
-            `;
-      tbody.append(row);
-    });
-
-    // 5. Mostrar modal
-    let modal = new bootstrap.Modal(document.getElementById('modalVerCompra'));
-    modal.show();
-
-  } catch (error) {
-    console.error('Error al cargar detalles de compra:', error);
-    Swal.fire('Error', 'Hubo un problema al cargar los detalles de la compra', 'error');
-  }
-}
-//#endregion [EVENTOS] FIN
+// Validación en tiempo real: artículo requerido
+$(document).on('change', '.selectArticuloFila', function () {
+  let invalido = !$(this).val();
+  $(this).toggleClass('is-invalid', invalido);
+});
+//#endregion [ EVENTOS ] FIN

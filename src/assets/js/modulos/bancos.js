@@ -3,6 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -21,6 +23,51 @@ $(document).on('DOMContentLoaded', async function (e) {
     },
     campoIdBtn: 'id_banco',
     botones: 'CRUD',
+  });
+  driverAyuda('bancos', {
+    pasos:
+      [
+        {
+          element: 'button[data-bs-target=".modalRegistrar"]',
+          popover: {
+            title: 'Registrar Bancos',
+            description: 'Haz clic aquí para agregar un nuevo banco al sistema. Los bancos se necesitan para la gestion de las ordenes de entrega.',
+            side: 'bottom',
+            align: 'start'
+          }
+        },
+        {
+          element: '.tabla-ajax',
+          popover: {
+            title: 'Lista de Bancos',
+            description: 'Aquí puedes ver todos los bancos registrados.',
+            side: 'top'
+          }
+        },
+        {
+          element: '.botonEditar',
+          popover: {
+            title: 'Editar Bancos',
+            description: 'Modifica el nombre de cualquier banco haciendo clic en este botón.',
+            side: 'left'
+          }
+        },
+        {
+          element: '.botonEliminar',
+          popover: {
+            title: 'Eliminar Bancos',
+            description: 'Elimina los bancos que ya no sean necesarios. Ten cuidado porque esto puede afectar la gestion de ordenes de entrega.',
+            side: 'left'
+          }
+        },
+        {
+          popover: {
+            title: '¡Ayuda completada!',
+            description: 'Ya conoces la gestion de bancos. Da click en finaliar para acabar la ayuda.',
+            side: 'top'
+          }
+        }
+      ]
   });
 
   // Agregamos la clase 'noRepetir' al campo de nombre para activar la validación de unicidad
@@ -68,8 +115,8 @@ $(document).on('click', '.botonEditar', async function (e) {
 });
 
 // Evento para validar en tiempo real según los patrones definidos
-$(document).off('input blur', '.validar input, .validar select');
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select');
+$(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'bancos');
 });
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

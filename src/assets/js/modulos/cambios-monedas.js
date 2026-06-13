@@ -1,7 +1,7 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
   listarDataTable, enviarFormulario, extraerDatosAjax, validarEnTiempoReal,
-  cambiarFormatos
+  cambiarFormatos, formateoCampos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -51,8 +51,11 @@ $(document).on('submit', '.formularioAjax', function (e) {
 });
 
 //Evento para validar en tiempo real
-$(document).off('input blur', '.validar input, .validar select')
-$(document).on('input blur', '.validar input, .validar select', function () {
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
+  if($(this).hasClass('inputMonto')){
+    formateoCampos($(this), 'dinero')
+  }
   validarEnTiempoReal(this, 'monedas');
 })
 

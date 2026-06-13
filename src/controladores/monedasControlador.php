@@ -5,48 +5,38 @@ use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   $accion = $_POST["accion"];
-
-  $id = $_POST['id_moneda'] ?? "";
-  $nombre = $_POST['nombre_moneda'] ?? "";
-  $simbolo = $_POST['simbolo_moneda'] ?? "";
-  $valor = $_POST['valor_moneda'] ?? "";
-
   $objeto = new monedasModelo();
 
   ob_clean();
+    $resultado = [
+    'icono' => 'error',
+    'titulo' => 'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $objeto->seleccionarMonedas();
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarMonedas($_POST);
+      break;
     case "listarCambios":
       $resultado = $objeto->seleccionarCambiosMonedas();
-      echo json_encode($resultado);
-      exit();
+      break;
     case "seleccionarUno":
-      $resultado = $objeto->seleccionarMonedas($id);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->seleccionarMonedas($_POST);
+      break;
     case "registrar":
-      $resultado = $objeto->registrarMonedas($nombre, $simbolo, $valor);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->registrarMonedas($_POST);
+      break;
     case "actualizar":
-      $resultado = $objeto->actualizarMonedas('completa', $id, $valor, $nombre, $simbolo);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarMonedas($_POST);
+      break;
     case "actualizarValor":
-      $resultado = $objeto->actualizarMonedas('soloValor', $id, $valor);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $objeto->actualizarMonedas($_POST);
+      break;
     case "eliminar":
-      $resultado = $objeto->eliminarMonedas($id);
-      echo json_encode($resultado);
-      exit();
-    default:
-      echo json_encode(["error" => "Acción no reconocida"]);
-      exit();
+      $resultado = $objeto->eliminarMonedas($_POST);
+      break;
   }
+  $objeto->DECORE($resultado);
+  exit();
 } else {
   $archivo = "src/vistas/monedas/monedas.php";
   if (isset($url2) && $url2 != "") {

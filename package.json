@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.php",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "minGlobal": "node vendor/hidden/js/minify-global.mjs",
+    "resGlobal": "node vendor/hidden/js/restore-global.mjs"
   },
   "repository": {
     "type": "git",

@@ -6,23 +6,29 @@ use src\config\inc\componentesModelo;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
-  $monto = $_POST['monto_cambio_iva'] ?? "";
 
   $modeloCambiosIva = new cambiosIvaModelo();
   ob_clean();
+  $resultado=[
+    'icono'=>'error',
+    'titulo'=>'Acción no reconocida'
+  ];
   switch ($accion) {
     case "listar":
-      $resultado = $modeloCambiosIva->seleccionarCambiosIva();
-      echo json_encode($resultado);
-      exit();
+      $resultado = $modeloCambiosIva->seleccionarCambiosIva($_POST);
+      break;
     case "actualizar":
-      $resultado = $modeloCambiosIva->registrarCambiosIva($monto);
-      echo json_encode($resultado);
-      exit();
+      $resultado = $modeloCambiosIva->registrarCambiosIva($_POST);
+      break;
     default:
-      echo json_encode(["error" => "Acción no reconocida"]);
+      $modeloCambiosIva->DECORE([
+        'icono'=>'error',
+        'titulo'=>'Acción no reconocida'
+      ]);
       exit();
   }
+  $modeloCambiosIva->DECORE($resultado);
+  exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

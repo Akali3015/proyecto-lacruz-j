@@ -4,190 +4,206 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
+use src\modelos\productosModelo;
+use src\modelos\materiasPrimasModelo;
+use src\modelos\mensajesWSModelo;
 use PDO;
-use PDOException;
-use Exception;
 
-class produccionesModelo extends conexion
-{
-  private $idProduccion;
-  private $detalles = [];
+class produccionesModelo extends conexion {
+  private string $idProduccion = '';
+  private array $productos = [];
 
-  public function seleccionarProduccion($idProduccion = null)
-  {
-    $this->idProduccion = $idProduccion;
-    if ($this->idProduccion != null && $this->idProduccion != "") {
-      $campos = [
-        [
-          "campo_nombre" => 'id_produccion',
-          "campo_valor" => $this->idProduccion,
-          "formulario_nombre" => "id de la produccion",
+  public function validarProducciones(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        "id_produccion" => [
+          "campo_nombre" => "id_produccion",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "id de la producción",
           "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => 'producciones',
+          "minimo" => minRegexIdSeguro,
+          "maximo" => maxRegexIdSeguro,
+          "expresion_re" => regexIdSeguro,
+          "tabla" => "producciones",
           "debeExistir" => true,
-        ]
+          "debeSerUnico" => true
+        ],
+        "id_producto" => [
+          "campo_nombre" => "id_producto",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "id del producto",
+          "requerido" => true,
+          "minimo" => minRegexIdSeguro,
+          "maximo" => maxRegexIdSeguro,
+          "expresion_re" => regexIdSeguro,
+          "tabla" => "productos",
+          "debeExistir" => true,
+        ],
+        "cantidad_producida" => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "cantidad del producto",
+          "requerido" => true,
+          "minimo" => minRegexCantidadItem,
+          "maximo" => maxRegexCantidadItem,
+          "expresion_re" => regexCantidadItem,
+        ],
       ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $campo) {
+      if ($campo == 'productos') {
+        if (empty($infoVal['productos']) || !is_array($infoVal['productos'])) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Error',
+            'texto' => 'No se recibieron detalles de productos',
+            'icono' => 'error'
+          ];
+        }
+        foreach ($infoVal['productos'] as &$detalle) {
+          $campos[] = $funcionAsignadora('id_producto', $detalle['id_producto']);
+          $campos[] = $funcionAsignadora('cantidad_producida', $detalle['cantidad_producida']);
+        };
+        unset($detalle);
+      } else {
+        $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
       }
     }
-    return $this->seleccionarProduccionP();
+    return $this->limpiar_Verificar($campos);
   }
-  public function registrarProduccion($detalles)
-  {
-    // $detalles = json_decode($detalles, true);
 
-    foreach ($detalles as &$detalle) {
-
-      $campos[] = [
-        'campo_valor' => &$detalle['cantidad'],
-        'formulario_nombre' => 'cantidad del producto',
-        'requerido' => true,
-        'minimo' => minRegexCantidadItem,
-        'maximo' => maxRegexCantidadItem,
-        'expresion_re' => regexCantidadItem,
-      ];
-      $campos[] = [
-        'campo_valor' => &$detalle['id'],
-        'formulario_nombre' => 'id del producto',
-        'requerido' => true,
-        'minimo' => minRegexId,
-        'maximo' => maxRegexId,
-        'expresion_re' =>  regexId,
-      ];
-    };
-    unset($detalle);
-    $resultado = $this->limpiar_Verificar($campos);
-    if ($resultado != false) {
-      return $resultado;
+  public function seleccionarProducciones(array $info) {
+    if (($info['id_produccion'] ?? '') != '') {
+      $resultado = $this->validarProducciones([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_produccion',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->idProduccion = $info['id_produccion'];
     }
-
-    $this->detalles = $detalles;
-
-    return $this->registrarProduccionP();
+    return $this->seleccionarProduccionesP();
   }
-  public function actualizarProduccion($idProduccion, $detalles)
-  {
-    // $detalles = json_decode($detalles, true);
-    $campos = [
-      [
-        'campo_nombre' => 'id_produccion',
-        'campo_valor' => &$idProduccion,
-        'formulario_nombre' => 'id de la produccion',
-        'requerido' => true,
-        'minimo' => minRegexId,
-        'maximo' => maxRegexId,
-        'expresion_re' => regexId,
+
+  public function registrarProducciones(array $info) {
+    $resultado = $this->validarProducciones([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'productos',
       ],
-    ];
-    foreach ($detalles as &$detalle) {
-      $campos[] = [
-        'campo_valor' => &$detalle['cantidad'],
-        'formulario_nombre' => 'cantidad del producto',
-        'requerido' => true,
-        'minimo' => minRegexCantidadItem,
-        'maximo' => maxRegexCantidadItem,
-        'expresion_re' => regexCantidadItem,
-      ];
-      $campos[] = [
-        'campo_valor' => &$detalle['id'],
-        'formulario_nombre' => 'id del producto',
-        'requerido' => true,
-        'minimo' => minRegexId,
-        'maximo' => maxRegexId,
-        'expresion_re' =>  regexId,
-      ];
-    };
-    unset($detalle);
-    $resultado = $this->limpiar_Verificar($campos);
-    if ($resultado != false) {
-      return $resultado;
-    }
-
-    $this->idProduccion = $idProduccion;
-    $this->detalles = $detalles;
-    return $this->actualizarProduccionP($idProduccion, $detalles);
+    ]);
+    if ($resultado) return $resultado;
+    $this->productos = $info['productos'];
+    return $this->registrarProduccionesP();
   }
 
-  private function seleccionarProduccionP()
-  {
+  public function actualizarProducciones(array $info) {
+    $resultado = $this->validarProducciones([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_produccion',
+        'productos',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->idProduccion = $info['id_produccion'];
+    $this->productos = $info['productos'];
+    return $this->actualizarProduccionesP();
+  }
+
+  private function seleccionarProduccionesP() {
     if ($this->idProduccion == null || $this->idProduccion == "") {
-      $instruccionesBD = [
-        'campos' => 'p.id_produccion, p.fecha_produccion',
-        'tabla' => 'producciones as p',
-        'PEL' => 'p',
-      ];
-      $resultado = $this->seleccionarDatos($instruccionesBD);
-      $Producciones = $resultado->fetchAll(PDO::FETCH_ASSOC);
+      $resultado = $this->seleccionarDatos2([
+        'campos' => 'id_produccion, fecha_produccion',
+        'tabla' => 'producciones',
+      ]);
+      $Producciones = $resultado->fetchAll();
       return $Producciones;
     } else {
-      $instruccionesBD = [
+      $resultado = $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'producciones',
         'WHERE' => [
           "id_produccion" => $this->idProduccion,
         ]
-      ];
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
+      ]);
       if ($resultado->rowCount() <= 0) {
-        $alerta = [
+        return [
           "tipo" => "simple",
-          "titulo" => "Produccion no encontrado",
-          "texto" => "La produccion que ha intentado actualizar no se encuentra en la base de datos",
+          "titulo" => "Produccion no encontrada",
+          "texto" => "La produccion que ha intentado consultar no se encuentra en la base de datos",
           "icono" => "error"
         ];
-        return $alerta;
       }
-      $produccion = $resultado->fetch(PDO::FETCH_ASSOC);
-
-      $instruccionesBD = [
-        'campos' => '*',
+      $produccion = $resultado->fetch();
+      $resultado = $this->seleccionarDatos2([
+        'campos' => 'id_producto, cantidad_producida',
         'tabla' => 'productos_producciones',
         'WHERE' => [
           "id_produccion" => $this->idProduccion,
         ]
-      ];
-      $resultado = $this->seleccionarDatos2($instruccionesBD);
+      ]);
       if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Detalles no encontrados",
-          "texto" => "Los detalles de la produccion que ha intentado actualizar no se encuentran en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
+        $produccion['detalles'] = [];
+      } else {
+        $detalles = $resultado->fetchAll();
+        $produccion['detalles'] = $detalles;
       }
-      $detalles = $resultado->fetchAll(PDO::FETCH_ASSOC);
-      $produccion['detalles'] = $detalles;
       return $produccion;
     }
   }
-  private function registrarProduccionP()
-  {
-    $idProduccion = $this->guardarDatos2([
+
+  private function registrarProduccionesP() {
+    $idProduccion = $this->generarCodSeg([
+      'tablaBD' => 'producciones',
+      'prefijo' => 'PROD',
+      'campoID' => 'id_produccion'
+    ]);
+
+    $resultadoGuardar = $this->guardarDatos2([
       'tabla' => 'producciones',
       'datos' => [
+        'id_produccion' => $idProduccion,
         'fecha_produccion' => $this->FechaHora_Sel('fecha_hora_BD')
       ]
     ]);
-    foreach ($this->detalles as $detalle) {
-      // registramos en la BD
+    $bitacoraModelo = new bitacoraModelo();
+    if ($resultadoGuardar === false || $resultadoGuardar <= 0) {
+      $bitacoraModelo->registrarBitacora("producciones", "Registar produccion", "Fallido", true);
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Error',
+        'texto' => 'Ocurrió un error al crear la producción',
+        'icono' => 'error'
+      ];
+    }
+
+    $this->productos = $this->indexarArrays([
+      'indice' => 'id_producto',
+      'camposSumar' => 'cantidad_producida',
+      'array' => $this->productos,
+    ]);
+
+    foreach ($this->productos as $id => $cantidad) {
       $idDetalle = $this->guardarDatos2([
         'tabla' => 'productos_producciones',
         'datos' => [
           'id_produccion' => $idProduccion,
-          'id_producto' => $detalle['id'],
-          'cantidad_producida' => $detalle['cantidad'],
+          'id_producto' => $id,
+          'cantidad_producida' => $cantidad,
         ]
       ]);
+
       if ($idDetalle == 0 || $idDetalle == false) {
         $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -196,27 +212,29 @@ class produccionesModelo extends conexion
         ];
       }
 
-      // Disminucion del stock de la materia prima
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $detalle['id']
-        ]
+      $objProducto = new productosModelo();
+      $infoGeneralProducto = $objProducto->seleccionarProductos([
+        'id_producto' => $id
       ]);
-      $infoGeneralProducto = $resultado->fetch(PDO::FETCH_ASSOC);
 
-      // Incremento del stock del producto
+      if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
+        $this->rollback();
+        return $infoGeneralProducto;
+      }
+
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
-          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $detalle['cantidad'])
+          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $cantidad)
         ],
         'WHERE' => [
-          'id_producto' => $detalle['id']
+          'id_producto' => $id
         ]
       ]);
+
       if ($resultado === false || $resultado <= 0) {
+        $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -225,49 +243,35 @@ class produccionesModelo extends conexion
         ];
       }
 
-      // Consulta de las materias primas que usa dicho producto
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'materias_primas_productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $detalle['id']
-        ]
-      ]);
-      $materiasPrimaProducto = $resultado->fetchAll(PDO::FETCH_ASSOC);
+      $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
       foreach ($materiasPrimaProducto as $materiaPrima) {
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
-        ]);
-        $cantidadTotalRestar = $detalle['cantidad'] * $materiaPrima['cantidad_materia_prima'];
+        $cantidadTotalRestar = $cantidad * $materiaPrima['cantidad_materia_prima'];
 
-        // Decremento del stock de la materia prima
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
+        $objMateriaPrima = new materiasPrimasModelo();
+        $materiaPrimaBD = $objMateriaPrima->seleccionarMateriasPrimas([
+          'id_materia_prima' => $materiaPrima['id_materia_prima']
         ]);
-        $stockMP = $resultado->fetch(PDO::FETCH_COLUMN);
 
+        if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
+          $this->rollback();
+          return $materiaPrimaBD;
+        }
+
+        $stockMP = $materiaPrimaBD['stock_materia_prima'];
         $nuevoStock = ($stockMP - $cantidadTotalRestar);
+
         if ($nuevoStock < 0) {
           $this->rollback();
+          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
-            'texto' => '
-                    No se puede descontar una cantidad mayor de materia prima a 
-                    la disponible dentro del stock de inventario
-                ',
+            'texto' => 'No se puede descontar una cantidad mayor de materia prima a la disponible dentro del stock de inventario',
             'icono' => 'error'
           ];
         }
+
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
@@ -277,65 +281,121 @@ class produccionesModelo extends conexion
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);
+
         if ($resultado === false || $resultado <= 0) {
           $this->rollback();
+          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
-            'texto' => 'Ocurrió un error actualizando el stock de los productos',
+            'texto' => 'Ocurrió un error actualizando el stock de las materias primas',
             'icono' => 'error'
           ];
         }
       }
     }
+
     $this->commit();
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS(
+      [
+        "receptor" => [
+          'tipo' => 'todosSinExcepcion',
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'producciones'
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'producciones'
+          ],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Produccion registrada',
+              'texto' => 'El stock de algunos productos a cambiado',
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+      ]
+    );
+    $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Exito", true);
     return [
       'tipo' => 'limpiarYcerrar',
       'icono' => 'success',
-      'titulo' => 'Exito en el registro',
-      'texto' => 'Se registró correctamente la producción',
+      'titulo' => 'Éxito en el registro',
+      'texto' => 'Se registró correctamente la producción #' . $idProduccion,
     ];
   }
-  private function actualizarProduccionP($idProduccion, $detalles)
-  {
-    $resultado = $this->seleccionarDatos2([
-      'tabla' => 'productos_producciones',
-      'campos' => '*',
-      'WHERE' => [
-        'id_produccion' => $idProduccion
-      ]
+
+  private function actualizarProduccionesP() {
+    $PROD = 0;
+    $PRO = 0;
+    $bitacoraModelo = new bitacoraModelo();
+    //Data actual
+    $dataActual = $this->seleccionarProducciones([
+      'id_produccion' => $this->idProduccion
     ]);
 
-    $detallesActuales = $resultado->fetchAll(PDO::FETCH_ASSOC);
-    $mapeoProductos = [];
-    foreach ($detallesActuales as $detalle) {
-      if (!isset($mapeoProductos[$detalle['id_producto']])) {
-        $mapeoProductos[$detalle['id_producto']] = $detalle['cantidad_producida'];
-      } else {
-        $mapeoProductos[$detalle['id_producto']] += $detalle['cantidad_producida'];
-      }
+    if (isset($dataActual['tipo']) && $dataActual['tipo'] == 'simple') {
+      $this->rollback();
+      return $dataActual;
     }
 
-    // Limpieza inicial
+    $dataActual['detalles'] = $this->indexarArrays([
+      'indice' => 'id_producto',
+      'camposSumar' => 'cantidad_producida',
+      'array' => $dataActual['detalles'] ?? [],
+    ]);
+
+    // Nueva data
+    $this->productos = $this->indexarArrays([
+      'indice' => 'id_producto',
+      'camposSumar' => 'cantidad_producida',
+      'array' => $this->productos,
+    ]);
+
     $resultado = $this->eliminarDatos2([
       'tabla' => 'productos_producciones',
       'WHERE' => [
-        'id_produccion' => $idProduccion
-      ]
+        'id_produccion' => $this->idProduccion
+      ],
+      'fisico' => true
     ]);
+    if ($resultado > 0) {
+      $PRO += $resultado;
+    }
 
-    // Al reves logica de stock
-    foreach ($mapeoProductos as $idProducto => $cantidadProducto) {
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $idProducto
-        ]
+    //Deshacemos lo viejo
+    foreach ($dataActual['detalles'] as $idProducto => $cantidadProducto) {
+
+      $objProducto = new productosModelo();
+      $infoGeneralProducto = $objProducto->seleccionarProductos([
+        'id_producto' => $idProducto
       ]);
-      $infoGeneralProducto = $resultado->fetch(PDO::FETCH_ASSOC);
 
-      // Restamos del stock del producto
+      if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
+        $this->rollback();
+        return $infoGeneralProducto;
+      }
+
+      if ($cantidadProducto > $infoGeneralProducto['stock_producto']) {
+        $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Error',
+          'texto' => 'No se puede guardar la nueva cantidad de ' . $infoGeneralProducto['nombre_producto'] . ' porque esto dejaría un stock negativo del mismo',
+          'icono' => 'error'
+        ];
+      }
+
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
@@ -345,7 +405,9 @@ class produccionesModelo extends conexion
           'id_producto' => $idProducto
         ]
       ]);
-      if ($resultado = false || $resultado <= 0) {
+      if ($resultado === false || $resultado <= 0) {
+        $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -354,72 +416,60 @@ class produccionesModelo extends conexion
         ];
       }
 
-      // Consulta de las materias primas que usa dicho producto
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'materias_primas_productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $idProducto
-        ]
-      ]);
-      $materiasPrimaProducto = $resultado->fetchAll(PDO::FETCH_ASSOC);
+      $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
+      //Subimos el stock de las materias primas
       foreach ($materiasPrimaProducto as $materiaPrima) {
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
-        ]);
         $cantidadTotalSumar = $cantidadProducto * $materiaPrima['cantidad_materia_prima'];
 
-        // Decremento del stock de la materia prima
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
+        $objMateriaPrima = new materiasPrimasModelo();
+        $materiaPrimaBD = $objMateriaPrima->seleccionarMateriasPrimas([
+          'id_materia_prima' => $materiaPrima['id_materia_prima']
         ]);
-        $stockMP = $resultado->fetch(PDO::FETCH_COLUMN);
 
-        $nuevoStock = ($stockMP + $cantidadTotalSumar);
+        if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
+          $this->rollback();
+          return $materiaPrimaBD;
+        }
+
+        $stockMP = $materiaPrimaBD['stock_materia_prima'];
+
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
-            'stock_materia_prima' => $nuevoStock
+            'stock_materia_prima' => ($stockMP + $cantidadTotalSumar)
           ],
           'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);
-        if ($resultado = false || $resultado <= 0) {
+        if ($resultado === false || $resultado <= 0) {
           $this->rollback();
+          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
-            'texto' => 'Ocurrió un error actualizando el stock de los productos',
+            'texto' => 'Ocurrió un error actualizando el stock de las materias primas',
             'icono' => 'error'
           ];
         }
       }
     }
 
-    // Registramos los detalles nuevos de produccion [productos_producciones]
-    $detallesJSON = json_decode($detalles, true);
-    foreach ($detallesJSON as $detalle) {
-      // registramos en la BD
+    //Insertamos lo nuevo
+    foreach ($this->productos as $idProducto => $cantidad) {
       $idDetalle = $this->guardarDatos2([
         'tabla' => 'productos_producciones',
         'datos' => [
-          'id_produccion' => $idProduccion,
-          'id_producto' => $detalle['id'],
-          'cantidad_producida' => $detalle['cantidad'],
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'cantidad_producida' => $cantidad,
         ]
       ]);
-      if ($idDetalle == 0 || $idDetalle == false) {
+
+      if ($idDetalle == 0 || $idDetalle === false) {
         $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -428,27 +478,29 @@ class produccionesModelo extends conexion
         ];
       }
 
-      // Disminucion del stock de la materia prima
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $detalle['id']
-        ]
+      $objProducto = new productosModelo();
+      $infoGeneralProducto = $objProducto->seleccionarProductos([
+        'id_producto' => $idProducto
       ]);
-      $infoGeneralProducto = $resultado->fetch(PDO::FETCH_ASSOC);
 
-      // Incremento del stock del producto
+      if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
+        $this->rollback();
+        return $infoGeneralProducto;
+      }
+
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
-          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $detalle['cantidad'])
+          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $cantidad)
         ],
         'WHERE' => [
-          'id_producto' => $detalle['id']
+          'id_producto' => $idProducto
         ]
       ]);
-      if ($resultado = false || $resultado <= 0) {
+
+      if ($resultado === false || $resultado <= 0) {
+        $this->rollback();
+        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -457,48 +509,35 @@ class produccionesModelo extends conexion
         ];
       }
 
-      // Consulta de las materias primas que usa dicho producto
-      $resultado = $this->seleccionarDatos2([
-        'tabla' => 'materias_primas_productos',
-        'campos' => '*',
-        'WHERE' => [
-          'id_producto' => $detalle['id_producto']
-        ]
-      ]);
-      $materiasPrimaProducto = $resultado->fetchAll(PDO::FETCH_ASSOC);
+      $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
       foreach ($materiasPrimaProducto as $materiaPrima) {
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
-        ]);
-        $cantidadTotalRestar = $detalle['cantidad'] * $materiaPrima['cantidad_materia_prima'];
+        $cantidadTotalRestar = $cantidad * $materiaPrima['cantidad_materia_prima'];
 
-        // Decremento del stock de la materia prima
-        $resultado = $this->seleccionarDatos2([
-          'tabla' => 'materias_primas',
-          'campos' => 'stock_materia_prima',
-          'WHERE' => [
-            'id_materia_prima' => $materiaPrima['id_materia_prima']
-          ]
+        $objMateriaPrima = new materiasPrimasModelo();
+        $materiaPrimaBD = $objMateriaPrima->seleccionarMateriasPrimas([
+          'id_materia_prima' => $materiaPrima['id_materia_prima']
         ]);
-        $stockMP = $resultado->fetch(PDO::FETCH_COLUMN);
 
+        if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
+          $this->rollback();
+          return $materiaPrimaBD;
+        }
+
+        $stockMP = $materiaPrimaBD['stock_materia_prima'];
         $nuevoStock = ($stockMP - $cantidadTotalRestar);
+
         if ($nuevoStock < 0) {
           $this->rollback();
+          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
-            'texto' => '
-                    No se puede descontar una cantidad mayor de materia prima a la disponible dentro del stock de inventario
-                    ',
+            'texto' => 'No se puede descontar una cantidad mayor de materia prima a la disponible dentro del stock de inventario',
             'icono' => 'error'
           ];
         }
+
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
@@ -508,24 +547,55 @@ class produccionesModelo extends conexion
             'id_materia_prima' => $materiaPrima['id_materia_prima']
           ]
         ]);
-        if ($resultado = false || $resultado <= 0) {
+
+        if ($resultado == false || $resultado <= 0) {
           $this->rollback();
+          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
-            'texto' => 'Ocurrió un error actualizando el stock de los productos',
+            'texto' => 'Ocurrió un error actualizando el stock de las materias primas',
             'icono' => 'error'
           ];
         }
       }
     }
-
     $this->commit();
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS(
+      [
+        "receptor" => [
+          'tipo' => 'todosSinExcepcion',
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'producciones'
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'producciones'
+          ],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Produccion actualizado',
+              'texto' => 'El stock de algunos productos a cambiado',
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+      ]
+    );
+    $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Exito", true);
     return [
       'icono' => 'success',
-      'titulo' => 'Exito en la actualización',
-      'texto' => 'Se actualización correctamente la producción',
-      'tipo' => 'simple'
+      'titulo' => 'Éxito en la actualización',
+      'texto' => 'Se actualizó correctamente la producción #' . $this->idProduccion,
+      'tipo' => 'limpiarYcerrar'
     ];
   }
 }

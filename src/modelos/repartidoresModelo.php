@@ -3,277 +3,221 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
-use PDO;
-use PDOException;
-use Exception;
 
-class repartidoresModelo extends conexion
-{
-  private $cedula_repartidor;
-  private $nombre_repartidor;
-  private $apellido_repartidor;
-  private $telefono_repartidor;
+class repartidoresModelo extends conexion {
+  private string $cedulaRepartidor = '';
+  private string $nombreRepartidor = '';
+  private string $apellidoRepartidor = '';
+  private string $telefonoRepartidor = '';
 
-  public function seleccionarRepartidor($cedula = null)
-  {
-    $this->cedula_repartidor = $cedula;
-
-    if ($this->cedula_repartidor != null && $this->cedula_repartidor != "") {
-      // Arrays para las validaciones
-      $campos = [
-        [
-          "campo_valor" => $this->cedula_repartidor,
-          "formulario_nombre" => "Cédula del Repartidor",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj
-        ]
-      ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->seleccionarRepartidorP();
-      }
-    } else {
-      return $this->seleccionarRepartidorP();
-    }
-  }
-  public function registrarRepartidor($cedula, $nombre, $apellido, $telefono)
-  {
-    try {
-      $this->cedula_repartidor = $cedula;
-      $this->nombre_repartidor = $nombre;
-      $this->apellido_repartidor = $apellido;
-      $this->telefono_repartidor = $telefono;
-      $campos = [
-        [
+  public function validarRepartidores(array $instruccionesVal) {
+    [
+      'infoVal' => &$infoVal,
+      'camposVal' => &$camposVal,
+    ] = $instruccionesVal;
+    $funcionAsignadora = function ($nombreCampo, &$valor) {
+      $claveVal = [
+        'cedula_repartidor' => [
           "campo_nombre" => "cedula_repartidor",
-          "campo_valor" => $this->cedula_repartidor,
+          "campo_valor" => &$valor,
           "formulario_nombre" => "Cédula del Repartidor",
           "requerido" => true,
           "minimo" => minRegexCedulaRifLetra,
           "maximo" => maxRegexCedulaRifLetra,
           "expresion_re" => regexCedulaRifLetra,
           "tabla" => "repartidores",
-          "debeSerUnico" => true,
+          "debeSerUnico" => true
         ],
-        [
-          "campo_nombre" => "nombre_repartidor",
-          "campo_valor" => $this->nombre_repartidor,
+        'cedula_repartidor_act' => [
+          "campo_nombre" => "cedula_repartidor",
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "Cédula del Repartidor",
+          "requerido" => true,
+          "minimo" => minRegexCedulaRifLetra,
+          "maximo" => maxRegexCedulaRifLetra,
+          "expresion_re" => regexCedulaRifLetra,
+          "tabla" => "repartidores",
+          "debeExistir" => true,
+          "debeSerUnico" => true
+        ],
+        'nombre_repartidor' => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "Nombre del Repartidor",
           "requerido" => true,
           "minimo" => minRegexNombreObj,
           "maximo" => maxRegexNombreObj,
           "expresion_re" => regexNombreObj,
-          "tabla" => "repartidores",
         ],
-        [
-          "campo_nombre" => "apellido_repartidor",
-          "campo_valor" => $this->apellido_repartidor,
+        'apellido_repartidor' => [
+          "campo_valor" => &$valor,
           "formulario_nombre" => "Apellido del Repartidor",
           "requerido" => true,
           "minimo" => minRegexNombreObj,
           "maximo" => maxRegexNombreObj,
           "expresion_re" => regexNombreObj,
-          "tabla" => "repartidores",
         ],
-        [
-          "campo_nombre" => "telefono_repartidor",
-          "campo_valor" => $this->telefono_repartidor,
-          "formulario_nombre" => "Teléfono del Repartidor",
+        'telefono_repartidor' => [
+          "campo_nombre" => 'telefono_repartidor',
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "Teléfono del repartidor",
           "requerido" => true,
           "minimo" => minRegexTelefono,
           "maximo" => maxRegexTelefono,
           "expresion_re" => regexTelefono,
+          'tabla' => 'repartidores',
+          'debeSerUnico' => true
         ],
       ];
-
-      $respuesta = $this->limpiar_Verificar($campos);
-
-      if ($respuesta !== false) {
-        return $respuesta;
-        exit();
-      } else {
-        return $this->registrarRepartidoresP();
+      return $claveVal[$nombreCampo];
+    };
+    $campos = [];
+    foreach ($camposVal as $valorForm => $campoVal) {
+      if (is_numeric($valorForm)) $valorForm = $campoVal;
+      if ($campoVal == 'telefono_repartidor') {
+        if (($infoVal['telefono_repartidor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Telefono vacío',
+            'texto' => 'No puede enviar el formulario sin escribir el telefono',
+            'icono' => 'error'
+          ];
+        }
+        if (($infoVal['prefijo_telefono_repartidor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Telefono vacío',
+            'texto' => 'No puede enviar el formulario sin elegir el prefijo del teléfono',
+            'icono' => 'error'
+          ];
+        }
+        $infoVal['telefono_repartidor'] = $infoVal['prefijo_telefono_repartidor'] . $infoVal['telefono_repartidor'];
+      } elseif ($campoVal == 'cedula_repartidor') {
+        if (($infoVal['codigo_cedula_repartidor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Prefijo de cédula vacío',
+            'texto' => 'No puede enviar el formulario sin seleccionar el prefijo de la cédula del repartidor',
+            'icono' => 'error'
+          ];
+        }
+        if (($infoVal['cedula_repartidor'] ?? '') == '') {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Cédula vacía',
+            'texto' => 'No puede enviar el formulario sin escribir la cédula del repartidor',
+            'icono' => 'error'
+          ];
+        }
+        $infoVal['cedula_repartidor'] = $infoVal['codigo_cedula_repartidor'] . $infoVal['cedula_repartidor'];
       }
-    } catch (PDOException $e) {
-      error_log("Error: " . $e->getMessage());
-      throw new Exception("Error al registrar el repartidor en la base de datos: " . $e->getMessage());
+      $campos[] = $funcionAsignadora($campoVal, $infoVal[$valorForm]);
     }
+    return $this->limpiar_Verificar($campos);
   }
-  public function actualizarRepartidor($cedula, $nombre, $apellido, $telefono)
-  {
-    $this->cedula_repartidor = $cedula;
-    $this->nombre_repartidor = $nombre;
-    $this->apellido_repartidor = $apellido;
-    $this->telefono_repartidor = $telefono;
-
-    $campos = [
-      [
-        "campo_nombre" => "cedula_repartidor",
-        "campo_valor" => $this->cedula_repartidor,
-        "formulario_nombre" => "Cédula del Repartidor",
-        "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
-        "tabla" => "repartidores",
-        "debeExistir" => true,
-        "debeSerUnico" => true
-      ],
-      [
-        "campo_nombre" => "nombre_repartidor",
-        "campo_valor" => $this->nombre_repartidor,
-        "formulario_nombre" => "Nombre del Repartidor",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "repartidores"
-      ],
-      [
-        "campo_nombre" => "apellido_repartidor",
-        "campo_valor" => $this->apellido_repartidor,
-        "formulario_nombre" => "Apellido del Repartidor",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-        "tabla" => "repartidores"
-      ],
-      [
-        "campo_nombre" => "telefono_repartidor",
-        "campo_valor" => $this->telefono_repartidor,
-        "formulario_nombre" => "Teléfono del repartidor",
-        "requerido" => true,
-        "minimo" => minRegexTelefono,
-        "maximo" => maxRegexTelefono,
-        "expresion_re" => regexTelefono,
-      ],
-    ];
-    $respuesta = $this->limpiar_Verificar($campos);
-
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->actualizarRepartidoresP();
+  public function seleccionarRepartidores(array $info) {
+    if (($info['cedula_repartidor'] ?? '') != "") {
+      $resultado = $this->validarRepartidores([
+        'infoVal' => &$info,
+        'camposVal' => [
+          'cedula_repartidor' => 'cedula_repartidor_act',
+        ],
+      ]);
+      if ($resultado) return $resultado;
+      $this->cedulaRepartidor = $info['cedula_repartidor'];
     }
+    return $this->seleccionarRepartidoresP();
   }
-  public function eliminarRepartidor($cedula)
-  {
-    $this->cedula_repartidor = $cedula;
+  public function registrarRepartidores(array $info) {
+    $resultado = $this->validarRepartidores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'cedula_repartidor',
+        'nombre_repartidor',
+        'apellido_repartidor',
+        'telefono_repartidor',
+      ],
+    ]);
+    if ($resultado) return $resultado;
 
-    $campos = [
-      [
-        "campo_nombre" => "cedula_repartidor",
-        "campo_valor" => $this->cedula_repartidor,
-        "formulario_nombre" => "Cédula del Repartidor",
-        "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
-        "tabla" => "repartidores",
-        "debeExistir" => true,
-        "camposDiferentes" => 1
-      ]
-    ];
+    $this->cedulaRepartidor = $info['cedula_repartidor'];
+    $this->nombreRepartidor = $info['nombre_repartidor'];
+    $this->apellidoRepartidor = $info['apellido_repartidor'];
+    $this->telefonoRepartidor = $info['telefono_repartidor'];
 
-    $respuesta = $this->limpiar_Verificar($campos);
-    if ($respuesta !== false) {
-      return $respuesta;
-      exit();
-    } else {
-      return $this->eliminarRepartidoresP();
-    }
+    return $this->registrarRepartidoresP();
+  }
+  public function actualizarRepartidores(array $info) {
+    $resultado = $this->validarRepartidores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'cedula_repartidor' => 'cedula_repartidor_act',
+        'nombre_repartidor',
+        'apellido_repartidor',
+        'telefono_repartidor',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+
+    $this->cedulaRepartidor = $info['cedula_repartidor'];
+    $this->nombreRepartidor = $info['nombre_repartidor'];
+    $this->apellidoRepartidor = $info['apellido_repartidor'];
+    $this->telefonoRepartidor = $info['telefono_repartidor'];
+
+    return $this->actualizarRepartidoresP();
+  }
+  public function eliminarRepartidores(array $info) {
+    $resultado = $this->validarRepartidores([
+      'infoVal' => &$info,
+      'camposVal' => [
+        'cedula_repartidor_act' => 'cedula_repartidor',
+      ],
+    ]);
+    if ($resultado) return $resultado;
+    $this->cedulaRepartidor = $info['cedula_repartidor'];
+    return $this->eliminarRepartidoresP();
   }
 
   // PRIVADOS
-  private function seleccionarRepartidorP()
-  {
-    if ($this->cedula_repartidor == null || $this->cedula_repartidor == "") {
-      $resultado = $this->seleccionarDatos([
+  private function seleccionarRepartidoresP() {
+    if ($this->cedulaRepartidor == null || $this->cedulaRepartidor == "") {
+      return $this->seleccionarDatos2([
         'campos' => '
           cedula_repartidor, nombre_repartidor, 
           apellido_repartidor, telefono_repartidor
         ',
-        'tabla' => 'repartidores',
-      ]);
-      $repartidores = $resultado->fetchAll(PDO::FETCH_ASSOC);
-      return $repartidores;
+        'tabla' => 'v_repartidores_todos',
+      ])->fetchAll();
     } else {
-      $resultado = $this->seleccionarDatos2([
+      return $this->seleccionarDatos2([
         'campos' => '
           cedula_repartidor, nombre_repartidor,
           apellido_repartidor, telefono_repartidor
         ',
         'tabla' => 'repartidores',
         'WHERE' => [
-          "cedula_repartidor" => $this->cedula_repartidor,
+          "cedula_repartidor" => $this->cedulaRepartidor,
         ]
-      ]);
-      if ($resultado->rowCount() <= 0) {
-        $alerta = [
-          "tipo" => "simple",
-          "titulo" => "Repartidor no encontrado",
-          "texto" => "El repartidor que ha intentado buscar no se encuentra en la base de datos",
-          "icono" => "error"
-        ];
-        return $alerta;
-        exit();
-      } else {
-        $repartidores = $resultado->fetch(PDO::FETCH_ASSOC);
-
-        //$codigoCedulaRif = preg_replace('/[0-9]/', '', $repartidores['cedula_repartidor']);
-        // $cedulaRif = preg_replace('/[a-zA-Z]/', '', $repartidores['cedula_repartidor']);
-        //$repartidores['codigo_cedula_rif_repartidor'] = $codigoCedulaRif;
-        //$repartidores['cedula_repartidor'] = $cedulaRif;
-      }
-      return $repartidores;
+      ])->fetch();
     }
   }
-  private function registrarRepartidoresP()
-  {
-    $datos_registro_repartidor = [
-      [
-        "campo_nombre" => "cedula_repartidor",
-        "campo_marcador" => ":cedula_repartidor",
-        "campo_valor" => $this->cedula_repartidor
-      ],
-      [
-        "campo_nombre" => "nombre_repartidor",
-        "campo_marcador" => ":nombre_repartidor",
-        "campo_valor" => $this->nombre_repartidor,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "apellido_repartidor",
-        "campo_marcador" => ":apellido_repartidor",
-        "campo_valor" => $this->apellido_repartidor,
-        "ponerEnMayusculas" => true
-      ],
-      [
-        "campo_nombre" => "telefono_repartidor",
-        "campo_marcador" => ":telefono_repartidor",
-        "campo_valor" => $this->telefono_repartidor
-      ],
-    ];
+  private function registrarRepartidoresP() {
 
-    $condicion = [
-      "condicion_campo" => "cedula_repartidor",
-      "condicion_marcador" => ":cedula_repartidor",
-      "condicion_valor" => $this->cedula_repartidor
-    ];
-
-    $ultimoID = $this->guardarDatos('repartidores', $datos_registro_repartidor, $condicion);
+    $ultimoID = $this->guardarDatos2([
+      'tabla' => 'repartidores',
+      'datos' => [
+        "cedula_repartidor" => $this->cedulaRepartidor,
+        "nombre_repartidor" => $this->nombreRepartidor,
+        "apellido_repartidor" => $this->apellidoRepartidor,
+        "telefono_repartidor" => $this->telefonoRepartidor
+      ],
+      'WHERE' => [
+        "cedula_repartidor" => $this->cedulaRepartidor
+      ]
+    ]);
 
     if ($ultimoID !== false && $ultimoID > 0) {
       $alerta = [
-        "tipo" => "limpiar",
+        "tipo" => "limpiarYcerrar",
         "titulo" => "Repartidor registrado",
         "texto" => "El repartidor ha sido registrado exitosamente",
         "icono" => "success",
@@ -289,81 +233,43 @@ class repartidoresModelo extends conexion
     }
     return $alerta;
   }
-  private function actualizarRepartidoresP()
-  {
-    $instruccionesBD = [
-      "campos" => "cedula_repartidor",
-      "tabla" => "repartidores",
-      'WHERE' => [
-        [
-          "condicion_campo" => "cedula_repartidor",
-          "condicion_marcador" => ":cedula_repartidor",
-          "condicion_valor" => $this->cedula_repartidor,
-          "comparacion" => "="
-        ]
-      ]
-    ];
-    $resultado = $this->seleccionarDatos($instruccionesBD);
-
-    $instruccionesBD = [
+  private function actualizarRepartidoresP() {
+    $resultado = $this->actualizarDatos2([
       "tabla" => "repartidores",
       "datos" => [
-        [
-          "campo_nombre" => "cedula_repartidor",
-          "campo_marcador" => ":cedula_repartidor",
-          "campo_valor" => $this->cedula_repartidor
-        ],
-        [
-          "campo_nombre" => "nombre_repartidor",
-          "campo_marcador" => ":nombre_repartidor",
-          "campo_valor" => $this->nombre_repartidor,
-          "ponerEnMayusculas" => true
-        ],
-        [
-          "campo_nombre" => "apellido_repartidor",
-          "campo_marcador" => ":apellido_repartidor",
-          "campo_valor" => $this->apellido_repartidor,
-          "ponerEnMayusculas" => true
-        ],
-        [
-          "campo_nombre" => "telefono_repartidor",
-          "campo_marcador" => ":telefono_repartidor",
-          "campo_valor" => $this->telefono_repartidor
-        ],
+        "cedula_repartidor" => $this->cedulaRepartidor,
+        "nombre_repartidor" => $this->nombreRepartidor,
+        "apellido_repartidor" => $this->apellidoRepartidor,
+        "telefono_repartidor" => $this->telefonoRepartidor,
       ],
       "WHERE" => [
-        [
-          "condicion_campo" => "cedula_repartidor",
-          "condicion_marcador" => ":cedula_repartidor",
-          "condicion_valor" => $this->cedula_repartidor,
-          "comparacion" => "="
-        ]
+        "cedula_repartidor" => $this->cedulaRepartidor,
       ]
-    ];
-
-    $resultado = $this->actualizarDatos($instruccionesBD);
+    ]);
     if ($resultado == false || $resultado <= 0) {
-      $alerta = [
+      return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
         "texto" => "No se han realizado cambios en el registro",
         "icono" => "warning",
       ];
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Repartidor actualizado",
-        "texto" => "El repartidor ha sido actualizado exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
     }
-    return $alerta;
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Repartidor actualizado",
+      "texto" => "El repartidor ha sido actualizado exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function eliminarRepartidoresP()
-  {
-    $eliminarRepartidor = $this->eliminarDatos('repartidores', 'cedula_repartidor', $this->cedula_repartidor);
-    if ($eliminarRepartidor->rowCount() == 1) {
+  private function eliminarRepartidoresP() {
+    $eliminarRepartidor = $this->eliminarDatos2([
+      'tabla' => 'repartidores',
+      'WHRE' => [
+        'cedula_repartidor' => $this->cedulaRepartidor
+      ]
+    ]);
+    if ($eliminarRepartidor == 1) {
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Repartidor eliminado",

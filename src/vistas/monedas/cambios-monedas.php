@@ -38,7 +38,7 @@ echo $componente->listaDataTable($instruccionesLista);
               <label class="form-label">Nuevo Valor</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fi fi-rr-sack-dollar"></i></span>
-                <input type="text" class="form-control" name="valor_moneda" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" placeholder="12.00">
+                <input type="text" class="form-control inputMonto dinero" name="valor_moneda" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" placeholder="12.00">
               </div>
             </div>
           </div>

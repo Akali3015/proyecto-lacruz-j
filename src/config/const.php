@@ -15,7 +15,8 @@ if (
 ) {
   $PROTOCOLO = 'https://';
 }
-define('APP_URL', $PROTOCOLO . $_SERVER['HTTP_HOST'] . "/proyecto-lacruz-j/");
+define('APP_URL', $PROTOCOLO . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/proyecto-lacruz-j/");
+const coorJLACRUZ = ['latitud' => 10.063276, 'longitud' => -69.31708];
 
 
 const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
@@ -35,12 +36,16 @@ const regexCantidadItem = '^\d{1,10}(?:[.,]\d{1,3})?$';
 const minRegexCantidadItem = '1';
 const maxRegexCantidadItem = '11';
 
+const regexStatus = '^\d{1}$';
+const minRegexStatus = '1';
+const maxRegexStatus = '1';
+
 const regexCedulaRif = '^\d{7,10}$';
 const minRegexCedulaRif = '7';
 const maxRegexCedulaRif = '10';
 
-const regexCedulaRifLetra = '^[a-zA-Z]?\d{8,11}$';
-const minRegexCedulaRifLetra = '8';
+const regexCedulaRifLetra = '^[a-zA-Z]?\d{7,11}$';
+const minRegexCedulaRifLetra = '7';
 const maxRegexCedulaRifLetra = '11';
 
 const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% ]{3,50}$';
@@ -59,7 +64,15 @@ const regexTelefono = '^\d{11}$';
 const minRegexTelefono = '11';
 const maxRegexTelefono = '11';
 
-const regexPrecio = '^\d{1,10}(?:[.,]\d{1,3})?$';
+const regexPrefijoTelefono = '^\d{4}$';
+const minRegexPrefijoTelefono = '4';
+const maxRegexPrefijoTelefono = '4';
+
+const regexCuerpoTelefono = '^\d{7}$';
+const minRegexCuerpoTelefono = '7';
+const maxRegexCuerpoTelefono = '7';
+
+const regexPrecio = '^\d{1,20}(?:[.,]\d{1,3})?$';
 const minRegexPrecio = '1';
 const maxRegexPrecio = '20';
 
@@ -94,3 +107,11 @@ const maxRegexEnteroGrande = '15';
 const regexCoordenadas = '^[+-]?\d+\.\d{1,20}$';
 const minRegexCoordenadas = 0;
 const maxRegexCoordenadas = 20;
+
+const regexUrl = '^https?:\/\/[\w\-\.]+(?::\d+)?(?:\/[\w\-\.\/\?\%\&\=\#\:\,+\'\@\!]*)*$';
+const minRegexUrl = '10';
+const maxRegexUrl = '255';
+
+const regexReferencia = '^\d{4,6}$';
+const minRegexReferencia = '4';
+const maxRegexReferencia = '6';
