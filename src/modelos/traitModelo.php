@@ -1,3 +1,1245 @@
 <?php
-//Obfuscated by YAK Pro - Php Obfuscator 2.0.13 at 2026-06-13 23:57:32
- namespace src\modelos; use PDO; use PDOStatement; use DateTime; use DateTimeZone; use DateInterval; use FPDF; use Endroid\QrCode\QrCode; use Endroid\QrCode\Writer\PngWriter; use Endroid\QrCode\ErrorCorrectionLevel; use Endroid\QrCode\Encoding\Encoding; use Endroid\QrCode\Logo\Logo; use src\modelos\accesosModelo; use src\modelos\cacheModelo; use src\config\connect\conexion; trait traitModelo { private cacheModelo|null $objCache = null; protected array $imgTrans = []; private ?conexion $objetoBD = null; public function limpiarCadena(string $uYW3A, $CPEMf = "\x61\156\x74\151\x53\x51\114\x49\156\x79\x65\x63\164\151\x6f\156") { goto qoWsm; jeul6: goto nNjpL; py0U3: $yfRIY = ["\x3c\163\x63\x72\151\160\164\76", "\x3c\x2f\x73\x63\162\x69\x70\164\76", "\74\163\x63\162\151\x70\x74\x20\x73\162\x63", "\x3c\163\x63\162\x69\x70\x74\40\164\x79\x70\145\75", "\123\x45\x4c\x45\x43\x54\x20\52\40\106\x52\117\x4d", "\123\105\x4c\105\x43\x54\40", "\123\105\114\105\103\x54", "\x49\116\x53\x45\x52\124\40\111\x4e\x54\117", "\125\x50\104\x41\124\105\x20", "\125\120\104\x41\124\105", "\104\x45\114\105\x54\x45\40\106\x52\117\115", "\x53\105\124", "\x53\105\x54\x20", "\x44\122\117\x50\x20\124\101\x42\114\105", "\104\122\117\x50\x20\x44\x41\x54\x41\x42\x41\123\105", "\124\122\125\x4e\x43\x41\124\x45\x20\x54\x41\x42\114\x45", "\x53\110\x4f\127\40\124\x41\102\x4c\x45\123", "\123\110\117\127\40\104\101\x54\101\x42\101\123\105\123", "\x3c\77\x70\x68\160", "\x3f\76", "\55\55", "\x5e", "\x3c", "\76", "\75\75", "\75", "\73", "\72\x3a"]; goto qtVa3; NCRY6: $uYW3A = stripslashes($uYW3A); return $uYW3A; goto XKSL2; naEoo: foreach ($yfRIY as $T99ak) { $uYW3A = str_ireplace($T99ak, '', $uYW3A); y4ZJ4: } MPrpF: $uYW3A = trim($uYW3A); goto NCRY6; PA1K0: nNjpL: $uYW3A = trim($uYW3A); $uYW3A = stripslashes($uYW3A); goto naEoo; qtVa3: goto nNjpL; S7jyR: $yfRIY = ["\51", "\104\x41\124\105\x28", "\103\101\123\124\50", "\103\117\116\x56\105\x52\124\50", "\101\x56\107\50", "\x53\125\x4d\x28", "\x43\x4f\125\116\124\50", "\x4d\x41\130\50", "\115\x49\x4e\x28", "\x54\122\x49\115\x28", "\x4c\x4f\x57\x45\122\x28", "\125\x50\120\105\x52\x28", "\x43\117\101\x4c\x45\x53\x43\105\50"]; goto PA1K0; qoWsm: $yfRIY = []; if ($CPEMf == "\x61\156\164\x69\123\x51\114\x49\x6e\171\x65\143\x74\x69\157\x6e") { goto py0U3; } if ("\141\x6e\x74\151\106\165\x6e\x63\x69\157\x6e\145\163\123\121\114") { goto S7jyR; } goto jeul6; XKSL2: } public function limpiar_Verificar(array $bmAsy) { $GKnV5 = []; foreach ($bmAsy as &$EyXWs) { goto j0FBx; milw6: Gnt9Y: if (isset($GKnV5[$EyXWs["\164\x61\x62\154\141"]][$EyXWs["\x63\x61\x6d\x70\157\x5f\156\x6f\155\142\x72\x65"]])) { goto opUKZ; } $wevX5 = $this->objetoBD->seleccionarDatos2(["\x63\141\x6d\160\x6f\163" => "\x2a", "\164\141\x62\x6c\x61" => $EyXWs["\164\x61\142\x6c\141"], "\102\x44" => $EyXWs["\102\104"] ?? NULL, "\127\110\x45\x52\105" => [$EyXWs["\x63\x61\x6d\160\157\x5f\x6e\157\x6d\142\162\x65"] => $EyXWs["\x63\141\x6d\x70\x6f\x5f\x76\141\x6c\157\x72"]]]); goto vDQ08; WAWCS: if (!isset($EyXWs["\162\x65\x71\165\145\x72\x69\144\157"])) { goto TgHhk; } if (!(!isset($EyXWs["\x63\141\x6d\x70\x6f\x5f\166\x61\x6c\x6f\x72"]) || $EyXWs["\143\x61\x6d\160\x6f\137\x76\x61\x6c\157\x72"] == '')) { goto kjtXM; } $tNN7p = ["\164\x69\x70\x6f" => "\163\x69\x6d\160\154\x65", "\164\151\164\165\154\x6f" => "\x43\x61\155\x70\x6f\40\144\145\x20" . $EyXWs["\146\x6f\162\155\x75\x6c\x61\x72\x69\157\137\x6e\x6f\155\x62\x72\145"] . "\x20\x6f\142\154\151\147\x61\164\x6f\x72\151\x6f", "\164\145\170\x74\x6f" => "\x4e\157\x20\160\x75\x65\144\x65\x73\x20\145\x6e\166\151\x61\162\40\145\154\40\146\x6f\x72\155\x75\x6c\141\162\x69\157\x20\163\x69\156\x20\154\x6c\145\x6e\141\162\x20\x65\x6c\x20\x63\141\155\x70\157\40\x64\x65\40" . $EyXWs["\x66\157\x72\x6d\165\154\141\x72\151\x6f\x5f\x6e\x6f\x6d\142\162\145"] . "\x2c\x20\160\x6f\x72\x20\x66\141\166\157\162\40\166\145\x72\x69\x66\151\161\165\x65\x20\145\40\x69\x6e\x74\145\x6e\x74\145\x20\x64\145\40\x6e\165\145\x76\157\x20", "\x69\x63\157\156\x6f" => "\145\x72\x72\157\162"]; goto zcpTc; xUC7J: JUq72: if (!($KmUwl < count($EyXWs["\x69\155\x61\147\x65\x6e"]["\156\141\x6d\145"]))) { goto U0IYQ; } $oG1S2 = ["\146\165\154\154\137\160\x61\x74\x68" => $EyXWs["\x69\155\141\x67\145\156"]["\146\165\x6c\154\x5f\160\x61\x74\150"][$KmUwl], "\156\141\155\x65" => $EyXWs["\x69\x6d\x61\147\x65\x6e"]["\x6e\x61\x6d\x65"][$KmUwl], "\x73\151\172\x65" => $EyXWs["\151\x6d\141\x67\x65\156"]["\163\151\x7a\145"][$KmUwl], "\x74\x6d\x70\x5f\156\x61\155\145" => $EyXWs["\x69\x6d\x61\147\x65\156"]["\164\155\x70\137\x6e\x61\x6d\145"][$KmUwl], "\x74\x79\x70\x65" => $EyXWs["\x69\x6d\x61\147\145\156"]["\164\171\x70\x65"][$KmUwl]]; goto hdQv0; hk9hI: $tNN7p = ["\164\x69\160\x6f" => "\163\x69\155\x70\x6c\x65", "\164\x69\164\x75\x6c\x6f" => "\x43\141\x6d\x70\157\40\x64\x65\x20" . $EyXWs["\146\157\x72\155\x75\154\141\162\x69\157\137\156\157\155\142\x72\145"] . "\x20\155\165\x79\x20\x6c\x61\x72\x67\x6f", "\x74\x65\170\164\x6f" => "\105\154\40\143\x61\155\160\x6f\40\144\x65\x20" . $EyXWs["\x66\157\x72\155\165\x6c\x61\162\151\x6f\137\156\157\x6d\x62\x72\x65"] . "\x20\156\157\40\x70\x75\145\x64\x65\40\164\x65\156\145\162\40\x6d\303\xa1\x73\x20\144\145\40" . $EyXWs["\x6d\141\170\x69\x6d\x6f"] . "\x20\x63\x61\x72\xc3\241\x63\x74\145\x72\145\x73\x20\x64\x65\x20\154\x6f\x6e\x67\151\x74\x75\144\x3a\x20" . $EyXWs["\x63\141\155\x70\x6f\137\166\x61\154\157\x72"], "\151\x63\x6f\x6e\x6f" => "\145\x72\162\x6f\x72"]; return $tNN7p; goto k9naf; goto OA6Q2; DS06t: n2rsy: if (!$YsRnk) { goto uKwtm; } $z8_va = $this->objetoBD->seleccionarDatos2(["\143\141\x6d\160\157\163" => $EyXWs["\143\x61\155\160\157\137\x6e\157\x6d\x62\x72\x65"], "\x74\x61\142\x6c\x61" => $EyXWs["\164\141\x62\154\x61"], "\102\x44" => $EyXWs["\102\104"] ?? NULL, "\127\110\x45\x52\x45" => [$EyXWs["\x63\x61\155\x70\157\137\156\157\155\x62\162\145"] => $EyXWs["\x63\x61\x6d\x70\157\x5f\x76\x61\154\x6f\x72"]]]); goto cKumD; QrRma: if (!($GKnV5[$EyXWs["\164\141\x62\x6c\141"]][$EyXWs["\143\141\155\160\157\x5f\x6e\x6f\x6d\142\x72\145"]] != $EyXWs["\x63\x61\155\160\x6f\x5f\166\141\154\x6f\x72"] && strtoupper($GKnV5[$EyXWs["\x74\x61\142\x6c\141"]][$EyXWs["\x63\x61\x6d\160\157\137\156\157\155\142\x72\x65"]]) != strtoupper($EyXWs["\143\x61\x6d\x70\157\137\166\141\154\157\162"]))) { goto vuTdZ; } $YsRnk = true; vuTdZ: goto DS06t; PnnF5: $GKnV5[$EyXWs["\164\x61\x62\154\141"]] = $gUwcX->fetch(); goto T70Br; S8uEN: goto YLzIh; hdQv0: $wevX5 = $ftBGU($oG1S2); if (!$wevX5) { goto UN9FN; } return $wevX5; goto OvExK; g1bl0: if (!isset($EyXWs["\144\x65\x62\145\105\x78\151\x73\x74\x69\162"])) { goto n2U7V; } $gUwcX = $this->objetoBD->seleccionarDatos2(["\x63\141\155\x70\x6f\163" => "\52", "\x74\141\142\x6c\141" => $EyXWs["\164\x61\x62\154\141"], "\102\x44" => $EyXWs["\x42\x44"] ?? NULL, "\x57\x48\x45\122\105" => [$EyXWs["\143\x61\155\160\157\x5f\x6e\157\x6d\142\x72\x65"] => $EyXWs["\143\141\x6d\160\x6f\x5f\x76\x61\154\x6f\162"]]]); if ($gUwcX->rowCount() == 0 && isset($EyXWs["\x72\x65\x71\165\145\162\151\x64\x6f"])) { goto S8uEN; } goto PnnF5; we_X3: return $tNN7p; KdEQb: YomKK: goto uBK5i; ej7qk: NpuQt: goto QJWeh; owg0W: goto qoE71; E7fkS: foreach ($EyXWs["\143\141\155\x70\157\x73\104\151\146\145\162\x65\156\164\145\163"] as $PjBxF) { $wevX5 = $Dd32f($EyXWs["\x63\141\x6d\x70\x6f\x5f\166\141\154\157\x72"], $PjBxF); if (!$wevX5) { goto LSFN1; } return $wevX5; LSFN1: Z2u74: } z7hcD: kwwRw: goto ej7qk; qQT72: if (!isset($EyXWs["\x6e\x6f\103\145\162\157"])) { goto ibjtC; } if (!($EyXWs["\143\141\x6d\x70\x6f\137\x76\x61\x6c\x6f\162"] <= 0)) { goto iXZhl; } $tNN7p = ["\x74\x69\160\x6f" => "\x73\x69\155\160\x6c\145", "\164\x69\164\165\x6c\x6f" => "\x43\141\156\x74\x69\x64\141\144\x20\145\x6e\40\x30", "\164\x65\170\x74\157" => "\116\157\x20\160\165\x65\144\145\x73\40\145\x6e\x76\x69\141\162\40\145\154\x20\x66\157\162\x6d\x75\154\141\162\x69\157\40\143\x6f\x6e\x20\145\x6c\40\143\141\x6d\160\x6f\40\144\145\40" . $EyXWs["\x66\157\162\155\165\154\x61\x72\x69\157\x5f\x6e\x6f\x6d\x62\162\x65"] . "\x20\145\156\40\60", "\151\143\x6f\x6e\157" => "\x65\162\162\x6f\x72"]; goto gtx6P; gtx6P: return $tNN7p; iXZhl: ibjtC: goto WAWCS; u96tA: kBcEU: uKwtm: qvuJo: goto mOyV9; PI1QY: QJWeh: naQHb: goto Xd_Fr; OvExK: UN9FN: hDiHI: $KmUwl++; goto Q5fjr; Q5fjr: goto JUq72; U0IYQ: AXpNW: goto PI1QY; I4mPN: if (mb_strlen($EyXWs["\143\141\155\160\157\x5f\x76\x61\x6c\157\x72"]) < $EyXWs["\x6d\x69\x6e\x69\155\x6f"]) { goto BNmGO; } goto k9naf; HTnBs: goto hk9hI; YLzIh: $tNN7p = ["\x74\x69\160\157" => "\x73\151\x6d\160\154\145", "\164\151\164\165\x6c\x6f" => "\104\141\164\x6f\40\156\157\40\145\x6e\x63\157\x6e\164\x72\141\144\157", "\164\145\170\164\157" => "\x45\154\40\166\x61\x6c\157\x72\40\x71\x75\x65\x20\150\141\x20\x69\x6e\164\162\157\144\x75\x63\151\144\157\x20\x65\x6e\40\x65\x6c\x20\x63\x61\x6d\x70\x6f\x20\144\x65\x20" . $EyXWs["\146\x6f\162\x6d\165\x6c\x61\162\151\157\x5f\156\x6f\155\x62\x72\145"] . "\x20\156\157\40\163\x65\x20\x65\x6e\x63\x75\145\x6e\x74\x72\141\x20\162\145\x67\x69\x73\x74\x72\x61\x64\x6f\x20\x64\x65\156\164\x72\x6f\40\144\x65\x20\x6c\141\40\142\x61\x73\x65\x20\144\145\40\144\141\164\x6f\x73\x20\144\x65\154\40\163\151\x73\x74\145\155\x61\x2c\x20\x70\x6f\x72\40\x66\141\166\157\162\x20\166\x65\162\151\x66\x69\161\165\x65\x20\145\x20\x69\156\x74\x65\156\164\145\40\144\145\x20\x6e\165\x65\x76\x6f\x3a\40" . $EyXWs["\x63\x61\155\160\157\137\x76\141\154\x6f\x72"], "\151\x63\157\156\x6f" => "\145\x72\x72\157\x72"]; return $tNN7p; T70Br: goto swqmQ; gd964: LaEPz: if (!isset($EyXWs["\x63\141\x6d\x70\157\x5f\x76\x61\154\157\162"])) { goto id55X; } $EyXWs["\x63\x61\x6d\x70\x6f\137\166\x61\x6c\157\162"] = $this->limpiarCadena($EyXWs["\x63\141\155\160\157\x5f\166\141\x6c\157\162"]); goto RZN2H; zcpTc: return $tNN7p; kjtXM: TgHhk: goto drZIq; mOyV9: if (!isset($EyXWs["\143\x61\155\160\x6f\163\x49\x67\165\x61\154\145\163"])) { goto YomKK; } if (!($EyXWs["\x63\141\x6d\160\x6f\x5f\166\141\154\157\x72"] != $EyXWs["\143\x61\x6d\x70\x6f\x73\111\x67\165\x61\154\145\x73"])) { goto KdEQb; } $tNN7p = ["\164\x69\160\157" => "\163\x69\155\160\154\145", "\x74\151\x74\165\x6c\157" => "\x44\x65\x73\151\x67\165\x61\154\144\x61\144\40\144\145\40\166\141\154\157\162\145\x73", "\164\x65\170\x74\157" => "\x45\154\x20\x76\141\x6c\x6f\162\40\144\145\40\141\155\x62\157\163\x20\x63\141\155\160\157\163\40\144\145\x20" . $EyXWs["\x66\x6f\x72\x6d\x75\154\141\x72\151\157\x5f\x6e\x6f\x6d\142\x72\x65"] . "\x20\x64\145\x62\145\156\40\x73\145\162\40\151\147\165\x61\x6c\145\163\x2c\40\166\x65\x72\x69\x66\151\x71\x75\145\x20\x65\x20\151\x6e\x74\145\x6e\x74\145\x20\x6e\x75\145\x76\141\155\145\x6e\x74\145", "\x69\143\x6f\x6e\x6f" => "\145\162\x72\x6f\162"]; goto we_X3; q02ot: goto AXpNW; GEgOz: $KmUwl = 0; goto xUC7J; drZIq: if (!isset($EyXWs["\x6d\x61\x78\151\x6d\x6f"])) { goto UnBlb; } if (!($EyXWs["\143\141\155\160\157\137\166\x61\x6c\157\x72"] != '')) { goto dpDZL; } if (mb_strlen($EyXWs["\143\141\155\160\x6f\137\166\x61\154\x6f\x72"]) > $EyXWs["\155\141\x78\151\x6d\x6f"]) { goto HTnBs; } goto I4mPN; swqmQ: n2U7V: if (!isset($EyXWs["\x64\145\x62\x65\x53\145\162\125\156\151\143\x6f"])) { goto qvuJo; } $YsRnk = false; goto meV8g; qoE71: $ftBGU = function ($n1QWW) use($EyXWs) { goto vkAHA; uK44K: gHYKU: if (!($n1QWW["\x73\x69\172\x65"] / 1048576 > 5)) { goto ewI5b; } $tNN7p = ["\164\151\160\157" => "\x73\x69\155\x70\154\145", "\164\x69\164\165\154\157" => "\101\162\143\150\151\166\157\x20\155\x75\x79\x20\x70\145\x73\x61\x64\157", "\164\145\x78\164\x6f" => "\105\x6c\40\164\141\155\141\xc3\261\157\40\x64\x65\154\40\141\x72\143\150\x69\166\157\40\145\x78\x63\x65\144\145\x20\x6c\x6f\163\x20\x35\x4d\x42\40\x70\x65\162\x6d\151\x74\x69\144\157\x73\40\160\x6f\x72\x20\x65\x6c\40\163\151\x73\x74\145\155\x61", "\151\143\x6f\156\157" => "\145\x72\162\157\162"]; goto E_f5S; Ugs4U: if (!($n1QWW["\x6e\141\155\145"] != '' && $n1QWW["\163\x69\172\x65"] > 0)) { goto qgqsP; } if (!(mime_content_type($n1QWW["\x74\155\160\x5f\x6e\141\155\x65"]) != "\x69\155\141\147\145\x2f\152\x70\145\x67" && mime_content_type($n1QWW["\164\155\x70\137\156\x61\155\x65"]) != "\x69\x6d\141\x67\145\x2f\x70\x6e\x67")) { goto gHYKU; } return ["\164\x69\x70\x6f" => "\x73\x69\155\160\154\x65", "\x74\151\164\x75\x6c\x6f" => "\x46\x6f\x72\x6d\x61\164\x6f\40\x69\x6e\x76\303\xa1\x6c\151\x64\x6f", "\x74\x65\x78\x74\157" => "\105\154\40\x66\x6f\162\x6d\x61\164\x6f\40\x64\145\x6c\40\x61\162\143\x68\x69\x76\157\40\x73\145\x6c\145\143\143\151\x6f\156\141\x64\x6f\x20\145\x73\40\151\x6e\143\x6f\162\162\x65\143\164\157", "\x69\x63\157\156\x6f" => "\x65\x72\x72\157\162"]; goto uK44K; vkAHA: if (!(isset($EyXWs["\162\145\x71\x75\x65\x72\x69\x64\157"]) && (($n1QWW["\x6e\x61\155\x65"] ?? '') == '' || ($n1QWW["\163\x69\172\x65"] ?? '') <= 0))) { goto DoWv4; } return ["\x74\x69\x70\157" => "\x73\151\155\x70\x6c\145", "\164\151\x74\x75\154\x6f" => "\111\x6d\x61\147\x65\156\40\x4f\x62\x6c\x69\x67\x61\x74\x6f\162\151\141", "\x74\x65\170\x74\157" => "\114\x61\40\x69\155\141\x67\x65\x6e\40\x64\145\40" . $EyXWs["\146\157\162\155\165\x6c\x61\x72\x69\x6f\137\x6e\x6f\155\142\x72\x65"] . "\x20\x65\x73\x20\157\142\x6c\151\x67\141\164\157\162\151\141", "\151\x63\157\x6e\x6f" => "\x65\162\x72\157\x72"]; DoWv4: goto Ugs4U; E_f5S: return $tNN7p; ewI5b: qgqsP: goto MqpK7; MqpK7: return false; goto jjhgS; jjhgS: }; if (is_array($EyXWs["\x69\x6d\x61\x67\145\x6e"]["\156\141\x6d\x65"] ?? '')) { goto GEgOz; } $wevX5 = $ftBGU($EyXWs["\x69\155\x61\147\145\x6e"]); goto JNOkZ; Yr6x9: $tNN7p = ["\164\151\160\x6f" => "\x73\151\155\x70\154\x65", "\164\151\164\x75\154\157" => "\106\157\162\155\x61\x74\157\x20\x64\145\40" . $EyXWs["\x66\x6f\x72\155\165\x6c\x61\162\151\x6f\137\156\x6f\155\x62\x72\145"] . "\x20\151\x6e\166\303\xa1\154\151\144\x6f", "\164\x65\x78\164\x6f" => "\x45\x6c\x20\146\x6f\x72\x6d\x61\164\x6f\x20\144\145\154\x20\x63\x61\x6d\160\157\x20" . $EyXWs["\x66\x6f\x72\155\x75\x6c\x61\x72\151\x6f\x5f\x6e\157\x6d\142\x72\145"] . "\40\156\157\x20\145\163\40\x63\x6f\x72\x72\x65\143\164\x6f\54\x20\160\x6f\162\40\x66\x61\x76\x6f\162\40\166\x65\162\x69\146\x69\161\165\x65\40\x65\40\151\x6e\x74\145\x6e\164\145\40\144\x65\x20\156\165\x65\166\157\56", "\x69\x63\x6f\156\x6f" => "\x65\162\162\x6f\162"]; return $tNN7p; exit; goto q6rco; j0FBx: if (isset($EyXWs["\x69\155\x61\147\x65\156"])) { goto owg0W; } if (!($this->objetoBD == null && (isset($EyXWs["\144\145\x62\x65\105\170\x69\163\x74\x69\162"]) || isset($EyXWs["\144\x65\x62\145\x53\145\x72\x55\x6e\151\x63\157"])))) { goto LaEPz; } $this->objetoBD = new conexion(); goto gd964; meV8g: if (isset($GKnV5[$EyXWs["\x74\141\x62\154\141"]])) { goto Gnt9Y; } $YsRnk = true; goto n2rsy; goto milw6; J2HFL: $wevX5 = $Dd32f($EyXWs["\143\x61\x6d\160\157\x5f\166\141\x6c\x6f\162"], $EyXWs["\143\141\155\x70\157\163\104\x69\146\145\162\x65\156\164\145\163"]); if (!$wevX5) { goto Q2Bgx; } return $wevX5; goto hkR3d; OA6Q2: BNmGO: $tNN7p = ["\164\x69\x70\x6f" => "\x73\151\x6d\160\x6c\x65", "\x74\x69\164\x75\x6c\x6f" => "\x43\x61\155\x70\157\40\x64\x65\x20" . $EyXWs["\x66\157\162\x6d\165\x6c\141\162\151\157\137\x6e\x6f\155\x62\x72\145"] . "\40\155\165\171\40\143\x6f\162\164\x6f", "\x74\145\x78\164\x6f" => "\x45\154\40\143\x61\x6d\160\157\x20\144\x65\x20" . $EyXWs["\x66\157\162\x6d\x75\x6c\141\x72\x69\157\x5f\156\x6f\x6d\142\x72\x65"] . "\x20\x6e\157\x20\x70\165\145\144\x65\40\164\145\156\x65\162\x20\x6d\x65\x6e\x6f\163\x20\144\145\40" . $EyXWs["\x6d\x69\x6e\151\x6d\157"] . "\x20\143\x61\x72\303\241\143\164\x65\162\145\x73\40\x64\x65\40\154\157\156\x67\x69\164\x75\x64\x3a\x20" . $EyXWs["\143\x61\x6d\x70\157\137\166\141\154\x6f\x72"], "\151\x63\x6f\156\157" => "\145\162\x72\x6f\162"]; return $tNN7p; goto bOvY6; Yaj3J: if (!isset($EyXWs["\145\x78\160\162\145\x73\151\x6f\156\137\162\x65"])) { goto gLfEo; } if (!($EyXWs["\143\141\155\160\x6f\137\166\x61\154\x6f\x72"] != '')) { goto o_kkD; } if (preg_match("\57" . $EyXWs["\145\x78\x70\x72\x65\163\151\157\x6e\x5f\162\145"] . "\x2f", $EyXWs["\x63\141\x6d\x70\x6f\137\166\141\154\157\162"])) { goto aiE7G; } goto Yr6x9; RZN2H: id55X: if (!isset($EyXWs["\x63\157\x6d\x61\120\x75\x6e\x74\x6f"])) { goto Rgl1N; } $EyXWs["\143\x61\x6d\x70\157\x5f\x76\x61\154\157\162"] = str_replace("\56", '', $EyXWs["\x63\141\x6d\x70\x6f\x5f\x76\141\154\157\162"]); goto AYqXe; hkR3d: Q2Bgx: goto kwwRw; pIYrf: goto E7fkS; vDQ08: $wevX5 = $wevX5->fetch(); $GKnV5[$EyXWs["\x74\x61\142\x6c\141"]] = $wevX5; opUKZ: goto QrRma; JNOkZ: if (!$wevX5) { goto OPBia; } return $wevX5; OPBia: goto q02ot; uBK5i: if (!isset($EyXWs["\143\x61\155\160\157\x73\x44\x69\146\145\162\x65\156\x74\x65\x73"])) { goto NpuQt; } $Dd32f = function ($xFvQo, $PvelT) use($EyXWs) { if (!($xFvQo == $PvelT)) { goto Wnljh; } $tNN7p = ["\164\151\x70\157" => "\163\x69\155\x70\x6c\145", "\x74\151\164\x75\x6c\x6f" => "\x45\122\x52\117\x52", "\x74\x65\170\x74\x6f" => "\105\154\40\166\x61\154\157\162\x20\144\145\40" . $EyXWs["\146\x6f\162\x6d\x75\x6c\x61\162\151\x6f\137\x6e\x6f\x6d\142\x72\x65"] . "\x20\x6e\x6f\x20\x70\x75\145\144\145\x20\x73\x65\162\x20\x75\x73\x61\144\157\x20\x65\156\40\145\x73\x61\40\x6f\160\x65\x72\141\143\151\303\xb3\x6e", "\151\x63\157\156\157" => "\x65\x72\162\157\162"]; return $tNN7p; Wnljh: return false; }; if (is_array($EyXWs["\x63\141\155\160\157\x73\104\151\x66\x65\162\x65\x6e\164\145\163"])) { goto pIYrf; } goto J2HFL; AYqXe: $EyXWs["\x63\x61\x6d\160\157\x5f\166\141\154\157\x72"] = str_replace("\54", "\x2e", $EyXWs["\143\x61\x6d\160\x6f\137\166\141\x6c\x6f\x72"]); $EyXWs["\143\x61\155\160\x6f\x5f\x76\141\x6c\x6f\162"] = (float) $EyXWs["\x63\141\155\x70\157\x5f\x76\x61\x6c\157\x72"]; Rgl1N: goto qQT72; cKumD: if (!($z8_va->rowCount() > 0)) { goto kBcEU; } $tNN7p = ["\164\x69\160\157" => "\x73\151\155\x70\154\x65", "\x74\151\x74\x75\x6c\157" => "\x56\x61\154\x6f\x72\40\144\x65\x20" . $EyXWs["\146\x6f\x72\x6d\x75\154\x61\162\151\157\x5f\x6e\157\155\142\162\145"] . "\x20\144\165\x70\x6c\x69\143\141\x64\157", "\x74\x65\x78\164\157" => "\105\x6c\x20\x76\x61\x6c\x6f\162\x20\x71\165\x65\x20\x68\x61\40\x69\156\x74\162\x6f\x64\165\x63\x69\144\157\40\145\x6e\x20\145\x6c\x20\143\x61\x6d\160\157\40\144\145\x20" . $EyXWs["\x66\x6f\x72\x6d\165\x6c\141\x72\151\157\137\x6e\157\155\x62\162\145"] . "\x20\x79\141\40\163\145\x20\145\x6e\143\165\145\x6e\x74\162\141\x20\x72\145\x67\x69\163\x74\162\141\x64\157\40\x79\40\x6e\x6f\40\x73\145\x20\x70\x75\145\x64\x65\x20\144\165\160\x6c\x69\x63\x61\x72\x2c\40\x70\157\x72\x20\146\x61\166\x6f\162\x20\166\x65\x72\151\146\151\161\x75\x65\x20\x65\40\151\156\164\145\x6e\164\145\40\144\x65\40\156\x75\x65\x76\157", "\151\143\x6f\x6e\x6f" => "\x65\162\x72\x6f\162"]; return $tNN7p; goto u96tA; q6rco: aiE7G: o_kkD: gLfEo: goto g1bl0; bOvY6: k9naf: dpDZL: UnBlb: goto Yaj3J; Xd_Fr: } eQ1ho: return false; } public function FechaHora_Sel(string $GAo4n, $TylmE = null, $t4Rxr = null) { goto iP1mi; dPJrA: $TylmE = str_replace("\x20", "\137", $TylmE); $TylmE = str_replace("\x3a", "\x5f", $TylmE); goto pAinH; goto rRizA; rLxJL: $TylmE = new DateTime("\156\x6f\x77", new DateTimeZone("\101\x6d\x65\x72\151\x63\x61\x2f\x43\141\162\141\143\141\x73")); $TylmE = $TylmE->format("\144\55\x6d\x2d\131\x20\x68\72\151\40\x41"); goto pAinH; goto Dn9Y1; wT8ec: $TylmE = str_replace("\72", "\x2f", $TylmE); $TylmE = DateTime::createFromFormat("\144\57\155\x2f\131", $TylmE); $TylmE = $TylmE->format("\131\55\x6d\55\144"); goto YGb9y; GF6gs: $TylmE = $TylmE->format("\x59\55\155\x2d\x64"); goto pAinH; En6LR: goto rLxJL; yb7Rx: goto pAinH; Wy5yp: $TylmE = new DateTime("\156\x6f\x77", new DateTimeZone("\101\x6d\x65\162\151\143\x61\x2f\103\x61\x72\141\143\x61\163")); goto zupau; YGb9y: goto pAinH; Q2Mix: $TylmE = new DateTime("\x6e\x6f\167", new DateTimeZone("\101\155\x65\x72\x69\143\141\x2f\x43\x61\x72\x61\x63\x61\163")); goto GF6gs; rRizA: DVUED: $TylmE = new DateTime("\156\157\167", new DateTimeZone("\x41\155\x65\x72\x69\x63\141\57\x43\x61\162\141\143\141\163")); $TylmE = $TylmE->format("\131\55\x6d\55\144\40\110\x3a\x69\x3a\163"); goto RwBJz; dIzlf: goto pAinH; ZxUzX: $TylmE = DateTime::createFromFormat("\131\x2d\x6d\55\x64", $TylmE); goto WfxXx; iP1mi: if ($GAo4n === "\106\145\x63\150\141\137\x68\157\x72\x61\137\x66\x6f\x74\157") { goto bokFC; } if ($GAo4n === "\146\145\x63\150\141\x5f\x68\157\x72\141\137\x42\104") { goto DVUED; } if ($GAo4n == "\146\x65\143\x68\141\x5f\x42\x44") { goto YAlY6; } goto ybNJF; EKS_c: if ($GAo4n == "\x74\x69\x65\155\x70\157\x5f\x61\156\164\145\x73\x5f\102\104") { goto Wy5yp; } if ($GAo4n == "\x46\145\143\150\141\x5f\116\x6f\x72\x6d\141\154") { goto ZxUzX; } goto pAinH; goto XQs2S; XQs2S: bokFC: $TylmE = new DateTime("\156\157\167", new DateTimeZone("\101\155\x65\162\151\x63\x61\x2f\x43\x61\x72\x61\143\x61\x73")); $TylmE = $TylmE->format("\131\55\155\x2d\144\x20\x48\x3a\151\72\x73"); goto dPJrA; RwBJz: goto pAinH; YAlY6: $TylmE = str_replace("\55", "\x2f", $TylmE); goto wT8ec; WfxXx: $TylmE = $TylmE->format("\144\55\x6d\x2d\x59"); pAinH: return $TylmE; goto Cmr4j; ybNJF: if ($GAo4n == "\106\x65\143\150\141\137\101\x63\x74\x75\141\154\137\x42\x44") { goto Q2Mix; } if ($GAo4n == "\106\145\143\150\x61\137\110\x6f\162\x61\x5f\x41\143\x74\x75\141\154") { goto En6LR; } if ($GAo4n == "\146\x65\x63\150\141\137\x68\x6f\162\x61\x5f\101\x4d\137\120\x4d") { goto xXF6p; } goto EKS_c; zupau: $JLorA = new DateInterval("\120" . $t4Rxr . "\104"); $TylmE = $TylmE->sub($JLorA); $TylmE = $TylmE->format("\x59\x2d\x6d\x2d\x64"); goto dIzlf; Dn9Y1: xXF6p: $khb41 = strtotime($TylmE); $TylmE = date("\x64\x2d\155\55\x59\40\150\x3a\151\40\x41", $khb41); goto yb7Rx; Cmr4j: } public function redireccionarUsuario($u62Mk = null) { goto qFOin; YZwvz: ob_end_clean(); if (!$u62Mk) { goto WRReC; } return APP_URL . $p3QkI; goto r0Y_9; r0Y_9: WRReC: header("\114\157\143\141\164\151\157\156\x3a\x20" . APP_URL . $p3QkI); goto B_p5Z; qFOin: $TEeKT = new accesosModelo(); $p3QkI = "\x75\x73\165\141\162\x69\157\x73\x2f\x6c\x6f\147\x69\x6e"; $_SESSION["\x76\x69\x73\x74\141\x41\x63\x74\x75\x61\x6c"] = "\x75\x73\165\x61\x72\x69\x6f\163"; goto EX6qb; EX6qb: if (empty($_SESSION["\x63\x65\x64\165\154\x61"])) { goto klB8H; } $M4_b9 = ["\x72\145\160\x6f\162\164\x65\x73" => "\166\x65\x72\x20\162\x65\160\157\162\x74\x65\x73", "\166\x65\156\x74\141\x73" => "\x76\x65\162", "\160\145\x64\151\x64\x6f\x73" => "\166\145\162"]; foreach ($M4_b9 as $j_Bcq => $hb8gi) { if (isset($TEeKT->validarPermisos($j_Bcq, $hb8gi)["\x69\x63\x6f\x6e\x6f"])) { goto C4mi4; } $p3QkI = $j_Bcq . "\x2f"; $_SESSION["\x76\151\x73\x74\141\x41\x63\x74\x75\x61\154"] = $j_Bcq; goto uYJkR; C4mi4: zO95j: } goto tAubS; tAubS: uYJkR: klB8H: http_response_code(403); goto YZwvz; B_p5Z: } public function hacerPeticionesAPIs(array $JzSok) { goto vIkvT; he9ML: oMK7H: curl_setopt($SmOGw, CURLOPT_POST, true); PrhOd: goto AchzO; ixMA0: return $QKKtR; goto t_wp0; KCArM: goto CpteC; y1J7E: curl_setopt($SmOGw, CURLOPT_USERAGENT, "\x4d\157\172\151\x6c\x6c\141\x2f\65\56\x30\x20\x28\127\151\x6e\x64\x6f\x77\x73\40\x4e\124\x20\x31\60\x2e\x30\73\40\127\x69\156\x36\64\x3b\40\170\x36\64\51\40\x41\160\160\154\145\127\145\x62\x4b\151\x74\x2f\65\x33\67\56\x33\x36\40\50\113\110\124\115\x4c\54\x20\x6c\x69\x6b\x65\x20\x47\145\143\153\157\x29\40\x43\x68\x72\x6f\x6d\x65\x2f\61\64\70\x2e\60\x2e\60\x2e\60\40\x53\141\146\x61\x72\151\x2f\x35\x33\67\x2e\63\x36"); if (!($d0_yy == "\120\117\x53\x54" || $d0_yy == "\x70\157\163\x74")) { goto PrhOd; } if ($ekmmp) { goto w5fLc; } goto DDPcP; H3gda: DonzZ: return ["\x65\162\x72\157\162" => "\x45\x6c\x20\157\40\x6c\x6f\163\40\x6d\145\156\163\141\152\145\163\x20\156\157\40\150\141\156\x20\x73\151\144\x6f\40\145\156\166\x69\141\x64\157\x73\40\144\145\142\x69\x64\157\x20\141\40\165\x6e\40\145\x72\x72\x6f\162\x20\145\156\x20\154\141\x20\x70\145\164\151\x63\x69\157\156\54\40\145\x72\162\x6f\x72\x3a\40" . $OzX3K]; goto ltUzy; goto YfbRG; LnG_7: goto ltUzy; m1lJ8: if (is_string($QKKtR)) { goto KCArM; } goto ixMA0; zZPm9: $Pu0mS = json_encode($Pu0mS); curl_setopt($SmOGw, CURLOPT_HTTPHEADER, ["\x43\157\x6e\164\x65\156\x74\x2d\124\x79\x70\x65\x3a\40\141\x70\160\x6c\x69\143\141\164\x69\x6f\x6e\x2f\152\x73\157\x6e", "\x43\157\156\x74\x65\x6e\164\55\x4c\x65\156\x67\164\150\72\x20" . strlen($Pu0mS)]); curl_setopt($SmOGw, CURLOPT_POSTFIELDS, $Pu0mS); goto he9ML; AchzO: $QKKtR = curl_exec($SmOGw); $OzX3K = curl_getinfo($SmOGw, CURLINFO_HTTP_CODE); if (preg_match("\x2f\x32\134\144\173\62\175\57", $OzX3K)) { goto m1lJ8; } goto oW_zA; vIkvT: $rid9W = $JzSok["\165\162\x6c"]; $Pu0mS = $JzSok["\144\141\x74\x6f\x73\x50\x65"] ?? ''; $d0_yy = $JzSok["\x6d\x65\x74\x6f\144\x6f"] ?? "\x50\x4f\x53\124"; goto zjRH0; YfbRG: Cy49T: return ["\145\x72\x72\157\x72" => "\117\143\165\162\162\x69\xc3\xb3\40\165\x6e\40\145\162\x72\x6f\x72\x20\145\156\x20\154\141\40\x70\145\x74\151\x63\151\xc3\263\x6e\40\144\x65\72\x20" . $OzX3K]; ltUzy: goto pgjbx; oW_zA: if (preg_match("\57\x34\134\x64\173\62\175\x2f", $OzX3K)) { goto DonzZ; } if (preg_match("\57\65\134\x64\173\x32\175\x2f", $OzX3K)) { goto Cy49T; } return ["\145\162\162\157\x72" => "\x45\154\40\x65\156\166\x69\x6f\x20\x64\145\x20\x6c\141\40\160\145\x74\x69\x63\x69\x6f\x6e\x20\146\x61\x6c\x6c\x6f\x20\171\x20\156\x6f\x20\x73\x65\x20\x72\x65\x63\x6f\x6e\x6f\x63\145\x20\x65\x6c\x20\143\157\144\x69\x67\157\40\x64\145\40\145\x72\162\x6f\162\40\x71\165\x65\x20\x65\156\x76\303\255\x61\x3a\40" . $OzX3K]; goto LnG_7; zjRH0: $ekmmp = $JzSok["\145\156\x76\151\141\x72\x43\157\155\157\112\x53\117\116"] ?? false; $SmOGw = curl_init($rid9W); curl_setopt($SmOGw, CURLOPT_RETURNTRANSFER, true); goto y1J7E; DDPcP: curl_setopt($SmOGw, CURLOPT_POSTFIELDS, http_build_query($Pu0mS)); goto oMK7H; w5fLc: goto zZPm9; CpteC: return json_decode($QKKtR, true); t_wp0: goto ltUzy; goto H3gda; pgjbx: } public function VEYSNEC(array $gwarS) { goto BQKhe; R3gmE: ["\164\141\x62\x6c\141" => $OsMWf, "\x57\110\105\122\x45" => $xEz66] = $gwarS; $mO4Zi = $gwarS["\x63\x61\x6d\x70\x6f\163"]; $j_ahQ = $gwarS["\x52\123\105\x4e"] ?? false; goto xucgY; xucgY: $tMk33 = $gwarS["\145\154\x69\x6d\151\x6e\x61\144\x6f\163\131\126\151\147\x65\x6e\x74\x65\x73"] ?? $j_ahQ != false ?? false; $B8LUX = explode("\54", $gwarS["\x63\x61\x6d\160\157\x73"]); $B8LUX = array_map(function ($EyXWs) { return trim($EyXWs); }, $B8LUX); goto i6deI; oakmz: goto uB9kr; g1Ttl: return $wevX5->fetch(PDO::FETCH_COLUMN); goto ZMd_G; dOBoy: $wSKZH = $this->objetoBD->actualizarDatos2(["\x74\141\x62\154\141" => $OsMWf, "\x42\x44" => $gwarS["\x42\x44"] ?? NULL, "\x64\x61\164\157\x73" => ["\x73\x74\141\x74\165\163" => 1], "\127\x48\105\122\105" => $xEz66]); if ($wSKZH == false || $wSKZH <= 0 || isset($wSKZH["\x65\x72\162\157\162"])) { goto oLa0K; } $k9iR_["\x73\164\x61\x74\x75\x73"] = 1; goto WiGXM; Qdo8B: uB9kr: Sn726: goto kPiZH; vhton: $Dftvm = $this->objetoBD->guardarDatos2($OboW6); if (!(isset($Dftvm["\145\x72\x72\x6f\162"]) || $Dftvm == false || $Dftvm == 0)) { goto XW4Lm; } $tNN7p = ["\164\x69\160\x6f" => "\x73\x69\x6d\x70\x6c\x65", "\x74\x69\164\165\x6c\157" => "\x52\x65\x67\151\x73\164\x72\x6f\40\x61\x75\x74\157\155\303\xa1\164\151\x63\x6f\x20\144\x65\x20\154\141\x20\x74\141\x62\154\x61\40{$OsMWf}\40\x6e\x6f\40\x63\x72\x65\x61\x64\x6f", "\x74\x65\170\x74\157" => "\105\x6c\40\x52\145\147\x69\x73\164\162\157\x20\x61\165\x74\x6f\155\xc3\241\164\x69\143\x6f\x20\x6e\x6f\40\150\x61\40\160\x6f\x64\x69\x64\157\40\x73\145\x72\40\x63\x72\145\141\144\157", "\x69\x63\157\156\x6f" => "\x65\162\x72\x6f\162"]; goto BhoM3; ZMd_G: goto uB9kr; P2tZh: return $wevX5->fetch(); goto Qdo8B; y_nXq: dXaM0: return $k9iR_[$B8LUX[0]]; goto y31ok; goto KXKN8; KXKN8: POlC3: $wevX5 = array_intersect_key($k9iR_, array_flip($B8LUX)); return $wevX5; goto KMUk2; fD5L9: $wevX5 = $this->objetoBD->seleccionarDatos2($vkZDt); if (count($B8LUX) == 1) { goto g1Ttl; } if (count($B8LUX) > 1) { goto P2tZh; } goto oakmz; smSeq: $OboW6 = ["\x74\x61\x62\x6c\x61" => $OsMWf, "\x42\x44" => $gwarS["\x42\104"] ?? NULL, "\144\141\164\x6f\163" => []]; foreach ($xEz66 as $A6PBh => $OVJje) { $OboW6["\x64\x61\164\157\163"][$A6PBh] = $OVJje; q8c6t: } ylpNF: goto vhton; BiRCr: if (count($B8LUX) == 1) { goto dXaM0; } if (count($B8LUX) > 1) { goto POlC3; } goto y31ok; goto y_nXq; xcfBU: if (!($j_ahQ == true)) { goto tkCZK; } $jK8hk = $k9iR_["\x73\164\141\x74\165\x73"]; if (!($jK8hk == 0)) { goto TAoq8; } goto dOBoy; KMUk2: y31ok: goto Sn726; e0_5D: goto smSeq; BhoM3: return $tNN7p; XW4Lm: $vkZDt = ["\143\x61\155\x70\157\x73" => $mO4Zi, "\x74\141\142\154\141" => $OsMWf, "\102\x44" => $gwarS["\x42\x44"] ?? NULL, "\x57\x48\x45\122\x45" => $xEz66 ?? [], "\x65\x6c\151\x6d\151\x6e\x61\144\x6f\x73\131\x56\x69\x67\x65\x6e\x74\145\163" => $tMk33]; goto fD5L9; WiGXM: goto ckOyR; oLa0K: return $wSKZH; goto O5f6P; i6deI: $wevX5 = $this->objetoBD->seleccionarDatos2(["\x63\141\155\x70\157\x73" => "\x2a", "\164\141\142\x6c\141" => $OsMWf, "\x42\x44" => $gwarS["\102\104"] ?? NULL, "\127\x48\x45\x52\x45" => $xEz66 ?? [], "\145\154\151\155\151\x6e\141\x64\157\x73\x59\x56\151\147\x65\x6e\x74\145\163" => $tMk33]); if ($wevX5->rowCount() == 0) { goto e0_5D; } $k9iR_ = $wevX5->fetch(); goto xcfBU; BQKhe: if (!($this->objetoBD == null)) { goto ABF8c; } $this->objetoBD = new conexion(); ABF8c: goto R3gmE; O5f6P: ckOyR: TAoq8: tkCZK: goto BiRCr; kPiZH: } public function DECORE(PDOStatement|FPDF|array|string $QKKtR) { goto mWXBC; ybEr9: $_SESSION["\143\157\144\x69\x67\x6f\x52\145\x71\x75\145\163\x74"] = 400; http_response_code(400); echo json_encode($QKKtR); goto IFkqh; rJud5: $OzX3K = 400; U6QLN: $_SESSION["\x63\157\144\151\147\x6f\122\145\x71\165\145\x73\x74"] = $OzX3K; goto X6k05; X6k05: http_response_code($OzX3K); echo json_encode($QKKtR); goto DmFH9; mWXBC: if (!$QKKtR instanceof FPDF) { goto j8ccD; } $_SESSION["\143\x6f\144\x69\x67\x6f\x52\145\x71\165\145\x73\164"] = 200; $QKKtR->Output("\111", "\122\x65\160\157\162\164\145"); goto pdrm6; X1e93: $OzX3K = $QKKtR["\143\x6f\144\x69\x67\x6f\122\145\161\x75\x65\163\164"] ?? 200; goto U6QLN; HDLt2: goto rJud5; pdrm6: return; j8ccD: if (!(!$QKKtR instanceof FPDF && !is_array($QKKtR))) { goto KO2En; } goto ybEr9; IFkqh: return; KO2En: if (($QKKtR["\151\143\x6f\156\157"] ?? '') == "\145\x72\x72\x6f\x72") { goto HDLt2; } goto X1e93; DmFH9: } public function Imagenes_Reg(string $l7hJT, array $n1QWW, string $ay1sY) { goto SCJi3; SCJi3: $vAMIv = function ($l7hJT, $n1QWW, $ay1sY) { goto AXNOq; pJqwL: mydYj: if (!($n1QWW["\x73\151\172\x65"] / 1048576 > 5)) { goto L0hwB; } $tNN7p = ["\x74\x69\160\x6f" => "\163\x69\155\160\154\145", "\164\151\164\x75\x6c\157" => "\x41\162\143\x68\x69\x76\x6f\40\x6d\x75\171\x20\160\x65\x73\x61\x64\x6f", "\164\x65\x78\x74\157" => "\x45\x6c\40\164\141\x6d\x61\xc3\xb1\157\40\x64\x65\x6c\40\x61\162\x63\x68\151\x76\157\40\145\x78\x63\x65\x64\145\40\x6c\x6f\x73\40\65\115\102\x20\x70\x65\x72\x6d\151\x74\x69\144\x6f\x73\40\x70\x6f\x72\x20\x65\x6c\40\163\151\x73\164\x65\155\x61", "\x69\x63\x6f\156\157" => "\x65\x72\x72\x6f\162"]; goto YsyeI; d8k66: if (!($n1QWW["\156\x61\155\x65"] == '' || $n1QWW["\163\x69\172\x65"] <= 0)) { goto B6ZVo; } return ''; B6ZVo: goto FDCvb; YsyeI: return $tNN7p; L0hwB: $vGOp6 = $ay1sY . "\137" . $this->FechaHora_Sel("\x46\145\143\x68\x61\137\x68\157\x72\x61\x5f\x66\157\x74\x6f") . "\x5f" . rand(1, 100); goto ppmTs; f7akB: if (!(mime_content_type($n1QWW["\x74\155\160\x5f\156\141\x6d\145"]) != "\x69\155\141\147\145\x2f\x6a\160\145\147" && mime_content_type($n1QWW["\x74\x6d\x70\137\156\x61\x6d\x65"]) != "\151\x6d\141\147\145\x2f\x70\156\x67")) { goto mydYj; } $tNN7p = ["\164\151\x70\157" => "\163\151\155\160\154\x65", "\164\151\x74\x75\x6c\x6f" => "\106\x6f\162\155\x61\x74\157\x20\x69\x6e\166\xc3\xa1\154\x69\144\x6f", "\164\x65\170\164\x6f" => "\105\x6c\40\x66\157\162\155\141\164\x6f\x20\144\145\x6c\x20\x61\162\x63\150\151\x76\x6f\x20\163\145\154\145\x63\x63\x69\157\x6e\141\x64\x6f\40\x65\x73\40\151\156\143\157\162\x72\145\143\164\x6f", "\x69\x63\157\156\x6f" => "\145\x72\x72\157\x72"]; return $tNN7p; goto pJqwL; U5jkk: UibcE: wnsXu: chmod(DIR_FOTOS . $l7hJT . "\x2f", 0777); goto TPV46; ppmTs: $vGOp6 = str_ireplace("\40", "\x5f", $vGOp6); $vGOp6 = str_ireplace("\55", "\x5f", $vGOp6); switch (mime_content_type($n1QWW["\164\x6d\160\x5f\x6e\x61\x6d\145"])) { case "\x69\x6d\141\x67\x65\57\x6a\160\145\147": $vGOp6 = $vGOp6 . "\x2e\152\x70\147"; goto wnsXu; case "\151\x6d\x61\x67\145\57\x70\x6e\147": $vGOp6 = $vGOp6 . "\x2e\160\156\x67"; goto wnsXu; } goto U5jkk; AXNOq: if (!($ay1sY == '')) { goto BCM3Y; } return ["\164\151\x70\x6f" => "\163\151\x6d\160\154\145", "\164\x69\164\x75\x6c\157" => "\117\x63\165\x72\x72\x69\303\xb3\40\x75\156\x20\x65\x72\x72\157\x72\x20\151\156\x65\163\x70\x65\162\141\x64\x6f", "\x74\145\170\164\x6f" => "\x4e\x6f\40\160\x75\145\144\x65\163\x20\x72\x65\x67\x69\x73\164\162\x61\x72\x20\x75\156\x61\x20\x69\155\x61\x67\145\156\x20\x63\x6f\156\40\143\141\155\x70\x6f\x73\40\166\x61\143\303\xad\x6f\x73", "\x69\143\157\x6e\x6f" => "\x65\162\162\157\x72"]; BCM3Y: goto d8k66; SNT9Y: return $tNN7p; hrTUD: eCegv: goto f7akB; FDCvb: if (file_exists(DIR_FOTOS . $l7hJT . "\57")) { goto eCegv; } if (mkdir(DIR_FOTOS . $l7hJT . "\x2f", 0777)) { goto hrTUD; } $tNN7p = ["\164\151\x70\157" => "\163\x69\x6d\x70\x6c\x65", "\x74\151\164\165\x6c\x6f" => "\x44\x69\162\145\143\164\x6f\x72\151\x6f\x20\x6e\x6f\x20\143\162\145\141\144\157", "\164\x65\170\x74\x6f" => "\x45\154\40\x64\x69\x72\x65\143\164\x6f\x72\151\157\40\160\x61\162\x61\x20\154\141\x20\x66\157\x74\157\40\156\157\40\163\145\40\x70\165\x64\x6f\x20\x63\162\x65\141\162", "\151\x63\157\156\x6f" => "\145\x72\x72\157\162"]; goto SNT9Y; TPV46: if (move_uploaded_file($n1QWW["\x74\155\x70\137\156\141\x6d\145"], DIR_FOTOS . $l7hJT . "\57" . $vGOp6)) { goto wbJ2A; } return ["\164\151\160\x6f" => "\x73\x69\155\160\x6c\x65", "\x74\151\x74\x75\154\157" => "\101\162\x63\150\x69\x76\x6f\x20\x6e\157\40\155\157\x76\151\144\x6f", "\164\145\x78\164\x6f" => "\105\x6c\40\x61\x72\143\150\151\166\x6f\x20\156\x6f\x20\160\x75\144\x65\40\x73\x65\162\x20\155\x6f\x76\x69\144\x6f\x20\141\40\154\x61\40\143\141\162\x70\145\164\x61\x20\144\x65\x73\x74\x69\x6e\157", "\151\x63\157\x6e\157" => "\145\162\x72\x6f\x72"]; wbJ2A: goto Zv6kz; Zv6kz: return $vGOp6; goto kLDiM; kLDiM: }; $FGypi = []; if (!isset($n1QWW["\156\141\155\145"])) { goto CANF8; } goto Pe1DO; YJbwg: if (!($KmUwl < count($n1QWW["\x6e\x61\x6d\x65"]))) { goto KHQYs; } $oG1S2 = ["\x66\x75\x6c\x6c\x5f\x70\x61\164\x68" => $n1QWW["\x66\x75\x6c\154\137\x70\x61\164\x68"][$KmUwl], "\156\141\x6d\145" => $n1QWW["\x6e\141\x6d\145"][$KmUwl], "\x73\x69\x7a\145" => $n1QWW["\x73\x69\172\145"][$KmUwl], "\x74\x6d\160\x5f\x6e\x61\155\145" => $n1QWW["\x74\x6d\160\137\x6e\141\x6d\145"][$KmUwl], "\164\171\160\x65" => $n1QWW["\x74\171\x70\145"][$KmUwl]]; $FGypi[] = $vAMIv($l7hJT, $oG1S2, $ay1sY); goto R8Nx4; imE31: CbYvb: $KmUwl = 0; TXya5: goto YJbwg; wAhwM: CANF8: return []; goto zHPrc; goto imE31; T5pKC: KHQYs: zHPrc: return $FGypi; goto wlFp_; Pe1DO: if (is_array($n1QWW["\156\x61\x6d\145"])) { goto CbYvb; } $FGypi = $vAMIv($l7hJT, $n1QWW, $ay1sY); goto zHPrc; goto wAhwM; R8Nx4: xFgLF: $KmUwl++; goto TXya5; goto T5pKC; wlFp_: } public function Imagenes_Act(array $gwarS) { goto hNTYq; Txh01: $l7hJT = $gwarS["\x73\165\x62\x43\141\162\160\x65\164\x61"]; $n1QWW = $gwarS["\151\x6d\x61\x67\145\x6e"]; $ay1sY = $gwarS["\x74\x61\x62\x6c\x61\102\x44"]; goto AXhDM; n0Bfo: L6AXl: $Ga6Tz = APP_URL . DIR_FOTOS . $l7hJT . "\57" . $vGOp6; $tNN7p = ["\x74\151\160\x6f" => "\x73\151\155\x70\154\145", "\x74\x69\x74\165\154\x6f" => "\x49\155\141\147\145\x6e\40\x61\x63\x74\165\x61\154\x69\x7a\141\x64\141", "\164\x65\170\x74\x6f" => "\114\141\40\x69\x6d\x61\147\x65\x6e\40\150\x61\x20\x73\x69\144\x6f\40\141\x63\164\165\141\154\x69\172\x61\x64\x61\40\x65\170\x69\x74\157\163\x61\x6d\145\156\164\145", "\151\x63\x6f\x6e\x6f" => "\163\165\143\143\145\x73\x73"]; goto Ed2u7; ZMT5I: return $tNN7p; exit; tgJus: goto fyKrD; AXhDM: $BYR2M = $gwarS["\x6e\x6f\155\x62\162\145\x43\141\x6d\160\x6f\106\157\164\x6f"]; $Zf0Gq = $gwarS["\x6e\157\155\142\x72\x65\103\x61\155\x70\x6f\111\144"]; $QvA43 = $gwarS["\x76\141\154\157\162\x49\x64"]; goto kv5Xz; YxLZM: FiYP_: tyXK6: chmod(DIR_FOTOS . $l7hJT . "\x2f", 0777); goto bnuRl; D3gPs: if ($wevX5 == false || $wevX5 <= 0) { goto KbSL5; } if (!($ay1sY == "\165\163\165\141\162\x69\157\163" && $BYR2M == "\x66\157\x74\157\137\165\163\165\x61\162\151\x6f" && $QvA43 == $_SESSION["\x63\145\144\x75\x6c\141"])) { goto L6AXl; } $_SESSION["\x66\x6f\164\x6f"] = $vGOp6; goto n0Bfo; nmlEO: zArYQ: $vGOp6 .= "\77\x76\x3d" . $this->FechaHora_Sel("\x46\x65\x63\150\x61\137\150\157\162\x61\x5f\146\157\x74\x6f"); $wevX5 = $this->objetoBD->actualizarDatos2(["\164\141\142\x6c\141" => $ay1sY, "\x42\x44" => $IKMeT, "\x64\x61\164\157\163" => [$BYR2M => $vGOp6], "\127\110\105\x52\x45" => [$Zf0Gq => $QvA43]]); goto D3gPs; gpPL0: if ($wevX5[$BYR2M] != '') { goto wFUfQ; } $vGOp6 = str_ireplace("\x20", "\x5f", $ay1sY); $vGOp6 .= "\137" . $this->FechaHora_Sel("\x46\x65\x63\150\141\x5f\x68\157\x72\x61\137\x66\157\x74\157"); goto Kw2DY; fyKrD: $wevX5 = $this->objetoBD->seleccionarDatos2(["\x63\x61\155\160\x6f\163" => "\x2a", "\164\x61\x62\154\141" => $ay1sY, "\102\104" => $IKMeT, "\127\x48\105\x52\x45" => [$Zf0Gq => $QvA43]]); if ($wevX5->rowCount() <= 0) { goto ynpMs; } $wevX5 = $wevX5->fetch(); goto EdzFg; hNTYq: if (!($this->objetoBD == null)) { goto FoltD; } $this->objetoBD = new conexion(); FoltD: goto Txh01; rIxx4: exit; QKQzL: if (file_exists(DIR_FOTOS . $l7hJT . "\57")) { goto PMLy8; } goto X14cw; H_6jH: $tNN7p = ["\164\151\x70\157" => "\x73\x69\155\x70\x6c\145", "\x74\x69\164\x75\x6c\157" => "\x49\155\141\x67\x65\156\40\x6d\165\171\40\x70\x65\163\x61\144\x61", "\164\x65\170\164\157" => "\105\x6c\40\x74\x61\x6d\141\303\xb1\x6f\x20\x64\x65\40\x6c\141\40\151\155\x61\x67\145\156\x20\145\170\x63\145\144\145\x20\154\x6f\163\40\65\x4d\x42\x20\160\145\162\x6d\x69\164\151\144\157\163\x20\160\157\162\40\x65\154\x20\163\151\163\x74\145\x6d\x61", "\x69\x63\157\156\x6f" => "\145\162\x72\x6f\x72"]; return $tNN7p; qUsjw: goto gpPL0; np23n: return $tNN7p; exit; uc9u_: goto A9ChZ; EG7tb: $tNN7p = ["\x74\151\160\x6f" => "\x73\151\x6d\160\x6c\145", "\x74\x69\164\165\154\157" => "\x49\155\x61\x67\145\156\x20\x6e\x6f\x20\x61\x63\164\165\141\x6c\x69\x7a\x61\x64\x61", "\164\145\x78\x74\x6f" => "\x4e\x6f\40\x68\145\x6d\x6f\x73\40\160\x6f\x64\x69\x64\157\x20\141\x63\x74\x75\x61\154\151\172\141\162\x20\141\x6c\x67\x75\x6e\x6f\x73\x20\144\141\164\x6f\x73\40\x64\145\154\40\165\x73\x75\x61\162\x69\157", "\x69\143\157\x6e\x6f" => "\x77\141\x72\x6e\x69\156\x67"]; A45sb: return $tNN7p; goto Gbe_N; EdzFg: goto uc9u_; ynpMs: $tNN7p = ["\x74\151\160\x6f" => "\x73\151\x6d\x70\154\145", "\x74\151\164\x75\154\157" => "\x49\155\141\x67\x65\x6e\40\156\157\x20\145\x6e\143\x6f\x6e\x74\162\x61\x64\x61", "\164\145\170\x74\157" => "\x4c\x61\x20\151\155\x61\147\x65\156\x20\x71\x75\145\40\150\x61\x20\151\x6e\164\145\x6e\164\141\144\x6f\40\x61\x63\164\x75\141\x6c\151\x7a\141\x72\40\156\157\x20\163\145\x20\145\x6e\x63\165\145\x6e\x74\x72\x61\x20\x65\x6e\x20\154\141\40\142\x61\x73\x65\x20\144\x65\40\x64\141\164\x6f\x73", "\x69\143\157\156\x6f" => "\145\162\x72\x6f\162"]; goto np23n; mFJkB: exit; efsQN: if (!($n1QWW["\163\x69\x7a\145"] / 1048576 > 5)) { goto qUsjw; } goto H_6jH; X14cw: if (mkdir(DIR_FOTOS . $l7hJT . "\x2f", 0777)) { goto Kc90G; } $tNN7p = ["\164\x69\x70\x6f" => "\163\x69\x6d\160\x6c\145", "\x74\151\x74\165\154\x6f" => "\104\151\162\x65\x63\x74\x6f\162\151\x6f\40\x6e\157\x20\143\162\x65\141\144\x6f", "\x74\x65\x78\x74\157" => "\105\154\40\144\x69\x72\145\143\x74\x6f\162\151\157\40\x70\141\162\x61\x20\154\x61\x20\x66\157\164\157\40\x6e\157\40\x73\x65\x20\x70\165\144\157\40\x63\x72\145\x61\x72", "\151\x63\157\156\x6f" => "\145\162\162\x6f\x72"]; return $tNN7p; goto g4LMO; g4LMO: exit; Kc90G: PMLy8: goto SEGL8; bnuRl: if (move_uploaded_file($n1QWW["\164\155\160\137\156\x61\x6d\145"], DIR_FOTOS . $l7hJT . "\x2f" . $vGOp6)) { goto mVAh4; } $tNN7p = ["\x74\151\160\x6f" => "\163\151\155\x70\154\145", "\x74\x69\164\165\x6c\x6f" => "\x46\157\164\157\40\156\x6f\x20\x6d\157\x76\151\x64\141", "\164\145\170\164\157" => "\x4c\x61\x20\x69\x6d\x61\147\x65\156\x20\x6e\x6f\40\x70\x75\145\x64\x65\40\163\145\x72\40\155\x6f\x76\151\x64\x61\x20\141\x20\x6c\x61\x20\x63\x61\x72\x70\145\x74\x61\40\x64\145\x73\164\151\x6e\x6f", "\x69\x63\x6f\x6e\x6f" => "\x65\162\162\x6f\x72"]; return $tNN7p; goto noY0L; Kw2DY: goto G92vr; wFUfQ: $vGOp6 = explode("\56", $wevX5[$BYR2M]); goto p9yOM; SEGL8: if (!(mime_content_type($n1QWW["\164\x6d\160\137\x6e\141\x6d\x65"]) != "\x69\x6d\x61\147\145\57\x6a\x70\x65\147" && mime_content_type($n1QWW["\x74\x6d\160\137\x6e\x61\x6d\145"]) != "\x69\x6d\x61\x67\x65\x2f\160\x6e\147")) { goto efsQN; } $tNN7p = ["\x74\x69\x70\x6f" => "\x73\x69\x6d\x70\x6c\x65", "\x74\x69\164\x75\154\x6f" => "\106\x6f\162\x6d\141\164\x6f\x20\x69\x6e\x76\303\xa1\154\151\x64\x6f", "\164\x65\x78\x74\157" => "\105\x6c\x20\146\x6f\x72\x6d\141\164\x6f\40\144\x65\x6c\40\x61\x72\143\150\x69\x76\x6f\x20\163\x65\154\145\143\x63\151\157\x6e\141\x64\157\40\x65\163\x20\x69\x6e\143\x6f\x72\x72\x65\x63\x74\x6f", "\x69\143\x6f\x6e\x6f" => "\145\162\162\x6f\x72"]; return $tNN7p; goto mFJkB; p9yOM: $vGOp6 = $vGOp6[0]; G92vr: switch (mime_content_type($n1QWW["\x74\155\x70\x5f\x6e\x61\155\145"])) { case "\151\x6d\x61\x67\145\57\x6a\x70\145\x67": $vGOp6 .= "\x2e\152\160\x67"; goto tyXK6; case "\x69\x6d\141\147\x65\57\x70\156\x67": $vGOp6 .= "\x2e\160\156\147"; goto tyXK6; } goto YxLZM; kv5Xz: $IKMeT = $gwarS["\102\x44"] ?? NULL; if (!($l7hJT == '' || $Zf0Gq == '' || $QvA43 == '' || $BYR2M == '' || $ay1sY == '')) { goto tgJus; } $tNN7p = ["\x74\x69\160\157" => "\x73\x69\x6d\160\x6c\x65", "\164\x69\164\165\x6c\157" => "\117\x63\x75\x72\x72\x69\xc3\263\x20\x75\x6e\40\x65\x72\162\x6f\162\40\x69\156\145\163\160\145\x72\x61\144\157", "\164\145\170\x74\157" => "\x4e\157\40\160\x75\x65\144\145\x73\40\141\143\164\x75\x61\154\151\x7a\x61\x72\x20\x75\x6e\x61\x20\151\155\x61\147\x65\x6e\x20\x63\x6f\156\40\143\x61\155\x70\157\163\x20\166\141\x63\xc3\255\x6f\x73", "\x69\x63\x6f\156\157" => "\x65\x72\x72\157\162"]; goto ZMT5I; Ed2u7: $this->objetoBD->commit(); goto A45sb; KbSL5: goto EG7tb; noY0L: exit; mVAh4: $QGkVe = explode("\77", $wevX5[$BYR2M]); goto g3J6m; g3J6m: if (!(is_file(DIR_FOTOS . $l7hJT . "\x2f" . $QGkVe[0]) && $QGkVe[0] != $vGOp6)) { goto zArYQ; } chmod(DIR_FOTOS . $l7hJT . "\x2f" . $QGkVe[0], 0777); unlink(DIR_FOTOS . $l7hJT . "\x2f" . $QGkVe[0]); goto nmlEO; A9ChZ: if (!($n1QWW["\156\141\155\x65"] == '' && $n1QWW["\x73\x69\172\145"] <= 0)) { goto QKQzL; } $tNN7p = ["\164\151\160\x6f" => "\x73\151\x6d\160\154\145", "\164\151\x74\x75\x6c\157" => "\106\157\164\157\40\156\x6f\40\x76\xc3\xa1\x6c\x69\144\x61", "\164\145\x78\164\x6f" => "\x4e\x6f\40\160\x75\145\144\145\40\x65\156\166\151\141\162\40\145\154\x20\x63\x61\x6d\x70\157\x20\166\141\x63\151\303\263\40\x6f\x20\141\x72\143\x68\151\x76\x6f\163\x20\144\151\x66\x65\162\145\x6e\x74\145\x73\x20\x61\x6c\40\x66\157\162\155\141\x74\157\x20\163\157\154\151\143\151\164\x61\144\x6f", "\151\x63\157\x6e\x6f" => "\x65\162\162\x6f\162"]; return $tNN7p; goto rIxx4; Gbe_N: } public function Imagenes_Eli(array $gwarS) { goto D5NDy; Iywhx: $tNN7p = ["\x74\151\160\x6f" => "\x73\x69\155\160\x6c\x65", "\164\x69\x74\165\154\157" => "\x49\155\x61\147\x65\x6e\x20\x6e\x6f\x20\145\154\x69\x6d\151\x6e\x61\144\141", "\x74\145\170\x74\157" => "\x4e\157\40\163\145\40\x68\x61\40\x70\157\x64\151\144\x6f\x20\145\154\151\x6d\151\x6e\141\162\x20\x6c\141\40\151\155\x61\147\145\156", "\x69\x63\157\156\157" => "\145\x72\x72\x6f\162"]; return $tNN7p; exit; goto REac2; OpXxC: $QvA43 = $this->limpiarCadena($QvA43); $wevX5 = $this->objetoBD->seleccionarDatos2(["\143\x61\155\160\157\163" => $BYR2M, "\x74\x61\142\154\x61" => $ay1sY, "\102\104" => $IKMeT, "\x57\x48\105\x52\x45" => [$Zf0Gq => $QvA43]]); if ($wevX5->rowCount() <= 0) { goto JNm2i; } goto DAwR4; SkE8G: $tNN7p = ["\164\151\160\157" => "\163\151\155\160\x6c\145", "\x74\151\x74\x75\154\157" => "\122\x65\x67\x69\x73\x74\x72\x6f\x20\x6e\157\x20\145\x6e\x63\157\x6e\x74\x72\x61\144\x6f", "\164\145\x78\x74\157" => "\x45\x6c\40\162\x65\x67\x69\x73\164\x72\157\x20\x71\x75\x65\x20\150\141\40\x69\x6e\x74\145\156\164\141\144\x6f\40\x65\154\151\x6d\x69\x6e\141\162\40\x6e\x6f\40\x73\145\x20\145\x6e\x63\x75\x65\156\164\x72\x61\x20\x65\x6e\x20\x6c\x61\x20\x62\141\x73\145\x20\x64\x65\x20\144\141\x74\157\x73", "\151\x63\x6f\x6e\157" => "\x65\x72\x72\157\162"]; return $tNN7p; ha8t3: goto HauCl; DAwR4: $wevX5 = $wevX5->fetch(); goto ha8t3; JNm2i: goto SkE8G; mWUBN: hHdRw: chmod(DIR_FOTOS . $l7hJT . "\57" . $vGOp6, 0777); if (unlink(DIR_FOTOS . $l7hJT . "\x2f" . $vGOp6)) { goto fImql; } goto Iywhx; jOSPV: $l7hJT = $gwarS["\163\x75\142\x43\x61\162\160\145\x74\x61"]; $ay1sY = $gwarS["\164\141\142\154\x61\x42\x44"]; $BYR2M = $gwarS["\x6e\x6f\x6d\142\162\145\103\x61\x6d\160\157\106\x6f\164\x6f"]; goto efRKT; jGbzz: sS1xS: $tNN7p = ["\x74\151\160\x6f" => "\163\151\x6d\x70\154\x65", "\164\151\x74\x75\154\157" => "\111\x6d\x61\x67\145\x6e\x20\145\x6c\x69\x6d\x69\x6e\141\x64\141", "\164\x65\170\164\157" => "\114\x61\40\151\155\141\x67\145\x6e\40\x68\141\x20\163\151\x64\x6f\x20\145\154\151\155\x69\156\x61\x64\141\40\145\x78\151\164\x6f\163\x61\155\x65\x6e\164\145", "\x69\143\x6f\156\157" => "\163\x75\x63\x63\145\163\x73"]; $this->objetoBD->commit(); goto uSwlZ; uSwlZ: goto Fj2WT; sEbyQ: $tNN7p = ["\x74\x69\160\157" => "\154\x69\155\160\151\141\x72", "\164\151\x74\x75\x6c\x6f" => "\111\x6d\x61\147\x65\156\40\x6e\157\x20\x65\154\151\x6d\x69\156\x61\144\141", "\x74\x65\x78\164\157" => "\116\x6f\40\150\145\x6d\x6f\163\x20\x70\157\144\151\144\157\40\x61\x63\x74\165\141\x6c\151\x7a\141\x72\x20\141\x6c\x67\165\156\157\x73\40\144\141\x74\x6f\x73\54\x20\x73\x69\x6e\x20\x65\155\142\141\x72\x67\157\x20\x6c\141\x20\151\155\141\x67\145\x6e\40\x73\145\40\145\154\x69\x6d\x69\156\303\263\40\x63\157\156\x20\303\xa9\x78\151\x74\157", "\x69\143\x6f\156\157" => "\167\141\x72\x6e\x69\156\x67"]; goto Ugld9; KSDow: qnjlw: if ($ay1sY == "\165\163\165\x61\x72\151\157\163") { goto OScxh; } $Ga6Tz = APP_URL . DIR_FOTOS . "\x64\145\x66\x61\x75\154\x74\x32\56\160\156\147"; goto u9cOe; HauCl: chmod(DIR_FOTOS . $l7hJT . "\x2f", 0777); $vGOp6 = $wevX5[$BYR2M]; $vGOp6 = explode("\77", $vGOp6); goto CTrbF; XThJ_: if ($wevX5 == false || $wevX5 <= 0) { goto sEbyQ; } if (!($QvA43 == $_SESSION["\143\x65\144\165\154\x61"] && $BYR2M == "\146\157\164\x6f\x5f\165\163\x75\141\x72\x69\157" && $ay1sY == "\165\x73\165\x61\x72\x69\x6f\163")) { goto qnjlw; } $_SESSION["\x66\157\x74\x6f"] = ''; goto KSDow; CTrbF: $vGOp6 = $vGOp6[0]; if (is_file(DIR_FOTOS . $l7hJT . "\x2f" . $vGOp6)) { goto hHdRw; } $tNN7p = ["\164\x69\160\x6f" => "\x73\151\155\x70\154\x65", "\164\151\164\x75\154\157" => "\x49\155\141\147\x65\x6e\40\156\x6f\40\x65\156\x63\157\156\164\x72\x61\144\141", "\164\x65\170\x74\x6f" => "\114\x61\x20\x69\155\141\147\145\x6e\x20\x71\x75\x65\x20\x68\141\x20\151\156\x74\x65\x6e\164\x61\x64\x6f\40\145\x6c\x69\x6d\151\156\x61\x72\x20\x6e\157\40\163\x65\x20\x65\x6e\143\165\145\156\x74\x72\x61\40\x65\x6e\x20\154\x61\x20\x62\x61\163\145\x20\x64\145\40\144\x61\164\157\x73", "\151\143\157\x6e\x6f" => "\145\x72\x72\x6f\x72"]; goto HdbeS; Ugld9: Fj2WT: return $tNN7p; goto MdKNM; REac2: fImql: N5hKO: $wevX5 = $this->objetoBD->actualizarDatos2(["\164\141\142\154\x61" => $ay1sY, "\102\x44" => $IKMeT, "\x64\x61\164\157\163" => [$BYR2M => ''], "\127\110\105\122\x45" => [$Zf0Gq => $QvA43]]); goto XThJ_; HdbeS: return $tNN7p; exit; goto N5hKO; goto mWUBN; D5NDy: if (!($this->objetoBD == null)) { goto WHzLD; } $this->objetoBD = new conexion(); WHzLD: goto jOSPV; efRKT: $Zf0Gq = $gwarS["\156\157\155\142\x72\145\x43\x61\x6d\160\x6f\111\144"]; $QvA43 = $gwarS["\166\141\154\x6f\x72\x49\144"]; $IKMeT = $gwarS["\102\104"] ?? NULL; goto OpXxC; u9cOe: goto sS1xS; OScxh: $Ga6Tz = APP_URL . DIR_FOTOS . "\144\x65\x66\141\165\x6c\x74\56\160\156\x67"; goto jGbzz; MdKNM: } public function Imagenes_Eli2(string $l7hJT, string|array $UZVA1) { goto r2Bn6; sf3Zq: FHCVs: DVTEQ: goto V4pnB; r2Bn6: $KlzMZ = function ($l7hJT, $UZVA1) { goto Su4o9; Su4o9: $UZVA1 = explode("\x3f", $UZVA1); $UZVA1 = $UZVA1[0]; if (is_file(DIR_FOTOS . $l7hJT . "\x2f" . $UZVA1)) { goto tUyxI; } goto ngcjb; ngcjb: $tNN7p = ["\x74\151\x70\157" => "\x73\151\x6d\160\154\145", "\x74\x69\x74\x75\154\x6f" => "\x49\155\x61\147\145\x6e\40\x6e\157\40\x65\x6c\151\155\x69\156\141\144\x61", "\164\x65\170\164\157" => "\114\141\40\151\155\141\147\x65\156\40\x68\141\x20\163\x69\x64\157\x20\145\154\x69\155\x69\x6e\141\x64\x61\x20\143\x6f\x6e\x20\303\xa9\x78\x69\x74\157", "\x69\143\x6f\156\157" => "\145\x72\x72\157\162"]; return $tNN7p; goto s1aO6; goto DqK0Y; DqK0Y: tUyxI: chmod(DIR_FOTOS . $l7hJT . "\57" . $UZVA1, 0777); unlink(DIR_FOTOS . $l7hJT . "\57" . $UZVA1); goto z2rFa; z2rFa: return false; s1aO6: goto OIeVf; OIeVf: }; if (is_array($UZVA1)) { goto ip1w4; } $KlzMZ($l7hJT, $UZVA1); goto MfivN; MfivN: goto DVTEQ; ip1w4: foreach ($UZVA1 as $WLyZ3) { $KlzMZ($l7hJT, $WLyZ3); Y3Lhg: } goto sf3Zq; V4pnB: } public function generarCodSeg(array $gwarS) { goto bicso; zmrOp: $G1pdE = 1; $kNUiK = date("\171\x7a"); if (!($wevX5->rowCount() > 0)) { goto a8QwG; } goto KzHf7; pKi5q: a8QwG: $cIdTR = str_pad(rand(0, 99), 2, "\x30", STR_PAD_LEFT); $IxbSa = str_pad($G1pdE, 5, "\x30", STR_PAD_LEFT); goto tfVyj; onXnD: $G1pdE = (int) $G39sQ[2] + 1; eePFl: BAC6i: goto pKi5q; bicso: if (!($this->objetoBD == null)) { goto wxPVM; } $this->objetoBD = new conexion(); wxPVM: goto ZjWhP; KzHf7: $G39sQ = explode("\55", $wevX5->fetch(PDO::FETCH_COLUMN)); if (!isset($G39sQ[1])) { goto BAC6i; } if (!($kNUiK == $G39sQ[1])) { goto eePFl; } goto onXnD; ZjWhP: ["\x74\141\x62\154\141\x42\x44" => $ay1sY, "\160\162\145\146\151\x6a\157" => $jjgi5, "\x63\141\155\160\x6f\111\104" => $G4mkq] = $gwarS; $IKMeT = $gwarS["\x42\x44"] ?? NULL; $wevX5 = $this->objetoBD->seleccionarDatos2(["\145\x6c\151\x6d\x69\x6e\141\x64\157\x73\x59\126\x69\x67\x65\x6e\x74\145\163" => true, "\x63\141\x6d\x70\x6f\x73" => $G4mkq, "\164\x61\142\x6c\x61" => $ay1sY, "\x42\x44" => $IKMeT, "\x4f\x52\104\105\x52" => $G4mkq . "\40\104\105\x53\103", "\114\111\115\111\124" => 1, "\106\117\122\x5f\x55\120\x44\101\124\105" => $ay1sY]); goto zmrOp; tfVyj: return $jjgi5 . "\x2d" . $kNUiK . "\55" . $IxbSa . "\x2d" . $cIdTR; goto T7FIv; T7FIv: } public function crearCodigoQR(string $y291h, float $E0ZlQ) { goto qSOm6; qSOm6: $xRSBc = APP_URL . "\141\160\160\57\141\163\x73\x65\164\163\57\x69\155\147\x2f\154\x6f\x67\x6f\55\164\x68\145\55\x76\x69\x6e\141\56\160\156\147"; $QznQZ = (int) ($E0ZlQ / 3); $ldYfE = new Logo($xRSBc, $QznQZ, $QznQZ); goto UT1Yk; WbowQ: $J77tV->write($mnnd5)->saveToFile($QUKoz); return $QUKoz; goto tq4bO; UT1Yk: $mnnd5 = new QrCode($y291h, new Encoding("\x55\124\x46\55\x38"), ErrorCorrectionLevel::High, $E0ZlQ, 5); $J77tV = new PngWriter(); $QUKoz = tempnam(sys_get_temp_dir(), "\x71\162\137") . "\x2e\x70\x6e\x67"; goto WbowQ; tq4bO: } public function indexarArrays(array $gwarS) { goto CauIe; RJU8b: $a8YMT = function ($i8TPC, $cvfem) { goto X_en0; MIwVJ: foreach ($cvfem as $YpzW4) { $YpzW4 = trim($YpzW4); if (!isset($i8TPC[$YpzW4])) { goto Ocnng; } $Q7_CC[$YpzW4] = $i8TPC[$YpzW4]; Ocnng: K47BQ: } k7hgY: $Q7_CC = json_encode($Q7_CC); goto njAQq; X_en0: $Q7_CC = []; if (is_array($cvfem)) { goto VKGpn; } $cvfem = trim($cvfem); goto r2Tsz; r2Tsz: $Q7_CC = $i8TPC[$cvfem]; goto mnymq; VKGpn: goto MIwVJ; njAQq: mnymq: return $Q7_CC; goto UbRqg; UbRqg: }; $kyPE8 = []; $Q7_CC = ''; goto rqvD0; rqvD0: foreach ($i8TPC as $KmUwl) { goto FtjzI; o9Rop: $kyPE8[$Q7_CC][$mlqUW] += (float) $KmUwl[$mlqUW]; PZeNx: goto g4cZi; goto Jo_mK; uxLUf: $kyPE8[$Q7_CC] += (float) $KmUwl[$mlqUW]; goto PZeNx; kkQhZ: goto o9Rop; S9s4E: if (!is_array($kyPE8[$Q7_CC])) { goto XnITk; } $kyPE8[$Q7_CC][$mlqUW] = (float) $KmUwl[$mlqUW]; goto dEvGa; goto gA7ef; DaboP: goto T1X3D; TG9yd: foreach ($lXuW8 as $EyXWs) { $EyXWs = trim($EyXWs); if (!isset($KmUwl[$EyXWs])) { goto NBOqU; } $kyPE8[$Q7_CC][$EyXWs] = $KmUwl[$EyXWs]; NBOqU: r6q36: } goto nmKdG; Lt2re: Xmp36: QYTZw: goto eZEIa; gA7ef: XnITk: $kyPE8[$Q7_CC] = (float) $KmUwl[$mlqUW]; dEvGa: goto jJB_S; aPkxR: if (is_array($mlqUW)) { goto mHVMy; } $mlqUW = trim($mlqUW); if (is_array($kyPE8[$Q7_CC])) { goto kkQhZ; } goto uxLUf; PeLkI: if (!(isset($mlqUW) && $mlqUW != '' && $mlqUW != false)) { goto mG3Bj; } if (is_array($mlqUW)) { goto pIbFT; } $mlqUW = trim($mlqUW); goto S9s4E; pIhjs: g4cZi: LdUMC: goto Xmp36; goto gqXQy; qo6rd: $kyPE8[$Q7_CC] = 0; goto QNoK1; zBonu: goto Er5WQ; gqXQy: rtr5F: $kyPE8[$Q7_CC] = []; if ($lXuW8) { goto zBonu; } goto qo6rd; nmKdG: BTgFD: T1X3D: QNoK1: goto PeLkI; Jo_mK: mHVMy: foreach ($mlqUW as $aUUsV) { $aUUsV = trim($aUUsV); $kyPE8[$Q7_CC][$aUUsV] += (float) $KmUwl[$aUUsV]; bmBlH: } ehSDa: goto pIhjs; Er5WQ: if (is_array($lXuW8)) { goto TG9yd; } $EyXWs = trim($lXuW8); $kyPE8[$Q7_CC] = $KmUwl[$lXuW8]; goto DaboP; jJB_S: goto J4uvf; pIbFT: foreach ($mlqUW as $aUUsV) { goto sJhT8; sJhT8: $aUUsV = trim($aUUsV); if (!is_array($kyPE8[$Q7_CC])) { goto IPtfW; } $kyPE8[$Q7_CC][$aUUsV] = (float) $KmUwl[$aUUsV]; goto flFmj; M4x_r: Ttnk_: oUMyS: goto Dp0pM; flFmj: goto Ttnk_; IPtfW: $kyPE8[$Q7_CC] = (float) $KmUwl[$aUUsV]; goto M4x_r; Dp0pM: } goto vNR8E; vNR8E: mVJKR: J4uvf: mG3Bj: goto Lt2re; FtjzI: $Q7_CC = $a8YMT($KmUwl, $YpzW4); if (!isset($kyPE8[$Q7_CC])) { goto rtr5F; } if (!(isset($mlqUW) && $mlqUW != '' && $mlqUW != false)) { goto LdUMC; } goto aPkxR; eZEIa: } oFP1S: if (!(is_array($YpzW4) || ($gwarS["\x69\156\x64\x69\x63\145\163\x4e\165\x6d\x65\162\151\x63\x6f\x73"] ?? false) == true)) { goto vMTdN; } goto AMdX8; AMdX8: $kyPE8 = array_values($kyPE8); vMTdN: return $kyPE8; goto uRS9A; CauIe: ["\151\156\x64\x69\x63\x65" => $YpzW4, "\x61\162\x72\x61\x79" => $i8TPC] = $gwarS; $lXuW8 = $gwarS["\143\x61\x6d\160\157\x73\x41\x67\162\x75\x70\x61\x72"] ?? false; $mlqUW = $gwarS["\x63\141\x6d\x70\x6f\163\x53\x75\x6d\x61\162"] ?? false; goto RJU8b; uRS9A: } public function calcularKmEntreCoordenadas(array $gOFzx) { goto mYiAk; yINAu: $Rger6 = deg2rad($yf830 - $TBW8N); $UTDA8 = sin($MopJh / 2) * sin($MopJh / 2) + cos(deg2rad($x0Xcx)) * cos(deg2rad($oKZS8)) * sin($Rger6 / 2) * sin($Rger6 / 2); $RbYe2 = 2 * atan2(sqrt($UTDA8), sqrt(1 - $UTDA8)); goto XwTph; mYiAk: ["\x6c\141\164\x31" => $x0Xcx, "\x6c\x6f\156\x31" => $TBW8N, "\x6c\x61\164\62" => $oKZS8, "\154\x6f\156\62" => $yf830] = $gOFzx; $CiCbY = 6371; $MopJh = deg2rad($oKZS8 - $x0Xcx); goto yINAu; XwTph: $Swvdo = $CiCbY * $RbYe2; return round($Swvdo, 2); goto aazpj; aazpj: } public function calcularKmPorCarretera(array $gOFzx) { goto vbLQN; vbLQN: ["\x70\x61\162\164\151\144\x61" => $RdThW, "\x6c\x6c\145\147\141\144\141" => $ZmrJ3] = $gOFzx; $RCE4B = "\154\x61\164\75" . $ZmrJ3["\154\x61\x74\x69\164\x75\144"] . "\x26\154\157\x6e\75" . $ZmrJ3["\x6c\157\156\147\x69\164\x75\x64"]; $lARQJ = "\150\x74\164\x70\x73\72\57\57\156\x6f\x6d\151\156\141\164\x69\155\56\x6f\x70\145\156\x73\x74\x72\x65\x65\x74\x6d\x61\160\x2e\x6f\x72\x67\57\x72\x65\166\x65\x72\163\x65\77\x66\157\162\x6d\141\x74\75\x6a\163\157\x6e\166\62\46" . $RCE4B; goto rg4Yz; jH_e6: Eg8YE: $gqXzG = ceil($gS0az["\162\157\x75\164\145\163"][0]["\163\165\x6d\155\x61\x72\171"]["\154\x65\156\147\x74\150\x49\156\115\145\x74\x65\x72\163"] / 1000); LQ7VV: goto ycXLH; hG0yq: return $k9iR_; goto O3ro0; sK1_p: $rid9W = "\150\x74\x74\160\163\72\57\x2f\141\x70\151\x2e\164\157\155\164\x6f\x6d\x2e\x63\157\x6d\x2f\x72\157\165\164\x69\x6e\147\57\x31\x2f\x63\x61\154\143\x75\x6c\x61\x74\x65\x52\157\165\x74\145\x2f{$RdThW}\x3a{$ZmrJ3}\x2f\152\163\157\x6e\x3f\x6b\145\x79\75{$YkG3b}\x26\x74\162\141\166\145\154\x4d\x6f\x64\145\75\x63\x61\162"; $c9G1X = new cacheModelo(); $yQU1_ = $c9G1X->getItem("\162\x75\x74\141\163\120\x6f\x72\103\x61\162\162\x65\x74\145\x72\141"); goto e8FRy; ibFrX: Xu2TH: $S0j0A = $S0j0A["\x64\x69\x73\160\154\141\171\x5f\x6e\x61\x6d\x65"]; QNO8i: goto ofFRF; C8K30: $gS0az = $this->hacerPeticionesAPIs(["\x75\x72\154" => $rid9W, "\155\145\164\157\144\x6f" => "\107\105\x54"]); $S0j0A = $this->hacerPeticionesAPIs(["\x75\x72\154" => $lARQJ, "\x6d\x65\164\x6f\144\x6f" => "\x47\x45\124"]); $gqXzG = 0; goto kIReU; cCFvy: if (!isset($yQU1_[$RdThW . "\x2d" . $ZmrJ3])) { goto uEJOJ; } return $yQU1_[$RdThW . "\x2d" . $ZmrJ3]; uEJOJ: goto C8K30; rg4Yz: $RdThW = $RdThW["\x6c\141\164\151\164\x75\x64"] . "\x2c" . $RdThW["\x6c\x6f\x6e\x67\151\164\165\x64"]; $ZmrJ3 = $ZmrJ3["\154\x61\x74\x69\x74\165\x64"] . "\x2c" . $ZmrJ3["\x6c\157\x6e\147\x69\x74\165\x64"]; $YkG3b = "\x70\x6c\106\150\121\x56\x57\x66\130\x35\x61\142\x47\61\x44\x50\x74\x37\152\152\x61\x35\x36\x53\171\162\x71\150\67\x72\131\x32"; goto sK1_p; ofFRF: $k9iR_ = ["\x6b\155\137\x72\x65\143\x6f\162\162\x69\144\x6f" => $gqXzG, "\156\157\155\x62\x72\145\x5f\144\151\x72\x65\143\143\151\x6f\156" => $S0j0A]; $yQU1_[$RdThW . "\55" . $ZmrJ3] = $k9iR_; $c9G1X->setItem("\x72\165\x74\141\163\120\x6f\x72\x43\x61\162\162\145\164\x65\x72\x61", $yQU1_); goto hG0yq; ycXLH: if (isset($S0j0A["\x64\x69\x73\x70\154\141\171\x5f\156\x61\155\x65"])) { goto Xu2TH; } $S0j0A = false; goto QNO8i; goto ibFrX; e8FRy: if ($yQU1_) { goto TIKPF; } $yQU1_ = []; TIKPF: goto cCFvy; kIReU: if (isset($gS0az["\162\157\x75\x74\x65\163"][0]["\163\x75\x6d\155\141\x72\x79"]["\x6c\145\x6e\x67\164\150\111\x6e\115\x65\x74\145\x72\x73"])) { goto Eg8YE; } return ["\164\x69\x70\157" => "\163\151\x6d\x70\x6c\145", "\x74\x69\x74\165\154\x6f" => "\123\x69\156\40\x72\165\164\141", "\164\x65\170\164\157" => "\116\157\x20\163\x65\40\160\x75\144\157\x20\145\156\x63\157\156\x74\x72\x61\162\40\x75\156\x61\40\162\x75\x74\x61\x20\x74\x72\x61\156\163\151\164\x61\142\154\x65\40\160\x6f\x72\40\x63\141\x72\162\x65\x74\x65\162\x61", "\151\x63\x6f\156\x6f" => "\x77\141\162\156\x69\156\x67"]; goto LQ7VV; goto jH_e6; O3ro0: } public function intersArray(array $i8TPC, array $NDuJZ) { return array_intersect_key($i8TPC, array_flip($NDuJZ)); } public function alertaPHPUnit(string $j_Bcq, string $Gsps2) { $j_Bcq = strtoupper($j_Bcq); $Ufhwu = strtoupper($Gsps2); $kL1RL = "\115\117\x44\x55\x4c\117\72\40{$j_Bcq}\40\174\40\x41\103\103\x49\x4f\x4e\x3a\40{$Ufhwu}\72\x20"; return $kL1RL . "\x45\162\x72\157\162\x3a\40"; } public function DOAD(array $gwarS) { goto vZA95; vZA95: if (!($this->objetoBD == null)) { goto qBssR; } $this->objetoBD = new conexion(); qBssR: goto X_YC5; J6ea2: jlnwy: if (!(empty($wtwFX) && !empty($xYliM))) { goto u8GTj; } foreach ($xYliM as $UTDA8) { $jPRq9["\x65\x6c\151\x6d\x69\x6e\141\162"][] = $UTDA8; vJO58: } goto zMAGF; yUMhZ: foreach ($kCKJ4 as $A6PBh => $OVJje) { if (isset($bn5Fa[$A6PBh])) { goto qBWY_; } $jPRq9["\145\154\151\x6d\x69\x6e\x61\x72"][] = $OVJje; goto jZpDM; qBWY_: jZpDM: } Al2Ug: return $jPRq9; goto JfkAj; vboyP: $jPRq9 = ["\x61\x63\164\165\x61\154\x69\x7a\141\x72" => [], "\x72\145\x67\151\x73\164\x72\141\162" => [], "\x65\154\151\x6d\151\x6e\x61\162" => []]; if (!(empty($wtwFX) && empty($xYliM))) { goto jlnwy; } return $jPRq9; goto J6ea2; X_YC5: ["\x61\162\x72\141\x79\x4e\165\145\166\157" => $wtwFX, "\x63\x6f\x6e\146\151\x67\x41\x72\162\141\x79\x56\151\x65\x6a\157" => $zCf7W, "\143\x61\x6d\160\157\x55\156\151\143\157\104\x69\146" => $NIYVQ] = $gwarS; $B8LUX = explode("\x2c", $zCf7W["\x63\141\x6d\x70\157\x73"]); $xYliM = $this->objetoBD->seleccionarDatos2($zCf7W)->fetchAll(); goto vboyP; sfRLf: return $jPRq9; bio0o: $kCKJ4 = $this->indexarArrays(["\x69\x6e\144\151\x63\x65" => $NIYVQ, "\141\x72\x72\x61\x79" => $xYliM, "\x63\141\x6d\160\157\163\101\x67\162\x75\x70\141\x72" => $B8LUX]); goto bU4dq; bU4dq: $bn5Fa = $this->indexarArrays(["\151\x6e\x64\x69\143\145" => $NIYVQ, "\141\162\x72\x61\171" => $wtwFX, "\143\x61\155\160\x6f\x73\101\147\162\165\160\x61\x72" => $B8LUX]); foreach ($bn5Fa as $A6PBh => $OVJje) { goto U45iE; SzqlP: IevhP: JMi7Y: goto aZCBh; U45iE: if (isset($kCKJ4[$A6PBh])) { goto F1UYX; } $jPRq9["\162\145\x67\x69\163\164\162\141\x72"][] = $OVJje; goto JMi7Y; goto wk3s7; wk3s7: F1UYX: if (!($kCKJ4[$A6PBh] != $OVJje)) { goto IevhP; } $jPRq9["\x61\x63\164\x75\141\x6c\x69\172\x61\x72"][] = $OVJje; goto SzqlP; aZCBh: } i9AJ7: goto yUMhZ; LMWOE: if (!(!empty($wtwFX) && empty($xYliM))) { goto bio0o; } foreach ($wtwFX as $UTDA8) { $jPRq9["\162\x65\x67\x69\163\164\x72\141\x72"][] = $UTDA8; yTqZy: } iuNnG: goto sfRLf; zMAGF: SpxTK: return $jPRq9; u8GTj: goto LMWOE; JfkAj: } }
+
+namespace src\modelos;
+
+use PDO;
+use PDOStatement;
+use DateTime;
+use DateTimeZone;
+use DateInterval;
+use FPDF;
+
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Logo\Logo;
+
+use src\modelos\accesosModelo;
+use src\modelos\cacheModelo;
+use src\config\connect\conexion;
+
+trait traitModelo {
+  private cacheModelo|null $objCache = null;
+  protected array $imgTrans = [];
+  private ?conexion $objetoBD = null;
+
+  public function limpiarCadena(string $cadena, $modo = 'antiSQLInyection') {
+    $palabras = [];
+    if ($modo == 'antiSQLInyection') {
+      $palabras = [
+        "<script>",
+        "</script>",
+        "<script src",
+        "<script type=",
+        "SELECT * FROM",
+        "SELECT ",
+        "SELECT",
+        "INSERT INTO",
+        "UPDATE ",
+        "UPDATE",
+        "DELETE FROM",
+        "SET",
+        "SET ",
+        "DROP TABLE",
+        "DROP DATABASE",
+        "TRUNCATE TABLE",
+        "SHOW TABLES",
+        "SHOW DATABASES",
+        "<?php",
+        "?>",
+        "--",
+        "^",
+        "<",
+        ">",
+        "==",
+        "=",
+        ";",
+        "::"
+      ];
+    } elseif ('antiFuncionesSQL') {
+      $palabras = [
+        ')',
+        'DATE(',
+        'CAST(',
+        'CONVERT(',
+        'AVG(',
+        'SUM(',
+        'COUNT(',
+        'MAX(',
+        'MIN(',
+        'TRIM(',
+        'LOWER(',
+        'UPPER(',
+        'COALESCE('
+      ];
+    }
+
+    $cadena = trim($cadena);
+    $cadena = stripslashes($cadena);
+
+    foreach ($palabras as $palabra) {
+      $cadena = str_ireplace($palabra, "", $cadena);
+    }
+
+    $cadena = trim($cadena);
+    $cadena = stripslashes($cadena);
+
+    return $cadena;
+  }
+  public function limpiar_Verificar(array $campos) {
+    $registrosExis = [];
+    foreach ($campos as &$campo) {
+      if (isset($campo['imagen'])) {
+        $validarImagenes = function ($imagen) use ($campo) {
+          if (isset($campo['requerido']) && (($imagen['name'] ?? '') == "" || ($imagen['size'] ?? '') <= 0)) {
+            return [
+              "tipo" => "simple",
+              "titulo" => "Imagen Obligatoria",
+              "texto" => "La imagen de " . $campo['formulario_nombre'] . ' es obligatoria',
+              "icono" => "error",
+            ];
+          }
+          if ($imagen['name'] != "" && $imagen['size'] > 0) {
+            if (
+              mime_content_type($imagen['tmp_name']) != "image/jpeg" &&
+              mime_content_type($imagen['tmp_name']) != "image/png"
+            ) {
+              return [
+                "tipo" => "simple",
+                "titulo" => "Formato inválido",
+                "texto" => "El formato del archivo seleccionado es incorrecto",
+                "icono" => "error",
+              ];
+            }
+            if (
+              ($imagen['size']) / 1048576 > 5
+            ) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "Archivo muy pesado",
+                "texto" => "El tamaño del archivo excede los 5MB permitidos por el sistema",
+                "icono" => "error",
+              ];
+              return $alerta;
+            }
+          }
+          return false;
+        };
+        if (is_array(($campo['imagen']['name'] ?? ''))) {
+          for ($i = 0; $i < count($campo['imagen']['name']); $i++) {
+            $archivoIndividual = [
+              'full_path' => $campo['imagen']['full_path'][$i],
+              'name' => $campo['imagen']['name'][$i],
+              'size' => $campo['imagen']['size'][$i],
+              'tmp_name' => $campo['imagen']['tmp_name'][$i],
+              'type' => $campo['imagen']['type'][$i],
+            ];
+            $resultado = $validarImagenes($archivoIndividual);
+            if ($resultado) return $resultado;
+          }
+        } else {
+          $resultado = $validarImagenes($campo['imagen']);
+          if ($resultado) return $resultado;
+        }
+      } else {
+        if (
+          $this->objetoBD == null &&
+          (isset($campo['debeExistir']) || isset($campo['debeSerUnico']))
+        ) {
+          $this->objetoBD = new conexion;
+        }
+
+        //Para evitar la inyección de SQL
+        if (isset($campo['campo_valor'])) {
+          $campo['campo_valor'] = $this->limpiarCadena($campo['campo_valor']);
+        }
+
+        //Cantidades numericas de tipo float
+        if (isset($campo['comaPunto'])) {
+          $campo['campo_valor'] = str_replace('.', '', $campo['campo_valor']);
+          $campo['campo_valor'] = str_replace(',', '.', $campo['campo_valor']);
+          $campo['campo_valor'] = (float)$campo['campo_valor'];
+        }
+        if (isset($campo['noCero'])) {
+          if ($campo['campo_valor'] <= 0) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Cantidad en 0",
+              "texto" => 'No puedes enviar el formulario con el campo de ' . $campo['formulario_nombre'] . ' en 0',
+              "icono" => "error",
+            ];
+            return ($alerta);
+          }
+        }
+
+        //Para validar campos requeridos
+        if (isset($campo['requerido'])) {
+          if (!isset($campo['campo_valor']) || $campo['campo_valor'] == "") {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Campo de " . $campo['formulario_nombre'] . " obligatorio",
+              "texto" => 'No puedes enviar el formulario sin llenar el campo de ' . $campo['formulario_nombre'] . ', por favor verifique e intente de nuevo ',
+              "icono" => "error",
+            ];
+            return ($alerta);
+          }
+        }
+
+        //Para validar el largo y minimo
+        if (isset($campo['maximo'])) {
+          if ($campo['campo_valor'] != "") {
+            if (mb_strlen($campo['campo_valor']) > $campo['maximo']) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy largo",
+                "texto" => "El campo de " . $campo['formulario_nombre'] . " no puede tener más de " . $campo['maximo'] . " carácteres de longitud: " . $campo['campo_valor'],
+                "icono" => "error",
+              ];
+              return $alerta;
+            } elseif (mb_strlen($campo['campo_valor']) < $campo['minimo']) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "Campo de " . $campo['formulario_nombre'] . " muy corto",
+                "texto" => "El campo de " . $campo['formulario_nombre'] . " no puede tener menos de " . $campo['minimo'] . " carácteres de longitud: " . $campo['campo_valor'],
+                "icono" => "error",
+              ];
+              return $alerta;
+            }
+          }
+        }
+
+        //Para validar el formato del campo con expresiones regulares
+        if (isset($campo['expresion_re'])) {
+          if ($campo['campo_valor'] != "") {
+            if (!preg_match("/" . $campo['expresion_re'] . "/", $campo['campo_valor'])) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "Formato de " . $campo['formulario_nombre'] . " inválido",
+                "texto" => "El formato del campo " . $campo['formulario_nombre'] . " no es correcto, por favor verifique e intente de nuevo.",
+                "icono" => "error",
+              ];
+              return ($alerta);
+              exit();
+            }
+          }
+        }
+
+        //Para verificar la existencia de un registro para su actualización [normalmente solo el ID del registro]
+        if (isset($campo['debeExistir'])) {
+          $registrosExistentes = $this->objetoBD->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' =>  $campo['tabla'],
+            'BD' => ($campo['BD'] ?? NULL),
+            'WHERE' => [
+              $campo['campo_nombre'] => $campo['campo_valor']
+            ]
+          ]);
+
+          if ($registrosExistentes->rowCount() == 0 && isset($campo['requerido'])) {
+            return [
+              "tipo" => "simple",
+              "titulo" => "Dato no encontrado",
+              "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " no se encuentra registrado dentro de la base de datos del sistema, por favor verifique e intente de nuevo: " . $campo['campo_valor'],
+              "icono" => "error",
+            ];
+          } else {
+            $registrosExis[$campo['tabla']] = $registrosExistentes->fetch();
+          }
+        }
+
+        //Para verificar que no haya mas registros con ese valor
+        if (isset($campo['debeSerUnico'])) {
+
+          $buscarEnLaBD = false;
+          if (isset($registrosExis[$campo['tabla']])) { //es actualizar
+            //Verificar si ya la info fue o no obtenida de la BD
+            if (!isset($registrosExis[$campo['tabla']][$campo['campo_nombre']])) {
+              $resultado = $this->objetoBD->seleccionarDatos2([
+                'campos' => '*',
+                'tabla' =>  $campo['tabla'],
+                'BD' => ($campo['BD'] ?? NULL),
+                'WHERE' => [
+                  $campo['campo_nombre'] => $campo['campo_valor']
+                ]
+              ]);
+              $resultado = $resultado->fetch();
+              $registrosExis[$campo['tabla']] = $resultado;
+            }
+            //Consultamos entonces si en la BD no hay otro registro con ese valor unico asignado
+            if (
+              $registrosExis[$campo['tabla']][$campo['campo_nombre']] != $campo['campo_valor'] &&
+              strtoupper($registrosExis[$campo['tabla']][$campo['campo_nombre']]) != strtoupper($campo['campo_valor'])
+            ) {
+              $buscarEnLaBD = true;
+            }
+          } else { //es registrar
+            $buscarEnLaBD = true;
+          }
+
+          //Buscamos el dato a ver si existe en la BD
+          if ($buscarEnLaBD) {
+            $checkRegistro = $this->objetoBD->seleccionarDatos2([
+              'campos' => $campo['campo_nombre'],
+              'tabla' =>  $campo['tabla'],
+              'BD' => ($campo['BD'] ?? NULL),
+              'WHERE' => [
+                $campo['campo_nombre'] => $campo['campo_valor']
+              ]
+            ]);
+            if ($checkRegistro->rowCount() > 0) {
+              return [
+                "tipo" => "simple",
+                "titulo" => "Valor de " . $campo['formulario_nombre'] . " duplicado",
+                "texto" => "El valor que ha introducido en el campo de " . $campo['formulario_nombre'] . " ya se encuentra registrado y no se puede duplicar, por favor verifique e intente de nuevo",
+                "icono" => "error",
+              ];
+            }
+          }
+        }
+
+        //Para validar si dos campos son iguales
+        if (isset($campo['camposIguales'])) {
+          if ($campo['campo_valor'] != $campo['camposIguales']) {
+            $alerta = [
+              "tipo" => "simple",
+              "titulo" => "Desigualdad de valores",
+              "texto" => "El valor de ambos campos de " . $campo['formulario_nombre'] . " deben ser iguales, verifique e intente nuevamente",
+              "icono" => "error",
+            ];
+            return ($alerta);
+          }
+        }
+
+        //para evitar que un dato específico sea eliminado o alguna otra operación
+        if (isset($campo['camposDiferentes'])) {
+          $compararValores = function ($campoCom1, $campoCom2) use ($campo) {
+            if ($campoCom1 == $campoCom2) {
+              $alerta = [
+                "tipo" => "simple",
+                "titulo" => "ERROR",
+                "texto" => "El valor de " . $campo['formulario_nombre'] . " no puede ser usado en esa operación",
+                "icono" => "error",
+              ];
+              return ($alerta);
+            }
+            return false;
+          };
+          if (is_array($campo['camposDiferentes'])) {
+            foreach ($campo['camposDiferentes'] as $campoDiferente) {
+              $resultado = $compararValores($campo['campo_valor'], $campoDiferente);
+              if ($resultado) return $resultado;
+            }
+          } else {
+            $resultado = $compararValores($campo['campo_valor'], $campo['camposDiferentes']);
+            if ($resultado) return $resultado;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  public function FechaHora_Sel(string $tipo, $fecha = null, $tiempo = null) {
+    if ($tipo === 'Fecha_hora_foto') {
+      $fecha = new DateTime('now', new DateTimeZone('America/Caracas')); // Especifica la zona horaria de Venezuela
+      $fecha = $fecha->format('Y-m-d H:i:s');
+      $fecha = str_replace(' ', '_', $fecha);
+      $fecha = str_replace(':', '_', $fecha);
+    } elseif ($tipo === 'fecha_hora_BD') {
+      $fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $fecha = $fecha->format('Y-m-d H:i:s');
+    } elseif ($tipo == 'fecha_BD') {
+      $fecha = str_replace('-', '/', $fecha);
+      $fecha = str_replace(':', '/', $fecha);
+      $fecha = DateTime::createFromFormat('d/m/Y', $fecha);
+      $fecha = $fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Actual_BD') {
+      $fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $fecha = $fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Hora_Actual') {
+      $fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $fecha = $fecha->format('d-m-Y h:i A');
+    } elseif ($tipo == 'fecha_hora_AM_PM') {
+      $timestamp = strtotime($fecha);
+      $fecha = date('d-m-Y h:i A', $timestamp);
+    } elseif ($tipo == 'tiempo_antes_BD') {
+      $fecha = new DateTime('now', new DateTimeZone('America/Caracas'));
+      $intervalo = new DateInterval('P' . $tiempo . 'D');
+      $fecha = $fecha->sub($intervalo);
+      $fecha = $fecha->format('Y-m-d');
+    } elseif ($tipo == 'Fecha_Normal') {
+      $fecha = DateTime::createFromFormat('Y-m-d', $fecha);
+      $fecha = $fecha->format('d-m-Y');
+    }
+    return $fecha;
+  }
+  public function redireccionarUsuario($sinRedireccion = null) {
+    $objPermisos = new accesosModelo();
+    $urlRedireccion = 'usuarios/login';
+    $_SESSION['vistaActual'] = 'usuarios';
+    if (!empty($_SESSION['cedula'])) {
+      $permisosRedi = [
+        'reportes' => 'ver reportes',
+        'ventas' => 'ver',
+        'pedidos' => 'ver',
+      ];
+      foreach ($permisosRedi as $modulo => $permiso) {
+        if (!isset($objPermisos->validarPermisos($modulo, $permiso)['icono'])) {
+          $urlRedireccion = $modulo . '/';
+          $_SESSION['vistaActual'] = $modulo;
+          break;
+        }
+      }
+    }
+    http_response_code(403);
+    ob_end_clean();
+    if ($sinRedireccion) return APP_URL . $urlRedireccion;
+    header("Location: " . APP_URL . $urlRedireccion);
+  }
+  public function hacerPeticionesAPIs(array $instruccionesPe) {
+
+    $url = $instruccionesPe['url'];
+    $datosPe = $instruccionesPe['datosPe'] ?? '';
+    $metodo = $instruccionesPe['metodo'] ?? 'POST';
+    $enviarComoJSON = $instruccionesPe['enviarComoJSON'] ?? false;
+
+    $peticion = curl_init($url);
+    curl_setopt($peticion, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($peticion, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36');
+
+    if ($metodo == 'POST' || $metodo == 'post') {
+      if ($enviarComoJSON) {
+        $datosPe = json_encode($datosPe);
+        curl_setopt($peticion, CURLOPT_HTTPHEADER, [
+          'Content-Type: application/json',
+          'Content-Length: ' . strlen($datosPe)
+        ]);
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, $datosPe);
+      } else {
+        curl_setopt($peticion, CURLOPT_POSTFIELDS, http_build_query($datosPe)); // Formatear datos para POST
+      }
+      curl_setopt($peticion, CURLOPT_POST, true);
+    }
+    $respuesta = curl_exec($peticion);
+    $codigoEstado = curl_getinfo($peticion, CURLINFO_HTTP_CODE);
+
+    if (preg_match('/2\d{2}/', $codigoEstado)) {
+      if (is_string($respuesta)) {
+        return json_decode($respuesta, true);
+      } else {
+        return $respuesta;
+      }
+    } elseif (preg_match('/4\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'El o los mensajes no han sido enviados debido a un error en la peticion, error: ' . $codigoEstado
+      ];
+    } elseif (preg_match('/5\d{2}/', $codigoEstado)) {
+      return [
+        'error' => 'Ocurrió un error en la petición de: ' . $codigoEstado
+      ];
+    } else {
+      return [
+        'error' => 'El envio de la peticion fallo y no se reconoce el codigo de error que envía: ' . $codigoEstado
+      ];
+    }
+  }
+  public function VEYSNEC(array $instrucciones) {
+    //Verificar si Existe Y Si No Existe Crearlo
+    if ($this->objetoBD == null) $this->objetoBD = new conexion;
+    [
+      'tabla' => $tabla,
+      'WHERE' => $WHERE,
+    ] = $instrucciones;
+    $camposRetorno = $instrucciones['campos'];
+    $RSEN = $instrucciones['RSEN'] ?? false;
+    $eliminadosYVigentes = $instrucciones['eliminadosYVigentes'] ?? ($RSEN != false) ?? false;
+
+    $camposArray = explode(',', $instrucciones['campos']);
+    $camposArray = array_map(function ($campo) {
+      return trim($campo);
+    }, $camposArray);
+
+    $resultado = $this->objetoBD->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => $tabla,
+      'BD' => ($instrucciones['BD'] ?? NULL),
+      'WHERE' => $WHERE ?? [],
+      'eliminadosYVigentes' => $eliminadosYVigentes,
+    ]);
+
+    if ($resultado->rowCount() == 0) {
+      $instruccionesRegistro = [
+        'tabla' => $tabla,
+        'BD' => ($instrucciones['BD'] ?? NULL),
+        'datos' => []
+      ];
+      foreach ($WHERE as $clave => $valor) {
+        $instruccionesRegistro['datos'][$clave] = $valor;
+      };
+      $ultimoId = $this->objetoBD->guardarDatos2($instruccionesRegistro);
+      if (isset($ultimoId['error']) || $ultimoId == false || $ultimoId == 0) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Registro automático de la tabla {$tabla} no creado",
+          "texto" => "El Registro automático no ha podido ser creado",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+      $instruccionesBD = [
+        'campos' => $camposRetorno,
+        'tabla' => $tabla,
+        'BD' => ($instrucciones['BD'] ?? NULL),
+        'WHERE' => $WHERE ?? [],
+        'eliminadosYVigentes' => $eliminadosYVigentes
+      ];
+      $resultado = $this->objetoBD->seleccionarDatos2($instruccionesBD);
+      if (count($camposArray) == 1) {
+        return $resultado->fetch(PDO::FETCH_COLUMN);
+      } elseif (count($camposArray) > 1) {
+        return $resultado->fetch();
+      }
+    } else {
+      $info = $resultado->fetch();
+      if ($RSEN == true) {
+        $estado = $info['status'];
+        if ($estado == 0) {
+          $resultadoAct = $this->objetoBD->actualizarDatos2([
+            'tabla' => $tabla,
+            'BD' => ($instrucciones['BD'] ?? NULL),
+            'datos' => [
+              'status' => 1
+            ],
+            'WHERE' => $WHERE
+          ]);
+          if ($resultadoAct == false || $resultadoAct <= 0 || isset($resultadoAct['error'])) {
+            return $resultadoAct;
+          } else {
+            $info['status'] = 1;
+          }
+        }
+      }
+      if (count($camposArray) == 1) {
+        return $info[$camposArray[0]];
+      } elseif (count($camposArray) > 1) {
+        $resultado = array_intersect_key($info, array_flip($camposArray));
+        return $resultado;
+      }
+    }
+  }
+  public function DECORE(PDOStatement|FPDF|array|string $respuesta) {
+
+    if ($respuesta instanceof FPDF) {
+      $_SESSION['codigoRequest'] = 200;
+      $respuesta->Output('I', 'Reporte');
+      return;
+    }
+    if (!$respuesta instanceof FPDF && !is_array($respuesta)) {
+      $_SESSION['codigoRequest'] = 400;
+      http_response_code(400);
+      echo json_encode($respuesta);
+      return;
+    }
+
+    if (($respuesta['icono'] ?? '') == 'error') {
+      $codigoEstado = 400;
+    } else {
+      $codigoEstado = $respuesta['codigoRequest'] ?? 200;
+    }
+
+    $_SESSION['codigoRequest'] = $codigoEstado;
+    http_response_code($codigoEstado);
+    echo json_encode($respuesta);
+  }
+  public function Imagenes_Reg(string $subCarpeta, array $imagen, string $tablaBD) {
+    $procesarImagenes = function ($subCarpeta, $imagen, $tablaBD) {
+      if ($tablaBD == "") {
+        return [
+          "tipo" => "simple",
+          "titulo" => "Ocurrió un error inesperado",
+          "texto" => "No puedes registrar una imagen con campos vacíos",
+          "icono" => "error",
+        ];
+      }
+      if ($imagen['name'] == "" || $imagen['size'] <= 0) {
+        return "";
+      }
+      if (!file_exists(DIR_FOTOS . $subCarpeta . '/')) {
+        if (!mkdir(DIR_FOTOS . $subCarpeta . '/', 0777)) {
+          $alerta = [
+            "tipo" => "simple",
+            "titulo" => "Directorio no creado",
+            "texto" => "El directorio para la foto no se pudo crear",
+            "icono" => "error",
+          ];
+          return $alerta;
+        }
+      }
+      if (
+        mime_content_type($imagen['tmp_name']) != "image/jpeg" &&
+        mime_content_type($imagen['tmp_name']) != "image/png"
+      ) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Formato inválido",
+          "texto" => "El formato del archivo seleccionado es incorrecto",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+      if (
+        ($imagen['size']) / 1048576 > 5
+      ) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Archivo muy pesado",
+          "texto" => "El tamaño del archivo excede los 5MB permitidos por el sistema",
+          "icono" => "error",
+        ];
+        return $alerta;
+      }
+
+      $nombreFoto = $tablaBD . "_" . $this->FechaHora_Sel("Fecha_hora_foto") . '_' . rand(1, 100);
+      $nombreFoto = str_ireplace(" ", "_", $nombreFoto);
+      $nombreFoto = str_ireplace("-", "_", $nombreFoto);
+
+      switch (mime_content_type($imagen['tmp_name'])) {
+        case "image/jpeg":
+          $nombreFoto =  $nombreFoto . ".jpg";
+          break;
+        case "image/png":
+          $nombreFoto =  $nombreFoto . ".png";
+          break;
+      }
+
+      chmod(DIR_FOTOS . $subCarpeta . '/', 0777);
+      if (!move_uploaded_file($imagen['tmp_name'], DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+        return [
+          "tipo" => "simple",
+          "titulo" => "Archivo no movido",
+          "texto" => "El archivo no pude ser movido a la carpeta destino",
+          "icono" => "error",
+        ];
+      }
+      return $nombreFoto;
+    };
+    $nombresFotos = [];
+    if (!isset($imagen['name'])) {
+      return [];
+    } elseif (is_array($imagen['name'])) {
+      for ($i = 0; $i < count($imagen['name']); $i++) {
+        $archivoIndividual = [
+          'full_path' => $imagen['full_path'][$i],
+          'name' => $imagen['name'][$i],
+          'size' => $imagen['size'][$i],
+          'tmp_name' => $imagen['tmp_name'][$i],
+          'type' => $imagen['type'][$i],
+        ];
+        $nombresFotos[] = $procesarImagenes($subCarpeta, $archivoIndividual, $tablaBD);
+      }
+    } else {
+      $nombresFotos = $procesarImagenes($subCarpeta, $imagen, $tablaBD);
+    }
+    return $nombresFotos;
+  }
+  public function Imagenes_Act(array $instrucciones) {
+    if ($this->objetoBD == null) $this->objetoBD = new conexion;
+    $subCarpeta = $instrucciones['subCarpeta'];
+    $imagen = $instrucciones['imagen'];
+    $tablaBD = $instrucciones['tablaBD'];
+    $nombreCampofoto = $instrucciones['nombreCampoFoto'];
+    $nombreCampoId = $instrucciones['nombreCampoId'];
+    $valorId = $instrucciones['valorId'];
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    /*Verificar Campos obligatorios*/
+    if (
+      $subCarpeta == "" || $nombreCampoId == "" || $valorId == "" || $nombreCampofoto == "" ||  $tablaBD == ""
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Ocurrió un error inesperado",
+        "texto" => "No puedes actualizar una imagen con campos vacíos",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+    $resultado = $this->objetoBD->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'WHERE' => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado->rowCount() <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no encontrada",
+        "texto" => "La imagen que ha intentado actualizar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    } else {
+      $resultado = $resultado->fetch();
+    }
+
+    /*Función para comprobar si se seleccionó una imagen*/
+    if (
+      $imagen['name'] == "" &&
+      $imagen['size'] <= 0
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Foto no válida",
+        "texto" => "No puede enviar el campo vació o archivos diferentes al formato solicitado",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Función para crear el directorio de las imágenes si este no existe */
+    if (!file_exists(DIR_FOTOS . $subCarpeta . '/')) { /*Comprueba si el directorio no existe */
+      if (!mkdir(DIR_FOTOS . $subCarpeta . '/', 0777)) { /*Crea el archivo y si no puede, manda una alerta */
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Directorio no creado",
+          "texto" => "El directorio para la foto no se pudo crear",
+          "icono" => "error",
+        ];
+        return $alerta;
+        exit();
+      }
+    }
+
+    if (/*Función para verificar el formato de las imágenes*/
+      mime_content_type($imagen['tmp_name']) != "image/jpeg" &&
+      mime_content_type($imagen['tmp_name']) != "image/png"
+    ) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Formato inválido",
+        "texto" => "El formato del archivo seleccionado es incorrecto",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Función para verificar que la imagen no sobrepase los 5 MB*/
+    if (($imagen['size']) / 1048576 > 5) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen muy pesada",
+        "texto" => "El tamaño de la imagen excede los 5MB permitidos por el sistema",
+        "icono" => "error",
+      ];
+      return $alerta;
+    }
+
+    /*Creación del nombre de la foto*/
+    if ($resultado[$nombreCampofoto] != "") {
+      $nombreFoto = explode(".", $resultado[$nombreCampofoto]);
+      $nombreFoto = $nombreFoto[0];
+    } else {
+      $nombreFoto = str_ireplace(" ", "_", $tablaBD);
+      $nombreFoto .= "_" . $this->FechaHora_Sel("Fecha_hora_foto"); /*para cambiar el sufijo de la foto por si algún usuario repite el nombre */
+    }
+
+    /*Asignación del tipo de archivo */
+    switch (mime_content_type($imagen['tmp_name'])) {
+      case "image/jpeg":
+        $nombreFoto .= ".jpg";
+        break;
+      case "image/png":
+        $nombreFoto .= ".png";
+        break;
+    }
+
+    /*Permisos de lectura y escritura a la carpeta de imagenes */
+    chmod(DIR_FOTOS . $subCarpeta . '/', 0777);
+
+    /*Mover el archivo */
+    if (!move_uploaded_file($imagen['tmp_name'], DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Foto no movida",
+        "texto" => "La imagen no puede ser movida a la carpeta destino",
+        "icono" => "error",
+      ];
+      return $alerta;
+      exit();
+    }
+
+    /*Eliminar la imagen anterior*/
+    $nombreFotoExis = explode('?', $resultado[$nombreCampofoto]);
+    if (is_file(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0]) && $nombreFotoExis[0] != $nombreFoto) {
+      chmod(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0], 0777); /*damos permiso de lectura y escritura */
+      unlink(DIR_FOTOS . $subCarpeta . '/' . $nombreFotoExis[0]); /*eliminamos la foto */
+    }
+
+    //Asignamos el numero de version a la foto para forzar que se actualice en el HTML
+    $nombreFoto .= "?v=" . $this->FechaHora_Sel("Fecha_hora_foto");
+    $resultado = $this->objetoBD->actualizarDatos2([
+      "tabla" => $tablaBD,
+      'BD' => $BD,
+      "datos" => [
+        $nombreCampofoto => $nombreFoto
+      ],
+      "WHERE" => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no actualizada",
+        "texto" => "No hemos podido actualizar algunos datos del usuario",
+        "icono" => "warning",
+      ];
+    } else {
+      /*Para cambiar en tiempo real la foto del usuario que ha iniciado sesión*/
+      if (
+        $tablaBD == 'usuarios' &&
+        $nombreCampofoto == 'foto_usuario' &&
+        $valorId == $_SESSION['cedula']
+      ) {
+        $_SESSION['foto'] = $nombreFoto;
+      }
+      $rutaImagen = APP_URL . DIR_FOTOS . $subCarpeta . '/' . $nombreFoto;
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen actualizada",
+        "texto" => "La imagen ha sido actualizada exitosamente",
+        "icono" => "success",
+        // "claseImagen" => 'imagenRegistro',
+        // "idRegistro" => $valorId,
+        // "nuevaRutaImagen" => $rutaImagen
+      ];
+      $this->objetoBD->commit();
+    }
+    return $alerta;
+  }
+  public function Imagenes_Eli(array $instrucciones) {
+    if ($this->objetoBD == null) $this->objetoBD = new conexion;
+    $subCarpeta = $instrucciones['subCarpeta'];
+    $tablaBD = $instrucciones['tablaBD'];
+    $nombreCampofoto = $instrucciones['nombreCampoFoto'];
+    $nombreCampoId = $instrucciones['nombreCampoId'];
+    $valorId = $instrucciones['valorId'];
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    $valorId = $this->limpiarCadena($valorId);
+    $resultado = $this->objetoBD->seleccionarDatos2([
+      'campos' => $nombreCampofoto,
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'WHERE' => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado->rowCount() <= 0) {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Registro no encontrado",
+        "texto" => "El registro que ha intentado eliminar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+    } else {
+      $resultado = $resultado->fetch();
+    }
+
+    chmod(DIR_FOTOS . $subCarpeta . '/', 0777);/*damos permiso de lectura y escritura */
+    $nombreFoto = $resultado[$nombreCampofoto];
+    $nombreFoto = explode("?", $nombreFoto);
+    $nombreFoto = $nombreFoto[0];
+
+    if (is_file(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+      chmod(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto, 0777);
+      if (!unlink(DIR_FOTOS . $subCarpeta . '/' . $nombreFoto)) {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Imagen no eliminada",
+          "texto" => "No se ha podido eliminar la imagen",
+          "icono" => "error"
+        ];
+        return $alerta;
+        exit();
+      }
+    } else {
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen no encontrada",
+        "texto" => "La imagen que ha intentado eliminar no se encuentra en la base de datos",
+        "icono" => "error"
+      ];
+      return $alerta;
+      exit();
+    }
+
+    //Actualizamos el valor en la BD
+    $resultado = $this->objetoBD->actualizarDatos2([
+      "tabla" => $tablaBD,
+      'BD' => $BD,
+      "datos" => [
+        $nombreCampofoto => ""
+      ],
+      "WHERE" => [
+        $nombreCampoId => $valorId,
+      ]
+    ]);
+
+    if ($resultado == false || $resultado <= 0) {
+      $alerta = [
+        "tipo" => "limpiar",
+        "titulo" => "Imagen no eliminada",
+        "texto" => "No hemos podido actualizar algunos datos, sin embargo la imagen se eliminó con éxito",
+        "icono" => "warning",
+      ];
+    } else {
+      if (
+        $valorId == $_SESSION['cedula'] &&
+        $nombreCampofoto == 'foto_usuario' &&
+        $tablaBD == 'usuarios'
+      ) {
+        $_SESSION['foto'] = "";
+      }
+
+      if ($tablaBD == 'usuarios') {
+        $rutaImagen = APP_URL . DIR_FOTOS . "default.png";
+      } else {
+        $rutaImagen = APP_URL . DIR_FOTOS . "default2.png";
+      }
+
+      $alerta = [
+        "tipo" => "simple",
+        "titulo" => "Imagen eliminada",
+        "texto" => "La imagen ha sido eliminada exitosamente",
+        "icono" => "success",
+        // "claseImagen" => 'imagenRegistro',
+        // "idRegistro" => $valorId,
+        // "nuevaRutaImagen" => $rutaImagen,
+        // "reiniciarPreview" => true
+      ];
+      $this->objetoBD->commit();
+    }
+    return $alerta;
+  }
+  public function Imagenes_Eli2(string $subCarpeta, string|array $foto) {
+    $eliminarFoto = function ($subCarpeta, $foto) {
+      $foto = explode('?', $foto);
+      $foto = $foto[0];
+      if (is_file(DIR_FOTOS . $subCarpeta . '/' . $foto)) { /*verificamos que se creó */
+        chmod(DIR_FOTOS . $subCarpeta . '/' . $foto, 0777); /*le damos permiso a la carpeta para eliminar */
+        unlink(DIR_FOTOS . $subCarpeta . '/' . $foto); /*borramos el archivos */
+        return false;
+      } else {
+        $alerta = [
+          "tipo" => "simple",
+          "titulo" => "Imagen no eliminada",
+          "texto" => "La imagen ha sido eliminada con éxito",
+          "icono" => "error"
+        ];
+        return $alerta;
+      }
+    };
+    if (is_array($foto)) {
+      foreach ($foto as $fotoI) {
+        $eliminarFoto($subCarpeta, $fotoI);
+      }
+    } else {
+      $eliminarFoto($subCarpeta, $foto);
+    }
+  }
+  public function generarCodSeg(array $instrucciones) {
+    if ($this->objetoBD == null) $this->objetoBD = new conexion;
+    [
+      'tablaBD' => $tablaBD,
+      'prefijo' => $prefijo,
+      'campoID' => $campoID
+    ] = $instrucciones;
+    $BD = $instrucciones['BD'] ?? NULL;
+
+    $resultado = $this->objetoBD->seleccionarDatos2([
+      'eliminadosYVigentes' => true,
+      'campos' => $campoID,
+      'tabla' => $tablaBD,
+      'BD' => $BD,
+      'ORDER' => $campoID . ' DESC',
+      'LIMIT' => 1,
+      'FOR_UPDATE' => $tablaBD
+    ]);
+
+    $codigo = 1;
+    $datetime = date("yz");
+
+    //Para que se reinicie diario
+    if ($resultado->rowCount() > 0) {
+      $pedazos = explode('-', $resultado->fetch(PDO::FETCH_COLUMN));
+      if (isset($pedazos[1])) {
+        if ($datetime == $pedazos[1]) {
+          $codigo = ((int)$pedazos[2]) + 1;
+        }
+      }
+    }
+    $nroRandom = str_pad(rand(0, 99), 2, "0", STR_PAD_LEFT);
+    $idRellenado = str_pad($codigo, 5, "0", STR_PAD_LEFT);
+    return $prefijo . '-' . $datetime . '-' . $idRellenado . '-' . $nroRandom;
+  }
+  public function crearCodigoQR(string $texto, float $tamaño) {
+    //Logo
+    $rutaLogo = APP_URL . 'app/assets/img/logo-the-vina.png';
+    $tamañoLogo = (int)($tamaño / 3);
+    $logo = new Logo(
+      $rutaLogo,
+      $tamañoLogo,
+      $tamañoLogo,
+    );
+
+    $qrCode = new QrCode(
+      $texto,
+      new Encoding('UTF-8'),
+      ErrorCorrectionLevel::High,
+      $tamaño,
+      5
+    );
+    $writer = new PngWriter();
+    $tempFileName = tempnam(sys_get_temp_dir(), 'qr_') . '.png';
+    $writer->write($qrCode)->saveToFile($tempFileName);
+    return $tempFileName;
+  }
+  public function indexarArrays(array $instrucciones) {
+    [
+      'indice' => $indice,
+      'array' => $array,
+    ] = $instrucciones;
+    $camposAgrupar = $instrucciones['camposAgrupar'] ?? false;
+    $camposSumar = $instrucciones['camposSumar'] ?? false;
+    $crearLLave = function ($array, $indices) {
+      $llave = [];
+      if (is_array($indices)) {
+        foreach ($indices as $indice) {
+          $indice = trim($indice);
+          if (isset($array[$indice])) {
+            $llave[$indice] = $array[$indice];
+          }
+        }
+        $llave = json_encode($llave);
+      } else {
+        $indices = trim($indices);
+        $llave = $array[$indices];
+      }
+      return $llave;
+    };
+    $aux = [];
+    $llave = '';
+    foreach ($array as $i) {
+      $llave = $crearLLave($i, $indice);
+      if (!isset($aux[$llave])) {
+        //Agregamos los campos iniciales
+        $aux[$llave] = [];
+        if ($camposAgrupar) {
+          if (is_array($camposAgrupar)) {
+            foreach ($camposAgrupar as $campo) {
+              $campo = trim($campo);
+              if (isset($i[$campo])) $aux[$llave][$campo] = $i[$campo];
+            }
+          } else {
+            $campo = trim($camposAgrupar);
+            $aux[$llave] = $i[$camposAgrupar];
+          }
+        } else {
+          $aux[$llave] = 0;
+        }
+        if (isset($camposSumar) && $camposSumar != '' && $camposSumar != false) {
+          if (is_array($camposSumar)) {
+            foreach ($camposSumar as $campoS) {
+              $campoS = trim($campoS);
+              if (!is_array(($aux[$llave]))) {
+                $aux[$llave] = (float)$i[$campoS];
+              } else {
+                $aux[$llave][$campoS] = (float)$i[$campoS];
+              }
+            }
+          } else {
+            $camposSumar = trim($camposSumar);
+            if (!is_array(($aux[$llave]))) {
+              $aux[$llave] = (float)$i[$camposSumar];
+            } else {
+              $aux[$llave][$camposSumar] = (float)$i[$camposSumar];
+            }
+          }
+        }
+      } else {
+        if (isset($camposSumar) && $camposSumar != '' && $camposSumar != false) {
+          if (is_array($camposSumar)) {
+            foreach ($camposSumar as $campoS) {
+              $campoS = trim($campoS);
+              $aux[$llave][$campoS] += (float) $i[$campoS];
+            }
+          } else {
+            $camposSumar = trim($camposSumar);
+            if (is_array($aux[$llave])) {
+              $aux[$llave][$camposSumar] += (float)$i[$camposSumar];
+            } else {
+              $aux[$llave] += (float)$i[$camposSumar];
+            }
+          }
+        }
+      }
+    }
+
+    if (is_array($indice) || ($instrucciones['indicesNumericos'] ?? false) == true) {
+      $aux = array_values($aux);
+    }
+
+    return $aux;
+  }
+  public function calcularKmEntreCoordenadas(array $coordenadas) {
+    [
+      'lat1' => $lat1,
+      'lon1' => $lon1,
+      'lat2' => $lat2,
+      'lon2' => $lon2,
+    ] = $coordenadas;
+    $radioTierra = 6371; // Radio de la Tierra en kilómetros
+
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLon = deg2rad($lon2 - $lon1);
+
+    $a = sin($dLat / 2) * sin($dLat / 2) +
+      cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+      sin($dLon / 2) * sin($dLon / 2);
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    $distancia = $radioTierra * $c;
+
+    return round($distancia, 2); // Retorna la distancia en km
+
+  }
+  public function calcularKmPorCarretera(array $coordenadas) {
+    [
+      'partida' => $partida,
+      'llegada' => $llegada,
+    ] = $coordenadas;
+
+    $latLngUrl2 = "lat=" . $llegada['latitud'] . "&lon=" . $llegada['longitud'];
+    $url2 = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&" . $latLngUrl2;
+
+    $partida = $partida['latitud'] . ',' . $partida['longitud'];
+    $llegada = $llegada['latitud'] . ',' . $llegada['longitud'];
+    $apiKey = "plFhQVWfX5abG1DPt7jja56Syrqh7rY2";
+    $url = "https://api.tomtom.com/routing/1/calculateRoute/{$partida}:{$llegada}/json?key={$apiKey}&travelMode=car";
+
+    $objCache = new cacheModelo();
+    $cache = $objCache->getItem('rutasPorCarretera');
+    if (!$cache) $cache = [];
+    if (isset($cache[$partida . '-' . $llegada])) return $cache[$partida . '-' . $llegada];
+
+    $kmR = $this->hacerPeticionesAPIs([
+      'url' => $url,
+      'metodo' => 'GET',
+    ]);
+    $sitio = $this->hacerPeticionesAPIs([
+      'url' => $url2,
+      'metodo' => 'GET',
+    ]);
+
+    $km = 0;
+    if (isset($kmR['routes'][0]['summary']['lengthInMeters'])) {
+      $km = ceil($kmR['routes'][0]['summary']['lengthInMeters'] / 1000);
+    } else {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Sin ruta',
+        'texto' => 'No se pudo encontrar una ruta transitable por carretera',
+        'icono' => 'warning',
+      ];
+    }
+    if (isset($sitio['display_name'])) {
+      $sitio = $sitio['display_name'];
+    } else {
+      $sitio = false;
+    }
+    $info = [
+      'km_recorrido' => $km,
+      'nombre_direccion' => $sitio
+    ];
+    $cache[$partida . '-' . $llegada] = $info;
+    $objCache->setItem('rutasPorCarretera', $cache);
+    return $info;
+  }
+  public function intersArray(array $array, array $llavesDeseadas) {
+    return array_intersect_key($array, array_flip($llavesDeseadas));
+  }
+  public function alertaPHPUnit(string $modulo, string $accion) {
+    $modulo = strtoupper($modulo);
+    $accionN = strtoupper($accion);
+    $encabezado = "MODULO: $modulo | ACCION: $accionN: ";
+    return $encabezado . "Error: ";
+  }
+  public function DOAD(array $instrucciones) {
+    if ($this->objetoBD == null) $this->objetoBD = new conexion;
+    // Disernir Operaciones en Actualizaciones de Detalles
+    [
+      'arrayNuevo' => $arrayNuevo,
+      'configArrayViejo' => $configArrayViejo,
+      'campoUnicoDif' => $campoUnicoDif,
+    ] = $instrucciones;
+    $camposArray = explode(',', $configArrayViejo['campos']);
+    $arrayViejo = $this->objetoBD->seleccionarDatos2($configArrayViejo)->fetchAll();
+
+    $op = [
+      'actualizar' => [],
+      'registrar' => [],
+      'eliminar' => [],
+    ];
+
+    if (empty($arrayNuevo) && empty($arrayViejo)) return $op;
+    if (empty($arrayNuevo) && !empty($arrayViejo)) {
+      foreach ($arrayViejo as $a) {
+        $op['eliminar'][] = $a;
+      }
+      return $op;
+    };
+    if (!empty($arrayNuevo) && empty($arrayViejo)) {
+      foreach ($arrayNuevo as $a) {
+        $op['registrar'][] = $a;
+      }
+      return $op;
+    };
+
+    $auxViejo = $this->indexarArrays([
+      'indice' => $campoUnicoDif,
+      'array' => $arrayViejo,
+      'camposAgrupar' => $camposArray
+    ]);
+    $auxNuevo = $this->indexarArrays([
+      'indice' => $campoUnicoDif,
+      'array' => $arrayNuevo,
+      'camposAgrupar' => $camposArray
+    ]);
+
+    foreach ($auxNuevo as $clave => $valor) {
+      if (!isset($auxViejo[$clave])) {
+        $op['registrar'][] = $valor;
+        continue;
+      }
+      if ($auxViejo[$clave] != $valor) {
+        $op['actualizar'][] = $valor;
+      }
+    }
+    foreach ($auxViejo as $clave => $valor) {
+      if (!isset($auxNuevo[$clave])) {
+        $op['eliminar'][] = $valor;
+        continue;
+      }
+    }
+    return $op;
+  }
+}

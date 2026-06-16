@@ -332,16 +332,16 @@ class productosModelo extends conexion {
           return $this->seleccionarDatos2([
             'campos' => '
               *,
-              (
+              ROUND((
                 (
                   (
                     SELECT mo.valor_moneda FROM monedas as mo WHERE id_moneda=1
                   )*p.precio_producto
                 )*pre.cantidad_pmp
-              ) as precio_bs,
-              (
+              ),2) as precio_bs,
+              ROUND((
                 p.precio_producto*pre.cantidad_pmp
-              ) as precio_dolar
+              ),2) as precio_dolar
             ',
             'tabla' => 'productos as p',
             'datosJoins' => [
@@ -374,24 +374,24 @@ class productosModelo extends conexion {
               pr.id_categoria_producto,pre.id_presentacion, pp.id_presentacion_producto,
               pr.id_producto,pf.id_producto_factura,
               pr.id_unidad_medida,pre.nombre_presentacion, pr.nombre_producto,
-              ( 
+              ROUND(( 
                 SELECT prpr.precio_producto 
                 FROM precios_productos as prpr 
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC 
                 LIMIT 1 
-              ) AS precio_producto_factura, 
-              (pre.cantidad_pmp * pf.cantidad_producto) as cantidad_bruta, 
-              ( 
+              ),2) AS precio_producto_factura, 
+              ROUND((pre.cantidad_pmp * pf.cantidad_producto),2) as cantidad_bruta, 
+              ROUND(( 
                 SELECT (prpr.precio_producto*pre.cantidad_pmp)  
                 FROM precios_productos as prpr 
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC
                 LIMIT 1 
-              ) as precio_presentacion_factura
+              ),2) as precio_presentacion_factura
             ',
             'datosJoins' => [
-              'productos_facturas as pf' => 'f.id_orden_entrega_presupuesto = pf.id_orden_entrega_presupuesto',
+              'productos_ordenes_entregas_presupuestos as pf' => 'f.id_orden_entrega_presupuesto = pf.id_orden_entrega_presupuesto',
               'presentaciones_productos as pp' => 'pf.id_presentacion_producto = pp.id_presentacion_producto',
               'productos as pr' => 'pp.id_producto = pr.id_producto',
               'presentaciones as pre' => 'pp.id_presentacion = pre.id_presentacion',

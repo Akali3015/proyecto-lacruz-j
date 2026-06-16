@@ -461,6 +461,12 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
       </div>
 
       <div class="modal-footer border-0 pago-modal-footer d-flex justify-content-between">
+        <button 
+          type="button"
+          class="btnAtrasOffCanvasPedido btn pago-btn-secondary">
+          <i class="fi fi-rr-crosshairs me-2"></i>
+          Atrás
+        </button>
         <button type="button" class="btnSelUbiActualPedido btn pago-btn-secondary">
           <i class="fi fi-rr-crosshairs me-2"></i>
           Mi Ubicación Actual
@@ -615,7 +621,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
                 </span>
                 <input
                   type="text"
-                  class="inputMontoPagoPedido dinero form-control pago-input border-0 bg-transparent ps-2 fw-bold text-primary"
+                  class="inputMontoPagoPedido dineroPositivo form-control pago-input border-0 bg-transparent ps-2 fw-bold text-primary"
                   name="pagos-[INDICES]-monto_pago"
                   placeholder="0.00"
                   pattern="<?php echo regexPrecioFront ?>"
@@ -755,48 +761,48 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
 
 <!-- MODAL DE AYUDA INTERACTIVA [ COMIENZO ] -->
 <div class="modal fade" id="modalAyudaInteractiva" tabindex="-1" aria-labelledby="modalAyudaInteractivaLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
-            <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
-                <div class="d-flex align-items-center">
-                    <i class="fi fi-rr-interrogation fs-3 me-2"></i>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-0" id="modalAyudaInteractivaLabel">
-                            Ayuda Interactiva
-                        </h5>
-                        <small class="text-white opacity-75">Selecciona el módulo que deseas explorar</small>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="p-3 border-bottom bg-light">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-0 rounded-start-pill ps-3">
-                        <i class="fi fi-rr-search text-muted"></i>
-                    </span>
-                    <input type="text" id="buscadorModulosAyuda" class="form-control border-0 py-2" placeholder="Buscar módulo..." style="outline: none;">
-                    <button class="btn btn-light border-0 rounded-end-pill px-3" type="button" id="btnLimpiarBusquedaAyuda">
-                        <i class="fi fi-rr-cross-small"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- CUERPO DEL MODAL -->
-            <div class="modal-body p-3">
-                <div id="contenedorModulosAyuda" style="max-height: 500px; overflow-y: auto;">
-                    <div class="text-center py-5 d-none" id="sinResultadosAyuda">
-                        <i class="fi fi-rr-search-alt fs-1 text-muted mb-3"></i>
-                        <p class="text-muted">No se encontraron módulos con ese nombre</p>
-                    </div>
-                    <div class="row g-3" id="listaModulosAyuda"></div>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i> Cerrar
-                </button>
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+        <div class="d-flex align-items-center">
+          <i class="fi fi-rr-interrogation fs-3 me-2"></i>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="modalAyudaInteractivaLabel">
+              Ayuda Interactiva
+            </h5>
+            <small class="text-white opacity-75">Selecciona el módulo que deseas explorar</small>
+          </div>
         </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="p-3 border-bottom bg-light">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-0 rounded-start-pill ps-3">
+            <i class="fi fi-rr-search text-muted"></i>
+          </span>
+          <input type="text" id="buscadorModulosAyuda" class="form-control border-0 py-2" placeholder="Buscar módulo..." style="outline: none;">
+          <button class="btn btn-light border-0 rounded-end-pill px-3" type="button" id="btnLimpiarBusquedaAyuda">
+            <i class="fi fi-rr-cross-small"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- CUERPO DEL MODAL -->
+      <div class="modal-body p-3">
+        <div id="contenedorModulosAyuda" style="max-height: 500px; overflow-y: auto;">
+          <div class="text-center py-5 d-none" id="sinResultadosAyuda">
+            <i class="fi fi-rr-search-alt fs-1 text-muted mb-3"></i>
+            <p class="text-muted">No se encontraron módulos con ese nombre</p>
+          </div>
+          <div class="row g-3" id="listaModulosAyuda"></div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i> Cerrar
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 <!-- MODAL DE AYUDA INTERACTIVA [ FIN ] -->

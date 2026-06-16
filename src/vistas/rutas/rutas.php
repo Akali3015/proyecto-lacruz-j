@@ -26,7 +26,6 @@ echo $componente->listaDataTable($instruccionesLista);
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <form class="formularioAjax validar" method="POST" action="" novalidate>
         <div class="modal-body">
           <div class="row">
@@ -36,16 +35,16 @@ echo $componente->listaDataTable($instruccionesLista);
               <input type="text" class="form-control noRepetir" name="nombre_ruta" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="cedula" class="form-label">Precio</label>
-              <input type="text" class="form-control dinero" name="precio_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <label for="cedula" class="form-label">Precio/km</label>
+              <input type="text" class="form-control dineroPositivo" name="precio_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Mínimo Km</label>
-              <input type="text" class="form-control dinero" name="minimo_km_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <input type="text" class="form-control dineroPositivo" name="minimo_km_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Máximo Km</label>
-              <input type="text" class="form-control dinero" name="maximo_km_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <input type="text" class="form-control dineroPositivo" name="maximo_km_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
           </div>
         </div>
@@ -54,7 +53,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <i class="fas fa-times me-2"></i> Cancelar
           </button>
           <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Guardar Rol
+            <i class="fas fa-save me-2"></i> Guardar
           </button>
         </div>
       </form>
@@ -83,16 +82,16 @@ echo $componente->listaDataTable($instruccionesLista);
               <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_ruta" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="cedula" class="form-label">Precio</label>
-              <input type="text" class="form-control formularioActualizar dinero" name="precio_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <label for="cedula" class="form-label">Precio/km</label>
+              <input type="text" class="form-control formularioActualizar dineroPositivo" name="precio_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Mínimo Km</label>
-              <input type="text" class="form-control formularioActualizar dinero" name="minimo_km_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <input type="text" class="form-control formularioActualizar dineroPositivo" name="minimo_km_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cedula" class="form-label">Máximo Km</label>
-              <input type="text" class="form-control formularioActualizar dinero" name="maximo_km_ruta" pattern="<?php echo regexPrecio ?>" minlength="<?php echo minRegexPrecio ?>" maxlength="<?php echo maxRegexPrecio ?>" required>
+              <input type="text" class="form-control formularioActualizar dineroPositivo" name="maximo_km_ruta" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required>
             </div>
           </div>
         </div>
@@ -101,7 +100,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <i class="fas fa-times me-2"></i> Cancelar
           </button>
           <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Guardar
+            <i class="fas fa-save me-2"></i> Actualizar
           </button>
         </div>
       </form>

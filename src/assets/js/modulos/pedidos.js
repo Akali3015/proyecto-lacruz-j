@@ -2,7 +2,7 @@
 import {
   listarDataTable, listarItemPanelCarritoPedido, rutaFotos, cambiarFormatos,
   pedirDatosAjax, extraerDatosAjax, enviarFormulario, alertasAjax, reiniciarDataTables,
-  mostrarOcultarSpinnerCarga
+  mostrarOcultarSpinnerCarga, objCacheSS
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -17,28 +17,16 @@ function aggProductoPedido() {
     $(this).removeClass('checked');
   }, 200);
 
-  let itemsCarrito = sessionStorage.getItem('itemsCarritoPedido');
-
-  if (!itemsCarrito) {
-    itemsCarrito = {
-      'productos': {},
-      'servicios': {},
-      'delivery': {}
-    };
-  } else {
-    itemsCarrito = JSON.parse(itemsCarrito);
-  }
   let { tipo_item, id_presentacion_producto } = $(this).data('info');
-
-  if (itemsCarrito[tipo_item][id_presentacion_producto]) {
-    itemsCarrito[tipo_item][id_presentacion_producto].cantidad++;
-  } else {
-    itemsCarrito[tipo_item][id_presentacion_producto] = {
+  let item = objCacheSS.getItem('itemsCarritoPedido/' + tipo_item + '/' + id_presentacion_producto);
+  if (item) item.cantidad++;
+  else {
+    item = {
       ...$(this).data('info'),
       cantidad: 1
     }
   }
-  sessionStorage.setItem('itemsCarritoPedido', JSON.stringify(itemsCarrito));
+  objCacheSS.setItem('itemsCarritoPedido/' + tipo_item + '/' + id_presentacion_producto, item);
   listarItemPanelCarritoPedido();
 }
 async function cambiarEstadosPedido() {
@@ -78,8 +66,6 @@ async function cambiarEstadosPedido() {
 async function verDetallesPedido() {
   try {
     mostrarOcultarSpinnerCarga('mostrar');
-    
-
     let modalD = $('.modalDetallesPedido');
     let pedido = await pedirDatosAjax({
       'modulo': 'pedidos',
@@ -88,6 +74,13 @@ async function verDetallesPedido() {
         'id_pedido': $(this).attr('value')
       }
     });
+
+    if (pedido.icono) {
+      alertasAjax(pedido)
+      throw new Error(pedido.texto);
+    }
+
+
     let {
       calculos,
       cliente,
@@ -100,7 +93,8 @@ async function verDetallesPedido() {
       totalProductos,
       total_IVA,
       totalPagos,
-      monto_cambio_iva,
+      porcentaje_IVA,
+      totalEnvio,
       dolar
     } = calculos;
 
@@ -141,10 +135,10 @@ async function verDetallesPedido() {
         `;
         },
         precio_producto_factura: (info) => {
-          let precioBS = dolar.valor_fecha_moneda * info.valor;
+          let precioBS = parseFloat(dolar.valor_fecha_moneda) * info.valor;
           return `
           <div class="py-3 text-end listarItemsPedido">
-            <div class="precio_usd">${info.valor.toFixed(2)}$</div>
+            <div class="precio_usd">${info.valor}$</div>
             <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
           </div>
         `;
@@ -168,6 +162,7 @@ async function verDetallesPedido() {
     }));
 
     //Pagos
+    let tituloExcedente = totalPagos - total_IVA > 0 ? 'Sobrante' : 'Faltante';
     promesas.push(listarDataTable({
       selectorTabla: '.tablaDetallesPagosPedido',
       encabezados: {
@@ -195,9 +190,9 @@ async function verDetallesPedido() {
         }
       },
       datosFooter: {
-        [`Total Productos + IVA (${monto_cambio_iva * 100}%)`]: [`${(total_IVA).toFixed(2)}$`, 2],
+        [`Total Productos + IVA (${porcentaje_IVA}%)`]: [`${(total_IVA).toFixed(2)}$`, 2],
         'Total Pagos': [`${totalPagos.toFixed(2)}$`, 2],
-        'Restante': [`${(total_IVA - totalPagos).toFixed(2)}$`, 3],
+        [tituloExcedente]: [`${(totalPagos - total_IVA).toFixed(2)}$`, 3],
       }
     }));
 
@@ -233,16 +228,20 @@ async function verDetallesPedido() {
 
     //Vendedor-cliente-delivery
     let infoRestante = {
-      ...cliente, ...vendedor, ...medioEnvio
+      ...cliente, ...vendedor, ...medioEnvio, ...calculos
     }
     let valoresAparte = [
       'foto_usuario', 'url_direccion',
     ];
 
     //Insercion de datos
+    let clavesDineroDolar = [
+      'precio_ruta_factura', 'totalEnvio'
+    ];
     for (const [clave, valor] of Object.entries(infoRestante)) {
       if (valoresAparte.includes(clave)) continue;
-      modalD.find(`.tap_${clave}`).text(valor);
+      if (clavesDineroDolar.includes(clave)) modalD.find(`.tap_${clave}`).text(valor + '$');
+      else modalD.find(`.tap_${clave}`).text(valor);
     }
     let foto = infoRestante.foto_usuario ? infoRestante.foto_usuario : 'perfilDefaultUsuario.png'
     foto = rutaFotos + 'usuarios/' + foto;
@@ -265,8 +264,8 @@ async function verDetallesPedido() {
     }
 
     $('.idPedido').val($(this).attr('value'));
-    // Logica del delivery/envio de tercero
 
+    // Logica del delivery/envio de tercero
     if (!permisos.pedidos.includes('ver pedidos de los clientes')) {
       modalD.find('#seccionAsignarRepartidor').addClass('d-none');
       modalD.find('#seccionDatosRepartidor').addClass('d-none');
@@ -399,8 +398,8 @@ $(document).on("DOMContentLoaded", async function () {
         precio_dolar: (info) => {
           return `
             <div class="py-3 text-end listarItemsPedido">
-              <div class="precio_usd">${info.valor.toFixed(2)}$</div>
-              <div class="precio_bs">${info.fila.precio_bs.toFixed(2)} Bs</div>
+              <div class="precio_usd">${info.valor}$</div>
+              <div class="precio_bs">${info.fila.precio_bs} Bs</div>
             </div>
           `;
         },
@@ -510,23 +509,23 @@ $(document).on("DOMContentLoaded", async function () {
         let btn = ``;
         if (permisos.pedidos.includes('ver detalles de pedidos propios')) {
           btn += `
-          <li 
-            class="list-inline-item align-bottom" 
-            data-bs-toggle="tooltip" 
-            data-bs-placement="top" 
-            title="Ver pedido"
-          >
-            <a 
-              href="#" 
-              value="${fila.id_orden_entrega_presupuesto}"
-              class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
-              data-bs-toggle="modal" 
-              data-bs-target=".modalDetallesPedido"
+            <li 
+              class="list-inline-item align-bottom" 
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              title="Ver pedido"
             >
-              <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
+              <a 
+                href="#" 
+                value="${fila.id_orden_entrega_presupuesto}"
+                class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
+                data-bs-toggle="modal" 
+                data-bs-target=".modalDetallesPedido"
+              >
+                <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
         }
         if (permisos.pedidos.includes('cancelar pedidos')) {
           let configBtn = JSON.stringify({
@@ -536,18 +535,32 @@ $(document).on("DOMContentLoaded", async function () {
             texto_alerta: 'Si cancela el pedido este será enviado a la lista de pedidos cancelados'
           })
           btn += `
-          <li 
-            value='${fila.id_orden_entrega_presupuesto}'
-            class="btnCambiarEstadoPedido list-inline-item align-bottom"
-            data-info='${configBtn}',
-            data-bs-toggle="tooltip" 
-            title="Cancelar"
-          >
-            <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-              <i class="fi fi-rs-ban fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
+            <li 
+              value='${fila.id_orden_entrega_presupuesto}'
+              class="btnCambiarEstadoPedido list-inline-item align-bottom"
+              data-info='${configBtn}',
+              data-bs-toggle="tooltip" 
+              title="Cancelar"
+            >
+              <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
+                <i class="fi fi-rs-ban fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
+        }
+        if (permisos.pedidos.includes('imprimir pedidos')) {
+          btn += `
+            <li 
+              value='${fila.id_orden_entrega_presupuesto}'
+              class="btnImprimirPedido list-inline-item align-bottom"
+              data-bs-toggle="tooltip" 
+              title="Imprimir"
+            >
+              <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default">
+                <i class="fi fi-rr-print fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },

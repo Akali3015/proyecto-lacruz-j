@@ -297,10 +297,6 @@ class pedidosModelo extends conexion {
     return $this->listarPedidosP($info);
   }
   public function registrarPedidos(array $info) {
-
-    // $info['delivery']['latitud'] = 10.123456;
-    // $info['delivery']['longitud'] = 10.123456;
-
     $resultado = $this->validarPedidos([
       'infoVal' => &$info,
       'camposVal' => [
@@ -337,7 +333,7 @@ class pedidosModelo extends conexion {
     $this->deliveryPedido['cedula_repartidor'] = $info['cedula_repartidor'];
     return $this->asignarRepartidoresPedidosP();
   }
-  public function actualizarPedido(array $info) {
+  public function actualizarPedidos(array $info) {
     $resultado = $this->validarPedidos([
       'infoVal' => &$info,
       'camposVal' => [
@@ -497,6 +493,8 @@ class pedidosModelo extends conexion {
 
       $idsPagos = $this->indexarArrays([
         "indice" => 'id_pago',
+        'camposAgrupar' => 'id_pago',
+        'indicesNumericos'=>true,
         'array' => $detallesPagos,
       ]);
 
@@ -508,7 +506,6 @@ class pedidosModelo extends conexion {
       $bancos = $objBancos->seleccionarBancos([
         'tipoConsulta' => 'indexadosPorId'
       ]);
-
 
       $totalPagos = 0;
       foreach ($detallesPagos as &$detalle) {
@@ -558,8 +555,6 @@ class pedidosModelo extends conexion {
           ]
         ])->fetchAll(PDO::FETCH_COLUMN);
       }
-      $capturesPagos;
-
       $cliente = $this->intersArray($datosGenerales, [
         'rif_cedula_cliente',
         'telefono_cliente',
@@ -584,9 +579,9 @@ class pedidosModelo extends conexion {
           'porcentaje_IVA' => $IVA,
           'totalProductos' => $totalProductos,
           'totalEnvio' => $totalEnvio,
-          'total_IVA' => ($totalProductos + $totalEnvio) * ($IVA / 100),
+          'total_IVA' => ($totalProductos + $totalEnvio) + (($totalProductos + $totalEnvio) * ($IVA / 100)),
           'totalPagos' => $totalPagos,
-          'totalGeneral' => $totalPagos - $cargos
+          'totalGeneral' => round(($totalPagos - $cargos), 2)
         ]
       ];
     } else {
@@ -785,7 +780,7 @@ class pedidosModelo extends conexion {
     // Productos
     foreach ($this->productosPedido as $producto) {
       $idDetalle = $this->guardarDatos2([
-        'tabla' => 'productos_facturas',
+        'tabla' => 'productos_ordenes_entregas_presupuestos',
         'datos' => [
           'id_presentacion_producto' => $producto['id_presentacion_producto'],
           'id_orden_entrega_presupuesto' => $idPedido,
@@ -944,8 +939,9 @@ class pedidosModelo extends conexion {
       }
     }
 
-    //Comprobantes del pago    
-    $comprobantesPagos = $this->Imagenes_Reg('comprobantes_pagos', $this->comprobantesPagos, 'comprobantes_pagos');
+    //Comprobantes del pago
+    
+    $comprobantesPagos= $this->Imagenes_Reg('comprobantes_pagos',$this->comprobantesPagos,'comprobantes_pagos');
     $this->imgTrans = [
       'subCarpeta' => 'comprobantes_pagos',
       'imagenes' => $comprobantesPagos
@@ -955,7 +951,7 @@ class pedidosModelo extends conexion {
       return [
         'tipo' => 'simple',
         'titulo' => 'Error de guardado',
-        'texto' => 'No se han podido guardar todos los comprobantes del pago!!!',
+        'texto' => 'No se han podido guardar todos los comprobantes del pago!!! '.count($comprobantesPagos),
         'icono' => 'error',
       ];
     }
@@ -1137,6 +1133,7 @@ class pedidosModelo extends conexion {
       $objBitacora->registrarBitacora('pedidos', 'actualizar', 'Fallido', true);
     };
     $dataActualProducto = $this->listarPedidos(['id_pedido' => $this->idPedido]);
+    return $dataActualProducto;
     [
       "productos" => $productos,
     ] = $dataActualProducto;

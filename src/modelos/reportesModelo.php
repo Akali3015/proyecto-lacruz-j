@@ -227,9 +227,9 @@ class reportesModelo extends conexion {
       'datosJoins' => [
         'clientes as c' => 'f.rif_cedula_cliente = c.rif_cedula_cliente',
         'cambios_iva as ci' => 'f.id_cambio_iva = ci.id_cambio_iva',
-        'productos_facturas as pf' => 'f.id_orden_entrega_presupuesto = pf.id_producto_factura',
+        'productos_ordenes_entregas_presupuestos as pf' => 'f.id_orden_entrega_presupuesto = pf.id_producto_factura',
         'productos as pr' => 'pf.id_producto_factura = pr.id_producto',
-        'servicios_facturas as sf' => 'f.id_orden_entrega_presupuesto = sf.id_orden_entrega_presupuesto',
+        'servicios_ordenes_entregas_presupuestos as sf' => 'f.id_orden_entrega_presupuesto = sf.id_orden_entrega_presupuesto',
         'servicios as s' => 'sf.id_servicio_factura = s.id_servicio',
       ],
       'WHERE' => [

@@ -7,11 +7,75 @@ use src\modelos\accesosModelo;
 
 class componentesModelo extends conexion {
   private accesosModelo $objPermisos;
-
   public function __construct() {
     $this->objPermisos = new accesosModelo();
   }
   public function sidebar() {
+    $arrayLiPrincipal = [
+      [
+        'url' => 'clientes',
+        'texto' => 'Clientes',
+        'modulo' => 'clientes',
+        'permiso' => 'ver',
+        'icono' => 'users-medical'
+      ],
+      [
+        'url' => 'facturacion',
+        'texto' => 'Facturación',
+        'modulo' => 'facturacion',
+        'icono' => 'receipt',
+        'permiso' => 'ver',
+      ],
+      [
+        'modulo' => 'pedidos',
+        'permiso' => 'ver',
+        'url' => 'pedidos',
+        'icono' => 'order-food-mobile',
+        'texto' => 'Pedidos',
+      ],
+      [
+        'modulo' => 'pagos',
+        'permiso' => 'ver',
+        'url' => 'pagos',
+        'icono' => 'credit-card',
+        'texto' => 'Pagos',
+      ],
+      [
+        'modulo' => 'inventario',
+        'permiso' => 'ver inventario',
+        'url' => 'inventario',
+        'icono' => 'supplier-alt',
+        'texto' => 'Inventario',
+      ],
+      [
+        'modulo' => 'compras',
+        'permiso' => 'ver',
+        'url' => 'compras',
+        'icono' => 'shopping-cart-add',
+        'texto' => 'Compras',
+      ],
+      [
+        'modulo' => 'ordenesServicios',
+        'permiso' => 'ver',
+        'url' => 'ordenesServicios',
+        'icono' => 'ballot',
+        'texto' => 'Órdenes de Servicios',
+      ],
+      [
+        'modulo' => 'producciones',
+        'permiso' => 'ver',
+        'url' => 'producciones',
+        'icono' => 'hands-bubbles',
+        'texto' => 'Producciones',
+      ],
+      [
+        'modulo' => 'reportes',
+        'permiso' => 'ver reportes',
+        'url' => 'reportes',
+        'icono' => 'chart-histogram',
+        'texto' => 'Reportes',
+      ],
+    ];
     $sidebarHTML = '
       <li class="liSidebar">
         <a href="' . APP_URL . 'home" class="aSidebar">
@@ -20,354 +84,181 @@ class componentesModelo extends conexion {
         </a>
       </li>
     ';
-
-    if (!$this->objPermisos->validarPermisos('facturacion', 'ver')) {
-      $sidebarHTML .= '
+    foreach ($arrayLiPrincipal as $li) {
+      if (!$this->objPermisos->validarPermisos($li['modulo'], $li['permiso'])) {
+        $sidebarHTML .= '
         <li class="liSidebar">
-          <a href="' . APP_URL . 'facturacion" class="aSidebar">
-            <i class="fi fi-rr-receipt"></i>
-            <span>Facturación</span>
+          <a href="' . APP_URL . $li['url'] . '" class="aSidebar">
+            <i class="fi fi-rr-' . $li['icono'] . '"></i>
+            <span>' . $li['texto'] . '</span>
           </a>
         </li>
       ';
-    };
-    if (!$this->objPermisos->validarPermisos('pedidos', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'pedidos" class="aSidebar">
-            <i class="fi fi-rr-order-food-mobile"></i>
-            <span>Pedidos</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('pagos', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'pagos" class="aSidebar">
-            <i class="fi fi-rr-credit-card"></i>
-            <span>Pagos</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('inventario', 'ver inventario')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'inventario" class="aSidebar">
-            <i class="fi fi-rr-supplier-alt"></i>
-            <span>Inventario</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('compras', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'compras" class="aSidebar">
-            <i class="fi fi-br-shopping-cart-add"></i>
-            <span>Compras</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('ordenesServicios', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'ordenesServicios" class="aSidebar">
-            <i class="fi fi-rr-ballot"></i>
-            <span>Órdenes de Servicios</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('producciones', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'producciones" class="aSidebar">
-            <i class="fi fi-rr-hands-bubbles"></i>
-            <span>Producciones</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('clientes', 'ver')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'clientes" class="aSidebar">
-            <i class="fi fi-rr-users-medical"></i>
-            <span>Clientes</span>
-          </a>
-        </li>
-      ';
-    };
-    if (!$this->objPermisos->validarPermisos('reportes', 'ver reportes')) {
-      $sidebarHTML .= '
-        <li class="liSidebar">
-          <a href="' . APP_URL . 'reportes" class="aSidebar">
-            <i class="fi fi-rr-chart-histogram"></i>
-            <span>Reportes</span>
-          </a>
-        </li>
-      ';
-    };
-
-    $puedeVerConfig = false;
-    $modulosConfig = [
-      'bancos' => 'ver',
-      'bitacora' => 'ver',
-      'empresasEnvios' => 'ver',
-      'iva' => 'ver',
-      'insumos' => 'ver',
-      'materiasPrimas' => 'ver',
-      'metodos-pagos' => 'ver',
-      'monedas' => ['ver', 'ver historial de cambio'],
-      'permisos' => 'ver',
-      'presentaciones' => 'ver',
-      'productos' => 'ver',
-      'proveedores' => 'ver',
-      'repartidores' => 'ver',
-      'roles' => 'ver',
-      'rutas' => 'ver',
-      'servicios' => 'ver',
-      'unidadesMedida' => 'ver',
-      'usuarios' => 'ver',
-    ];
-    foreach ($modulosConfig as $modulo => $permiso) {
-      if (is_array($permiso)) {
-        foreach ($permiso as $per) {
-          if (!$this->objPermisos->validarPermisos($modulo, $per)) {
-            $puedeVerConfig = true;
-          };
-        }
-      } else {
-        if (!$this->objPermisos->validarPermisos($modulo, $permiso)) {
-          $puedeVerConfig = true;
-        };
       }
-    };
-    if ($puedeVerConfig == true) {
-      $lisConfig = '';
-      if (!$this->objPermisos->validarPermisos('productos', 'ver')) {
+    }
+    $arrayLiConfig = [
+      [
+        'modulo' => 'productos',
+        'permiso' => 'ver',
+        'url' => 'productos',
+        'icono' => 'bin-bottles',
+        'texto' => 'Productos',
+      ],
+      [
+        'modulo' => 'materiasPrimas',
+        'permiso' => 'ver',
+        'url' => 'materiasPrimas',
+        'icono' => 'flask',
+        'texto' => 'Materias Primas',
+      ],
+      [
+        'modulo' => 'servicios',
+        'permiso' => 'ver',
+        'url' => 'servicios',
+        'icono' => 'broom',
+        'texto' => 'Servicios',
+      ],
+      [
+        'modulo' => 'proveedores',
+        'permiso' => 'ver',
+        'url' => 'proveedores',
+        'icono' => 'seller',
+        'texto' => 'Proveedores',
+      ],
+      [
+        'modulo' => 'presentaciones',
+        'permiso' => 'ver',
+        'url' => 'presentaciones',
+        'icono' => 'soap',
+        'texto' => 'Presentaciones',
+      ],
+      [
+        'modulo' => 'cambios',
+        'permiso' => 'ver',
+        'url' => 'monedas/cambios-monedas',
+        'icono' => 'money-transfer-coin-arrow',
+        'texto' => 'Cambio Monetario',
+      ],
+      [
+        'modulo' => 'repartidores',
+        'permiso' => 'ver',
+        'url' => 'repartidores',
+        'icono' => 'person-carry-box',
+        'texto' => 'Repartidores',
+      ],
+      [
+        'modulo' => 'categoriasProductos',
+        'permiso' => 'ver',
+        'url' => 'categoriasProductos',
+        'icono' => 'category',
+        'texto' => 'Categorías',
+      ],
+      [
+        'modulo' => 'unidadesMedidas',
+        'permiso' => 'ver',
+        'url' => 'unidadesMedidas',
+        'icono' => 'ruler-horizontal',
+        'texto' => 'Unidades de Medida',
+      ],
+      [
+        'modulo' => 'metodos-pago',
+        'permiso' => 'ver',
+        'url' => 'metodos-pago',
+        'icono' => 'credit-card',
+        'texto' => 'Métodos de Pago',
+      ],
+      [
+        'modulo' => 'monedas',
+        'permiso' => 'ver',
+        'url' => 'monedas',
+        'icono' => 'money',
+        'texto' => 'Monedas',
+      ],
+      [
+        'modulo' => 'cambiosIva',
+        'permiso' => 'ver historial de cambio del iva',
+        'url' => 'cambiosIva',
+        'icono' => 'tax-alt',
+        'texto' => 'IVA',
+      ],
+      [
+        'modulo' => 'empresasEnvios',
+        'permiso' => 'ver',
+        'url' => 'empresasEnvios',
+        'icono' => 'shipping-fast',
+        'texto' => 'Empresas de Envíos',
+      ],
+      [
+        'modulo' => 'sucursalesEmpresasEnvios',
+        'permiso' => 'ver',
+        'url' => 'sucursalesEmpresasEnvios',
+        'icono' => 'map-marker-home',
+        'texto' => 'Sucursales de Envíos',
+      ],
+      [
+        'modulo' => 'bancos',
+        'permiso' => 'ver',
+        'url' => 'bancos',
+        'icono' => 'bank',
+        'texto' => 'Bancos',
+      ],
+      [
+        'modulo' => 'rutas',
+        'permiso' => 'ver',
+        'url' => 'rutas',
+        'icono' => 'route',
+        'texto' => 'Rutas',
+      ],
+      [
+        'modulo' => 'usuarios',
+        'permiso' => 'ver',
+        'url' => 'usuarios',
+        'icono' => 'user',
+        'texto' => 'Usuarios',
+      ],
+      [
+        'modulo' => 'accesos',
+        'permiso' => 'ver',
+        'url' => 'accesos',
+        'icono' => 'lock',
+        'texto' => 'Accesos',
+      ],
+      [
+        'modulo' => 'roles',
+        'permiso' => 'ver',
+        'url' => 'roles',
+        'icono' => 'organization-chart',
+        'texto' => 'Roles',
+      ],
+      [
+        'modulo' => 'permisos',
+        'permiso' => 'ver',
+        'url' => 'permisos',
+        'icono' => 'holding-hand-key',
+        'texto' => 'Permisos',
+      ],
+      [
+        'modulo' => 'bitacora',
+        'permiso' => 'ver',
+        'url' => 'bitacora',
+        'icono' => 'file-spreadsheet',
+        'texto' => 'Bitácora',
+      ],
+    ];
+    $lisConfig = '';
+    foreach ($arrayLiConfig as $li) {
+      if (!$this->objPermisos->validarPermisos($li['modulo'], $li['permiso'])) {
         $lisConfig .= '
           <li class="liSidebar">
-            <a href="' . APP_URL . 'productos" class="aSidebar">
-              <i class="fi fi-rr-bin-bottles"></i>
-              <span>Productos</span>
+            <a href="' . APP_URL . $li['url'] . '" class="aSidebar">
+              <i class="fi fi-rr-' . $li['icono'] . '"></i>
+              <span>' . $li['texto'] . '</span>
             </a>
           </li>
         ';
       };
-      if (!$this->objPermisos->validarPermisos('materiasPrimas', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'materiasPrimas" class="aSidebar">
-              <i class="fi fi-rr-flask"></i>
-              <span>Materias Primas</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('servicios', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'servicios" class="aSidebar">
-              <i class="fi fi-rr-broom"></i>
-              <span>Servicios</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('proveedores', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'proveedores" class="aSidebar">
-              <i class="fi fi-rr-seller"></i>
-              <span>Proveedores</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('presentaciones', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'presentaciones" class="aSidebar">
-              <i class="fi fi-rr-soap"></i>
-              <span>Presentaciones</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('cambios', 'ver historial de cambio')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'monedas/cambios-monedas" class="aSidebar">
-              <i class="fi fi-rs-money-transfer-coin-arrow"></i>
-              <span>Cambio Monetario</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('repartidores', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'repartidores" class="aSidebar">
-              <i class="fi fi-rr-person-carry-box"></i>
-              <span>Repartidores</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('categoriasProductos', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'categoriasProductos" class="aSidebar">
-              <i class="fi fi-rs-category"></i>
-              <span>Categorías</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('unidadesMedidas', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'unidadesMedidas" class="aSidebar">
-              <i class="fi fi-rr-ruler-horizontal"></i>
-              <span>Unidades de Medida</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('metodos-pago', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'metodos-pago" class="aSidebar">
-              <i class="fi fi-rr-credit-card"></i>
-              <span>Métodos de Pago</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('monedas', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'monedas" class="aSidebar">
-              <i class="fi fi-rr-money"></i>
-              <span>Monedas</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('cambiosIva', 'ver historial de cambio del iva')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'cambiosIva" class="aSidebar">
-              <i class="fi fi-sr-tax-alt"></i>
-              <span>IVA</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('empresasEnvios', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'empresasEnvios" class="aSidebar">
-              <i class="fi fi-rr-shipping-fast"></i>
-              <span>Empresas de Envíos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('sucursalesEmpresasEnvios', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'sucursalesEmpresasEnvios" class="aSidebar">
-              <i class="fi fi-rs-map-marker-home"></i>
-              <span>Sucursales de Envíos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('bancos', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'bancos" class="aSidebar">
-              <i class="fi fi-rr-bank"></i>
-              <span>Bancos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('rutas', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'rutas" class="aSidebar">
-              <i class="fi fi-br-route"></i>
-              <span>Rutas</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('usuarios', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'usuarios" class="aSidebar">
-              <i class="fi fi-rr-user"></i>
-              <span>Usuarios</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('accesos', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'accesos" class="aSidebar">
-              <i class="fi fi-br-lock"></i>
-              <span>accesos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('roles', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'roles" class="aSidebar">
-              <i class="fi fi-br-organization-chart"></i>
-              <span>Roles</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('modulos', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'modulos" class="aSidebar">
-              <i class="fi fi-bs-module"></i>
-              <span>Módulos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('permisos', 'ver')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'permisos" class="aSidebar">
-              <i class="fi fi-rs-holding-hand-key"></i>
-              <span>Permisos</span>
-            </a>
-          </li>
-        ';
-      };
-      if (!$this->objPermisos->validarPermisos('bitacora', 'ver bitacora')) {
-        $lisConfig .= '
-          <li class="liSidebar">
-            <a href="' . APP_URL . 'bitacora" class="aSidebar">
-              <i class="fi fi-rr-file-spreadsheet"></i>
-              <span>Bitácora</span>
-            </a>
-          </li>
-        ';
-      };
+    }
+    if ($lisConfig != '') {
       $sidebarHTML .= '
         <li class="liSidebar">
           <a href="#multiNivelCollapse1" data-bs-toggle="collapse" aria-expanded="false" class="aSubSidebar">
@@ -394,12 +285,6 @@ class componentesModelo extends conexion {
         <nav>
           <ul class="sidebar-menu list-unstyled px-0">
             ' . $sidebarHTML . '
-            <li class="liSidebar">
-              <a href="assets/manual_de_usuario.pdf" target="blank" class="aSidebar">
-                <i class="fi fi-rr-info"></i>
-                <span>Ayuda</span>
-              </a>
-            </li>
             <li class="sidebar-divider"></li>
             <li class="liSidebar">
               <a class="logout-btn btnCerrarSession" href="#" class="aSidebar">

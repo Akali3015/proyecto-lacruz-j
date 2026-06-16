@@ -25,6 +25,11 @@ $(document).on('DOMContentLoaded', async function (e) {
     },
     campoIdBtn: 'id_ruta',
     botones: 'CRUD',
+    infoTratoEspecial:{
+      precio_ruta:(info)=>{ return info.valor +'$/Km'},
+      minimo_km_ruta:(info)=>{ return info.valor +' Km'},
+      maximo_km_ruta:(info)=>{ return info.valor +' Km'},
+    }
   });
   driverAyuda('rutas', {
     pasos:
@@ -103,7 +108,9 @@ $(document).on('click', '.botonEditar', async function (e) {
     campoId: 'id_ruta',
     modulo: 'rutas',
   });
-  cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
+  let form=$($(this).attr('data-bs-target')).find('form');
+  cargarInputsActualizarQNR.call(form);
+  form.find('.dineroPositivo').trigger('input')
 });
 
 //Evento para validar en tiempo real

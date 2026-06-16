@@ -1,6 +1,5 @@
 <?php
 
-
 use src\controladores\frontController;
 use src\config\connect\errorBD;
 

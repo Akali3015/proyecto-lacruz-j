@@ -28,7 +28,7 @@ class ordenesServiciosModelo extends conexion
                     "minimo" => minRegexId,
                     "maximo" => maxRegexId,
                     "expresion_re" => regexId,
-                    "tabla" => "servicios_facturas",
+                    "tabla" => "servicios_ordenes_entregas_presupuestos",
                     "debeExistir" => true,
                 ],
                 'status' => [
@@ -114,7 +114,7 @@ class ordenesServiciosModelo extends conexion
                     ELSE s.precio_servicio
                 END as precio_real
             ',
-            'tabla' => 'servicios_facturas as sf',
+            'tabla' => 'servicios_ordenes_entregas_presupuestos as sf',
             'datosJoins' => [
                 'servicios as s' => 'sf.id_servicio = s.id_servicio',
                 'facturas as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
@@ -181,7 +181,7 @@ class ordenesServiciosModelo extends conexion
                 ru.minimo_km_ruta,
                 ru.maximo_km_ruta
             ',
-            'tabla' => 'servicios_facturas as sf',
+            'tabla' => 'servicios_ordenes_entregas_presupuestos as sf',
             'datosJoins' => [
                 'servicios as s' => 'sf.id_servicio = s.id_servicio',
                 'facturas as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
@@ -366,7 +366,7 @@ class ordenesServiciosModelo extends conexion
         }
         
         $resultado = $this->actualizarDatos2([
-            'tabla' => 'servicios_facturas',
+            'tabla' => 'servicios_ordenes_entregas_presupuestos',
             'datos' => $datosActualizar,
             'WHERE' => ['id_servicio_factura' => $this->idOrdenServicio]
         ]);

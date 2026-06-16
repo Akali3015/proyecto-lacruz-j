@@ -448,3 +448,192 @@ class pdfModel extends FPDF {
     return $this;
   }
 }
+/* class PDF extends FPDF {
+  // Cabecera del documento (Logo, Nombre de empresa y Título del documento)
+  function Header() {
+    // Cuadro exterior superior (Opcional, para delimitar la zona superior si se desea)
+    $this->Rect(10, 10, 190, 25);
+
+    // Logo de la empresa (Reemplazar 'logo.png' por tu archivo real)
+    // $this->Image('logo.png', 12, 12, 20); 
+
+    // Simulación de logo con texto en caso de no tener imagen
+    $this->SetFont('Arial', 'B', 16);
+    $this->SetTextColor(12, 35, 114); // Color azul del logo
+    $this->Text(15, 25, 'eF');
+
+    // Datos de la Empresa (Izquierda)
+    $this->SetFont('Arial', '', 7);
+    $this->SetTextColor(0);
+    $this->SetXY(35, 12);
+    $this->Cell(70, 3, 'eFactory Software ERP en la Nube', 0, 1);
+    $this->SetX(35);
+    $this->Cell(70, 3, 'R.I.F.: J-0102030405-9', 0, 1);
+    $this->SetX(35);
+    $this->Cell(70, 3, 'Direccion: 10470 NW 26 Street, Doral, Florida 33172, USA.', 0, 1);
+    $this->SetX(35);
+    $this->Cell(70, 3, 'Telefonos: 0241-8963254', 0, 1);
+
+    // Bloque de la Nota de Entrega (Derecha)
+    $this->SetXY(115, 11);
+    $this->SetFont('Arial', 'B', 12);
+    $this->Cell(80, 5, 'NOTA DE ENTREGA', 0, 1, 'C');
+
+    $this->SetFont('Arial', '', 7);
+    $this->SetX(115);
+    $this->Cell(40, 3.5, 'Fecha Impresion:', 0, 0);
+    $this->Cell(40, 3.5, '07/06/2021', 0, 1, 'R');
+    $this->SetX(115);
+    $this->Cell(40, 3.5, 'Hora Impresion:', 0, 0);
+    $this->Cell(40, 3.5, '04:49:00 p.m.', 0, 1, 'R');
+    $this->SetX(115);
+    $this->Cell(40, 3.5, 'Fecha Emision:', 0, 0);
+    $this->Cell(40, 3.5, '10/03/2021', 0, 1, 'R');
+
+    // Número de Entrega con recuadro
+    $this->SetXY(115, 26);
+    $this->Cell(35, 6, 'Entrega Numero:', 1, 0, 'C');
+    $this->SetFont('Arial', 'B', 9);
+    $this->Cell(45, 6, '0000000001', 1, 1, 'C');
+
+    $this->Ln(5);
+  }
+
+  // Pie de página con el enlace del sistema
+  function Footer() {
+    $this->SetY(-15);
+    $this->SetFont('Arial', '', 7);
+    $this->Cell(95, 10, 'https://efactoryerp.com', 0, 0, 'L');
+    $this->Cell(95, 10, 'eFactory Administrativo - Garmi : JJT : fNEntregas_Clientes.aspx', 0, 0, 'R');
+  }
+
+  public function notaEntrega() {
+    // Inicializar el objeto PDF (Formato Carta / Letter)
+    $pdf = new PDF('P', 'mm', 'Letter');
+    $pdf->SetMargins(10, 10, 10);
+    $pdf->AddPage();
+
+    // --- SECCIÓN: DATOS DEL CLIENTE ---
+    $pdf->Rect(10, 40, 190, 25); // Cuadro contenedor de cliente
+    $pdf->SetFont('Arial', '', 8);
+
+    $pdf->SetXY(12, 42);
+    $pdf->Cell(20, 4, 'Cliente:', 0, 0);
+    $pdf->SetFont('Arial', 'B', 8);
+    $pdf->Cell(40, 4, '1118', 0, 0);
+    $pdf->Cell(60, 4, 'Cliente 1118', 0, 1);
+
+    $pdf->SetX(12);
+    $pdf->SetFont('Arial', '', 8);
+    $pdf->Cell(20, 4, 'R.I.F.:', 0, 0);
+    $pdf->Cell(40, 4, 'El RIF', 0, 0);
+    $pdf->Cell(15, 4, 'N.I.T.:', 0, 0);
+    $pdf->Cell(40, 4, 'El NIT', 0, 1);
+
+    $pdf->SetX(12);
+    $pdf->Cell(20, 4, 'Direccion:', 0, 0);
+    $pdf->Cell(160, 4, 'La Direccion, Calle, Avenida, CC, Oficina', 0, 1);
+
+    $pdf->SetX(12);
+    $pdf->Cell(20, 4, 'Telefonos:', 0, 0);
+    $pdf->Cell(80, 4, 'Numero Telf', 0, 0);
+    $pdf->Cell(15, 4, 'FAX:', 0, 0);
+    $pdf->Cell(65, 4, '', 0, 1);
+
+    // --- SECCIÓN: CONDICIONES DE PAGO ---
+    $pdf->SetY(66);
+    $pdf->Cell(30, 5, 'Condicion de Pago:', 'B', 0);
+    $pdf->SetFont('Arial', 'B', 8);
+    $pdf->Cell(40, 5, 'CONTADO', 'B', 0);
+    $pdf->SetFont('Arial', '', 8);
+    $pdf->Cell(20, 5, 'Vencimiento:', 'B', 0);
+    $pdf->Cell(30, 5, '10/03/2021', 'B', 0);
+    $pdf->Cell(15, 5, 'Asesor:', 'B', 0);
+    $pdf->Cell(55, 5, 'Vendedor JLRondon', 'B', 1);
+
+    $pdf->Ln(4);
+
+    // --- SECCIÓN: TABLA DE ARTÍCULOS ---
+    // Definición de anchos de columna para consistencia total
+    $w = array(20, 55, 20, 20, 20, 15, 15, 25);
+    $headers = array('Código', 'Descripción', 'Unidad', 'Cantidad', 'Precio Unit.', '% Des', '% Imp', 'Total');
+
+    // Encabezados de la tabla
+    $pdf->SetFont('Arial', 'B', 8);
+    for ($i = 0; $i < count($headers); $i++) {
+      // Centrar o alinear a la derecha según el tipo de dato
+      $align = ($i >= 3) ? 'R' : 'L';
+      $pdf->Cell($w[$i], 5, utf8_decode($headers[$i]), 'B', 0, $align);
+    }
+    $pdf->Ln(6);
+
+    // Datos de prueba basados en tu imagen
+    $articulos = [
+      ['PT001305', 'Descripción del Artículo PT001305', 'CAJ24*200', '10,00', '27,30', '5,00', '16,00', '259,35'],
+      ['PT001618', 'Descripción del Artículo PT001618', 'CAJ24*300', '10,00', '27,50', '10,00', '16,00', '247,50'],
+      ['PT001627', 'Descripción del Artículo PT001627', 'CAJ24*300', '10,00', '26,43', '5,00', '16,00', '251,08'],
+      ['PT001636', 'Descripción del Artículo PT001636', 'CAJ24*300', '10,00', '29,30', '5,00', '16,00', '278,35'],
+      ['PT001665', 'Descripción del Artículo PT001665', 'CAJ24*300', '10,00', '29,87', '3,00', '16,00', '289,74']
+    ];
+
+    $pdf->SetFont('Arial', '', 7.5);
+    foreach ($articulos as $row) {
+      $pdf->Cell($w[0], 5, $row[0], 0, 0, 'L');
+      $pdf->Cell($w[1], 5, utf8_decode($row[1]), 0, 0, 'L');
+      $pdf->Cell($w[2], 5, $row[2], 0, 0, 'L');
+      $pdf->Cell($w[3], 5, $row[3], 0, 0, 'R');
+      $pdf->Cell($w[4], 5, $row[4], 0, 0, 'R');
+      $pdf->Cell($w[5], 5, $row[5], 0, 0, 'R');
+      $pdf->Cell($w[6], 5, $row[6], 0, 0, 'R');
+      $pdf->Cell($w[7], 5, $row[7], 0, 1, 'R');
+    }
+
+    // --- SECCIÓN: ABAJO (OBSERVACIONES Y TOTALES) ---
+    // Forzamos posición en la parte inferior de la página para que coincida con el diseño
+    $pdf->SetY(225);
+
+    // Cuadro de Observaciones (Izquierda)
+    $pdf->Rect(10, 225, 105, 25);
+    $pdf->SetXY(12, 227);
+    $pdf->SetFont('Arial', 'B', 8);
+    $pdf->Cell(30, 4, 'Observaciones:', 0, 1);
+
+    // Cuadro de Totales (Derecha)
+    $pdf->Rect(120, 225, 80, 25);
+    $pdf->SetXY(122, 226);
+    $pdf->SetFont('Arial', '', 8);
+
+    // Subtotal
+    $pdf->Cell(40, 4.5, 'Subtotal:', 0, 0);
+    $pdf->Cell(36, 4.5, '1.326,02', 0, 1, 'R');
+
+    // Descuentos
+    $pdf->SetX(122);
+    $pdf->Cell(20, 4.5, 'Descuentos:', 0, 0);
+    $pdf->Cell(15, 4.5, '0,00  %', 0, 0, 'R');
+    $pdf->Cell(41, 4.5, '0,00', 0, 1, 'R');
+
+    // Recargos
+    $pdf->SetX(122);
+    $pdf->Cell(20, 4.5, 'Recargos:', 0, 0);
+    $pdf->Cell(15, 4.5, '0,00  %', 0, 0, 'R');
+    $pdf->Cell(41, 4.5, '0,00', 0, 1, 'R');
+
+    // I.V.A.
+    $pdf->SetX(122);
+    $pdf->Cell(20, 4.5, 'I.V.A.:', 0, 0);
+    $pdf->Cell(15, 4.5, '( 16,00%)', 0, 0, 'R');
+    $pdf->Cell(41, 4.5, '212,16', 0, 1, 'R');
+
+    // Línea divisoria antes del total absoluto
+    $pdf->Line(120, 248, 200, 248);
+
+    // TOTAL final
+    $pdf->SetXY(122, 248.5);
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->Cell(40, 5, 'TOTAL:', 0, 0);
+    $pdf->Cell(36, 5, '1.538,18', 0, 1, 'R');
+
+    return $pdf;
+  }
+} */

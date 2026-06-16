@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
       $resultado = $objeto->asignarRepartidoresPedidos($_POST);
       break;
     case 'cambiarEstado':
-      $resultado = $objeto->actualizarPedido($_POST);
+      $resultado = $objeto->actualizarPedidos($_POST);
       break;
   }
   $objeto->DECORE($resultado);

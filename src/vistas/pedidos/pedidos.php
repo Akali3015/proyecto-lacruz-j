@@ -434,7 +434,7 @@
                       <div class="me-3 text-success" style="font-size: 2rem;"><i class="fi fi-rr-money-bill-wave"></i></div>
                       <div>
                         <h6 class="mb-0 text-muted">Precio de la Ruta</h6>
-                        <h5 class="mb-0 tap_precio_ruta">$ 5.00</h5>
+                        <h5 class="mb-0 tap_precio_ruta_factura">$ 5.00</h5>
                       </div>
                     </div>
                   </div>
@@ -443,7 +443,7 @@
                       <div class="me-3 text-success" style="font-size: 2rem;"><i class="fi fi-rr-money-bill-wave"></i></div>
                       <div>
                         <h6 class="mb-0 text-muted">Total Envío</h6>
-                        <h5 class="mb-0 tap_total_envio">$ 5.00</h5>
+                        <h5 class="mb-0 tap_totalEnvio">$ 5.00</h5>
                       </div>
                     </div>
                   </div>

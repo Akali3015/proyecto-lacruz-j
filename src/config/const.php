@@ -76,7 +76,7 @@ const regexPrecio = '^\d{1,20}(?:[.,]\d{1,3})?$';
 const minRegexPrecio = '1';
 const maxRegexPrecio = '20';
 
-const regexPrecioFront = '^\d{1,3}(\.\d{3})*(,\d{1,2})?$';
+const regexPrecioFront = '^\d{1,3}(\.\d{3})*([,.]\d{1,2})?$';
 const minRegexPrecioFront = '1';
 const maxRegexPrecioFront = '20';
 

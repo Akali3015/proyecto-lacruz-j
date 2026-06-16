@@ -32,7 +32,7 @@ class accesosModelo extends conexion {
         ]
       ]);
       if ($respuesta !== false) return $respuesta;
-    }else{
+    } else {
       $objRoles = new rolesModelo();
       $this->idRol = $objRoles->seleccionarRoles()[0]['id_rol'];
     }
@@ -234,7 +234,7 @@ class accesosModelo extends conexion {
       'WHERE' => [
         "id_rol" => $this->idRol,
       ],
-    ])->fetchAll(); 
+    ])->fetchAll();
 
     // INDEXACIÓN PARA LA BUSQUEDA DE PERMISOS SI ESTÁN O NO HABILITADOS PARA EL ROL
     $permisosRolIndexados = [];
@@ -332,7 +332,8 @@ class accesosModelo extends conexion {
         'cancelar pedidos',
         'despachar pedidos',
         'ver pedidos propios',
-        'ver pedidos de los clientes'
+        'ver pedidos de los clientes',
+        'imprimir pedidos',
       ]
     ];
     $permisosEspecialesRol = [];

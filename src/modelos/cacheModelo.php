@@ -31,7 +31,7 @@ class cacheModelo extends conexion {
       $this->liberarMutex();
     }
   }
-  public function setItem(string $clave, array|string $valor) {
+  public function setItem(array|string $clave, array|string $valor) {
     $hash = $this->hashearClave($clave);
     try {
       $this->archivoBloqueo = $hash['archivoMutex'];
