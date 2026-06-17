@@ -23,6 +23,7 @@ trait traitModelo {
   private cacheModelo|null $objCache = null;
   protected array $imgTrans = [];
   private ?conexion $objetoBD = null;
+  private array $cacheVal = [];
 
   public function limpiarCadena(string $cadena, $modo = 'antiSQLInyection') {
     $palabras = [];
@@ -335,6 +336,262 @@ trait traitModelo {
             if ($resultado) return $resultado;
           }
         }
+      }
+    }
+    return false;
+  }
+  public function limpiarValidar(mixed &$valor, array $esquema, ?array $config = []) {
+    $direccion =  isset($config['direccion']) ? $config['direccion'] : $direccion = ['raiz'];
+    $fAlerta = function (array $esquema, string $reglaIncumplida, array $dirFinal) {
+      $titulo = '';
+      $texto = '';
+      switch ($reglaIncumplida) {
+        case 'tipo':
+          $titulo = 'Tipo de dato invalido';
+          $texto = 'El tipo de dato enviado en el campo de ' . $esquema['nombreAlerta'] . ' no es válido';
+          break;
+        case 'requerido':
+          $titulo = 'Campo obligatorio';
+          $texto = 'El valor del campo de ' . $esquema['nombreAlerta'] . ' es obligatorio';
+          break;
+        case 'minL':
+          $titulo = 'Valor muy corto';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' debe tener al menos ' . $esquema['minL'] . ' carácteres de longitud';
+          break;
+        case 'maxL':
+          $titulo = 'Valor muy largo';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' debe tener máximo ' . $esquema['maxL'] . ' carácteres de longitud';
+          break;
+        case 'regex':
+          $titulo = 'Formato inválido';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' no coincide con el formato establecido';
+          break;
+        case 'debeSerUnicoBD':
+          $titulo = 'Valor repetido';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' ya se encuentra registrado en la base de datos, por favor elija otro';
+          break;
+        case 'debeExistirBD':
+          $titulo = 'Valor inexistente';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' no se encuentra registrado en la base de datos';
+          break;
+        case 'menorA':
+          $titulo = 'Valor inferior al mínimo';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' no alacanza el mínimo establecido';
+          break;
+        case 'mayorA':
+          $titulo = 'Valor superior al máximo';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' supera el máximo establecido';
+          break;
+        case 'direferenteA':
+          $titulo = 'Valor inválido';
+          $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' debe ser diferente';
+          break;
+        case 'igualA':
+          $titulo = "Desigualdad de valores";
+          $texto = "El valor de los campos de " . $esquema['nombreAlerta'] . " deben ser iguales, verifique e intente nuevamente";
+          break;
+        case 'sinTablaBD':
+        case 'sinNormbreBD':
+        case 'sinClaveUnicaBD':
+        case 'sinValorUnicoBD':
+          $titulo = "Error interno";
+          $texto = "Ha ocurrido un error debido a la falta de una configuracion en las validaciones del campo " . $esquema['nombreAlerta'] . " que se viculan a la interacion con la Base de Datos: " . $reglaIncumplida;
+          break;
+        default:
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Regla desconocida',
+            'texto' => 'No se reconoce la regla de validacion',
+            'icono' => 'error',
+            'direccion' => $dirFinal
+          ];
+      }
+      return [
+        'tipo' => 'simple',
+        'titulo' => $titulo,
+        'texto' => $texto,
+        'icono' => 'error',
+        'direccion' => $dirFinal
+      ];
+    };
+
+    // Tipo de dato
+    switch ($esquema['tipo']) {
+      case 'boolean':
+
+        if (!is_bool($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        break;
+      case 'int':
+        if (!is_int($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        break;
+      case 'float':
+        if (!is_float($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        break;
+      case 'string':
+        if (!is_string($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        $valor = $this->limpiarCadena($valor);
+        break;
+      case 'array':
+        if (!is_array($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        foreach ($valor as $item) {
+          $direccionNu = [...$direccion, 'array'];
+          $r = $this->limpiarValidar($item, $esquema['items'], $direccionNu);
+          if ($r) return $r;
+        }
+        break;
+      case 'arrayA':
+        if (!is_array($valor)) return $fAlerta($esquema, 'tipo', $direccion);
+        $valorCampoUnico = isset($esquema['campoUnicoBD']) ? [$esquema['campoUnicoBD'], ($valor[$esquema['campoUnicoBD']] ?? false)] : false;
+        foreach ($esquema['propiedades'] as $propiedad => $esquemaInd) {
+          $direccionNu = [...$direccion, $propiedad];
+          if (!isset($valor[$propiedad]) && in_array($propiedad, $esquema['requerido'])) {
+            return $fAlerta($esquemaInd, 'requerido', $direccionNu);
+          } elseif (isset($valor[$propiedad])) {
+            $validacion = $this->limpiarValidar($valor[$propiedad], $esquemaInd, [
+              'direccion' => $direccionNu,
+              'valorCampoUnico' => $valorCampoUnico
+            ]);
+            if ($validacion) return $validacion;
+          }
+        }
+        break;
+      default:
+        return $fAlerta([], 'none', $direccion);
+    }
+
+    // Formateo
+    if (isset($esquema['cFloat']) && $valor != '') {
+      $valor = str_replace('.', '', $valor);
+      $valor = str_replace(',', '.', $valor);
+      $valor = (float)$valor;
+    }
+    if (isset($esquema['cMayusculas']) && $valor != '') {
+      $valor = strtoupper($valor);
+    }
+    if (isset($esquema['cMinuculas']) && $valor != '') {
+      $valor = strtolower($valor);
+    }
+
+    // Minimo y máximo de caracteres
+    if (isset($esquema['minL']) && $valor != "" && mb_strlen($valor) < $esquema['minL']) {
+      return $fAlerta($esquema, 'minL', $direccion);
+    }
+    if (isset($esquema['maxL']) && $valor != "" && mb_strlen($valor) > $esquema['maxL']) {
+      return $fAlerta($esquema, 'maxL', $direccion);
+    }
+
+    // Formato
+    if (isset($esquema['regex']) && $valor != "" && !preg_match("/" . $esquema['regex'] . "/", $valor)) {
+      return $fAlerta($esquema, 'regex', $direccion);
+    }
+
+    // Existencia y unicidad en la BD
+    if (isset($esquema['debeExistirBD']) || isset($esquema['debeSerUnicoBD'])) {
+      // Alertas mata tontos
+      if (!isset($esquema['tablaBD'])) return $fAlerta($esquema, 'sinTablaBD', $direccion);
+      if (!isset($esquema['nombreBD'])) return $fAlerta($esquema, 'sinNombreBD', $direccion);
+
+      // Obtener la conexion si se requiere
+      if ($this->objetoBD == null) $this->objetoBD = new conexion;
+      if (isset($config['valorCampoUnico'])) {
+        $claveUnicaBD = ($config['valorCampoUnico'][0] ?? '');
+        $valorUnicoBD = ($config['valorCampoUnico'][1] ?? '');
+      }
+
+      /* Escenarios
+        1- id normal que es autoincrement (registrar/actualizar); (los dos y como no se envia al registrar fino)
+        2- id fijo que no es autoincrement (registrar/actualizar); (se le quita el de debeExistir en la actualizacion)
+        3- campo unico fijo (telefono) (registrar/actualizar); (igual se le quita en el registrar para que pasen con ambos y vea que son el mismo id)
+      */
+
+
+      $resultado = [];
+      if (!isset($this->cacheVal[$esquema['tablaBD']])) $this->cacheVal[$esquema['tablaBD']] = [];
+      foreach ($this->cacheVal[$esquema['tablaBD']] as $registro) {
+        if ($registro['resultado'][$esquema['nombreBD']] == $valor) {
+          $resultado = $registro;
+          break;
+        }
+      }
+      $esAct = $valorUnicoBD != '' ? true : false;
+      if ($resultado == []) {
+        $r = $this->objetoBD->seleccionarDatos2([
+          'campos' => '*',
+          'tabla' =>  $esquema['tablaBD'],
+          'BD' => ($esquema['BD'] ?? NULL),
+          'WHERE' => [$esquema['nombreBD'] => $valor],
+          'LIMIT' => '1'
+        ]);
+        if (!isset($this->cacheVal[$esquema['tablaBD']])) {
+          $this->cacheVal[$esquema['tablaBD']] = [];
+        }
+        $resultado = $this->cacheVal[$esquema['tablaBD']][] = [
+          'resultado' => $r->fetch(),
+          'count' => $r->count(),
+        ];
+      }
+
+      if (!$esAct) {
+        if (isset($esquema['debeSerUnicoBD']) && !empty($resultado)) {
+          return $fAlerta($esquema, 'debeSerUnicoBD', $direccion);
+        }
+        if (isset($esquema['debeExistirBD']) && empty($resultado)) {
+          return $fAlerta($esquema, 'debeExistirBD', $direccion);
+        }
+      }
+
+      //Registrar un dato en otra tabla
+      if (isset($esquema['debeExistirBD']) &&  empty($resultado)) {
+        return $fAlerta($esquema, 'debeExistirBD', $direccion);
+      }
+      //Registrar un dato nuevo 
+      if (isset($esquema['debeSerUnicoBD'])) {
+        return [$esAct, $resultado[$claveUnicaBD], $valorUnicoBD];
+        if (($esAct && $resultado[$claveUnicaBD] != $valorUnicoBD && $resultado[$esquema['nombreBD']] == $valor)) {
+          return $fAlerta($esquema, 'debeSerUnicoBD', $direccion);
+        } else {
+          if ($resultado[$esquema['nombreBD']] == $valor) {
+            return $fAlerta($esquema, 'debeSerUnicoBD', $direccion);
+          }
+        }
+        return 'h';
+      }
+
+      //Actualizar un dato existente que al ser actualizado no debe ser igual al de otros registros
+      if (isset($esquema['debeExistirBD']) && isset($esquema['debeSerUnicoBD'])) {
+        //Trampa para tontos
+        if ($claveUnicaBD == '') return $fAlerta($esquema, 'sinClaveUnicaBD', $direccion);
+        if ($valorUnicoBD == '') return $fAlerta($esquema, 'sinValorUnicoBD', $direccion);
+        if ($esAct) {
+          //Verficamos que la primary key sea distinta, tan solo asi se dira que es otro registro que ya tiene ese dato
+          if ($resultado[$claveUnicaBD] != $valorUnicoBD) {
+            if ($resultado[$esquema['nombreBD']] == $valor) {
+              return $fAlerta($esquema, 'debeSerUnicoBD', $direccion);
+            }
+          }
+        } else {
+          if ($resultado[$esquema['nombreBD']] == $valor) {
+            return $fAlerta($esquema, 'debeSerUnicoBD', $direccion);
+          }
+        }
+      }
+    }
+
+    return [$resultado];
+
+    // Comparacion
+    if (isset($esquema['menorA']) && $valor < $esquema['menorA']) return $fAlerta($esquema, 'menorA', $direccion);
+    if (isset($esquema['mayorA']) && $valor > $esquema['mayorA']) return $fAlerta($esquema, 'mayorA', $direccion);
+    if (isset($esquema['igualA']) && $valor != $esquema['igualA']) return $fAlerta($esquema, 'igualA', $direccion);
+    if (isset($esquema['diferenteA'])) {
+      if (is_array($esquema['diferenteA'])) {
+        foreach ($esquema['diferenteA'] as $diferente) {
+          if ($valor == $diferente) {
+            return $fAlerta($esquema, 'diferenteA', $direccion);
+          }
+        }
+      } elseif ($valor == $esquema['diferenteA']) {
+        return $fAlerta($esquema, 'diferenteA', $direccion);
       }
     }
     return false;

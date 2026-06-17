@@ -1215,7 +1215,7 @@ export async function obtenerDatosRegistro(instrucciones) {
 
 //#region [ PARA HACER PETICIONES AJAX ] COMIENZO
 export async function pedirDatosAjax(instrucciones) {
-  const caching = true;
+  const caching = false;
 
   let {
     datosPe = {},
