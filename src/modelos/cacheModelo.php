@@ -14,6 +14,7 @@ class cacheModelo extends conexion {
   public function __construct() {
     CacheManager::setDefaultConfig(new ConfigurationOption([
       'path' => 'src/config/connect/cache',
+      'defaultTtl' => 60 * 60 * 24 * 365 * 1,
     ]));
     $this->objCache = CacheManager::getInstance('files');
   }

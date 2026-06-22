@@ -2,7 +2,7 @@
 
 use src\modelos\reportesModelo;
 use src\config\inc\componentesModelo;
-
+use src\modelos\PDF;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   $reporte = $_POST["reporte"] ?? '';

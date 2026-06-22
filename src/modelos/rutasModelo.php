@@ -162,7 +162,6 @@ class rutasModelo extends conexion {
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
   private function seleccionarRutasP(array $info) {
-    $ruta = [];
     if ($this->idRuta == null || $this->idRuta == "") {
       switch ($info['tipoConsulta'] ?? '') {
         case 'porKm':
@@ -249,7 +248,9 @@ class rutasModelo extends conexion {
       ]
     ]);
     if ($resultado == false || $resultado <= 0) return $alertaError();
-    $objBitacora->registrarBitacora('rutas', 'registrar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('rutas', 'registrar', 'éxito');
+    if (($rb['icono'] ?? '') == 'error') return $rb;
+
     $this->commit();
     return   [
       "tipo" => "limpiarYcerrar",
@@ -283,7 +284,8 @@ class rutasModelo extends conexion {
       ]
     ]);
     if ($resultado == false || $resultado <= 0) return $alertaError();
-    $objBitacora->registrarBitacora('rutas', 'actualizar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('rutas', 'actualizar', 'éxito');
+    if (($rb['icono'] ?? '') == 'error') return $rb;
     $this->commit();;
     return  [
       "tipo" => "limpiarYcerrar",
@@ -309,7 +311,9 @@ class rutasModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $objBitacora->registrarBitacora('rutas', 'eliminar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('rutas', 'eliminar', 'éxito');
+    if (($rb['icono'] ?? '') == 'error') return $rb;
+
     $this->commit();
     return [
       "tipo" => "simple",

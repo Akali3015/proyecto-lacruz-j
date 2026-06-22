@@ -117,7 +117,7 @@ class ordenesServiciosModelo extends conexion
             'tabla' => 'servicios_ordenes_entregas_presupuestos as sf',
             'datosJoins' => [
                 'servicios as s' => 'sf.id_servicio = s.id_servicio',
-                'facturas as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
+                'ordenes_entregas_presupuestos as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
                 'clientes as cl' => 'fa.rif_cedula_cliente = cl.rif_cedula_cliente',
                 'direcciones as di' => 'sf.id_direccion = di.id_direccion',
                 'latitudes_direcciones as latd' => 'di.id_latitud_direccion = latd.id_latitud_direccion',
@@ -184,7 +184,7 @@ class ordenesServiciosModelo extends conexion
             'tabla' => 'servicios_ordenes_entregas_presupuestos as sf',
             'datosJoins' => [
                 'servicios as s' => 'sf.id_servicio = s.id_servicio',
-                'facturas as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
+                'ordenes_entregas_presupuestos as fa' => 'sf.id_orden_entrega_presupuesto = fa.id_orden_entrega_presupuesto',
                 'clientes as cl' => 'fa.rif_cedula_cliente = cl.rif_cedula_cliente',
                 'direcciones as di' => 'sf.id_direccion = di.id_direccion',
                 'latitudes_direcciones as latd' => 'di.id_latitud_direccion = latd.id_latitud_direccion',
@@ -251,9 +251,9 @@ class ordenesServiciosModelo extends conexion
     private function actualizarOrdenServicioP()
     {
         $objBitacora = new bitacoraModelo();
-        $error = function () use ($objBitacora) {
+        $error = function ($datosError = null) use ($objBitacora) {
             $this->rollback();
-            $objBitacora->registrarBitacora('ordenesServicios', 'actualizar', 'Fallido', true);
+            $objBitacora->registrarBitacora('ordenesServicios', 'actualizar', 'Fallido', $datosError, true);
         };
 
         $ordenActual = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
@@ -272,6 +272,7 @@ class ordenesServiciosModelo extends conexion
         ];
 
         if (!in_array($this->nuevoStatus, $transicionesPermitidas[$statusAnterior] ?? [])) {
+            $error(['status_anterior' => $statusAnterior, 'status_nuevo' => $this->nuevoStatus, 'error' => 'Transición no permitida']);
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Transición no permitida',
@@ -283,6 +284,7 @@ class ordenesServiciosModelo extends conexion
         $permitirCambioFecha = ($this->nuevoStatus == 1);
         
         if ($this->nuevaFechaEjecucion != '' && !$permitirCambioFecha) {
+            $error(['status_nuevo' => $this->nuevoStatus, 'intento_cambiar_fecha' => $this->nuevaFechaEjecucion, 'error' => 'No se puede cambiar fecha en este estado']);
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Acción no permitida',
@@ -290,6 +292,13 @@ class ordenesServiciosModelo extends conexion
                 'icono' => 'warning'
             ];
         }
+
+        $detallesOperacion = [
+            'status_anterior' => $statusAnterior,
+            'status_nuevo' => $this->nuevoStatus,
+            'fecha_ejecucion_anterior' => $ordenActual['fecha_ejecucion'],
+            'fecha_ejecucion_nueva' => $this->nuevaFechaEjecucion ?? $ordenActual['fecha_ejecucion'],
+        ];
 
         if ($this->nuevoStatus == 4 && $statusAnterior != 4) {
             foreach ($this->productosAsociados as $producto) {
@@ -307,7 +316,7 @@ class ordenesServiciosModelo extends conexion
                 ]);
                 
                 if ($resultado === false || $resultado <= 0) {
-                    $error();
+                    $error($detallesOperacion);
                     return [
                         'tipo' => 'simple',
                         'titulo' => 'Error al devolver stock',
@@ -330,25 +339,28 @@ class ordenesServiciosModelo extends conexion
             }
             
             if (!empty($faltantes)) {
-                $error();
+                $detallesOperacion['error'] = 'Stock insuficiente: ' . implode(', ', $faltantes);
+                $error($detallesOperacion);
                 return [
                     'tipo' => 'simple',
                     'titulo' => 'Stock insuficiente',
-                    'texto' => 'Error: stock insuficiente',
+                    'texto' => 'Error: stock insuficiente: ' . implode(', ', $faltantes),
                     'icono' => 'warning'
                 ];
             }
             
             foreach ($this->productosAsociados as $producto) {
                 $cantidadADescontar = $producto['cantidad_producto'] * $cantidadServicio;
+                $stockActual = $producto['stock_producto'];
+                
                 $resultado = $this->actualizarDatos2([
                     'tabla' => 'productos',
-                    'datos' => ['stock_producto' => $producto['stock_producto'] - $cantidadADescontar],
+                    'datos' => ['stock_producto' => $stockActual - $cantidadADescontar],
                     'WHERE' => ['id_producto' => $producto['id_producto']]
                 ]);
                 
                 if ($resultado === false || $resultado <= 0) {
-                    $error();
+                    $error($detallesOperacion);
                     return [
                         'tipo' => 'simple',
                         'titulo' => 'Error al descontar stock',
@@ -372,7 +384,7 @@ class ordenesServiciosModelo extends conexion
         ]);
 
         if ($resultado === false || $resultado <= 0) {
-            $error();
+            $error($detallesOperacion);
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Error al actualizar',
@@ -382,6 +394,12 @@ class ordenesServiciosModelo extends conexion
         }
         
         $estadosTexto = [1 => 'Pendiente', 2 => 'Ejecutada', 3 => 'Retrasada', 4 => 'Cancelada'];
+        
+        $detallesOperacion['fecha_actualizacion'] = date('Y-m-d H:i:s');
+        $detallesOperacion['estado_anterior_texto'] = $estadosTexto[$statusAnterior] ?? 'Desconocido';
+        $detallesOperacion['estado_nuevo_texto'] = $estadosTexto[$this->nuevoStatus] ?? 'Desconocido';
+        
+        $objBitacora->registrarBitacora('ordenesServicios', 'Actualización del estado de la orden de servicio', 'Éxito', $detallesOperacion, true );
         
         $objMensajesWS = new mensajesWSModelo();
         $objMensajesWS->enviarMensajesWS([
@@ -397,12 +415,13 @@ class ordenesServiciosModelo extends conexion
                 [
                     'accion' => 'alertar', 
                     'alerta' => [
-                    'tipo' => 'simple',
-                    'titulo' => 'Ordenes de servicio ',
-                    'texto' => 'Una orden de servicio ha sido actualizada',
-                    'icono' => 'info',
-                    'notifier' => true,
-                ]],
+                        'tipo' => 'simple',
+                        'titulo' => 'Orden de servicio',
+                        'texto' => 'La orden #' . $this->idOrdenServicio . ' ha sido ' . ($estadosTexto[$this->nuevoStatus] ?? 'actualizada'),
+                        'icono' => 'info',
+                        'notifier' => true,
+                    ]
+                ],
                 [
                     'accion' => "actDT", 
                     'modulo' => 'ordenesServicios'
@@ -411,7 +430,6 @@ class ordenesServiciosModelo extends conexion
             'noCommit' => true
         ]);
 
-        $objBitacora->registrarBitacora('ordenesServicios', 'actualizar', 'Éxito');
         $this->commit();
         
         $mensajeExito = '';

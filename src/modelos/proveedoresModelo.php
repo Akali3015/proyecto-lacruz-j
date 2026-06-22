@@ -187,13 +187,15 @@ class proveedoresModelo extends conexion {
     return $this->actualizarProveedoresP();
   }
   public function eliminarProveedores(array $info) {
-    $resultado = $this->validarProveedores([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'rif_proveedor_act' => 'rif_proveedor',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+    if (empty ($info['rif_proveedor'])) { 
+      return [
+      'tipo' => 'simple',
+      'titulo' => 'error',
+      'texto' => 'No se ha proporcionado el RIF del proveedor a eliminar',
+      'icono' => 'error'
+      ];
+    }
+
     $this->rifProveedor = $info['rif_proveedor'];
 
     return $this->eliminarProveedoresP();
@@ -257,58 +259,20 @@ class proveedoresModelo extends conexion {
     return $alerta;
   }
   private function actualizarProveedoresP() {
-    $resultado = $this->seleccionarDatos2([
-      "campos" => "rif_proveedor",
-      "tabla" => "proveedores",
-      'WHERE' => [
-        "rif_proveedor" => $this->rifProveedor,
-      ]
-    ]);
-    $proveedoresExistente = $resultado->fetch();
-
-    if ($this->rifProveedor == '') {
-      $this->rifProveedor = $proveedoresExistente['rif_proveedor'];
-    }
-
     $resultado = $this->actualizarDatos2([
       "tabla" => "proveedores",
       "datos" => [
-        [
-          "campo_nombre" => "rif_proveedor",
-          "campo_marcador" => ":RIF",
-          "campo_valor" => $this->rifProveedor
-        ],
-        [
-          "campo_nombre" => "razon_social_proveedor",
-          "campo_marcador" => ":razon_social",
-          "campo_valor" => $this->razonSocialProveedor,
-          "ponerEnMayusculas" => true
-        ],
-        [
-          "campo_nombre" => "telefono_proveedor",
-          "campo_marcador" => ":telefono",
-          "campo_valor" => $this->telefonoProveedor
-        ],
-        [
-          "campo_nombre" => "correo_proveedor",
-          "campo_marcador" => ":correo",
-          "campo_valor" => $this->correoProveedor
-        ],
-        [
-          "campo_nombre" => "direccion_proveedor",
-          "campo_marcador" => ":direccion",
-          "campo_valor" => $this->direccionProveedor
-        ]
+        "rif_proveedor" => $this->rifProveedor,
+        "razon_social_proveedor" => $this->razonSocialProveedor,
+        "telefono_proveedor" => $this->telefonoProveedor,
+        "correo_proveedor" => $this->correoProveedor,
+        "direccion_proveedor" => $this->direccionProveedor
       ],
       "WHERE" => [
-        [
-          "condicion_campo" => "rif_proveedor",
-          "condicion_marcador" => ":rif_proveedor",
-          "condicion_valor" => $this->rifProveedor,
-          "comparacion" => "="
-        ]
+        "rif_proveedor" => $this->rifProveedor,
       ]
     ]);
+   
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
         "tipo" => "simple",

@@ -3,9 +3,69 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
 //#endregion [ IMPORTACIONES ] FIN
+
+//#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
+
+function registrarTutorial() {
+  driverAyuda('permisos', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Permiso',
+          description: 'Haz clic aquí para agregar un nuevo permiso al sistema. Los permisos controlan qué acciones pueden realizar los usuarios.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Permisos',
+          description: 'Aquí puedes ver todos los permisos registrados. Cada permiso representa una acción específica (ver, listar, registrar, actualizar, eliminar).',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Permiso',
+          description: 'Modifica el nombre o descripción de cualquier permiso haciendo clic en este botón.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Permiso',
+          description: 'Elimina permisos que ya no sean necesarios. Ten cuidado porque esto afectará los accesos de los roles.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.dataTables_filter input',
+        popover: {
+          title: 'Buscador',
+          description: 'Puedes buscar permisos por nombre o ID.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completado!',
+          description: 'Ya conoces la gestión de permisos. Recuerda que los permisos se asignan a los roles desde el módulo de Accesos.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
+
+//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).on('DOMContentLoaded', async function (e) {
@@ -23,51 +83,16 @@ $(document).on('DOMContentLoaded', async function (e) {
     campoIdBtn: 'id_permiso',
     botones: 'CRUD',
   });
-  driverAyuda('permisos', {
-    pasos:
-      [
-        {
-          element: 'button[data-bs-target=".modalRegistrar"]',
-          popover: {
-            title: 'Registrar Permiso',
-            description: 'Haz clic aquí para agregar un nuevo permiso al sistema. Los permisos controlan qué acciones pueden realizar los usuarios.',
-            side: 'bottom',
-            align: 'start'
-          }
-        },
-        {
-          element: '.tabla-ajax',
-          popover: {
-            title: 'Lista de Permisos',
-            description: 'Aquí puedes ver todos los permisos registrados. Cada permiso representa una acción específica (ver, listar, registrar, actualizar, eliminar).',
-            side: 'top'
-          }
-        },
-        {
-          element: '.botonEditar',
-          popover: {
-            title: 'Editar Permiso',
-            description: 'Modifica el nombre o descripción de cualquier permiso haciendo clic en este botón.',
-            side: 'left'
-          }
-        },
-        {
-          element: '.botonEliminar',
-          popover: {
-            title: 'Eliminar Permiso',
-            description: 'Elimina permisos que ya no sean necesarios. Ten cuidado porque esto afectará los accesos de los roles.',
-            side: 'left'
-          }
-        },
-        {
-          popover: {
-            title: '¡Ayuda completado!',
-            description: 'Ya conoces la gestión de permisos. Recuerda que los permisos se asignan a los roles desde el módulo de Accesos.',
-            side: 'top'
-          }
-        }
-      ]
-  });
+  
+  registrarTutorial();
+  
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'permisos') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
 })
 
 //Evento para el envío de formularios

@@ -80,7 +80,6 @@ async function verDetallesPedido() {
       throw new Error(pedido.texto);
     }
 
-
     let {
       calculos,
       cliente,
@@ -340,6 +339,34 @@ async function mostrarUOcultarTaps() {
     padre.find('.btnTapPedidosPendientes').find('button').trigger('click')
   }
 }
+async function imprimirPedido() {
+  let resultado = await alertasAjax({
+    'tipo': 'preguntar',
+    'titulo': 'Imprimir pedido',
+    'texto': '¿Desea imprimir el pedido?',
+  });
+
+  if (resultado.isConfirmed) {
+    mostrarOcultarSpinnerCarga('mostrar');
+    try {
+      let resultado = await pedirDatosAjax({
+        'modulo': 'pedidos',
+        'datosPe': {
+          'accion': 'imprimirPedido',
+          'id_pedido': $(this).attr('value')
+        }
+      });
+      if (resultado.icono) {
+        alertasAjax(resultado)
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      mostrarOcultarSpinnerCarga('ocultar');
+    }
+
+  }
+}
 //#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -548,20 +575,6 @@ $(document).on("DOMContentLoaded", async function () {
             </li>
           `;
         }
-        if (permisos.pedidos.includes('imprimir pedidos')) {
-          btn += `
-            <li 
-              value='${fila.id_orden_entrega_presupuesto}'
-              class="btnImprimirPedido list-inline-item align-bottom"
-              data-bs-toggle="tooltip" 
-              title="Imprimir"
-            >
-              <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default">
-                <i class="fi fi-rr-print fs-3 iconoCentrado"></i>
-              </a>
-            </li>
-          `;
-        }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
     });
@@ -644,23 +657,23 @@ $(document).on("DOMContentLoaded", async function () {
         let btn = ``;
         if (permisos.pedidos.includes('ver detalles de pedidos propios')) {
           btn += `
-          <li 
-            class="list-inline-item align-bottom" 
-            data-bs-toggle="tooltip" 
-            data-bs-placement="top" 
-            title="Ver pedido"
-          >
-            <a 
-              href="#" 
-              value="${fila.id_orden_entrega_presupuesto}"
-              class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
-              data-bs-toggle="modal" 
-              data-bs-target=".modalDetallesPedido"
+            <li 
+              class="list-inline-item align-bottom" 
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              title="Ver pedido"
             >
-              <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
+              <a 
+                href="#" 
+                value="${fila.id_orden_entrega_presupuesto}"
+                class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
+                data-bs-toggle="modal" 
+                data-bs-target=".modalDetallesPedido"
+              >
+                <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
         }
         if (permisos.pedidos.includes('despachar pedidos')) {
           let configBtn = JSON.stringify({
@@ -670,18 +683,32 @@ $(document).on("DOMContentLoaded", async function () {
             texto_alerta: 'Haga click en el boton de "Aceptar" para confirmar que los producos han sido despachados'
           })
           btn += `
-          <li 
-            value='${fila.id_orden_entrega_presupuesto}'
-            class="btnCambiarEstadoPedido list-inline-item align-bottom"
-            data-info='${configBtn}',
-            data-bs-toggle="tooltip" 
-            title="Despachar"
-          >
-            <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-            <i class="fi fi-rr-person-dolly fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
+            <li 
+              value='${fila.id_orden_entrega_presupuesto}'
+              class="btnCambiarEstadoPedido list-inline-item align-bottom"
+              data-info='${configBtn}',
+              data-bs-toggle="tooltip" 
+              title="Despachar"
+            >
+              <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
+              <i class="fi fi-rr-person-dolly fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
+        }
+        if (permisos.pedidos.includes('imprimir pedidos')) {
+          btn += `
+            <li 
+              value='${fila.id_orden_entrega_presupuesto}'
+              class="btnImprimirPedido list-inline-item align-bottom"
+              data-bs-toggle="tooltip" 
+              title="Imprimir"
+            >
+              <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default">
+                <i class="fi fi-rr-print fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
@@ -715,23 +742,37 @@ $(document).on("DOMContentLoaded", async function () {
         let btn = ``;
         if (permisos.pedidos.includes('ver detalles de pedidos propios')) {
           btn += `
-          <li 
-            class="list-inline-item align-bottom" 
-            data-bs-toggle="tooltip" 
-            data-bs-placement="top" 
-            title="Ver pedido"
-          >
-            <a 
-              href="#" 
-              value="${fila.id_orden_entrega_presupuesto}"
-              class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
-              data-bs-toggle="modal" 
-              data-bs-target=".modalDetallesPedido"
+            <li 
+              class="list-inline-item align-bottom" 
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              title="Ver pedido"
             >
-              <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
+              <a 
+                href="#" 
+                value="${fila.id_orden_entrega_presupuesto}"
+                class="btnVerPedido avtar avtar-xs btn-link-success btn-pc-default"
+                data-bs-toggle="modal" 
+                data-bs-target=".modalDetallesPedido"
+              >
+                <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
+        }
+        if (permisos.pedidos.includes('imprimir pedidos')) {
+          btn += `
+            <li 
+              value='${fila.id_orden_entrega_presupuesto}'
+              class="btnImprimirPedido list-inline-item align-bottom"
+              data-bs-toggle="tooltip" 
+              title="Imprimir"
+            >
+              <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default">
+                <i class="fi fi-rr-print fs-3 iconoCentrado"></i>
+              </a>
+            </li>
+          `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
@@ -836,6 +877,11 @@ $(document).on("DOMContentLoaded", async function () {
   });
 });
 
+//Imprimir pedido
+$(document).off("click", ".btnImprimirPedido")
+$(document).on("click", ".btnImprimirPedido", async function () {
+  imprimirPedido.call(this);
+})
 //Cambiar estado pedido
 $(document).off("click", ".btnCambiarEstadoPedido")
 $(document).on("click", ".btnCambiarEstadoPedido", function () {

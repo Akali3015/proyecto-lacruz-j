@@ -5,7 +5,7 @@ import {
   pedirDatosAjax, validarEnTiempoReal,
   obtenerSiguienteIndice, cambiarFormatos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -16,6 +16,62 @@ let productosData = [];
 //#endregion [ VARIABLES GLOBALES ] FIN
 
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
+
+function registrarTutorial() {
+  driverAyuda('producciones', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Producción',
+          description: 'Haz clic aquí para registrar una nueva producción. Se descontarán las materias primas y se aumentará el stock de productos.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Producciones',
+          description: 'Aquí puedes ver todas las producciones registradas, su fecha y opciones para consultar o editar.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Producción',
+          description: 'Modifica los productos o cantidades de una producción existente. El stock se ajustará automáticamente.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonConsultar',
+        popover: {
+          title: 'Consultar Producción',
+          description: 'Ver el detalle de una producción: productos producidos y cantidades.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.dataTables_filter input',
+        popover: {
+          title: 'Buscador',
+          description: 'Puedes buscar producciones por ID o fecha.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de producciones. Recuerda que cada producción afecta el stock de productos y materias primas.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
 
 async function cargarProductos() {
   try {
@@ -353,51 +409,18 @@ $(document).on('DOMContentLoaded', async function (e) {
       }
     }
   });
+  
   await cargarProductos();
-  driverAyuda('producciones', {
-    pasos: [
-      {
-        element: 'button[data-bs-target=".modalRegistrar"]',
-        popover: {
-          title: 'Registrar Producción',
-          description: 'Haz clic aquí para registrar una nueva producción. Se descontarán las materias primas y se aumentará el stock de productos.',
-          side: 'bottom',
-          align: 'start'
-        }
-      },
-      {
-        element: '.tabla-ajax',
-        popover: {
-          title: 'Lista de Producciones',
-          description: 'Aquí puedes ver todas las producciones registradas, su fecha y opciones para consultar o editar.',
-          side: 'top'
-        }
-      },
-      {
-        element: '.botonEditar',
-        popover: {
-          title: 'Editar Producción',
-          description: 'Modifica los productos o cantidades de una producción existente. El stock se ajustará automáticamente.',
-          side: 'left'
-        }
-      },
-      {
-        element: '.botonConsultar',
-        popover: {
-          title: 'Consultar Producción',
-          description: 'Ver el detalle de una producción: productos producidos y cantidades.',
-          side: 'left'
-        }
-      },
-      {
-        popover: {
-          title: '¡Ayuda completada!',
-          description: 'Ya conoces la gestión de producciones. Recuerda que cada producción afecta el stock de productos y materias primas.',
-          side: 'top'
-        }
-      }
-    ]
-  });
+  
+  registrarTutorial();
+  
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'producciones') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
 });
 
 $(document).off('change', '.selectProductos');

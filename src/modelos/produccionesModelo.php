@@ -161,6 +161,7 @@ class produccionesModelo extends conexion {
   }
 
   private function registrarProduccionesP() {
+    $objBitacora = new bitacoraModelo();
     $idProduccion = $this->generarCodSeg([
       'tablaBD' => 'producciones',
       'prefijo' => 'PROD',
@@ -174,9 +175,12 @@ class produccionesModelo extends conexion {
         'fecha_produccion' => $this->FechaHora_Sel('fecha_hora_BD')
       ]
     ]);
-    $bitacoraModelo = new bitacoraModelo();
+
     if ($resultadoGuardar === false || $resultadoGuardar <= 0) {
-      $bitacoraModelo->registrarBitacora("producciones", "Registar produccion", "Fallido", true);
+      $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+        'id_produccion' => $idProduccion,
+        'error' => 'No se pudo crear la producción'
+      ], true);
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -191,6 +195,9 @@ class produccionesModelo extends conexion {
       'array' => $this->productos,
     ]);
 
+    $productosProcesados = [];
+    $materiasPrimasDescontadas = [];
+
     foreach ($this->productos as $id => $cantidad) {
       $idDetalle = $this->guardarDatos2([
         'tabla' => 'productos_producciones',
@@ -203,7 +210,10 @@ class produccionesModelo extends conexion {
 
       if ($idDetalle == 0 || $idDetalle == false) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+          'id_produccion' => $idProduccion,
+          'error' => 'Error registrando productos'
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -219,13 +229,21 @@ class produccionesModelo extends conexion {
 
       if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
         $this->rollback();
+        $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+          'id_produccion' => $idProduccion,
+          'id_producto' => $id,
+          'error' => 'Producto no encontrado'
+        ], true);
         return $infoGeneralProducto;
       }
+
+      $stockAnterior = $infoGeneralProducto['stock_producto'];
+      $nuevoStock = $stockAnterior + $cantidad;
 
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
-          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $cantidad)
+          'stock_producto' => $nuevoStock
         ],
         'WHERE' => [
           'id_producto' => $id
@@ -234,7 +252,12 @@ class produccionesModelo extends conexion {
 
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+          'id_produccion' => $idProduccion,
+          'id_producto' => $id,
+          'nombre_producto' => $infoGeneralProducto['nombre_producto'],
+          'error' => 'Error actualizando stock del producto'
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -243,6 +266,15 @@ class produccionesModelo extends conexion {
         ];
       }
 
+      $productosProcesados[] = [
+        'id_producto' => $id,
+        'nombre_producto' => $infoGeneralProducto['nombre_producto'],
+        'cantidad_producida' => $cantidad,
+        'stock_anterior' => $stockAnterior,
+        'stock_nuevo' => $nuevoStock
+      ];
+
+      // Descontar materias primas
       $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
       foreach ($materiasPrimaProducto as $materiaPrima) {
@@ -255,19 +287,33 @@ class produccionesModelo extends conexion {
 
         if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
           $this->rollback();
+          $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+            'id_produccion' => $idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'error' => 'Materia prima no encontrada'
+          ], true);
           return $materiaPrimaBD;
         }
 
-        $stockMP = $materiaPrimaBD['stock_materia_prima'];
-        $nuevoStock = ($stockMP - $cantidadTotalRestar);
+        $stockMPAnterior = $materiaPrimaBD['stock_materia_prima'];
+        $nuevoStockMP = $stockMPAnterior - $cantidadTotalRestar;
 
-        if ($nuevoStock < 0) {
+        if ($nuevoStockMP < 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+          $errorMsg = "No hay suficiente stock de la materia prima: " . $materiaPrimaBD['nombre_materia_prima'] . 
+                       " (Stock: " . $stockMPAnterior . ", Necesario: " . $cantidadTotalRestar . ")";
+          $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+            'id_produccion' => $idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+            'stock_anterior' => $stockMPAnterior,
+            'necesario' => $cantidadTotalRestar,
+            'error' => $errorMsg
+          ], true);
           return [
             'tipo' => 'simple',
-            'titulo' => 'Error',
-            'texto' => 'No se puede descontar una cantidad mayor de materia prima a la disponible dentro del stock de inventario',
+            'titulo' => 'Error - Stock insuficiente',
+            'texto' => $errorMsg,
             'icono' => 'error'
           ];
         }
@@ -275,7 +321,7 @@ class produccionesModelo extends conexion {
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
-            'stock_materia_prima' => $nuevoStock
+            'stock_materia_prima' => $nuevoStockMP
           ],
           'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
@@ -284,7 +330,12 @@ class produccionesModelo extends conexion {
 
         if ($resultado === false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora("producciones", "Registrar producción", "Error", [
+            'id_produccion' => $idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+            'error' => 'Error actualizando stock de materia prima'
+          ], true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -292,10 +343,26 @@ class produccionesModelo extends conexion {
             'icono' => 'error'
           ];
         }
+
+        $materiasPrimasDescontadas[] = [
+          'id_materia_prima' => $materiaPrima['id_materia_prima'],
+          'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+          'cantidad_descontada' => $cantidadTotalRestar,
+          'stock_anterior' => $stockMPAnterior,
+          'stock_nuevo' => $nuevoStockMP
+        ];
       }
     }
 
     $this->commit();
+
+    $detallesBitacora = [
+      'id_produccion' => $idProduccion,
+      'fecha' => date('Y-m-d H:i:s'),
+      'productos_producidos' => $productosProcesados,
+      'materias_primas_descontadas' => $materiasPrimasDescontadas,
+    ];
+    $objBitacora->registrarBitacora("producciones", "Registrar producción", "Éxito", $detallesBitacora, true);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(
@@ -316,16 +383,17 @@ class produccionesModelo extends conexion {
             'accion' => 'alertar',
             'alerta' => [
               'tipo' => 'simple',
-              'titulo' => 'Produccion registrada',
-              'texto' => 'El stock de algunos productos a cambiado',
+              'titulo' => 'Producción registrada',
+              'texto' => 'Se ha registrado una nueva producción. El stock ha sido actualizado.',
               'icono' => 'info',
               'notifier' => true,
             ]
           ]
         ],
+        'noCommit' => true
       ]
     );
-    $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Exito", true);
+
     return [
       'tipo' => 'limpiarYcerrar',
       'icono' => 'success',
@@ -335,9 +403,8 @@ class produccionesModelo extends conexion {
   }
 
   private function actualizarProduccionesP() {
-    $PROD = 0;
-    $PRO = 0;
-    $bitacoraModelo = new bitacoraModelo();
+    $objBitacora = new bitacoraModelo();
+    
     //Data actual
     $dataActual = $this->seleccionarProducciones([
       'id_produccion' => $this->idProduccion
@@ -368,11 +435,14 @@ class produccionesModelo extends conexion {
       ],
       'fisico' => true
     ]);
-    if ($resultado > 0) {
-      $PRO += $resultado;
-    }
 
-    //Deshacemos lo viejo
+    // Arrays para guardar los cambios
+    $productosRevertidos = [];
+    $productosAgregados = [];
+    $materiasPrimasDevueltas = [];
+    $materiasPrimasDescontadas = [];
+
+    //Revertimos lo viejo (deshacemos la producción anterior)
     foreach ($dataActual['detalles'] as $idProducto => $cantidadProducto) {
 
       $objProducto = new productosModelo();
@@ -382,16 +452,33 @@ class produccionesModelo extends conexion {
 
       if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
         $this->rollback();
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'error' => 'Producto no encontrado'
+        ], true);
         return $infoGeneralProducto;
       }
 
-      if ($cantidadProducto > $infoGeneralProducto['stock_producto']) {
+      $stockAnterior = $infoGeneralProducto['stock_producto'];
+      $nuevoStock = $stockAnterior - $cantidadProducto;
+
+      if ($nuevoStock < 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $errorMsg = 'No se puede descontar ' . $cantidadProducto . ' unidades de ' . $infoGeneralProducto['nombre_producto'] . 
+                    ' porque el stock actual es ' . $stockAnterior;
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'nombre_producto' => $infoGeneralProducto['nombre_producto'],
+          'stock_anterior' => $stockAnterior,
+          'intento_descontar' => $cantidadProducto,
+          'error' => $errorMsg
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
-          'texto' => 'No se puede guardar la nueva cantidad de ' . $infoGeneralProducto['nombre_producto'] . ' porque esto dejaría un stock negativo del mismo',
+          'texto' => $errorMsg,
           'icono' => 'error'
         ];
       }
@@ -399,7 +486,7 @@ class produccionesModelo extends conexion {
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
-          'stock_producto' => ($infoGeneralProducto['stock_producto'] - $cantidadProducto)
+          'stock_producto' => $nuevoStock
         ],
         'WHERE' => [
           'id_producto' => $idProducto
@@ -407,7 +494,11 @@ class produccionesModelo extends conexion {
       ]);
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'error' => 'Error actualizando stock del producto'
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -416,9 +507,17 @@ class produccionesModelo extends conexion {
         ];
       }
 
+      $productosRevertidos[] = [
+        'id_producto' => $idProducto,
+        'nombre_producto' => $infoGeneralProducto['nombre_producto'],
+        'cantidad_quitada' => $cantidadProducto,
+        'stock_anterior' => $stockAnterior,
+        'stock_nuevo' => $nuevoStock
+      ];
+
+      //Devolver materias primas
       $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
-      //Subimos el stock de las materias primas
       foreach ($materiasPrimaProducto as $materiaPrima) {
         $cantidadTotalSumar = $cantidadProducto * $materiaPrima['cantidad_materia_prima'];
 
@@ -429,15 +528,21 @@ class produccionesModelo extends conexion {
 
         if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
           $this->rollback();
+          $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+            'id_produccion' => $this->idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'error' => 'Materia prima no encontrada'
+          ], true);
           return $materiaPrimaBD;
         }
 
-        $stockMP = $materiaPrimaBD['stock_materia_prima'];
+        $stockAnteriorMP = $materiaPrimaBD['stock_materia_prima'];
+        $nuevoStockMP = $stockAnteriorMP + $cantidadTotalSumar;
 
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
-            'stock_materia_prima' => ($stockMP + $cantidadTotalSumar)
+            'stock_materia_prima' => $nuevoStockMP
           ],
           'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
@@ -445,7 +550,11 @@ class produccionesModelo extends conexion {
         ]);
         if ($resultado === false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+            'id_produccion' => $this->idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'error' => 'Error actualizando stock de materia prima'
+          ], true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -453,6 +562,14 @@ class produccionesModelo extends conexion {
             'icono' => 'error'
           ];
         }
+
+        $materiasPrimasDevueltas[] = [
+          'id_materia_prima' => $materiaPrima['id_materia_prima'],
+          'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+          'cantidad_devuelta' => $cantidadTotalSumar,
+          'stock_anterior' => $stockAnteriorMP,
+          'stock_nuevo' => $nuevoStockMP
+        ];
       }
     }
 
@@ -469,7 +586,10 @@ class produccionesModelo extends conexion {
 
       if ($idDetalle == 0 || $idDetalle === false) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'error' => 'Error registrando productos'
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -485,13 +605,21 @@ class produccionesModelo extends conexion {
 
       if (isset($infoGeneralProducto['tipo']) && $infoGeneralProducto['tipo'] == 'simple') {
         $this->rollback();
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'error' => 'Producto no encontrado'
+        ], true);
         return $infoGeneralProducto;
       }
+
+      $stockAnterior = $infoGeneralProducto['stock_producto'];
+      $nuevoStock = $stockAnterior + $cantidad;
 
       $resultado = $this->actualizarDatos2([
         'tabla' => 'productos',
         'datos' => [
-          'stock_producto' => ($infoGeneralProducto['stock_producto'] + $cantidad)
+          'stock_producto' => $nuevoStock
         ],
         'WHERE' => [
           'id_producto' => $idProducto
@@ -500,7 +628,11 @@ class produccionesModelo extends conexion {
 
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+          'id_produccion' => $this->idProduccion,
+          'id_producto' => $idProducto,
+          'error' => 'Error actualizando stock del producto'
+        ], true);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -509,6 +641,15 @@ class produccionesModelo extends conexion {
         ];
       }
 
+      $productosAgregados[] = [
+        'id_producto' => $idProducto,
+        'nombre_producto' => $infoGeneralProducto['nombre_producto'],
+        'cantidad_agregada' => $cantidad,
+        'stock_anterior' => $stockAnterior,
+        'stock_nuevo' => $nuevoStock
+      ];
+
+      // Descontar materias primas
       $materiasPrimaProducto = $infoGeneralProducto['detallesExtra']['materias_primas'] ?? [];
 
       foreach ($materiasPrimaProducto as $materiaPrima) {
@@ -521,19 +662,33 @@ class produccionesModelo extends conexion {
 
         if (isset($materiaPrimaBD['tipo']) && $materiaPrimaBD['tipo'] == 'simple') {
           $this->rollback();
+          $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+            'id_produccion' => $this->idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'error' => 'Materia prima no encontrada'
+          ], true);
           return $materiaPrimaBD;
         }
 
-        $stockMP = $materiaPrimaBD['stock_materia_prima'];
-        $nuevoStock = ($stockMP - $cantidadTotalRestar);
+        $stockAnteriorMP = $materiaPrimaBD['stock_materia_prima'];
+        $nuevoStockMP = $stockAnteriorMP - $cantidadTotalRestar;
 
-        if ($nuevoStock < 0) {
+        if ($nuevoStockMP < 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $errorMsg = "No hay suficiente stock de la materia prima: " . $materiaPrimaBD['nombre_materia_prima'] . 
+                       " (Stock: " . $stockAnteriorMP . ", Necesario: " . $cantidadTotalRestar . ")";
+          $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+            'id_produccion' => $this->idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+            'stock_anterior' => $stockAnteriorMP,
+            'necesario' => $cantidadTotalRestar,
+            'error' => $errorMsg
+          ], true);
           return [
             'tipo' => 'simple',
-            'titulo' => 'Error',
-            'texto' => 'No se puede descontar una cantidad mayor de materia prima a la disponible dentro del stock de inventario',
+            'titulo' => 'Error - Stock insuficiente',
+            'texto' => $errorMsg,
             'icono' => 'error'
           ];
         }
@@ -541,7 +696,7 @@ class produccionesModelo extends conexion {
         $resultado = $this->actualizarDatos2([
           'tabla' => 'materias_primas',
           'datos' => [
-            'stock_materia_prima' => $nuevoStock
+            'stock_materia_prima' => $nuevoStockMP
           ],
           'WHERE' => [
             'id_materia_prima' => $materiaPrima['id_materia_prima']
@@ -550,7 +705,11 @@ class produccionesModelo extends conexion {
 
         if ($resultado == false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Error", [
+            'id_produccion' => $this->idProduccion,
+            'id_materia_prima' => $materiaPrima['id_materia_prima'],
+            'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+          ], true);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -558,9 +717,28 @@ class produccionesModelo extends conexion {
             'icono' => 'error'
           ];
         }
+
+        $materiasPrimasDescontadas[] = [
+          'id_materia_prima' => $materiaPrima['id_materia_prima'],
+          'nombre_materia_prima' => $materiaPrimaBD['nombre_materia_prima'],
+          'cantidad_descontada' => $cantidadTotalRestar,
+          'stock_anterior' => $stockAnteriorMP,
+          'stock_nuevo' => $nuevoStockMP
+        ];
       }
     }
+
     $this->commit();
+
+    $detallesBitacora = [
+      'id_produccion' => $this->idProduccion,
+      'fecha' => date('Y-m-d H:i:s'),
+      'productos_eliminados' => $productosRevertidos,
+      'productos_agregados' => $productosAgregados,
+      'materias_primas_devueltas' => $materiasPrimasDevueltas,
+      'materias_primas_descontadas' => $materiasPrimasDescontadas,
+    ];
+    $objBitacora->registrarBitacora("producciones", "Actualizar producción", "Éxito", $detallesBitacora, true);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(
@@ -581,16 +759,16 @@ class produccionesModelo extends conexion {
             'accion' => 'alertar',
             'alerta' => [
               'tipo' => 'simple',
-              'titulo' => 'Produccion actualizado',
-              'texto' => 'El stock de algunos productos a cambiado',
+              'titulo' => 'Producción actualizada',
+              'texto' => 'El stock de algunos productos ha cambiado',
               'icono' => 'info',
               'notifier' => true,
             ]
           ]
         ],
-      ]
-    );
-    $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Exito", true);
+        'noCommit' => true
+      ]);
+
     return [
       'icono' => 'success',
       'titulo' => 'Éxito en la actualización',

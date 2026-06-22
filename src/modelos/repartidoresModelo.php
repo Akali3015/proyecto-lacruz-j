@@ -166,13 +166,15 @@ class repartidoresModelo extends conexion {
     return $this->actualizarRepartidoresP();
   }
   public function eliminarRepartidores(array $info) {
-    $resultado = $this->validarRepartidores([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'cedula_repartidor_act' => 'cedula_repartidor',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+    if (empty ($info['cedula_repartidor'])) { 
+      return [
+      'tipo' => 'simple',
+      'titulo' => 'error',
+      'texto' => 'No se ha proporcionado la cédula del repartidor a eliminar',
+      'icono' => 'error'
+      ];
+    }
+
     $this->cedulaRepartidor = $info['cedula_repartidor'];
     return $this->eliminarRepartidoresP();
   }
@@ -265,7 +267,7 @@ class repartidoresModelo extends conexion {
   private function eliminarRepartidoresP() {
     $eliminarRepartidor = $this->eliminarDatos2([
       'tabla' => 'repartidores',
-      'WHRE' => [
+      'WHERE' => [
         'cedula_repartidor' => $this->cedulaRepartidor
       ]
     ]);

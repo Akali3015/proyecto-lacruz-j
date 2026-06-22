@@ -9,6 +9,7 @@ use src\modelos\presentacionesModelo;
 use src\modelos\rutasModelo;
 use src\modelos\cambiosIvaModelo;
 use PDO;
+use src\modelos\pdfModel;
 
 class pedidosModelo extends conexion {
   private string $idPedido = '';
@@ -18,278 +19,206 @@ class pedidosModelo extends conexion {
   private array $comprobantesPagos = [];
   private int $statusPedido = 0;
 
-  public function validarPedidos(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
-        'cantidad_producto' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "cantidad del producto",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
+  public function validarPedidos(array &$info, array $requerido) {
+    $esquemaPedidos = [
+      "tipo" => 'arrayA',
+      'propiedades' => [
+        'delivery' => [
+          'tipo' => 'arrayA',
+          'nombreAlerta' => 'al delivery',
+          'propiedades' => [
+            'latitud' => [
+              'tipo' => 'float',
+              'nombreAlerta' => 'latitud de la ubicación',
+              "minL" => minRegexCoordenadas,
+              "maxL" => maxRegexCoordenadas,
+              "regex" => regexCoordenadas,
+            ],
+            'longitud' => [
+              'tipo' => 'float',
+              'nombreAlerta' => 'longitud de la ubicación',
+              "minL" => minRegexCoordenadas,
+              "maxL" => maxRegexCoordenadas,
+              "regex" => regexCoordenadas,
+            ],
+          ],
+          'requerido' => ['latitud', 'longitud']
         ],
-        'cedula_repartidor' => [
-          "campo_nombre" => "cedula_repartidor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "cédula del repartidor",
-          "requerido" => true,
-          "minimo" => minRegexCedulaRifLetra,
-          "maximo" => maxRegexCedulaRifLetra,
-          "expresion_re" => regexCedulaRifLetra,
-          "tabla" => "repartidores",
-          "debeExistir" => true,
+        'productos' => [
+          'tipo' => 'array',
+          'nombreAlerta' => 'productos',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_producto' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "id del producto",
+                "minL" => minRegexIdSeguro,
+                "maxL" => maxRegexIdSeguro,
+                "regex" => regexIdSeguro,
+                "nombreBD" => "id_producto",
+                "tablaBD" => "productos",
+                "debeExistirBD" => true,
+              ],
+              'id_presentacion' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "id de la presentación",
+                "minL" => minRegexIdSeguro,
+                "maxL" => maxRegexIdSeguro,
+                "regex" => regexIdSeguro,
+                "tablaBD" => "presentaciones",
+                "nombreBD" => "id_presentacion",
+                "debeExistirBD" => true,
+              ],
+              'id_presentacion_producto' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "id de la presentación del producto",
+                "minL" => minRegexIdSeguro,
+                "maxL" => maxRegexIdSeguro,
+                "regex" => regexIdSeguro,
+                "tablaBD" => "presentaciones_productos",
+                "nombreBD" => "id_presentacion_producto",
+                "debeExistirBD" => true,
+              ],
+              'cantidad' => [
+                'tipo' => 'int',
+                "nombreAlerta" => "cantidad del producto",
+                "minL" => minRegexCantidadItem,
+                "maxL" => maxRegexCantidadItem,
+                "regex" => regexCantidadItem,
+              ],
+            ],
+            'requerido' => [
+              'id_producto',
+              'id_presentacion',
+              'cantidad',
+            ]
+          ],
+          'minItems' => 1
+        ],
+        'pagos' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'monto_pago' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "monto del pago",
+                "minL" => minRegexPrecio,
+                "maxL" => maxRegexPrecio,
+                "regex" => regexPrecio,
+                "cFloat" => true,
+              ],
+              'id_moneda' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_moneda",
+                "nombreAlerta" => "id de la moneda",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "monedas",
+                "debeExistirBD" => true,
+              ],
+              'id_metodo_pago' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_metodo_pago",
+                "nombreAlerta" => "id del método de pago",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "metodos_pagos",
+                "debeExistirBD" => true,
+              ],
+              'referencia_pago' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "referencia del pago",
+                "minL" => minRegexCantidadItem,
+                "maxL" => maxRegexCantidadItem,
+                "regex" => regexCantidadItem,
+                'funcionVal' => function ($valor, $contexto) {
+                  $MPBD = [];
+                  return $contexto;
+                  if (!isset($cto['cache'][$cto['padre']['id_metodo_pago']])) {
+                    $objMP = new metodosPagoModelo();
+                    $cto['cache'][$cto['padre']['id_metodo_pago']] =
+                      $MPBD = $objMP->seleccionarMetodosPagos(['id_metodo_pago' => $$cto['cache']['metodos_pagos'][$cto['padre']['id_metodo_pago']]]);
+                  } else {
+                    $MPBD = $cto['cache'][$cto['padre']['id_metodo_pago']];
+                  }
+                  if ($MPBD['necesita_referencia'] == 1) return true;
+                  return false;
+                },
+              ],
+              'id_banco_emisor' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_banco",
+                "nombreAlerta" => "banco emisor",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "bancos",
+                "debeExistirBD" => true,
+              ],
+              'id_banco_receptor' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_banco",
+                "nombreAlerta" => "banco receptor",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "bancos",
+                "debeExistirBD" => true,
+              ],
+            ],
+            'requerido' => ['monto_pago', 'id_moneda', 'id_metodo_pago']
+          ],
+          'minItems' => 1,
+          'nombreAlerta' => 'detalles del pago'
         ],
         'comprobantes_pago' => [
-          "imagen" => &$valor,
-          "formulario_nombre" => "comprobantes del pago",
-          "requerido" => true,
+          'tipo' => 'archivo',
+          'extensiones' => ['jpg', 'png', 'jpeg', 'webp'],
+          'maximoMb' => 5120,
+          'minItems' => 1,
+          'nombreAlerta' => 'comprobantes del pago',
+        ],
+        'cedula_repartidor' => [
+          'tipo' => 'string',
+          "nombreBD" => "cedula_repartidor",
+          "nombreAlerta" => "cédula del repartidor",
+          "minL" => minRegexCedulaRifLetra,
+          "maxL" => maxRegexCedulaRifLetra,
+          "regex" => regexCedulaRifLetra,
+          "tablaBD" => "repartidores",
+          "debeExistirBD" => true,
         ],
         'status_pedido' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "status de pedido",
-          "requerido" => true,
-          "minimo" => minRegexStatus,
-          "maximo" => maxRegexStatus,
-          "expresion_re" => regexStatus,
-        ],
-        'id_banco_emisor' => [
-          "campo_nombre" => "id_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del banco emisor",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "bancos",
-          "debeExistir" => true,
-        ],
-        'id_banco_receptor' => [
-          "campo_nombre" => "id_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del banco receptor",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "bancos",
-          "debeExistir" => true,
-        ],
-        'id_delivery' => [
-          "campo_nombre" => "id_delivery",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del delivery",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "deliveries",
-          "debeExistir" => true,
-        ],
-        'id_metodo_pago' => [
-          "campo_nombre" => "id_metodo_pago",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del método de pago",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "metodos_pagos",
-          "debeExistir" => true,
-        ],
-        'id_moneda' => [
-          "campo_nombre" => "id_moneda",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la moneda",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "monedas",
-          "debeExistir" => true,
+          'tipo' => 'string',
+          "nombreAlerta" => "status del pedido",
+          "minL" => minRegexStatus,
+          "maxL" => maxRegexStatus,
+          "regex" => regexStatus,
         ],
         'id_pedido' => [
-          "campo_nombre" => "id_orden_entrega_presupuesto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del pedido",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "ordenes_entregas_presupuestos",
-          "debeExistir" => true,
+          'tipo' => 'string',
+          "nombreBD" => "id_orden_entrega_presupuesto",
+          "nombreAlerta" => "id del pedido",
+          "minL" => minRegexIdSeguro,
+          "maxL" => maxRegexIdSeguro,
+          "regex" => regexIdSeguro,
+          "tablaBD" => "ordenes_entregas_presupuestos",
+          "debeExistirBD" => true,
           "debeSerUnico" => true,
         ],
-        'id_presentacion' => [
-          "campo_nombre" => "id_presentacion",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la presentación",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "presentaciones",
-          "debeExistir" => true,
-        ],
-        'id_producto' => [
-          "campo_nombre" => "id_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del producto",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "productos",
-          "debeExistir" => true,
-        ],
-        'latitud' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "latitud",
-          "requerido" => true,
-          "minimo" => minRegexCoordenadas,
-          "maximo" => maxRegexCoordenadas,
-          "expresion_re" => regexCoordenadas,
-        ],
-        'longitud' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "longitud",
-          "requerido" => true,
-          "minimo" => minRegexCoordenadas,
-          "maximo" => maxRegexCoordenadas,
-          "expresion_re" => regexCoordenadas,
-        ],
-        'monto_pago' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "monto del pago",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
-        ],
-        'necesita_referencia' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "referencia del pago",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-        ],
-        'necesita_banco_emisor' =>  [
-          "campo_nombre" => "id_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del banco emisor",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "bancos",
-          "debeExistir" => true,
-        ],
-        'necesita_banco_receptor' =>  [
-          "campo_nombre" => "id_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del banco receptor",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "bancos",
-          "debeExistir" => true,
-        ],
-        'referencia_pago' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "referencia del pago",
-          "requerido" => true,
-          "minimo" => minRegexReferencia,
-          "maximo" => maxRegexReferencia,
-          "expresion_re" => regexReferencia,
-        ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      switch ($campo) {
-        case 'delivery':
-          $campos[] = $funcionAsignadora('latitud', $infoVal['delivery']['latitud']);
-          $campos[] = $funcionAsignadora('longitud', $infoVal['delivery']['longitud']);
-          break;
-        case 'productos':
-          if (($infoVal['productos'] ?? []) == []) {
-            return [
-              'tipo' => 'simple',
-              'titulo' => 'Sin productos agregados',
-              'texto' => 'No ha seleccionado ningún producto aún',
-              'icono' => 'warning',
-            ];
-          }
-          foreach ($infoVal['productos'] as &$pro) {
-            $campos[] = $funcionAsignadora('id_producto', $pro['id_producto']);
-            $campos[] = $funcionAsignadora('id_presentacion', $pro['id_presentacion']);
-            $campos[] = $funcionAsignadora('cantidad_producto', $pro['cantidad']);
-          }
-          unset($pro);
-          break;
-        case 'pagos':
-          if (($infoVal['pagos'] ?? []) == []) {
-            return [
-              'tipo' => 'simple',
-              'titulo' => 'Sin detalles de pago agregados',
-              'texto' => 'No ha seleccionado ningún producto aún',
-              'icono' => 'warning',
-            ];
-          }
-          foreach ($infoVal['pagos'] as &$pago) {
-            $pago['monto_pago'] = str_replace('.', '', $pago['monto_pago']);
-            $pago['monto_pago'] = (float)(str_replace(',', '.', $pago['monto_pago']));
-            if ($pago['id_metodo_pago'] == '') {
-              return [
-                'tipo' => 'simple',
-                'titulo' => 'Metodo de pago obligatorio',
-                'texto' => 'No puedes enviar el pedido sin expecificar el método de pago del detalle del pago',
-                'icono' => 'warning'
-              ];
-            }
-            $campos[] = $funcionAsignadora('id_metodo_pago', $pago['id_metodo_pago']);
-            $campos[] = $funcionAsignadora('monto_pago', $pago['monto_pago']);
-            $campos[] = $funcionAsignadora('id_moneda', $pago['id_moneda']);
-            $objMP = new metodosPagoModelo();
-            $MPBD = $objMP->seleccionarMetodosPagos(['id_metodo_pago' => $pago['id_metodo_pago']]);
-            if ($MPBD['necesita_referencia'] == 1) {
-              $campos[] = $funcionAsignadora('referencia_pago', $pago['referencia_pago']);
-            }
-            if ($MPBD['necesita_banco_emisor'] == 1) {
-              $campos[] = $funcionAsignadora('id_banco_emisor', $pago['id_banco_emisor']);
-            }
-            if ($MPBD['necesita_banco_receptor'] == 1) {
-              $campos[] = $funcionAsignadora('id_banco_receptor', $pago['id_banco_receptor']);
-            }
-          };
-          unset($pago);
-          break;
-        case 'comprobantes_pago':
-          if (!isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) {
-            $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-          }
-          break;
-        default:
-          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-          break;
-      }
-    }
-    return $this->limpiar_Verificar($campos);
+      ],
+      'requerido' => $requerido
+    ];
+    return $this->limpiarValidar($info, $esquemaPedidos);
   }
   public function listarPedidos(array $info) {
     if (($info['id_pedido'] ?? '') != "") {
-      $resultado = $this->validarPedidos([
-        'infoVal' => &$info,
-        'camposVal' => [
-          'id_pedido',
-        ],
+      $resultado = $this->validarPedidos($info, [
+        'id_pedido',
       ]);
       if ($resultado) return $resultado;
       $this->idPedido = $info['id_pedido'];
@@ -297,14 +226,12 @@ class pedidosModelo extends conexion {
     return $this->listarPedidosP($info);
   }
   public function registrarPedidos(array $info) {
-    $resultado = $this->validarPedidos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'comprobantes_pago',
-        'productos',
-        'pagos',
-        'delivery'
-      ],
+
+    $resultado = $this->validarPedidos($info, [
+      'comprobantes_pago',
+      'productos',
+      'pagos',
+      'delivery'
     ]);
     if ($resultado) return $resultado;
 
@@ -313,18 +240,14 @@ class pedidosModelo extends conexion {
       'pagos' => $this->pagosPedido,
       'delivery' => $this->deliveryPedido,
     ] = $info;
-    $this->comprobantesPagos = $info['comprobantes_pago'] ?? [];
-
+    $this->comprobantesPagos = $info['comprobantes_pago'];
     return $this->registrarPedidosP();
   }
   public function asignarRepartidoresPedidos(array $info) {
-    $resultado = $this->validarPedidos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_delivery',
-        'id_pedido',
-        'cedula_repartidor',
-      ],
+    $resultado = $this->validarPedidos($info, [
+      'id_delivery',
+      'id_pedido',
+      'cedula_repartidor',
     ]);
     if ($resultado) return $resultado;
 
@@ -334,12 +257,9 @@ class pedidosModelo extends conexion {
     return $this->asignarRepartidoresPedidosP();
   }
   public function actualizarPedidos(array $info) {
-    $resultado = $this->validarPedidos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_pedido',
-        'status_pedido',
-      ],
+    $resultado = $this->validarPedidos($info, [
+      'id_pedido',
+      'status_pedido',
     ]);
     if ($resultado) return $resultado;
     $this->idPedido = $info['id_pedido'];
@@ -347,13 +267,20 @@ class pedidosModelo extends conexion {
 
     return $this->actualizarPedidoP();
   }
+  public function imprimirPedidos(array $info) {
+    $resultado = $this->validarPedidos($info, [
+      'id_pedido',
+    ]);
+    if ($resultado) return $resultado;
+    $this->idPedido = $info['id_pedido'];
+    return $this->imprimirPedidosP();
+  }
 
   private function listarPedidosP(array $info) {
     if ($this->idPedido != '') {
-
       //Generales
       $datosGenerales = $this->seleccionarDatos2([
-        'campos' => '*, fa.status as status_pedido,fa.cedula_usuario',
+        'campos' => '*, fa.status as status_pedido,fa.cedula_usuario,fa.fecha_orden_entrega_presupuesto as fecha_orden',
         'tabla' => 'ordenes_entregas_presupuestos as fa',
         'datosJoins' => [
           'clientes as cl' => 'fa.rif_cedula_cliente = cl.rif_cedula_cliente',
@@ -463,14 +390,19 @@ class pedidosModelo extends conexion {
       ]);
 
       $totalProductos = 0;
+      $totalDescuento = 0;
       foreach ($productos as &$prodInd) {
         $subtotal = $prodInd['cantidad_bruta'] * $prodInd['precio_producto_factura'];
         if ($prodInd['cantidad_bruta'] >= 20) {
           $subtotal -= $subtotal * 0.10;
+          $prodInd['descuento'] = $subtotal * 0.10;
+          $totalDescuento += $subtotal * 0.10;
+          $prodInd['precioSinDescuento'] = $subtotal;
+        } else {
+          $prodInd['descuento'] = 0;
+          $prodInd['precioSinDescuento'] = $subtotal;
         }
-        $prodInd += [
-          'subtotal_factura' => $subtotal,
-        ];
+        $prodInd['subtotal_factura'] = $subtotal;
         $totalProductos += (float)$subtotal;
       }
       unset($prodInd);
@@ -494,7 +426,7 @@ class pedidosModelo extends conexion {
       $idsPagos = $this->indexarArrays([
         "indice" => 'id_pago',
         'camposAgrupar' => 'id_pago',
-        'indicesNumericos'=>true,
+        'indicesNumericos' => true,
         'array' => $detallesPagos,
       ]);
 
@@ -563,8 +495,9 @@ class pedidosModelo extends conexion {
         'correo_cliente',
       ]);
       $datosFactura = $this->intersArray($datosGenerales, [
-        'fecha_orden_entrega_presupuesto',
+        'fecha_orden',
         'status_pedido',
+        'id_orden_entrega_presupuesto',
       ]);
       $cargos = ($totalProductos + $totalEnvio) + (($totalProductos + $totalEnvio) * ($IVA / 100));
       return $datosFactura += [
@@ -579,9 +512,12 @@ class pedidosModelo extends conexion {
           'porcentaje_IVA' => $IVA,
           'totalProductos' => $totalProductos,
           'totalEnvio' => $totalEnvio,
+          'total' => $totalProductos + $totalEnvio,
           'total_IVA' => ($totalProductos + $totalEnvio) + (($totalProductos + $totalEnvio) * ($IVA / 100)),
+          'monto_IVA' => (($totalProductos + $totalEnvio) * ($IVA / 100)),
           'totalPagos' => $totalPagos,
-          'totalGeneral' => round(($totalPagos - $cargos), 2)
+          'totalGeneral' => round(($totalPagos - $cargos), 2),
+          'totalDescuento' => round($totalDescuento, 2),
         ]
       ];
     } else {
@@ -640,12 +576,11 @@ class pedidosModelo extends conexion {
     }
   }
   private function registrarPedidosP() {
-
     $objBitacora = new bitacoraModelo();
     $comprobantesPagos = [];
     $error = function () use ($objBitacora, $comprobantesPagos) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'registrar', 'Fallido', true);
+      $objBitacora->registrarBitacora('pedidos', 'registrar', 'Fallido', null, true);
       if ($comprobantesPagos != []) {
         $this->Imagenes_Eli2('comprobantes_pagos', $comprobantesPagos);
       }
@@ -716,6 +651,7 @@ class pedidosModelo extends conexion {
         'longitud' => $this->deliveryPedido['longitud'],
       ]
     ]);
+
     if (isset($_COOKIE['TEMP']) || isset($_ENV['MODO_TESTEO'])) $distanciaKM = 48;
     if (isset($infoRuta['icono'])) {
       $error();
@@ -940,8 +876,7 @@ class pedidosModelo extends conexion {
     }
 
     //Comprobantes del pago
-    
-    $comprobantesPagos= $this->Imagenes_Reg('comprobantes_pagos',$this->comprobantesPagos,'comprobantes_pagos');
+    $comprobantesPagos = $this->Imagenes_Reg('comprobantes_pagos', $this->comprobantesPagos, 'comprobantes_pagos');
     $this->imgTrans = [
       'subCarpeta' => 'comprobantes_pagos',
       'imagenes' => $comprobantesPagos
@@ -951,7 +886,7 @@ class pedidosModelo extends conexion {
       return [
         'tipo' => 'simple',
         'titulo' => 'Error de guardado',
-        'texto' => 'No se han podido guardar todos los comprobantes del pago!!! '.count($comprobantesPagos),
+        'texto' => 'No se han podido guardar todos los comprobantes del pago!!! ' . count($comprobantesPagos),
         'icono' => 'error',
       ];
     }
@@ -1058,7 +993,27 @@ class pedidosModelo extends conexion {
       'noCommit' => true
     ]);
     if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
-    $objBitacora->registrarBitacora('pedidos', 'registrar', 'Éxito');
+    $diferencias = $this->sacarDiferenciaBitacora([
+      'productos' => $this->productosPedido,
+      'pagos' => $this->pagosPedido,
+      'delivery' => $this->deliveryPedido,
+      'comprobantes_pago' => $comprobantesPagos,
+    ], [], 'pedidos');
+
+    /* $datosDespues = [
+      'productos' => $this->productosPedido,
+      'pagos' => $this->pagosPedido,
+      'delivery' => $this->deliveryPedido,
+      'comprobantes_pago' => $comprobantesPagos,
+    ];
+    $datos = []; */
+    $rb = $objBitacora->registrarBitacora(
+      'pedidos',
+      'registrar pedido con id: ' . $idPedido,
+      'Éxito',
+    );
+    if (($rb['icono'] ?? '') == 'error') return $rb;
+
     $this->commit();
     return [
       'tipo' => 'simple',
@@ -1069,10 +1024,14 @@ class pedidosModelo extends conexion {
     // #endregion TRANSACCIÓN
   }
   private function asignarRepartidoresPedidosP() {
+
+    $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
+    $statusViejo = $dataActualPedido['status_pedido'];
+
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor', 'Fallido', true);
+      $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor', 'Fallido', null, true);
     };
 
     //Delivery
@@ -1116,7 +1075,19 @@ class pedidosModelo extends conexion {
       ];
     }
 
-    $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor', 'Éxito');
+    $loNuevo = [
+      'cedula_repartidor' => $this->deliveryPedido['cedula_repartidor'],
+      'status_pedido' => 7,
+      'cedula_usuario' => $_SESSION['cedula']
+    ];
+    $loViejo = [
+      'status_pedido' => $statusViejo,
+    ];
+    $diferencias = $this->sacarDiferenciaBitacora($loNuevo, $loViejo, 'pedidos');
+    
+    $rb = $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor al pedido con id: ' . $this->idPedido, 'Éxito');
+    if (($rb['icono'] ?? '') == 'error') return $rb;
+
     $this->commit();
     return [
       'tipo' => 'limpiarYcerrar',
@@ -1126,20 +1097,20 @@ class pedidosModelo extends conexion {
     ];
   }
   private function actualizarPedidoP() {
-    $objBitacora = new bitacoraModelo();
 
+    $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'actualizar', 'Fallido', true);
+      $objBitacora->registrarBitacora('pedidos', 'actualizar', 'Fallido', null, true);
     };
-    $dataActualProducto = $this->listarPedidos(['id_pedido' => $this->idPedido]);
-    return $dataActualProducto;
-    [
-      "productos" => $productos,
-    ] = $dataActualProducto;
 
-    //Acciones expecificas
-    $cedulaVendedor = '';
+    $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
+    if (!isset($dataActualPedido['id_pedido'])) return $dataActualPedido;
+    $productos = $dataActualPedido['productos'];
+    $statusViejo = $dataActualPedido['status_pedido'];
+    $productosViejos = [];
+
+    //Acciones expecíficas
     switch ($this->statusPedido) {
       case 6: //Cancelado
         //Devolver stock de los productos
@@ -1187,6 +1158,7 @@ class pedidosModelo extends conexion {
             'icono' => 'error'
           ];
         }
+        $productosViejos = $productos;
         break;
       case 7:
         $cedulaVendedor = $_SESSION['cedula'];
@@ -1197,7 +1169,7 @@ class pedidosModelo extends conexion {
     $resultado = $this->actualizarDatos2([
       'tabla' => 'ordenes_entregas_presupuestos',
       'datos' => [
-        'cedula_usuario' => $cedulaVendedor,
+        'cedula_usuario' => $_SESSION['cedula'],
         'status' => $this->statusPedido,
       ],
       'WHERE' => [
@@ -1214,7 +1186,24 @@ class pedidosModelo extends conexion {
         'icono' => 'error'
       ];
     }
-    $objBitacora->registrarBitacora('pedidos', 'actualizar', 'Éxito');
+
+    $nuevo = [
+      'status_pedido' => $this->statusPedido
+    ];
+    $viejo = [
+      'status_pedido' => $statusViejo,
+    ];
+    if (count($productosViejos) > 0) {
+      $nuevo['productos'] = [];
+      $viejo['productos'] = $productosViejos;
+    }
+    $diferencias = $this->sacarDiferenciaBitacora($nuevo, $viejo, 'pedidos');
+    $rb = $objBitacora->registrarBitacora(
+      'pedidos',
+      'Actualizar pedido con id: ' . $this->idPedido,
+      'Éxito',
+    );
+    if (($rb['icono'] ?? '') == 'error') return $rb;
     $this->commit();
     return [
       'tipo' => 'simple',
@@ -1222,6 +1211,24 @@ class pedidosModelo extends conexion {
       'texto' => 'Se actualizó correctamente el estado del pedido',
       'icono' => 'success'
     ];
+  }
+  private function imprimirPedidosP() {
+    $datosPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
+    if (isset($datosPedido['icono'])) return $datosPedido;
+    $objReportes = new pdfModel([
+      'datosNotaEntrega' => $datosPedido,
+      'header' => false,
+      'footer' => false,
+    ]);
+
+    $objBitacora = new bitacoraModelo();
+    $rb = $objBitacora->registrarBitacora(
+      'pedidos',
+      'Imprimir pedido con id: ' . $this->idPedido,
+      'Éxito'
+    );
+    if (($rb['icono'] ?? '') == 'error') return $rb;
+    return $objReportes->notaEntrega();
   }
 }
 

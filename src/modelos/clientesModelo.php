@@ -5,7 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 
 class clientesModelo extends conexion {
-  
+
   private string $rifCedulaCliente = '';
   private string $razonSocialCliente = '';
   private string $telefonoCliente = '';
@@ -13,7 +13,6 @@ class clientesModelo extends conexion {
   private string $direccionCliente = '';
 
   public function validarClientes(array &$info, $requerido = []) {
-    $info['telefono_cliente']='1234567';
     $esquemaClientes = [
       'tipo' => 'arrayA',
       'propiedades' => [
@@ -26,17 +25,7 @@ class clientesModelo extends conexion {
           'tablaBD' => 'clientes',
           'nombreBD' => 'rif_cedula_cliente',
           'debeSerUnicoBD' => true,
-        ],
-        'razon_social_cliente' => [
-          'tipo' => 'string',
-          "nombreAlerta" => "razón social del cliente",
-          "requerido" => true,
-          "minL" => minRegexNombreObj,
-          "maxL" => maxRegexNombreObj,
-          "regex" => regexNombreObj,
-          "tablaBD" => "clientes",
-          "nombreBD" => "razon_social_cliente",
-          "debeSerUnicoBD" => true,
+          'debeExistirBD' => true,
         ],
         'telefono_cliente' => [
           'tipo' => 'string',
@@ -48,6 +37,16 @@ class clientesModelo extends conexion {
           "tablaBD" => "clientes",
           "nombreBD" => "telefono_cliente",
           "debeSerUnicoBD" => true,
+        ],
+        'razon_social_cliente' => [
+          'tipo' => 'string',
+          "nombreAlerta" => "razón social del cliente",
+          "requerido" => true,
+          "minL" => minRegexNombreObj,
+          "maxL" => maxRegexNombreObj,
+          "regex" => regexNombreObj,
+          "tablaBD" => "clientes",
+          "nombreBD" => "razon_social_cliente",
         ],
         'correo_cliente' => [
           'tipo' => 'string',
@@ -69,15 +68,18 @@ class clientesModelo extends conexion {
           "regex" => regexDescripcion,
         ],
       ],
-      'campoUnicoBD' => 'rif_cedula_cliente',
       'requerido' => $requerido
     ];
-    if (isset($info['cedula_exis'])) $esquemaClientes['propiedades']['rif_cedula_cliente']['debeExistirBD'] = true;
+    // if (isset($info['cedula_exis'])) $esquemaClientes['propiedades']['rif_cedula_cliente']['debeExistirBD'] = true;
     if (isset($info['prefijo_telefono_cliente'])) {
       $info['telefono_cliente'] = $info['prefijo_telefono_cliente'] . $info['telefono_cliente'];
     }
     if (isset($info['codigo_rif_cedula_cliente'])) {
       $info['rif_cedula_cliente'] = $info['codigo_rif_cedula_cliente'] . $info['rif_cedula_cliente'];
+    }
+    if (isset($info['esR'])) {
+      unset($esquemaClientes['propiedades']['rif_cedula_cliente']['debeExistirBD']);
+      unset($info['esR']);
     }
     return $this->limpiarValidar($info, $esquemaClientes);
   }
@@ -93,6 +95,8 @@ class clientesModelo extends conexion {
     return $this->seleccionarClientesP();
   }
   public function registrarClientes(array $info) {
+    $info['esR'] = true;
+
     $resultado = $this->validarClientes($info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
@@ -108,10 +112,9 @@ class clientesModelo extends conexion {
     $this->correoCliente = $info['correo_cliente'];
     $this->direccionCliente = $info['direccion_cliente'];
 
-    return $this->registrarClientesP();
+    return $this->registrarClientesP($info);
   }
   public function actualizarClientes(array $info) {
-    $info['cedula_exis'] = true;
     $resultado = $this->validarClientes($info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
@@ -127,16 +130,15 @@ class clientesModelo extends conexion {
     $this->correoCliente = $info['correo_cliente'];
     $this->direccionCliente = $info['direccion_cliente'];
 
-    return $this->actualizarClientesP();
+    return $this->actualizarClientesP($info);
   }
   public function eliminarClientes(array $info) {
-    $info['cedula_exis'] = true;
     $resultado = $this->validarClientes($info, [
       'rif_cedula_cliente_act' => 'rif_cedula_cliente',
     ]);
     if ($resultado) return $resultado;
     $this->rifCedulaCliente = $info['rif_cedula_cliente'];
-    return $this->eliminarClientesP();
+    return $this->eliminarClientesP($info);
   }
 
   private function seleccionarClientesP() {
@@ -161,7 +163,8 @@ class clientesModelo extends conexion {
       ])->fetch();
     }
   }
-  private function registrarClientesP() {
+  private function registrarClientesP(array $info) {
+
     $ultimoID = $this->guardarDatos2([
       "tabla" => 'clientes',
       'datos' => [
@@ -176,25 +179,24 @@ class clientesModelo extends conexion {
       ]
     ]);
 
-    if ($ultimoID !== false && $ultimoID > 0) {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Cliente registrado",
-        "texto" => "El cliente ha sido registrado exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
+    if ($ultimoID === false || $ultimoID <= 0) {
+      return [
         "tipo" => "simple",
         "titulo" => "Cliente no registrado",
         "texto" => "El cliente no ha sido registrado exitosamente",
         "icono" => "error",
       ];
     }
-    return $alerta;
+
+    if (!isset($info['sinCommit'])) $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Cliente registrado",
+      "texto" => "El cliente ha sido registrado exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function actualizarClientesP() {
+  private function actualizarClientesP(array $info) {
     $resultado = $this->actualizarDatos2([
       "tabla" => "clientes",
       "datos" => [
@@ -209,46 +211,44 @@ class clientesModelo extends conexion {
       ]
     ]);
     if ($resultado == false || $resultado <= 0) {
-      $alerta = [
+      return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
         "texto" => "No se han realizado cambios en el registro",
         "icono" => "warning",
       ];
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Cliente actualizado",
-        "texto" => "El cliente ha sido actualizado exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
     }
-    return $alerta;
+    if (!isset($info['sinCommit'])) $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Cliente actualizado",
+      "texto" => "El cliente ha sido actualizado exitosamente",
+      "icono" => "success",
+    ];
   }
-  private function eliminarClientesP() {
+  private function eliminarClientesP(array $info) {
     $eliminarCliente = $this->eliminarDatos2([
       'tabla' => 'clientes',
       'WHERE' => [
         'rif_cedula_cliente' => $this->rifCedulaCliente
       ]
     ]);
-    if ($eliminarCliente >= 1) {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Cliente eliminado",
-        "texto" => "El cliente ha sido eliminado exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
+    if ($eliminarCliente <= 0) {
     } else {
-      $alerta = [
+      return [
         "tipo" => "simple",
         "titulo" => "Cliente no encontrado",
         "texto" => "El cliente no existe en la base de datos",
         "icono" => "error",
       ];
     }
-    return $alerta;
+
+    if (!isset($info['sinCommit'])) $this->commit();
+    return [
+      "tipo" => "simple",
+      "titulo" => "Cliente eliminado",
+      "texto" => "El cliente ha sido eliminado exitosamente",
+      "icono" => "success",
+    ];
   }
 }

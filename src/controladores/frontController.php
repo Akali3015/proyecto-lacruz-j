@@ -28,6 +28,7 @@ class frontController
       'clientes',
       'compras',
       'empresasEnvios',
+      'exportar',
       'facturacion',
       'insumos',
       'inventario',

@@ -229,6 +229,7 @@ class metodosPagoModelo extends conexion {
     }
   }
   private function registrarMetodosPagosP() {
+    $objBitacora = new bitacoraModelo();
     $resultado = $this->guardarDatos2([
       'tabla' => 'metodos_pagos',
       'datos' => [
@@ -242,7 +243,8 @@ class metodosPagoModelo extends conexion {
       ]
     ]);
     if ($resultado <= 0) {
-      $this->rollback();
+      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'registrar', 'fallido', true);
+      if (($rb['icono'] ?? '') == 'error') return $rb;
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -250,6 +252,9 @@ class metodosPagoModelo extends conexion {
         "icono" => "error"
       ];
     }
+    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'registrar', 'éxito');
+    if ($rb) return $rb;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -271,8 +276,11 @@ class metodosPagoModelo extends conexion {
       ],
       'WHERE' => ["id_metodo_pago" => $this->idMetodoPago]
     ]);
+
+    $objBitacora = new bitacoraModelo();
     if ($resultado == false || $resultado <= 0) {
-      $this->rollback();
+      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'actualizar', 'error', true);
+      if (($rb['icono'] ?? '') == 'error') return $rb;
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -280,6 +288,9 @@ class metodosPagoModelo extends conexion {
         "icono" => "error"
       ];
     }
+    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'actualizar', 'éxito');
+    if ($rb) return $rb;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -289,12 +300,33 @@ class metodosPagoModelo extends conexion {
     ];
   }
   private function eliminarMetodosPagosP() {
-    $resultado = $this->eliminarDatos2(['tabla' => 'metodos_pagos', 'WHERE' => ["id_metodo_pago" => $this->idMetodoPago]]);
-    if ($resultado > 0) {
-      $this->commit();
-      return ["tipo" => "simple", "titulo" => "Eliminado", "texto" => "El método ha sido desactivado", "icono" => "success"];
+    $resultado = $this->eliminarDatos2([
+      'tabla' => 'metodos_pagos',
+      'WHERE' => [
+        "id_metodo_pago" => $this->idMetodoPago
+      ]
+    ]);
+
+    $objBitacora = new bitacoraModelo();
+    if ($resultado <= 0) {
+      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'eliminar', 'error', true);
+      if (($rb['icono'] ?? '') == 'error') return $rb;
+      return [
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "No se pudo eliminar",
+        "icono" => "error"
+      ];
     }
-    $this->rollback();
-    return ["tipo" => "simple", "titulo" => "Error", "texto" => "No se pudo eliminar", "icono" => "error"];
+
+    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'eliminar', 'éxito');
+    if ($rb) return $rb;
+    $this->commit();
+    return [
+      "tipo" => "simple",
+      "titulo" => "Eliminado",
+      "texto" => "El método ha sido desactivado",
+      "icono" => "success"
+    ];
   }
 }

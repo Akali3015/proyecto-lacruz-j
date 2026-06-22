@@ -11,10 +11,12 @@ class pdfModel extends FPDF {
   private bool $header = true;
   private bool $footer = true;
   private array $datosExtraCabecera = [];
+  public array|bool $dataNotaEntrega = false;
 
   public function __construct($instrucciones = null) {
     $this->header = $instrucciones['header'] ?? true;
     $this->footer = $instrucciones['footer'] ?? true;
+    $this->dataNotaEntrega = $instrucciones['datosNotaEntrega'] ?? false;
     switch ($instrucciones['tamanoPagina'] ?? '') {
       case 'carta':
         $instrucciones['tamanoPagina'] = [216, 280];
@@ -27,6 +29,9 @@ class pdfModel extends FPDF {
         break;
       case 'factura80':
         $instrucciones['tamanoPagina'] = [80, 600];
+        break;
+      default:
+        $instrucciones['tamanoPagina'] = [216, 280];
         break;
     }
     parent::__construct(
@@ -111,6 +116,53 @@ class pdfModel extends FPDF {
         }
       }
     }
+    if ($this->dataNotaEntrega) {
+      // Cuadro exterior superior (Opcional, para delimitar la zona superior si se desea)
+      $this->Rect(10, 10, 190, 28);
+      $this->Image($_SERVER['DOCUMENT_ROOT'] . '/proyecto-lacruz-j/src/assets/images/logo2.png', 12, 15, 23, 20);
+
+      // Datos de la Empresa (Izquierda)
+      $this->SetFont('Arial', '', 7);
+      $this->SetTextColor(0);
+      $this->SetXY(35, 12);
+      $this->Cell(70, 3, 'J. LACRUZ C.A.', 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, 'MULTISERVICIOS GENERALES', 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('Telefonos: +58 424-5085666 / 0414-5718890'), 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('Dirección: Vda 21 Calle 6 Nro C-52'), 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('Barrio José Gregorio Hernández'), 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('Barquisimeto, Estado Lara'), 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('Zona Postal 3001'), 0, 1);
+      $this->SetX(35);
+      $this->Cell(70, 3, $this->CSE('RIF: J-412192701'), 0, 1);
+
+      // Bloque de la Nota de Entrega (Derecha)
+      $this->SetXY(115, 11);
+      $this->SetFont('Arial', 'B', 12);
+      $this->Cell(80, 5, 'NOTA DE ENTREGA', 0, 1, 'C');
+      $this->Ln(3);
+
+      $this->SetFont('Arial', '', 7);
+      $this->SetX(115);
+
+      $this->Cell(40, 3.5, $this->CSE('Fecha Emisión:'), 0, 0);
+      $this->Cell(40, 3.5, $this->FechaHora_Sel('fecha_hora_AM_PM', $this->dataNotaEntrega['fecha_orden']), 0, 1, 'R');
+      $this->SetX(115);
+      $this->Cell(40, 3.5, $this->CSE('Fecha Impresión:'), 0, 0);
+      $this->Cell(40, 3.5, $this->FechaHora_Sel('Fecha_Hora_Actual'), 0, 1, 'R');
+
+      $this->SetXY(115, 28);
+      $this->Cell(35, 6, $this->CSE('Cod. Orden Entrega:'), 1, 0, 'C');
+      $this->SetFont('Arial', 'B', 9);
+      $this->Cell(45, 6, $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 1, 1, 'C');
+
+      $this->Ln(5);
+    }
   }
   function Footer() {
     if ($this->footer) {
@@ -123,78 +175,12 @@ class pdfModel extends FPDF {
       $this->Cell(0, 10, $pagina . ' ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
     }
   }
-  function RoundedRect(int $x, int $y, int $w, int $h, int $r, string $corners = '1234', string $style = '') {
-    $k = $this->k;
-    $hp = $this->h;
-    if ($style == 'F')
-      $op = 'f';
-    elseif ($style == 'FD' || $style == 'DF')
-      $op = 'B';
-    else
-      $op = 'S';
-    $MyArc = 4 / 3 * (sqrt(2) - 1);
-    $this->_out(sprintf('%.2F %.2F m', ($x + $r) * $k, ($hp - $y) * $k));
-
-    $xc = $x + $w - $r;
-    $yc = $y + $r;
-    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - $y) * $k));
-    if (strpos($corners, '2') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $y) * $k));
-    else
-      $this->_Arc($xc + $r * $MyArc, $yc - $r, $xc + $r, $yc - $r * $MyArc, $xc + $r, $yc);
-
-    $xc = $x + $w - $r;
-    $yc = $y + $h - $r;
-    $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $yc) * $k));
-    if (strpos($corners, '3') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - ($y + $h)) * $k));
-    else
-      $this->_Arc($xc + $r, $yc + $r * $MyArc, $xc + $r * $MyArc, $yc + $r, $xc, $yc + $r);
-
-    $xc = $x + $r;
-    $yc = $y + $h - $r;
-    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - ($y + $h)) * $k));
-    if (strpos($corners, '4') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - ($y + $h)) * $k));
-    else
-      $this->_Arc($xc - $r * $MyArc, $yc + $r, $xc - $r, $yc + $r * $MyArc, $xc - $r, $yc);
-
-    $xc = $x + $r;
-    $yc = $y + $r;
-    $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $yc) * $k));
-    if (strpos($corners, '1') === false) {
-      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $y) * $k));
-      $this->_out(sprintf('%.2F %.2F l', ($x + $r) * $k, ($hp - $y) * $k));
-    } else
-      $this->_Arc($xc - $r, $yc - $r * $MyArc, $xc - $r * $MyArc, $yc - $r, $xc, $yc - $r);
-    $this->_out($op);
-  }
-  function _Arc(int $x1, int $y1, int  $x2, int  $y2, int $x3, int $y3) {
-    $h = $this->h;
-    $this->_out(sprintf(
-      '%.2F %.2F %.2F %.2F %.2F %.2F c ',
-      $x1 * $this->k,
-      ($h - $y1) * $this->k,
-      $x2 * $this->k,
-      ($h - $y2) * $this->k,
-      $x3 * $this->k,
-      ($h - $y3) * $this->k
-    ));
-  }
-  function RoundedCell(int $w, int $h, string $txt, int  $radius, array $colorCelda = array(255, 255, 255), array $colorTexto = array(0, 0, 0)) {
-    $x = $this->GetX();
-    $y = $this->GetY();
-    $this->SetFillColor($colorCelda[0], $colorCelda[1], $colorCelda[2]);
-    $this->RoundedRect($x, $y, $w, $h, $radius, 'DF');
-    $this->SetTextColor($colorTexto[0], $colorTexto[1], $colorTexto[2]);
-    $this->Cell($w, $h, $txt, 0, 0, 'C');
-  }
   public function crearPDF(array $datosPdf) {
     $procesarSecciones = function ($datosPdf, $nroSeccion = null) {
 
       $configColumnas = $datosPdf['configColumnas'];
       $infoBD = $datosPdf['infoBD'];
-      $this->tituloEncabezado = mb_convert_encoding($datosPdf['tituloReporte'] ?? '', 'ISO-8859-1', 'UTF-8');
+      $this->tituloEncabezado = $this->CSE($datosPdf['tituloReporte'] ?? '');
       $this->datosExtraCabecera = $datosPdf['datosExtCabecera'] ?? [];
 
       // Primera sección o sección única: inicializar el documento
@@ -210,8 +196,7 @@ class pdfModel extends FPDF {
         $this->Ln();
         if (count($this->datosExtraCabecera) > 0) {
           foreach ($this->datosExtraCabecera as $dato) {
-            $dato = mb_convert_encoding($dato, 'ISO-8859-1', 'UTF-8');
-            $this->Cell(0, 10, $dato, 0, 1, 'C');
+            $this->Cell(0, 10, $this->CSE($dato), 0, 1, 'C');
           }
         }
       }
@@ -219,13 +204,13 @@ class pdfModel extends FPDF {
       //Dibujamos los encabezados
       $this->SetFont("Arial", "B", "12");
       foreach ($configColumnas as $configInd) {
-        $encabezado_convertido = mb_convert_encoding($configInd[0], 'ISO-8859-1', 'UTF-8');
-        $this->Cell($configInd[1], 10, $encabezado_convertido, 1, 0, 'C');
+        $this->Cell($configInd[1], 10, $this->CSE($configInd[0]), 1, 0, 'C');
       }
       $this->Ln();
 
       //Dibujamos las filas de datos
       $this->SetFont("Arial", "", "10");
+      $alturaFila = 0;
 
       // Guardar la posición actual X y Y
       $x = $this->GetX();
@@ -235,7 +220,7 @@ class pdfModel extends FPDF {
       foreach ($infoBD as $fila) {
         $xActual = $x;
 
-        //Calculamos el ancho de la fila
+        // Calculamos el ancho de la fila
         $anchoCeldaMasGrande = 0;
         foreach ($clavesArreglo as $clave) {
           $anchoCeldaMasGrande = max($anchoCeldaMasGrande, $this->calcularLineas($configColumnas[$clave][1], $fila[$clave]));
@@ -247,8 +232,7 @@ class pdfModel extends FPDF {
           //Redibujamos los encabezados
           $this->SetFont("Arial", "B", "12");
           foreach ($configColumnas as $configInd) {
-            $encabezado_convertido = mb_convert_encoding($configInd[0], 'ISO-8859-1', 'UTF-8');
-            $this->Cell($configInd[1], 10, $encabezado_convertido, 1, 0, 'C');
+            $this->Cell($configInd[1], 10, $this->CSE($configInd[0]), 1, 0, 'C');
           }
           $this->Ln();
           $this->SetFont("Arial", "", "10");
@@ -262,14 +246,14 @@ class pdfModel extends FPDF {
           // Borde
           $this->Rect($xActual, $y, $configColumnas[$claveInd][1], $alturaFila);
           $this->SetXY($xActual, $y);
-          $textoFila = mb_convert_encoding($fila[$claveInd], 'ISO-8859-1', 'UTF-8');
-          $this->MultiCell($configColumnas[$claveInd][1], 5, $textoFila, 0, 'C');
+          $this->MultiCell($configColumnas[$claveInd][1], 5, $this->CSE($fila[$claveInd]), 0, 'C');
           $xActual += $configColumnas[$claveInd][1];
         }
         // Mover a la siguiente fila actualizando la posición Y
         $y += $alturaFila;
       }
     };
+
     if (isset($datosPdf[0])) {
       foreach ($datosPdf as $numeroArray => &$datoPdf) {
         $procesarSecciones($datoPdf, $numeroArray);
@@ -410,8 +394,7 @@ class pdfModel extends FPDF {
           // Mover a la siguiente fila actualizando la posición Y
           $y += $alturaFila;
         }
-        $yFinalProductos = $this->GetY() + $alturaFila - 6;
-        $this->SetY($yFinalProductos);
+        $this->SetY($this->GetY() + ($alturaFila ?? 0) - 6);
       }
 
       $this->Cell(0, 5, '', 0, 1);
@@ -447,193 +430,185 @@ class pdfModel extends FPDF {
     }
     return $this;
   }
-}
-/* class PDF extends FPDF {
-  // Cabecera del documento (Logo, Nombre de empresa y Título del documento)
-  function Header() {
-    // Cuadro exterior superior (Opcional, para delimitar la zona superior si se desea)
-    $this->Rect(10, 10, 190, 25);
-
-    // Logo de la empresa (Reemplazar 'logo.png' por tu archivo real)
-    // $this->Image('logo.png', 12, 12, 20); 
-
-    // Simulación de logo con texto en caso de no tener imagen
-    $this->SetFont('Arial', 'B', 16);
-    $this->SetTextColor(12, 35, 114); // Color azul del logo
-    $this->Text(15, 25, 'eF');
-
-    // Datos de la Empresa (Izquierda)
-    $this->SetFont('Arial', '', 7);
-    $this->SetTextColor(0);
-    $this->SetXY(35, 12);
-    $this->Cell(70, 3, 'eFactory Software ERP en la Nube', 0, 1);
-    $this->SetX(35);
-    $this->Cell(70, 3, 'R.I.F.: J-0102030405-9', 0, 1);
-    $this->SetX(35);
-    $this->Cell(70, 3, 'Direccion: 10470 NW 26 Street, Doral, Florida 33172, USA.', 0, 1);
-    $this->SetX(35);
-    $this->Cell(70, 3, 'Telefonos: 0241-8963254', 0, 1);
-
-    // Bloque de la Nota de Entrega (Derecha)
-    $this->SetXY(115, 11);
-    $this->SetFont('Arial', 'B', 12);
-    $this->Cell(80, 5, 'NOTA DE ENTREGA', 0, 1, 'C');
-
-    $this->SetFont('Arial', '', 7);
-    $this->SetX(115);
-    $this->Cell(40, 3.5, 'Fecha Impresion:', 0, 0);
-    $this->Cell(40, 3.5, '07/06/2021', 0, 1, 'R');
-    $this->SetX(115);
-    $this->Cell(40, 3.5, 'Hora Impresion:', 0, 0);
-    $this->Cell(40, 3.5, '04:49:00 p.m.', 0, 1, 'R');
-    $this->SetX(115);
-    $this->Cell(40, 3.5, 'Fecha Emision:', 0, 0);
-    $this->Cell(40, 3.5, '10/03/2021', 0, 1, 'R');
-
-    // Número de Entrega con recuadro
-    $this->SetXY(115, 26);
-    $this->Cell(35, 6, 'Entrega Numero:', 1, 0, 'C');
-    $this->SetFont('Arial', 'B', 9);
-    $this->Cell(45, 6, '0000000001', 1, 1, 'C');
-
-    $this->Ln(5);
-  }
-
-  // Pie de página con el enlace del sistema
-  function Footer() {
-    $this->SetY(-15);
-    $this->SetFont('Arial', '', 7);
-    $this->Cell(95, 10, 'https://efactoryerp.com', 0, 0, 'L');
-    $this->Cell(95, 10, 'eFactory Administrativo - Garmi : JJT : fNEntregas_Clientes.aspx', 0, 0, 'R');
-  }
-
   public function notaEntrega() {
-    // Inicializar el objeto PDF (Formato Carta / Letter)
-    $pdf = new PDF('P', 'mm', 'Letter');
-    $pdf->SetMargins(10, 10, 10);
-    $pdf->AddPage();
+    $this->SetMargins(10, 10, 10);
+    $this->AddPage();
 
-    // --- SECCIÓN: DATOS DEL CLIENTE ---
-    $pdf->Rect(10, 40, 190, 25); // Cuadro contenedor de cliente
-    $pdf->SetFont('Arial', '', 8);
+    $this->Rect(10, 43, 190, 15);
+    $this->SetFont('Arial', '', 8);
 
-    $pdf->SetXY(12, 42);
-    $pdf->Cell(20, 4, 'Cliente:', 0, 0);
-    $pdf->SetFont('Arial', 'B', 8);
-    $pdf->Cell(40, 4, '1118', 0, 0);
-    $pdf->Cell(60, 4, 'Cliente 1118', 0, 1);
+    $itemPedido = $this->dataNotaEntrega ?: [];
+    $cliente = $itemPedido['cliente'] ?? [];
 
-    $pdf->SetX(12);
-    $pdf->SetFont('Arial', '', 8);
-    $pdf->Cell(20, 4, 'R.I.F.:', 0, 0);
-    $pdf->Cell(40, 4, 'El RIF', 0, 0);
-    $pdf->Cell(15, 4, 'N.I.T.:', 0, 0);
-    $pdf->Cell(40, 4, 'El NIT', 0, 1);
+    $this->SetXY(12, 45);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(20, 4, 'Cliente:', 0, 0,);
+    $this->SetFont('Arial', '', 8);
+    $this->Cell(60, 4, $this->CSE($cliente['razon_social_cliente'] ?? ''), 0, 1);
 
-    $pdf->SetX(12);
-    $pdf->Cell(20, 4, 'Direccion:', 0, 0);
-    $pdf->Cell(160, 4, 'La Direccion, Calle, Avenida, CC, Oficina', 0, 1);
+    $this->SetX(12);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(20, 4, $this->CSE('RIF/CÉDULA:'), 0, 0);
+    $this->SetFont('Arial', '', 8);
+    $this->Cell(40, 4, $this->CSE($cliente['rif_cedula_cliente'] ?? ''), 0, 0);
 
-    $pdf->SetX(12);
-    $pdf->Cell(20, 4, 'Telefonos:', 0, 0);
-    $pdf->Cell(80, 4, 'Numero Telf', 0, 0);
-    $pdf->Cell(15, 4, 'FAX:', 0, 0);
-    $pdf->Cell(65, 4, '', 0, 1);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(20, 4, $this->CSE('Teléfono:'), 0, 0);
+    $this->SetFont('Arial', '', 8);
+    $this->Cell(80, 4, $this->CSE($cliente['telefono_cliente'] ?? ''), 0, 1);
 
-    // --- SECCIÓN: CONDICIONES DE PAGO ---
-    $pdf->SetY(66);
-    $pdf->Cell(30, 5, 'Condicion de Pago:', 'B', 0);
-    $pdf->SetFont('Arial', 'B', 8);
-    $pdf->Cell(40, 5, 'CONTADO', 'B', 0);
-    $pdf->SetFont('Arial', '', 8);
-    $pdf->Cell(20, 5, 'Vencimiento:', 'B', 0);
-    $pdf->Cell(30, 5, '10/03/2021', 'B', 0);
-    $pdf->Cell(15, 5, 'Asesor:', 'B', 0);
-    $pdf->Cell(55, 5, 'Vendedor JLRondon', 'B', 1);
+    $this->SetX(12);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(20, 4, $this->CSE('Dirección:'), 0, 0);
+    $this->SetFont('Arial', '', 8);
+    $this->Cell(100, 4, $this->CSE($cliente['direccion_cliente'] ?? ''), 0, 1);
 
-    $pdf->Ln(4);
+    $this->SetY(60);
+    $this->Cell(30, 5, $this->CSE('Condición de Pago:'), 'B', 0);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(70, 5, $this->CSE('CANCELADO'), 'B', 0);
 
-    // --- SECCIÓN: TABLA DE ARTÍCULOS ---
-    // Definición de anchos de columna para consistencia total
-    $w = array(20, 55, 20, 20, 20, 15, 15, 25);
-    $headers = array('Código', 'Descripción', 'Unidad', 'Cantidad', 'Precio Unit.', '% Des', '% Imp', 'Total');
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(15, 5, 'Asesor:', 'B', 0);
+    $this->SetFont('Arial', '', 8);
+    $this->Cell(75, 5,  $this->CSE($cliente['vendedor'] ?? 'NO ATENDIDO'), 'B', 1);
 
-    // Encabezados de la tabla
-    $pdf->SetFont('Arial', 'B', 8);
-    for ($i = 0; $i < count($headers); $i++) {
-      // Centrar o alinear a la derecha según el tipo de dato
-      $align = ($i >= 3) ? 'R' : 'L';
-      $pdf->Cell($w[$i], 5, utf8_decode($headers[$i]), 'B', 0, $align);
+    $this->Ln(4);
+
+    $fnBolivares = function ($valor) {
+      $d = (float)$this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'];
+      return round((((float) $valor) * $d), 2);
+      
+    };
+
+    //Encabezados
+    $anchosE = array(30, 65, 20, 20, 15, 15, 25);
+    $encabezados = array('Código', 'Descripción', 'Cantidad', 'Precio Unit.', 'Des', 'I.V.A', 'Total');
+    $this->SetFont('Arial', 'B', 8);
+    for ($i = 0; $i < count($encabezados); $i++) {
+      $this->Cell($anchosE[$i], 5,  $this->CSE($encabezados[$i]), 'B', 0, 'C');
     }
-    $pdf->Ln(6);
+    $this->Ln();
 
-    // Datos de prueba basados en tu imagen
-    $articulos = [
-      ['PT001305', 'Descripción del Artículo PT001305', 'CAJ24*200', '10,00', '27,30', '5,00', '16,00', '259,35'],
-      ['PT001618', 'Descripción del Artículo PT001618', 'CAJ24*300', '10,00', '27,50', '10,00', '16,00', '247,50'],
-      ['PT001627', 'Descripción del Artículo PT001627', 'CAJ24*300', '10,00', '26,43', '5,00', '16,00', '251,08'],
-      ['PT001636', 'Descripción del Artículo PT001636', 'CAJ24*300', '10,00', '29,30', '5,00', '16,00', '278,35'],
-      ['PT001665', 'Descripción del Artículo PT001665', 'CAJ24*300', '10,00', '29,87', '3,00', '16,00', '289,74']
-    ];
-
-    $pdf->SetFont('Arial', '', 7.5);
-    foreach ($articulos as $row) {
-      $pdf->Cell($w[0], 5, $row[0], 0, 0, 'L');
-      $pdf->Cell($w[1], 5, utf8_decode($row[1]), 0, 0, 'L');
-      $pdf->Cell($w[2], 5, $row[2], 0, 0, 'L');
-      $pdf->Cell($w[3], 5, $row[3], 0, 0, 'R');
-      $pdf->Cell($w[4], 5, $row[4], 0, 0, 'R');
-      $pdf->Cell($w[5], 5, $row[5], 0, 0, 'R');
-      $pdf->Cell($w[6], 5, $row[6], 0, 0, 'R');
-      $pdf->Cell($w[7], 5, $row[7], 0, 1, 'R');
+    $this->SetFont('Arial', '', 7.5);
+    foreach (($itemPedido['productos'] ?? []) as $producto) {
+      $this->Cell(30, 5, $this->CSE($producto['id_presentacion_producto']), 0, 0, 'C');
+      $this->Cell(65, 5, $this->CSE($producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion']), 0, 0, 'C');
+      $this->Cell(20, 5, $this->CSE($producto['cantidad_producto']), 0, 0, 'C');
+      $this->Cell(20, 5, $this->CSE($fnBolivares($producto['precio_producto_factura'])) . ' Bs', 0, 0, 'C');
+      $this->Cell(15, 5, $this->CSE($fnBolivares($producto['descuento'])) . ' Bs', 0, 0, 'C');
+      $this->Cell(15, 5, $this->CSE($itemPedido['calculos']['porcentaje_IVA'] ?? 'C') . '%', 0, 0, 'C');
+      $this->Cell(25, 5, $this->CSE($fnBolivares($producto['subtotal_factura'])) . ' Bs', 0, 1, 'R');
     }
 
-    // --- SECCIÓN: ABAJO (OBSERVACIONES Y TOTALES) ---
-    // Forzamos posición en la parte inferior de la página para que coincida con el diseño
-    $pdf->SetY(225);
+    //Delivery
+    $this->Cell(30, 5, '--------', 0, 0, 'C');
+    $this->Cell(65, 5, $this->CSE('ENVÍO'), 0, 0, 'C');
+    $this->Cell(20, 5, '1.00', 0, 0, 'C');
+    $this->Cell(20, 5, $this->CSE($fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio'])).' Bs', 0, 0, 'C');
+    $this->Cell(15, 5, '0.00 Bs', 0, 0, 'C');
+    $this->Cell(15, 5, $this->CSE($itemPedido['calculos']['porcentaje_IVA'] ?? 'C') . '%', 0, 0, 'C');
+    $this->Cell(25, 5, $this->CSE($fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio'])).' Bs', 0, 1, 'R');
 
-    // Cuadro de Observaciones (Izquierda)
-    $pdf->Rect(10, 225, 105, 25);
-    $pdf->SetXY(12, 227);
-    $pdf->SetFont('Arial', 'B', 8);
-    $pdf->Cell(30, 4, 'Observaciones:', 0, 1);
+    $this->SetY(225);
+    $this->Rect(10, 225, 105, 25);
+    $this->SetXY(12, 227);
+    $this->SetFont('Arial', 'B', 8);
+    $this->Cell(30, 4, 'Observaciones:', 0, 1);
 
-    // Cuadro de Totales (Derecha)
-    $pdf->Rect(120, 225, 80, 25);
-    $pdf->SetXY(122, 226);
-    $pdf->SetFont('Arial', '', 8);
+    $this->Rect(120, 225, 80, 25);
+    $this->SetXY(122, 226);
+    $this->SetFont('Arial', '', 8);
 
-    // Subtotal
-    $pdf->Cell(40, 4.5, 'Subtotal:', 0, 0);
-    $pdf->Cell(36, 4.5, '1.326,02', 0, 1, 'R');
+    $this->Cell(40, 4.5, 'Subtotal:', 0, 0);
 
-    // Descuentos
-    $pdf->SetX(122);
-    $pdf->Cell(20, 4.5, 'Descuentos:', 0, 0);
-    $pdf->Cell(15, 4.5, '0,00  %', 0, 0, 'R');
-    $pdf->Cell(41, 4.5, '0,00', 0, 1, 'R');
+    $this->Cell(36, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['total']).' Bs', 0, 1, 'R');
 
-    // Recargos
-    $pdf->SetX(122);
-    $pdf->Cell(20, 4.5, 'Recargos:', 0, 0);
-    $pdf->Cell(15, 4.5, '0,00  %', 0, 0, 'R');
-    $pdf->Cell(41, 4.5, '0,00', 0, 1, 'R');
+    $this->SetX(122);
+    $this->Cell(20, 4.5, 'Descuentos:', 0, 0);
+    $this->Cell(56, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['totalDescuento']).' Bs', 0, 1, 'R');
 
-    // I.V.A.
-    $pdf->SetX(122);
-    $pdf->Cell(20, 4.5, 'I.V.A.:', 0, 0);
-    $pdf->Cell(15, 4.5, '( 16,00%)', 0, 0, 'R');
-    $pdf->Cell(41, 4.5, '212,16', 0, 1, 'R');
+    $this->SetX(122);
+    $this->Cell(20, 4.5, 'I.V.A ('.$this->dataNotaEntrega['calculos']['porcentaje_IVA'].'%):', 0, 0);
+    $this->Cell(56, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['monto_IVA']).' Bs', 0, 1, 'R');
 
-    // Línea divisoria antes del total absoluto
-    $pdf->Line(120, 248, 200, 248);
+    $this->Line(120, 240, 200, 240);
 
-    // TOTAL final
-    $pdf->SetXY(122, 248.5);
-    $pdf->SetFont('Arial', 'B', 9);
-    $pdf->Cell(40, 5, 'TOTAL:', 0, 0);
-    $pdf->Cell(36, 5, '1.538,18', 0, 1, 'R');
+    $this->SetXY(122, 245)
+    ;
+    $this->SetFont('Arial', 'B', 9);
+    $this->Cell(40, 5, 'TOTAL:', 0, 0);
+    $this->Cell(36, 5, $fnBolivares($this->dataNotaEntrega['calculos']['total_IVA']).' Bs', 0, 1, 'R');
 
-    return $pdf;
+    return $this;
   }
-} */
+  public function CSE(string $string) {
+    return mb_convert_encoding($string, 'ISO-8859-1', 'UTF-8');
+  }
+  function RoundedRect(int $x, int $y, int $w, int $h, int $r, string $corners = '1234', string $style = '') {
+    $k = $this->k;
+    $hp = $this->h;
+    if ($style == 'F')
+      $op = 'f';
+    elseif ($style == 'FD' || $style == 'DF')
+      $op = 'B';
+    else
+      $op = 'S';
+    $MyArc = 4 / 3 * (sqrt(2) - 1);
+    $this->_out(sprintf('%.2F %.2F m', ($x + $r) * $k, ($hp - $y) * $k));
+
+    $xc = $x + $w - $r;
+    $yc = $y + $r;
+    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - $y) * $k));
+    if (strpos($corners, '2') === false)
+      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $y) * $k));
+    else
+      $this->_Arc($xc + $r * $MyArc, $yc - $r, $xc + $r, $yc - $r * $MyArc, $xc + $r, $yc);
+
+    $xc = $x + $w - $r;
+    $yc = $y + $h - $r;
+    $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $yc) * $k));
+    if (strpos($corners, '3') === false)
+      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - ($y + $h)) * $k));
+    else
+      $this->_Arc($xc + $r, $yc + $r * $MyArc, $xc + $r * $MyArc, $yc + $r, $xc, $yc + $r);
+
+    $xc = $x + $r;
+    $yc = $y + $h - $r;
+    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - ($y + $h)) * $k));
+    if (strpos($corners, '4') === false)
+      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - ($y + $h)) * $k));
+    else
+      $this->_Arc($xc - $r * $MyArc, $yc + $r, $xc - $r, $yc + $r * $MyArc, $xc - $r, $yc);
+
+    $xc = $x + $r;
+    $yc = $y + $r;
+    $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $yc) * $k));
+    if (strpos($corners, '1') === false) {
+      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $y) * $k));
+      $this->_out(sprintf('%.2F %.2F l', ($x + $r) * $k, ($hp - $y) * $k));
+    } else
+      $this->_Arc($xc - $r, $yc - $r * $MyArc, $xc - $r * $MyArc, $yc - $r, $xc, $yc - $r);
+    $this->_out($op);
+  }
+  function _Arc(int $x1, int $y1, int  $x2, int  $y2, int $x3, int $y3) {
+    $h = $this->h;
+    $this->_out(sprintf(
+      '%.2F %.2F %.2F %.2F %.2F %.2F c ',
+      $x1 * $this->k,
+      ($h - $y1) * $this->k,
+      $x2 * $this->k,
+      ($h - $y2) * $this->k,
+      $x3 * $this->k,
+      ($h - $y3) * $this->k
+    ));
+  }
+  function RoundedCell(int $w, int $h, string $txt, int  $radius, array $colorCelda = array(255, 255, 255), array $colorTexto = array(0, 0, 0)) {
+    $x = $this->GetX();
+    $y = $this->GetY();
+    $this->SetFillColor($colorCelda[0], $colorCelda[1], $colorCelda[2]);
+    $this->RoundedRect($x, $y, $w, $h, $radius, 'DF');
+    $this->SetTextColor($colorTexto[0], $colorTexto[1], $colorTexto[2]);
+    $this->Cell($w, $h, $txt, 0, 0, 'C');
+  }
+}

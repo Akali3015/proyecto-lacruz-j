@@ -34,13 +34,6 @@ class componentesModelo extends conexion {
         'texto' => 'Pedidos',
       ],
       [
-        'modulo' => 'pagos',
-        'permiso' => 'ver',
-        'url' => 'pagos',
-        'icono' => 'credit-card',
-        'texto' => 'Pagos',
-      ],
-      [
         'modulo' => 'inventario',
         'permiso' => 'ver inventario',
         'url' => 'inventario',

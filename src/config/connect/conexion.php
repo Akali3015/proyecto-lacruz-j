@@ -137,11 +137,11 @@ class conexion {
     $objCache = new cacheModelo();
     try {
       $tabla = trim($instrucciones['tabla']);
-      $cacheTabla = $objCache->getItem($tabla) ?? [];
+      /* $cacheTabla = $objCache->getItem($tabla) ?? [];
       $claveCacheInd = $instrucciones;
       unset($claveCacheInd['fnDevolver']);
       $cache = $cacheTabla[json_encode($claveCacheInd)] ?? false;
-      if ($cache) return $cache;
+      if ($cache) return $cache; */
 
       $conexion = $this->conectar(($instrucciones['BD'] ?? NULL));
       $campos = $instrucciones['campos'];
@@ -357,15 +357,16 @@ class conexion {
         }
       }
       $consulta->execute();
-      if (isset($instrucciones['fnDevolver'])) {
-        $consulta = $instrucciones['fnDevolver']($consulta);
-        if (!isset($instrucciones['noCache']) ?? false) {
-          $cacheTabla = $objCache->getItem($tabla) ?? [];
-          $cacheTabla[json_encode($claveCacheInd)] = $consulta;
-          $objCache->setItem($tabla, $cacheTabla);
-        }
-      }
+      // if (isset($instrucciones['fnDevolver'])) {
+      //   $consulta = $instrucciones['fnDevolver']($consulta);
+      //   if (!isset($instrucciones['noCache']) ?? false) {
+      //     $cacheTabla = $objCache->getItem($tabla) ?? [];
+      //     $cacheTabla[json_encode($claveCacheInd)] = $consulta;
+      //     $objCache->setItem($tabla, $cacheTabla);
+      //   }
+      // }
       return $consulta;
+      
     } catch (\Throwable $th) {
       $this->rollback();
       $objCache->removeItem($instrucciones['tabla']);
@@ -579,10 +580,8 @@ class conexion {
         }
       }
       $sql->execute();
-      if ($sql->rowCount() >= 1) {
-        $objCache = new cacheModelo();
-        $objCache->removeItem($tabla);
-      }
+      $objCache = new cacheModelo();
+      $objCache->removeItem($tabla);
       return $sql->rowCount();
     } catch (\Throwable $th) {
       $this->rollback();

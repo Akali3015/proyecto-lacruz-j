@@ -9,7 +9,7 @@ import {
   validarEnTiempoReal,
   reiniciarDataModuloSS,
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
 
 //#endregion [ IMPORTACIONES ] FIN
@@ -26,6 +26,64 @@ let graficaMateriasPrimas = null;
 //#endregion [ VARIABLES O CONSTANTES GLOBALES ] FIN
 
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
+
+// Función para registrar el tutorial
+function registrarTutorial() {
+  driverAyuda('inventario', {
+    pasos: [
+      {
+        element: '#tablaProductos',
+        popover: {
+          title: 'Lista de Productos',
+          description: 'Aquí puedes ver todos los productos registrados, su stock actual y precio.',
+          side: 'top'
+        }
+      },
+
+      {
+        element: '.botonRegistrarCarga',
+        popover: {
+          title: 'Registrar Movimiento',
+          description: 'Haz clic aquí para registrar una carga o descarga de stock (entradas/salidas anómalas).',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonVerES',
+        popover: {
+          title: 'Ver Historial',
+          description: 'Consulta el historial completo de movimientos (entradas y salidas) de cada producto o materia prima.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonImprimirES',
+        popover: {
+          title: 'Generar Reporte',
+          description: 'Genera un reporte PDF de los movimientos en un rango de fechas específico.',
+          side: 'left'
+        }
+      },
+      {
+        element: '#graficaStockProductos',
+        popover: {
+          title: 'Gráfica de Stock Crítico',
+          description: 'Visualiza los productos con stock bajo o crítico para tomar acciones preventivas.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de inventario. Puedes registrar movimientos, ver historial y generar reportes.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
+
 function colorStock(stockActual, stockMinimo) {
   const minimo = stockMinimo || 0;
   if (stockActual <= 0) return 'badge bg-danger';
@@ -611,50 +669,8 @@ async function renderizarTablaPorTab(hrefTab) {
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
 $(document).ready(function () {
 
-  driverAyuda('inventario', {
-    pasos:
-      [
-        {
-          element: '#tablaProductos',
-          popover: {
-            title: 'Lista de Productos',
-            description: 'Aquí puedes ver todos los productos registrados, su stock actual y precio.',
-            side: 'top'
-          }
-        },
-        {
-          element: '.botonRegistrarCarga',
-          popover: {
-            title: 'Registrar Movimiento',
-            description: 'Haz clic aquí para registrar una carga o descarga de stock (entradas/salidas anómalas).',
-            side: 'left'
-          }
-        },
-        {
-          element: '.botonVerES',
-          popover: {
-            title: 'Ver Historial',
-            description: 'Consulta el historial completo de movimientos (entradas y salidas) de cada producto o materia prima.',
-            side: 'left'
-          }
-        },
-        {
-          element: '.botonImprimirES',
-          popover: {
-            title: 'Generar Reporte',
-            description: 'Genera un reporte PDF de los movimientos en un rango de fechas específico.',
-            side: 'left'
-          }
-        },
-        {
-          popover: {
-            title: '¡Ayuda completada!',
-            description: 'Ya conoces la gestión de inventario. Puedes registrar movimientos, ver historial y generar reportes.',
-            side: 'top'
-          }
-        }
-      ]
-  });
+  // Registrar el tutorial
+  registrarTutorial();
 
   let tabActivo = $('#inventarioTabs .nav-link.active').attr('href');
   if (tabActivo) renderizarTablaPorTab(tabActivo);
@@ -810,5 +826,14 @@ $(document).ready(function () {
   $(document).on('input', '.validar input, .validar select', function () {
     validarEnTiempoReal(this, 'inventario');
   });
+
+  // Verificar si hay un driver pendiente (redirección desde otro módulo)
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'inventario') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
 });
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

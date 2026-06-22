@@ -58,6 +58,13 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
           </ul>
         </div>
       </div>
+      <!-- Exportar Base de Datos -->
+      <div class="nav-item">
+        <a href="#" id="btnExportarBD" title="Exportar BD" class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;" data-bs-toggle="modal" data-bs-target="#modalExportarBD">
+          <i class="fi fi-rr-database fs-4"></i>
+        </a>
+      </div>
       <!-- Ayuda -->
       <div class="nav-item">
         <button class="btn text-white btnAyudaFlotante p-2 me-1 rounded-circle hover-opacity"
@@ -806,3 +813,66 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
   </div>
 </div>
 <!-- MODAL DE AYUDA INTERACTIVA [ FIN ] -->
+
+<!-- MODAL EXPORTAR BASES DE DATOS [ COMIENZO ] -->
+<div class="modal fade" id="modalExportarBD" tabindex="-1" aria-labelledby="modalExportarBDLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+        <div class="d-flex align-items-center">
+          <i class="fi fi-rr-database fs-3 me-2"></i>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="modalExportarBDLabel">Exportar Bases de Datos</h5>
+            <small class="text-white opacity-75">Selecciona las bases de datos a exportar</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted mb-3">Selecciona una o ambas bases de datos para generar el archivo SQL:</p>
+
+        <div class="form-check mb-3 p-3 border rounded-3 hover-shadow">
+          <input class="form-check-input checkExportBD" type="checkbox" value="proyecto_lacruz" id="checkBDPrincipal" checked>
+          <label class="form-check-label w-100" for="checkBDPrincipal">
+            <div class="d-flex align-items-center">
+              <i class="fi fi-rr-database fs-4 text-primary me-2"></i>
+              <div>
+                <span class="fw-bold d-block">Base de Datos Principal</span>
+                <small class="text-muted">proyecto_lacruz</small>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="form-check mb-3 p-3 border rounded-3 hover-shadow">
+          <input class="form-check-input checkExportBD" type="checkbox" value="proyecto_lacruz_seguridad" id="checkBDSeguridad" checked>
+          <label class="form-check-label w-100" for="checkBDSeguridad">
+            <div class="d-flex align-items-center">
+              <i class="fi fi-rr-database fs-4 text-primary me-2"></i>
+              <div>
+                <span class="fw-bold d-block">Base de Datos Seguridad</span>
+                <small class="text-muted">proyecto_lacruz_seguridad</small>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div id="exportarStatus" class="text-center d-none">
+          <div class="spinner-border text-primary mb-2" role="status">
+            <span class="visually-hidden">Exportando...</span>
+          </div>
+          <p class="text-muted mb-0">Generando archivo SQL...</p>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between" style="background-color: #f8f9fa;">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-primary rounded-pill px-4" id="btnConfirmarExportar" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
+          <i class="fi fi-rr-download me-2"></i> Exportar Seleccionadas
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL EXPORTAR BASES DE DATOS [ FIN ] -->

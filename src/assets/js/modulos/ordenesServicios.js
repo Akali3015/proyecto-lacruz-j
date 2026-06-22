@@ -4,49 +4,58 @@ import {
     alertasAjax, reiniciarDataTables,
     mostrarOcultarSpinnerCarga
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
 //#endregion [ IMPORTACIONES ] FIN
 
-//#region [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] COMIENZO
-driverAyuda('ordenesServicios', {
-    pasos: [
-        {
-            element: '.tabla-ajax',
-            popover: {
-                title: 'Listado de Órdenes',
-                description: 'Aquí puedes ver todas las órdenes de servicio generadas desde las facturas de los clientes.',
-                side: 'top'
-            }
-        },
-        {
-            element: '.btnVerOrdenServicio',
-            popover: {
-                title: 'Ver Detalles',
-                description: 'Haz clic aquí para ver todos los detalles de la orden (solo lectura).',
-                side: 'left'
-            }
-        },
-        {
-            element: '.btnGestionarOrden',
-            popover: {
-                title: 'Gestionar Orden',
-                description: 'Desde aquí puedes cambiar el estado y/o reprogramar la fecha de ejecución.',
-                side: 'left'
-            }
-        },
-        {
-            popover: {
-                title: '¡Ayuda completada!',
-                description: 'Ya conoces la gestión de órdenes de servicio.',
-                side: 'top'
-            }
-        }
-    ]
-});
-//#endregion [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] FIN
-
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
+
+function registrarTutorial() {
+    driverAyuda('ordenesServicios', {
+        pasos: [
+            {
+                element: '.tabla-ajax',
+                popover: {
+                    title: 'Listado de Órdenes',
+                    description: 'Aquí puedes ver todas las órdenes de servicio generadas desde las facturas de los clientes.',
+                    side: 'top'
+                }
+            },
+            {
+                element: '.btnVerOrdenServicio',
+                popover: {
+                    title: 'Ver Detalles',
+                    description: 'Haz clic aquí para ver todos los detalles de la orden (solo lectura).',
+                    side: 'left'
+                }
+            },
+            {
+                element: '.btnGestionarOrden',
+                popover: {
+                    title: 'Gestionar Orden',
+                    description: 'Desde aquí puedes cambiar el estado y/o reprogramar la fecha de ejecución.',
+                    side: 'left'
+                }
+            },
+            {
+                element: '.dataTables_filter input',
+                popover: {
+                    title: 'Buscador',
+                    description: 'Puedes buscar órdenes por número de orden, cliente o servicio.',
+                    side: 'bottom',
+                    align: 'start'
+                }
+            },
+            {
+                popover: {
+                    title: '¡Ayuda completada!',
+                    description: 'Ya conoces la gestión de órdenes de servicio.',
+                    side: 'top'
+                }
+            }
+        ]
+    });
+}
 
 function getStatusInfo(status, estaRetrasado = false) {
     if (estaRetrasado) status = 3;
@@ -148,7 +157,6 @@ async function verDetallesOrden() {
     
     modal.modal('show');
 }
-
 
 async function abrirModalGestion() {
     const idOrden = $(this).attr('value');
@@ -347,7 +355,7 @@ $(document).on('DOMContentLoaded', async function () {
     const puedeActualizar = permisos.ordenesServicios && permisos.ordenesServicios.includes('actualizar');
     
     if (puedeVer) {
-        listarDataTable({
+        await listarDataTable({
             encabezados: {
                 "id_servicio_factura": "N° ORDEN",
                 "nombre_servicio": "SERVICIO",
@@ -394,6 +402,16 @@ $(document).on('DOMContentLoaded', async function () {
                 return botones;
             }
         });
+        
+        registrarTutorial();
+        
+        const driverPendiente = sessionStorage.getItem('driver_pendiente');
+        if (driverPendiente === 'ordenesServicios') {
+            sessionStorage.removeItem('driver_pendiente');
+            setTimeout(() => {
+                mostrarAyuda();
+            }, 1000);
+        }
     }
 });
 
@@ -412,7 +430,6 @@ $(document).off('change', '.selectNuevoStatus');
 $(document).on('change', '.selectNuevoStatus', function () {
     toggleFechaPorStatus.call(this);
 });
-
 
 $(document).off('submit', '.formularioGestionarOrden');
 $(document).on('submit', '.formularioGestionarOrden', function (e) {

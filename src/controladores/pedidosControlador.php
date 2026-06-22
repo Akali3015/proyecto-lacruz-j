@@ -27,6 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
     case 'cambiarEstado':
       $resultado = $objeto->actualizarPedidos($_POST);
       break;
+    case 'imprimirPedido':
+      $resultado = $objeto->imprimirPedidos($_POST);
+      break;
   }
   $objeto->DECORE($resultado);
   exit();

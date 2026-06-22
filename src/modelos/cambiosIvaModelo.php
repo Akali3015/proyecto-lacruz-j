@@ -55,6 +55,7 @@ class cambiosIvaModelo extends conexion {
     }
     return $this->limpiar_Verificar($campos);
   }
+
   public function seleccionarCambiosIva(array $info) {
     if (($info['id_cambio_iva'] ?? '') != "") {
       $resultado = $this->validarCambiosIva([
@@ -66,6 +67,7 @@ class cambiosIvaModelo extends conexion {
     }
     return $this->seleccionarCambiosIvaP($info);
   }
+
   public function registrarCambiosIva(array $info) {
     $resultado = $this->validarCambiosIva([
       'infoVal' => &$info,
@@ -98,7 +100,7 @@ class cambiosIvaModelo extends conexion {
         'campos' => '*',
         'tabla' => 'cambios_iva',
         'WHERE' => [
-          "id_cambio" => $this->idCambio,
+          "id_cambio_iva" => $this->idCambio,
         ]
       ]);
       if ($resultado->rowCount() <= 0) {
@@ -109,14 +111,25 @@ class cambiosIvaModelo extends conexion {
           "icono" => "error"
         ];
         return $alerta;
-        exit();
       } else {
         $rol = $resultado->fetch(PDO::FETCH_ASSOC);
       }
       return $rol;
     }
   }
+
   private function registrarCambiosIvaP() {
+    $objBitacora = new bitacoraModelo();
+
+    $ivaAnterior = $this->seleccionarDatos2([
+      'campos' => 'monto_cambio_iva',
+      'tabla' => 'cambios_iva',
+      'ORDER' => 'id_cambio_iva DESC',
+      'LIMIT' => 1
+    ])->fetch(PDO::FETCH_COLUMN);
+
+    $ivaAnterior = $ivaAnterior ?? 0;
+
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'cambios_iva',
       'datos' => [
@@ -124,10 +137,14 @@ class cambiosIvaModelo extends conexion {
         "fecha_cambio_iva" => $this->FechaHora_Sel('fecha_hora_BD'),
       ]
     ]);
-    $objetoBitacora = new bitacoraModelo();
+
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
-      $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', true);
+      $objBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', [
+        'iva_anterior' => $ivaAnterior,
+        'iva_nuevo' => $this->montoCambioIva,
+        'error' => 'No se pudo registrar en la base de datos'
+      ],true);
       return [
         "tipo" => "simple",
         "titulo" => "Valor no actualizado",
@@ -135,12 +152,21 @@ class cambiosIvaModelo extends conexion {
         "icono" => "error",
       ];
     }
+
+    $detallesBitacora = [
+      'iva_anterior' => $ivaAnterior,
+      'iva_nuevo' => $this->montoCambioIva,
+      'diferencia' => $this->montoCambioIva - $ivaAnterior,
+      'fecha_cambio' => date('Y-m-d H:i:s')
+    ];
+    $rb=$objBitacora->registrarBitacora('cambiosIva', 'registrar Cambios de IVA', 'Éxito', $detallesBitacora);
+    if(isset($rb['icono'])) return $rb;
     $objetoNot = new mensajesWSModelo();
     $resultado = $objetoNot->enviarMensajesWS(
       [
         "receptor" => [
           'tipo' => 'todosSinExcepcion',
-          'cedula' => 30485684
+          //'cedula' => 30485684
         ],
         'cuerpo' => [
           [
@@ -156,7 +182,7 @@ class cambiosIvaModelo extends conexion {
             'alerta' => [
               'tipo' => 'simple',
               'titulo' => 'IVA actualizado',
-              'texto' => 'El precio del IVA acaba de ser actualizado',
+              'texto' => 'El precio del IVA acaba de ser actualizado de ' . $ivaAnterior . '% a ' . $this->montoCambioIva . '%',
               'icono' => 'info',
               'notifier' => true,
             ]
@@ -165,14 +191,12 @@ class cambiosIvaModelo extends conexion {
         'noCommit' => true
       ],
     );
-    // if (isset($resultado['error'])) return $resultado;
 
-    $objetoBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'éxito');
     $this->commit();
     return [
-      "tipo" => "limpiar",
+      "tipo" => "limpiarYcerrar",
       "titulo" => "Valor Actualizado",
-      "texto" => "El valor del IVA ha sido actualizado exitosamente",
+      "texto" => "El valor del IVA ha sido actualizado de " . $ivaAnterior . "% a " . $this->montoCambioIva . "%",
       "icono" => "success",
     ];
   }

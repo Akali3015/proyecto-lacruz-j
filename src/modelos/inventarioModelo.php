@@ -102,6 +102,7 @@ class inventarioModelo extends conexion {
     }
     return $this->limpiar_Verificar($totalValidaciones);
   }
+
   public function registrarMovimientos(array $info) {
     $this->tipoItem = $info['tipo_item'] ?? '';
 
@@ -138,6 +139,7 @@ class inventarioModelo extends conexion {
       return $this->registrarMovimientosMateriasPrimasP();
     } else {
       $this->idPresentacion = $info['id_presentacion_producto'];
+      // Validar materias primas en CARGAS (tipo_movimiento == 1) - se necesita materia prima para producir
       if ($this->tipoMovimiento == 1) {
         $validacionMP = $this->validarStockMateriasPrimas();
         if ($validacionMP !== true) {
@@ -147,6 +149,7 @@ class inventarioModelo extends conexion {
       return $this->registrarMovimientosProductosP();
     }
   }
+
   public function verEntradasSalidas(array $info) {
     $this->tipo = $info['tipo'] ?? '';
 
@@ -165,6 +168,7 @@ class inventarioModelo extends conexion {
       "icono" => "error"
     ];
   }
+
   public function reporteProductos(array $info) {
     if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
       return [
@@ -191,6 +195,7 @@ class inventarioModelo extends conexion {
 
     return $this->reporteProductosP();
   }
+
   public function reporteMateriasPrimas(array $info) {
     if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
       return [
@@ -240,7 +245,7 @@ class inventarioModelo extends conexion {
     $idProducto = $resultado->fetch(PDO::FETCH_COLUMN);
 
     $resultado = $this->seleccionarDatos2([
-      'campos' => 'mpp.cantidad_materia_prima, mp.nombre_materia_prima, mp.stock_materia_prima',
+      'campos' => 'mpp.cantidad_materia_prima, mp.nombre_materia_prima, mp.stock_materia_prima, mp.id_materia_prima',
       'tabla' => 'materias_primas_productos as mpp',
       'PEL' => 'mpp',
       'datosJoins' => [
@@ -248,34 +253,55 @@ class inventarioModelo extends conexion {
       ],
       'WHERE' => [
         "mpp.id_producto" => $idProducto,
+        "mpp.status" => 1
       ]
     ]);
     $materiasPrimas = $resultado->fetchAll();
 
     if (count($materiasPrimas) == 0) return true;
 
+    $presentacionInfo = $this->seleccionarDatos2([
+      'campos' => 'p.cantidad_pmp',
+      'tabla' => 'presentaciones_productos as pp',
+      'datosJoins' => [
+        "presentaciones as p" => "pp.id_presentacion = p.id_presentacion"
+      ],
+      'WHERE' => [
+        "pp.id_presentacion_producto" => $this->idPresentacion,
+      ]
+    ])->fetch();
+
+    $cantidadPMP = $presentacionInfo['cantidad_pmp'] ?? 1;
+
     foreach ($materiasPrimas as $mp) {
-      $cantidadNecesaria = $this->cantidadMovimiento * $mp['cantidad_materia_prima'];
+      $cantidadNecesaria = $this->cantidadMovimiento * ($mp['cantidad_materia_prima'] * $cantidadPMP);
+      
       if ($mp['stock_materia_prima'] < $cantidadNecesaria) {
         return [
           "tipo" => "simple",
           "titulo" => "Stock de materia prima insuficiente",
-          "texto" => "No hay suficiente stock de la materia prima: " . $mp['nombre_materia_prima'],
+          "texto" => "No hay suficiente stock de la materia prima: " . $mp['nombre_materia_prima'] . 
+                    " (Stock: " . $mp['stock_materia_prima'] . ", Necesario: " . $cantidadNecesaria . ")",
           "icono" => "error"
         ];
       }
     }
     return true;
   }
+
   private function registrarMovimientosProductosP() {
+    $objBitacora = new bitacoraModelo();
+    
     $resultado = $this->seleccionarDatos2([
       'campos' => '
-        pp.id_producto, pr.id_categoria_producto, pr.nombre_producto, pr.stock_producto,
-        pr.stock_minimo_producto
+        pp.id_producto, pp.id_presentacion_producto, pr.id_categoria_producto, 
+        pr.nombre_producto, pr.stock_producto, pr.stock_minimo_producto,
+        p.nombre_presentacion, p.cantidad_pmp
       ',
       'tabla' => 'presentaciones_productos as pp',
       'datosJoins' => [
-        "productos as pr" => "pp.id_producto = pr.id_producto"
+        "productos as pr" => "pp.id_producto = pr.id_producto",
+        "presentaciones as p" => "pp.id_presentacion = p.id_presentacion"
       ],
       'WHERE' => [
         "pp.id_presentacion_producto" => $this->idPresentacion,
@@ -293,12 +319,14 @@ class inventarioModelo extends conexion {
 
     $info = $resultado->fetch(PDO::FETCH_ASSOC);
     $idProducto = $info['id_producto'];
-    $idCategoria = $info['id_categoria_producto'];
     $nombreProducto = $info['nombre_producto'];
+    $nombrePresentacion = $info['nombre_presentacion'];
     $stockActual = $info['stock_producto'];
-    $stockMinimo = $info['stock_minimo_producto'];
+    $cantidadPMP = $info['cantidad_pmp'];
 
-    if ($this->tipoMovimiento == 0 && ($stockActual - $this->cantidadMovimiento) < 0) {
+    $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
+
+    if ($this->tipoMovimiento == 0 && $nuevoStock < 0) {
       return [
         "tipo" => "simple",
         "titulo" => "Stock insuficiente",
@@ -307,6 +335,17 @@ class inventarioModelo extends conexion {
       ];
     }
 
+    $datosBitacora = [
+      'nombre_producto' => $nombreProducto,
+      'nombre_presentacion' => $nombrePresentacion,
+      'tipo_movimiento' => $this->tipoMovimiento == 1 ? 'CARGA' : 'DESCARGA',
+      'cantidad' => $this->cantidadMovimiento,
+      'stock_antes' => $stockActual,
+      'stock_despues' => $nuevoStock,
+      'fecha' => date('Y-m-d H:i:s')
+    ];
+
+    // Registrar movimiento
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'movimientos_anomalos_productos',
       'datos' => [
@@ -317,11 +356,10 @@ class inventarioModelo extends conexion {
         "fecha_movimiento" => $this->FechaHora_Sel('fecha_hora_BD'),
       ]
     ]);
-    $modeloBitacora = new bitacoraModelo();
+
     if ($ultimoId === false || $ultimoId <= 0) {
       $this->rollback();
-
-      $modeloBitacora->registrarBitacora("Inventario", "Registrar movimiento anomalo de producto", "Fallido", true);
+      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Error", $datosBitacora, true);
       return [
         "tipo" => "simple",
         "titulo" => "Movimiento no registrado",
@@ -329,9 +367,43 @@ class inventarioModelo extends conexion {
         "icono" => "error"
       ];
     }
+    $materiasPrimas = $this->seleccionarDatos2([
+      'campos' => 'mpp.id_materia_prima, mpp.cantidad_materia_prima',
+      'tabla' => 'materias_primas_productos as mpp',
+      'WHERE' => [
+        "mpp.id_producto" => $idProducto,
+        "mpp.status" => 1
+      ]
+    ])->fetchAll();
+    
+    foreach ($materiasPrimas as $mp) {
+      $cantidadAjuste = $this->cantidadMovimiento * ($mp['cantidad_materia_prima'] * $cantidadPMP);
+      
+      // Obtener stock actual de la materia prima
+      $stockMP = $this->seleccionarDatos2([
+        'campos' => 'stock_materia_prima',
+        'tabla' => 'materias_primas',
+        'WHERE' => [
+          'id_materia_prima' => $mp['id_materia_prima']
+        ]
+      ])->fetch(PDO::FETCH_COLUMN);
+      
+      $nuevoStockMP = ($this->tipoMovimiento == 1) 
+        ? $stockMP - $cantidadAjuste 
+        : $stockMP + $cantidadAjuste;
+      
+      $this->actualizarDatos2([
+        'tabla' => 'materias_primas',
+        'datos' => [
+          'stock_materia_prima' => $nuevoStockMP
+        ],
+        'WHERE' => [
+          'id_materia_prima' => $mp['id_materia_prima']
+        ]
+      ]);
+    }
 
-    $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
-
+    // Actualizar stock del producto
     $this->actualizarDatos2([
       'tabla' => 'productos',
       'datos' => ['stock_producto' => $nuevoStock],
@@ -340,7 +412,8 @@ class inventarioModelo extends conexion {
 
     $this->commit();
 
-    $modeloBitacora->registrarBitacora("Inventario", "Registrar movimiento anomalo de producto con id:" . $ultimoId, "Exito", true);
+    $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Éxito", $datosBitacora, true);
+
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Movimiento registrado",
@@ -348,7 +421,10 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
+
   private function registrarMovimientosMateriasPrimasP() {
+    $objBitacora = new bitacoraModelo();
+    
     $resultado = $this->seleccionarDatos2([
       'campos' => 'stock_materia_prima, stock_minimo_materia_prima, nombre_materia_prima',
       'tabla' => 'materias_primas',
@@ -368,10 +444,12 @@ class inventarioModelo extends conexion {
 
     $materiaPrima = $resultado->fetch();
     $stockActual = $materiaPrima['stock_materia_prima'];
-    $stockMinimo = $materiaPrima['stock_minimo_materia_prima'];
     $nombreMP = $materiaPrima['nombre_materia_prima'];
 
-    if ($this->tipoMovimiento == 0 && ($stockActual - $this->cantidadMovimiento) < 0) {
+    // Calcular nuevo stock
+    $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
+
+    if ($this->tipoMovimiento == 0 && $nuevoStock < 0) {
       return [
         "tipo" => "simple",
         "titulo" => "Stock insuficiente",
@@ -380,6 +458,16 @@ class inventarioModelo extends conexion {
       ];
     }
 
+    $datosBitacora = [
+      'nombre_materia_prima' => $nombreMP,
+      'tipo_movimiento' => $this->tipoMovimiento == 1 ? 'CARGA' : 'DESCARGA',
+      'cantidad' => $this->cantidadMovimiento,
+      'stock_antes' => $stockActual,
+      'stock_despues' => $nuevoStock,
+      'fecha' => date('Y-m-d H:i:s')
+    ];
+
+    // Registrar movimiento
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'movimientos_anomalos_materias_primas',
       'datos' => [
@@ -390,12 +478,10 @@ class inventarioModelo extends conexion {
         "fecha_movimiento" => $this->FechaHora_Sel('fecha_hora_BD'),
       ]
     ]);
-    $modeloBitacora = new bitacoraModelo();
 
     if ($ultimoId === false || $ultimoId <= 0) {
       $this->rollback();
-
-      $modeloBitacora->registrarBitacora("Inventario", "Registrar movimiento anomalo de materias primas", "Fallido", true);
+      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Error", $datosBitacora, true);
       return [
         "tipo" => "simple",
         "titulo" => "Movimiento no registrado",
@@ -404,8 +490,7 @@ class inventarioModelo extends conexion {
       ];
     }
 
-    $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
-
+    // Actualizar stock de la materia prima
     $this->actualizarDatos2([
       'tabla' => 'materias_primas',
       'datos' => ['stock_materia_prima' => $nuevoStock],
@@ -414,7 +499,8 @@ class inventarioModelo extends conexion {
 
     $this->commit();
 
-    $modeloBitacora->registrarBitacora("Inventario", "Registrar movimiento anomalo de materia prima con id: " . $ultimoId, "Exito", true);
+    $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Éxito", $datosBitacora, true);
+
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Movimiento registrado",
@@ -422,6 +508,7 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
+
   private function verMovimientosProductosP() {
     return $this->seleccionarDatos2([
       'campos' => 'map.id_movimiento_anomalo_producto, p.nombre_presentacion, map.cantidad_movimiento, map.tipo_movimiento, map.motivo_movimiento, map.fecha_movimiento, pr.id_producto, pr.nombre_producto',
@@ -438,6 +525,7 @@ class inventarioModelo extends conexion {
       'ORDER' => 'map.id_movimiento_anomalo_producto DESC'
     ])->fetchAll();
   }
+
   private function verMovimientosMateriasPrimasP() {
     return $this->seleccionarDatos2([
       'campos' => '
@@ -456,6 +544,7 @@ class inventarioModelo extends conexion {
       'ORDER' => 'mamp.id_movimiento_anomalo_materia_prima DESC'
     ])->fetchAll();
   }
+
   private function reporteProductosP() {
 
     $WHERE = [
@@ -521,6 +610,7 @@ class inventarioModelo extends conexion {
       "infoBD" => $infoCeldas,
     ]);
   }
+
   private function reporteMateriasPrimasP() {
     $where = [];
     $where['DATE(mamp.fecha_movimiento)'] = [

@@ -3,7 +3,6 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
-use DateTime;
 use src\modelos\pdfModel;
 
 class reportesModelo extends conexion {
@@ -89,6 +88,7 @@ class reportesModelo extends conexion {
       'ORDER' => 's.nombre_servicio ASC',
     ];
     $infoCeldas = $this->seleccionarDatos2($instruccionesDB)->fetchAll();
+    
     if ($infoCeldas == []) {
       return [
         'tipo' => 'simple',
