@@ -231,6 +231,13 @@ class componentesModelo extends conexion {
         'texto' => 'Permisos',
       ],
       [
+        'modulo' => 'modulos',
+        'permiso' => 'ver',
+        'url' => 'modulos',
+        'icono' => 'module',
+        'texto' => 'Módulos',
+      ],
+      [
         'modulo' => 'bitacora',
         'permiso' => 'ver',
         'url' => 'bitacora',

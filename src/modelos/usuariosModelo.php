@@ -402,7 +402,9 @@ class usuariosModelo extends conexion {
 
     $error = function () use ($fotoUsuario, $objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'Fallido', true);
+      if(isset($_SESSION['cedula'])){
+        $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'Fallido', true);
+      }
       if ($fotoUsuario != '') $this->Imagenes_Eli2('usuarios', $fotoUsuario);
     };
     if ($this->fotoUsuario != []) {
@@ -456,8 +458,10 @@ class usuariosModelo extends conexion {
     $diferencias = $this->sacarDiferenciaBitacora($datoNuevos, [], 'usuarios');
     if ($diferencias['icono'] ?? '' == 'error') return $diferencias;
 
-    $rb = $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
-    if ($rb) return $rb;
+    if(isset($_SESSION['cedula'])){
+      $rb = $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
+      if ($rb) return $rb;
+    }
     $this->commit();
 
     return [
