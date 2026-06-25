@@ -131,6 +131,16 @@ class serviciosModelo extends conexion {
     return $this->seleccionarServiciosP($info);
   }
 
+  // Método exclusivo para uso del Chatbot
+  public function obtenerParaChatbot() {
+    $resultado = $this->seleccionarDatos2([
+        'campos' => 'nombre_servicio, precio_servicio',
+        'tabla' => 'servicios',
+        'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+  }
+
   // ─── REGISTRAR ──────────────────────────────────────────────────
 
   public function registrarServicio(array $info) {

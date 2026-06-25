@@ -1000,17 +1000,45 @@ class pedidosModelo extends conexion {
       'comprobantes_pago' => $comprobantesPagos,
     ], [], 'pedidos');
 
-    /* $datosDespues = [
+    $datosDespues = [
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
       'delivery' => $this->deliveryPedido,
       'comprobantes_pago' => $comprobantesPagos,
     ];
-    $datos = []; */
+
+    $datos = [
+      "productos" => [
+        [
+          "id_producto" => "PROD-26150-00001-39",
+          "id_presentacion" => "PRES-26123-00001-28",
+          "id_presentacion_producto" => "PRPR-26160-00001-60",
+          "cantidad" => 1
+        ]
+      ],
+      "pagos" => [
+        [
+          "id_metodo_pago" => "3",
+          "id_moneda" => "1",
+          "referencia_pago" => "123456",
+          "monto_pago" => 177
+        ]
+      ],
+      "delivery" => [
+        "latitud" => 9.857927907534492,
+        "longitud" => -69.61055517196657
+      ],
+      "comprobantes_pago" => [
+        "comprobantes_pagos_2026_06_22_18_18_15_38.jpg"
+      ]
+    ];
+    $datos = [];
     $rb = $objBitacora->registrarBitacora(
       'pedidos',
       'registrar pedido con id: ' . $idPedido,
       'Éxito',
+      false,
+      $datos
     );
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
@@ -1084,7 +1112,7 @@ class pedidosModelo extends conexion {
       'status_pedido' => $statusViejo,
     ];
     $diferencias = $this->sacarDiferenciaBitacora($loNuevo, $loViejo, 'pedidos');
-    
+
     $rb = $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor al pedido con id: ' . $this->idPedido, 'Éxito');
     if (($rb['icono'] ?? '') == 'error') return $rb;
 

@@ -27,7 +27,6 @@ let graficaMateriasPrimas = null;
 
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
 
-// Función para registrar el tutorial
 function registrarTutorial() {
   driverAyuda('inventario', {
     pasos: [
@@ -65,15 +64,6 @@ function registrarTutorial() {
         }
       },
       {
-        element: '#graficaStockProductos',
-        popover: {
-          title: 'Gráfica de Stock Crítico',
-          description: 'Visualiza los productos con stock bajo o crítico para tomar acciones preventivas.',
-          side: 'top',
-          align: 'start'
-        }
-      },
-      {
         popover: {
           title: '¡Ayuda completada!',
           description: 'Ya conoces la gestión de inventario. Puedes registrar movimientos, ver historial y generar reportes.',
@@ -84,11 +74,14 @@ function registrarTutorial() {
   });
 }
 
+
 function colorStock(stockActual, stockMinimo) {
-  const minimo = stockMinimo || 0;
-  if (stockActual <= 0) return 'badge bg-danger';
-  if (stockActual < minimo) return 'badge bg-danger';
-  if (stockActual >= minimo && stockActual <= minimo * 2) return 'badge bg-warning text-dark';
+  const actual = parseFloat(String(stockActual).replace(/,/g, '.')) || 0;
+  const minimo = parseFloat(String(stockMinimo).replace(/,/g, '.')) || 0;
+  
+  if (actual <= 0) return 'badge bg-danger';
+  if (actual < minimo) return 'badge bg-danger';
+  if (actual >= minimo && actual <= minimo * 2) return 'badge bg-warning text-dark';
   return 'badge bg-success';
 }
 
@@ -142,7 +135,6 @@ function inicializarDataTable({ selectorTabla, datos, encabezados, campoIdBtn, i
   instanciasDatatable.push(tabla);
   return tabla;
 }
-
 function filtrarStockCritico(datos, tipo) {
   if (!Array.isArray(datos)) return [];
 
@@ -150,11 +142,13 @@ function filtrarStockCritico(datos, tipo) {
   const campoStockMinimo = tipo === 'materiasPrimas' ? 'stock_minimo_materia_prima' : 'stock_minimo_producto';
 
   return datos.filter(item => {
-    const stock = item[campoStock] || 0;
-    const stockMinimo = item[campoStockMinimo] || 0;
+    const stock = parseFloat(String(item[campoStock]).replace(/,/g, '.')) || 0;
+    const stockMinimo = parseFloat(String(item[campoStockMinimo]).replace(/,/g, '.')) || 0;
     return stock <= stockMinimo;
   }).sort((a, b) => {
-    return (a[campoStock] || 0) - (b[campoStock] || 0);
+    const stockA = parseFloat(String(a[campoStock]).replace(/,/g, '.')) || 0;
+    const stockB = parseFloat(String(b[campoStock]).replace(/,/g, '.')) || 0;
+    return stockA - stockB;
   }).slice(0, 10);
 }
 
@@ -184,9 +178,15 @@ function crearGraficaStockCritico(canvasId, datos, tipoItem) {
     const nombre = item[campoNombre] || 'N/A';
     return nombre.length > 20 ? nombre.substring(0, 20) + '...' : nombre;
   });
-  const stocks = datos.map(item => item[campoStock] || 0);
-  const stocksMinimos = datos.map(item => item[campoStockMinimo] || 0);
-  const colores = stocks.map(stock => stock <= 0 ? '#dc3545' : stock <= 5 ? '#fd7e14' : '#ffc107');
+
+  const stocks = datos.map(item => parseFloat(String(item[campoStock]).replace(/,/g, '.')) || 0);
+  const stocksMinimos = datos.map(item => parseFloat(String(item[campoStockMinimo]).replace(/,/g, '.')) || 0);
+  
+  const colores = stocks.map(stock => {
+    if (stock <= 0) return '#dc3545';
+    if (stock <= 5) return '#fd7e14';
+    return '#ffc107';
+  });
 
   return new Chart(ctx, {
     type: 'bar',
@@ -557,7 +557,6 @@ async function enviarFormularioAnomaliaMateriaPrima(e) {
     motivo_movimiento: form.find('[name="motivo_movimiento"]').val()
   };
 
-  // Confirmación simple antes de guardar
   const confirmacion = await Swal.fire({
     title: '¿Registrar movimiento?',
     text: '¿Está seguro de registrar este movimiento anómalo?',
@@ -827,7 +826,6 @@ $(document).ready(function () {
     validarEnTiempoReal(this, 'inventario');
   });
 
-  // Verificar si hay un driver pendiente (redirección desde otro módulo)
   const driverPendiente = sessionStorage.getItem('driver_pendiente');
   if (driverPendiente === 'inventario') {
     sessionStorage.removeItem('driver_pendiente');

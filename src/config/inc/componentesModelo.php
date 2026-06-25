@@ -21,7 +21,7 @@ class componentesModelo extends conexion {
       ],
       [
         'url' => 'facturacion',
-        'texto' => 'Facturación',
+        'texto' => 'Órdenes de Entrega',
         'modulo' => 'facturacion',
         'icono' => 'receipt',
         'permiso' => 'ver',

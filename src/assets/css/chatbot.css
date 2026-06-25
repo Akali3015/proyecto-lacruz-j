@@ -1,0 +1,28 @@
+.user-msg-bubble {
+    border-radius: 12px 12px 0 12px;
+    max-width: 85%;
+    margin-left: auto;
+    font-size: 14px;
+}
+.bot-msg-bubble {
+    border-radius: 12px 12px 12px 0;
+    max-width: 85%;
+    font-size: 14px;
+    color: #333;
+}
+#chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+#chatbot-messages::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+/* Ocultar scrollbar horizontal de sugerencias */
+#chatbot-suggestions::-webkit-scrollbar {
+    display: none;
+}
+#chatbot-suggestions {
+    -ms-overflow-style: none;  /* IE y Edge */
+    scrollbar-width: none;  /* Firefox */
+}

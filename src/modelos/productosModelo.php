@@ -5,8 +5,8 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\categoriasProductosModelo;
+use src\modelos\mensajesWSModelo;
 use PDO;
-
 class productosModelo extends conexion {
   private string $idProducto = '';
   private string $idPresentacinProd = '';
@@ -20,6 +20,20 @@ class productosModelo extends conexion {
   private array $materiasPrimas = [];
   private array $fotoPresentacion = [];
 
+  public function modificarStock(string $id_producto, float $cantidad, $conexionTransaction = null) {
+    try {
+      $cn = $conexionTransaction ?? $this->conectar();
+      $stmt = $cn->prepare("UPDATE productos SET stock_producto = stock_producto + :cant WHERE id_producto = :id");
+      $stmt->execute([
+        ':cant' => $cantidad,
+        ':id' => $id_producto
+      ]);
+      return true;
+    } catch (\Throwable $th) {
+      return $th->getMessage();
+    }
+  }
+
   public function validarProductos(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
@@ -27,19 +41,6 @@ class productosModelo extends conexion {
     ] = $instruccionesVal;
     $funcionAsignadora = function ($nombreCampo, &$valor) {
       $claveVal = [
-        'cantidad_materia_prima' => [
-          "campo_valor" => &$valor,
-          "comaPunto" => true,
-          "formulario_nombre" => "cantidad de la materia prima",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-        ],
-        'foto_presentacion' => [
-          "imagen" => &$valor,
-          "requerido" => true,
-        ],
         'id_producto' => [
           "campo_nombre" => "id_producto",
           "campo_valor" => &$valor,
@@ -107,14 +108,6 @@ class productosModelo extends conexion {
           "tabla" => "materias_primas",
           "debeExistir" => true,
         ],
-        'mostrar_ecommerce' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "mostrar en el ecommerce",
-          "requerido" => true,
-          "minimo" => minRegexValorBoleano,
-          "maximo" => maxRegexValorBoleano,
-          "expresion_re" => regexValorBoleano,
-        ],
         'nombre_producto' => [
           "campo_nombre" => "nombre_producto",
           "campo_valor" => &$valor,
@@ -149,6 +142,23 @@ class productosModelo extends conexion {
           "campo_nombre" => "stock_producto",
           "campo_valor" => &$valor,
           "formulario_nombre" => "stock",
+          "requerido" => true,
+          "minimo" => minRegexCantidadItem,
+          "maximo" => maxRegexCantidadItem,
+          "expresion_re" => regexCantidadItem,
+        ],
+        'mostrar_ecommerce' => [
+          "campo_valor" => &$valor,
+          "formulario_nombre" => "mostrar en el ecommerce",
+          "requerido" => true,
+          "minimo" => minRegexValorBoleano,
+          "maximo" => maxRegexValorBoleano,
+          "expresion_re" => regexValorBoleano,
+        ],
+        'cantidad_materia_prima' => [
+          "campo_valor" => &$valor,
+          "comaPunto" => true,
+          "formulario_nombre" => "cantidad de la materia prima",
           "requerido" => true,
           "minimo" => minRegexCantidadItem,
           "maximo" => maxRegexCantidadItem,
@@ -221,6 +231,17 @@ class productosModelo extends conexion {
     $this->idPresentacinProd = $info['id_presentacion_producto'] ?? '';
     return $this->seleccionarProductosP($info);
   }
+
+  //Método exclusivo para uso del Chatbot
+  public function obtenerParaChatbot() {
+    $resultado = $this->seleccionarDatos2([
+        'campos' => 'nombre_producto, precio_producto, stock_producto',
+        'tabla' => 'productos',
+        'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+  }
+
   public function registrarProductos(array $info) {
     $respuesta = $this->validarProductos([
       'infoVal' => &$info,
@@ -284,7 +305,6 @@ class productosModelo extends conexion {
       if (isset($info['foto_presentacion_' . $pre['id_presentacion']])) {
         $pre['foto_presentacion'] = $info['foto_presentacion_' . $pre['id_presentacion']];
       }
-      if (!isset($pre['mostrar_ecommerce'])) $pre['mostrar_ecommerce'] = '0';
     }
     unset($pre);
     return $this->actualizarProductosP();
@@ -305,12 +325,12 @@ class productosModelo extends conexion {
     $respuesta = $this->validarProductos([
       'infoVal' => &$info,
       'camposVal' => [
-        'id_presentacion_producto','foto_presentacion'
+        'id_presentacion_producto',
       ]
     ]);
     if ($respuesta !== false) return $respuesta;
     $this->idPresentacinProd = $info['id_presentacion_producto'];
-    $this->fotoPresentacion = $info['foto_presentacion'];
+    $this->fotoPresentacion = $info['foto_presentacion_producto'];
     return $this->actualizarFotPreProdP();
   }
   public function eliminarFotPreProd(array $info) {
@@ -321,7 +341,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($respuesta !== false) return $respuesta;
-    $this->idPresentacinProd = $info['id_presentacion_producto'];
+    $this->idProducto = $info['id_producto'];
     return $this->eliminarFotPreProdP();
   }
 
@@ -332,16 +352,16 @@ class productosModelo extends conexion {
           return $this->seleccionarDatos2([
             'campos' => '
               *,
-              ROUND((
+              (
                 (
                   (
                     SELECT mo.valor_moneda FROM monedas as mo WHERE id_moneda=1
                   )*p.precio_producto
                 )*pre.cantidad_pmp
-              ),2) as precio_bs,
-              ROUND((
+              ) as precio_bs,
+              (
                 p.precio_producto*pre.cantidad_pmp
-              ),2) as precio_dolar
+              ) as precio_dolar
             ',
             'tabla' => 'productos as p',
             'datosJoins' => [
@@ -351,8 +371,7 @@ class productosModelo extends conexion {
               "presentaciones as pre" => "pp.id_presentacion = pre.id_presentacion",
             ],
             'WHERE' => [
-              'pp.mostrar_ecommerce' => 1,
-              'pp.status'=>'!= 0'
+              'pp.mostrar_ecommerce' => 1
             ]
           ])->fetchAll();
         case 'presentacionExp':
@@ -368,36 +387,32 @@ class productosModelo extends conexion {
           ])->fetch();
         case 'productosFactura':
           return $this->seleccionarDatos2([
-            'tabla' => 'ordenes_entregas_presupuestos as f',
-            'campos' => '
-              pre.cantidad_pmp,pf.cantidad_producto,pp.foto_presentacion,
-              pr.id_categoria_producto,pre.id_presentacion, pp.id_presentacion_producto,
-              pr.id_producto,pf.id_producto_factura,
-              pr.id_unidad_medida,pre.nombre_presentacion, pr.nombre_producto,
-              ROUND(( 
+            'tabla' => 'facturas as f',
+            'campos' => '*,
+              ( 
                 SELECT prpr.precio_producto 
                 FROM precios_productos as prpr 
-                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
+                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_factura 
                 ORDER BY prpr.id_precio_producto DESC 
                 LIMIT 1 
-              ),2) AS precio_producto_factura, 
-              ROUND((pre.cantidad_pmp * pf.cantidad_producto),2) as cantidad_bruta, 
-              ROUND(( 
+              ) AS precio_producto_factura, 
+              (pre.cantidad_pmp * pf.cantidad_producto) as cantidad_bruta, 
+              ( 
                 SELECT (prpr.precio_producto*pre.cantidad_pmp)  
                 FROM precios_productos as prpr 
-                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
+                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_factura 
                 ORDER BY prpr.id_precio_producto DESC
                 LIMIT 1 
-              ),2) as precio_presentacion_factura
+              ) as precio_presentacion_factura
             ',
             'datosJoins' => [
-              'productos_ordenes_entregas_presupuestos as pf' => 'f.id_orden_entrega_presupuesto = pf.id_orden_entrega_presupuesto',
+              'productos_facturas as pf' => 'f.id_factura = pf.id_factura',
               'presentaciones_productos as pp' => 'pf.id_presentacion_producto = pp.id_presentacion_producto',
               'productos as pr' => 'pp.id_producto = pr.id_producto',
               'presentaciones as pre' => 'pp.id_presentacion = pre.id_presentacion',
             ],
             'WHERE' => [
-              'pf.id_orden_entrega_presupuesto' => $info['id_orden_entrega_presupuesto'],
+              'pf.id_factura' => $info['id_factura'],
             ],
           ])->fetchAll();
         case 'indexadosPorId':
@@ -432,8 +447,7 @@ class productosModelo extends conexion {
               "presentaciones as pre" => "pp.id_presentacion = pre.id_presentacion",
             ],
             'WHERE' => [
-              'p.id_producto' => $this->idProducto,
-              'pp.status'=>'!= '. 0
+              'p.id_producto' => $this->idProducto
             ]
           ])->fetchAll();
           break;
@@ -596,6 +610,30 @@ class productosModelo extends conexion {
       }
     }
     $objBit->registrarBitacora("productos", "registrar", "éxito");
+    
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['productos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
+        ['accion' => "actDT", 'modulo' => 'productos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Productos',
+            'texto' => "Se ha registrado un nuevo producto",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -608,23 +646,20 @@ class productosModelo extends conexion {
     $PRD = 0;
     $MPR = 0;
     $PRE = 0;
-    $MAT = 0;
 
-    $imagenesPresentaciones = [];
-    $funcionError = function ($codigoError) use ($imagenesPresentaciones) {
+    $funcionError = function ($img = []) {
       $bitacoraModelo = new bitacoraModelo();
       $this->rollback();
       $bitacoraModelo->registrarBitacora("productos", "actualizar", "fallido", true);
-      foreach ($imagenesPresentaciones as $i) {
-        $this->Imagenes_Eli2('presentaciones_productos', $i);
+      if ($img != []) {
+        foreach ($img as $i) {
+          $resultado = $this->Imagenes_Eli2('presentaciones_productos', $i);
+          if ($resultado) return $resultado;
+        }
       }
-      return [
-        'titulo' => "Actualización fallida",
-        'icono' => "error",
-        'texto' => "No se pudo actualizar el producto. Código de error: " . $codigoError,
-        'tipo' => "simple",
-      ];
     };
+
+    $productoActual = $this->seleccionarProductos(['id_producto' => $this->idProducto]);
 
     //Datos generales
     $resultado = $this->actualizarDatos2([
@@ -643,100 +678,71 @@ class productosModelo extends conexion {
     ]);
     if ($resultado != false && $resultado > 0) $PRD++;
 
-    // Materias primas
+    //Materias primas
     $this->materiasPrimas = $this->indexarArrays([
       'indice' => 'id_materia_prima',
       'camposSumar' => 'cantidad_materia_prima',
-      'camposAgrupar' => ['id_materia_prima', 'cantidad_materia_prima'],
-      'indicesNumericos' => true,
       'array' => $this->materiasPrimas,
     ]);
-
-    //Operaciones
-    $opMatPrimas = $this->DOAD([
-      'arrayNuevo' => $this->materiasPrimas,
-      'configArrayViejo' => [
-        'tabla' => 'materias_primas_productos',
-        'campos' => 'id_materia_prima,cantidad_materia_prima',
+    if (($productoActual['detallesExtra']['materias_primas'] ?? []) != []) {
+      $MPR += $resultado = $this->eliminarDatos2([
+        'tabla' => "materias_primas_productos",
         'WHERE' => [
-          'id_producto' => $this->idProducto
-        ]
-      ],
-      'campoUnicoDif' => ['id_materia_prima'],
-    ]);
-    foreach ($opMatPrimas['eliminar'] as $pre) {
-      $resultado = $this->eliminarDatos2([
-        'tabla' => 'materias_primas_productos',
-        'WHERE' => [
-          'id_materia_prima' => $pre['id_materia_prima'],
-          'id_producto' => $this->idProducto
-        ]
+          "id_producto" => $this->idProducto
+        ],
+        'fisico' => true
       ]);
-      if ($resultado <= 0 || $resultado == false) return $funcionError(1);
-      $MAT += $resultado;
+      if ($resultado == false || $resultado <= 0) {
+        $funcionError();
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Materias primas anteriores no eliminadas',
+          'texto' => 'No se pudo actualizar el producto',
+          'icono' => 'error',
+        ];
+      }
     }
-    foreach ($opMatPrimas['registrar'] as $pres) {
+    foreach ($this->materiasPrimas as $id => $cantidad) {
       $resultado = $this->guardarDatos2([
         'tabla' => 'materias_primas_productos',
         'datos' => [
           "id_producto" => $this->idProducto,
-          "id_materia_prima" => $pres['id_materia_prima'],
-          "cantidad_materia_prima" => $pres['cantidad_materia_prima'],
+          "id_materia_prima" => $id,
+          "cantidad_materia_prima" => $cantidad,
         ]
       ]);
-      if ($resultado == false || $resultado <= 0) return $funcionError(2);
-      $MAT++;
-    }
-    foreach ($opMatPrimas['actualizar'] as $mat) {
-      $resultado = $this->actualizarDatos2([
-        'tabla' => 'materias_primas_productos',
-        'datos' => [
-          "id_materia_prima" => $mat['id_materia_prima'],
-          "cantidad_materia_prima" => $mat['cantidad_materia_prima'],
-        ],
-        'WHERE' => [
-          'id_producto' => $this->idProducto,
-          'id_materia_prima' => $mat['id_materia_prima']
-        ]
-      ]);
-      if ($resultado == false || $resultado <= 0) $funcionError(3);
-      $MAT++;
+      if ($resultado != false && $resultado > 0) $MPR++;
     }
 
-    //Operaciones en las Presentaciones
-    $opPresentaciones = $this->DOAD([
-      'arrayNuevo' => $this->presentaciones,
-      'configArrayViejo' => [
-        'tabla' => 'presentaciones_productos',
-        'campos' => 'id_presentacion,mostrar_ecommerce',
+    //Presentaciones
+    if (isset($productoActual['detallesExtra']['presentaciones'])) {
+      $PRE += $resultado = $this->eliminarDatos2([
+        'tabla' => "presentaciones_productos",
         'WHERE' => [
-          'id_producto' => $this->idProducto
-        ]
-      ],
-      'campoUnicoDif' => 'id_presentacion',
-    ]);
-    foreach ($opPresentaciones['eliminar'] as $pre) {
-      $foto = $this->seleccionarDatos2([
-        'tabla' => 'presentaciones_productos',
-        'campos' => 'foto_presentacion',
-        'WHERE' => [
-          'id_producto' => $this->idProducto,
-          'id_presentacion' => $pre['id_presentacion']
-        ]
-      ])->fetch(PDO::FETCH_COLUMN);
-      $this->Imagenes_Eli2('presentaciones_productos', $foto);
-      $resultado = $this->eliminarDatos2([
-        'tabla' => 'presentaciones_productos',
-        'WHERE' => [
-          'id_presentacion' => $pre['id_presentacion'],
-          'id_producto' => $this->idProducto
-        ]
+          "id_producto" => $this->idProducto
+        ],
+        'fisico' => true
       ]);
-      if ($resultado <= 0 || $resultado == false) return $funcionError(4);
-      $PRE += $resultado;
+      if ($resultado == false || $resultado <= 0) {
+        $funcionError();
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Presentaciones anteriores no eliminadas',
+          'texto' => 'No se pudo actualizar el producto',
+          'icono' => 'error',
+        ];
+      }
+      foreach ($productoActual['detallesExtra']['presentaciones'] as $pre) {
+        if ($pre['foto_presentacion'] != '') {
+          $this->Imagenes_Eli2('presentaciones_productos', $pre['foto_presentacion']);
+        }
+      }
     }
-    foreach ($opPresentaciones['registrar'] as $pres) {
+    $imagenesPresentaciones = [];
+
+    foreach ($this->presentaciones as $pres) {
       $foto = '';
+
       if (isset($pres['foto_presentacion'])) {
         $imagenesPresentaciones[] = $foto = $this->Imagenes_Reg('presentaciones_productos', $pres['foto_presentacion'], 'presentaciones_productos');
       }
@@ -751,36 +757,56 @@ class productosModelo extends conexion {
           "id_presentacion_producto" => $id_presentacion_producto,
           "id_producto" => $this->idProducto,
           "id_presentacion" => $pres['id_presentacion'],
-          "mostrar_ecommerce" => $pres['mostrar_ecommerce'],
+          "mostrar_ecommerce" => $pres['mostrar_ecommerce'] ?? 0,
           "foto_presentacion" => $foto,
         ]
       ]);
-      if ($resultado == false || $resultado <= 0) return $funcionError(5);
-      $PRE++;
-    }
-    foreach ($opPresentaciones['actualizar'] as $pres) {
-      $foto = '';
-      if (isset($pres['foto_presentacion'])) {
-        $imagenesPresentaciones[] = $foto = $this->Imagenes_Reg('presentaciones_productos', $pres['foto_presentacion'], 'presentaciones_productos');
+      if ($resultado == false || $resultado <= 0) {
+        $funcionError($imagenesPresentaciones);
+      } else {
+        $PRE++;
       }
-      $resultado = $this->actualizarDatos2([
-        'tabla' => 'presentaciones_productos',
-        'datos' => [
-          "mostrar_ecommerce" => $pres['mostrar_ecommerce'],
-          "foto_presentacion" => $foto,
-        ],
-        'WHERE' => [
-          'id_producto' => $this->idProducto,
-          'id_presentacion' => $pres['id_presentacion']
-        ]
-      ]);
-      if ($resultado == false || $resultado <= 0) return $funcionError(6);
-      $PRE++;
     }
-    if ($MAT == 0 && $PRD == 0 && $PRE == 0 && $MPR == 0) return $funcionError(7);
+
+    if ($PRD == 0 && $PRE == 0 && $MPR == 0) {
+      $funcionError($imagenesPresentaciones);
+      return [
+        'icono' => 'warning',
+        'titulo' => 'Sin Modificaciones',
+        'texto' => 'No se detectaron cambios',
+        'tipo' => 'simple'
+      ];
+    }
+
     $bitacoraModelo = new bitacoraModelo();
     $resultado = $bitacoraModelo->registrarBitacora("productos", "actualizar", "éxito");
-    if ($resultado) return $funcionError(8);
+    if ($resultado) {
+      $funcionError($imagenesPresentaciones);
+      return $resultado;
+    }
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['productos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
+        ['accion' => "actDT", 'modulo' => 'productos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Productos',
+            'texto' => "Se ha actualizado un producto",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
 
     $this->commit();
     return [
@@ -885,6 +911,29 @@ class productosModelo extends conexion {
       $resultado = $this->Imagenes_Eli2('presetaciones_productos', $presentacion['foto_presentacion']);
     }
 
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['productos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
+        ['accion' => "actDT", 'modulo' => 'productos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Productos',
+            'texto' => "Se ha eliminado un producto",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
       "tipo" => "simple",
@@ -897,8 +946,8 @@ class productosModelo extends conexion {
     return $this->Imagenes_Act([
       'subCarpeta' => 'presentaciones_productos',
       'imagen' => $this->fotoPresentacion,
-      'tablaBD' => 'presentaciones_productos',
-      'nombreCampoFoto' => 'foto_presentacion',
+      'tabla' => 'presentaciones_productos',
+      'nombreCampoFoto' => 'foto_presentacion_producto',
       'nombreCampoId' => 'id_presentacion_producto',
       'valorId' => $this->idPresentacinProd,
     ]);
@@ -907,7 +956,7 @@ class productosModelo extends conexion {
     return $this->Imagenes_Eli([
       'subCarpeta' => 'presentaciones_productos',
       'tablaBD' => 'presentaciones_productos',
-      'nombreCampoFoto' => 'foto_presentacion',
+      'nombreCampoFoto' => 'foto_presentacion_producto',
       'nombreCampoId' => 'id_presentacion_producto',
       'valorId' => $this->idPresentacinProd,
     ]);

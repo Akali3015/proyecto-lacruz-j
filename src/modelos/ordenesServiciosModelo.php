@@ -251,18 +251,17 @@ class ordenesServiciosModelo extends conexion
     private function actualizarOrdenServicioP()
     {
         $objBitacora = new bitacoraModelo();
-        $error = function ($datosError = null) use ($objBitacora) {
+        $error = function () use ($objBitacora) {
             $this->rollback();
-            $objBitacora->registrarBitacora('ordenesServicios', 'actualizar', 'Fallido', $datosError, true);
+            $objBitacora->registrarBitacora('ordenesServicios', 'Actualización de orden de servicio', 'Fallido', true);
         };
-
-        $ordenActual = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
-        if (isset($ordenActual['icono']) && $ordenActual['icono'] == 'error') {
-            return $ordenActual;
+        $ordenAntes = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
+        if (isset($ordenAntes['icono']) && $ordenAntes['icono'] == 'error') {
+            return $ordenAntes;
         }
 
-        $statusAnterior = (int)$ordenActual['status_orden'];
-        $cantidadServicio = (float)$ordenActual['cantidad_servicio'];
+        $statusAnterior = (int)$ordenAntes['status_orden'];
+        $cantidadServicio = (float)$ordenAntes['cantidad_servicio'];
              
         $transicionesPermitidas = [
             1 => [1, 2, 4], 
@@ -272,7 +271,7 @@ class ordenesServiciosModelo extends conexion
         ];
 
         if (!in_array($this->nuevoStatus, $transicionesPermitidas[$statusAnterior] ?? [])) {
-            $error(['status_anterior' => $statusAnterior, 'status_nuevo' => $this->nuevoStatus, 'error' => 'Transición no permitida']);
+            $error();
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Transición no permitida',
@@ -284,7 +283,7 @@ class ordenesServiciosModelo extends conexion
         $permitirCambioFecha = ($this->nuevoStatus == 1);
         
         if ($this->nuevaFechaEjecucion != '' && !$permitirCambioFecha) {
-            $error(['status_nuevo' => $this->nuevoStatus, 'intento_cambiar_fecha' => $this->nuevaFechaEjecucion, 'error' => 'No se puede cambiar fecha en este estado']);
+            $error();
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Acción no permitida',
@@ -293,12 +292,10 @@ class ordenesServiciosModelo extends conexion
             ];
         }
 
-        $detallesOperacion = [
-            'status_anterior' => $statusAnterior,
-            'status_nuevo' => $this->nuevoStatus,
-            'fecha_ejecucion_anterior' => $ordenActual['fecha_ejecucion'],
-            'fecha_ejecucion_nueva' => $this->nuevaFechaEjecucion ?? $ordenActual['fecha_ejecucion'],
-        ];
+        $datosActualizar = ['status' => $this->nuevoStatus];
+        if ($permitirCambioFecha && !empty($this->nuevaFechaEjecucion)) {
+            $datosActualizar['fecha_ejecucion'] = $this->nuevaFechaEjecucion;
+        }
 
         if ($this->nuevoStatus == 4 && $statusAnterior != 4) {
             foreach ($this->productosAsociados as $producto) {
@@ -316,7 +313,7 @@ class ordenesServiciosModelo extends conexion
                 ]);
                 
                 if ($resultado === false || $resultado <= 0) {
-                    $error($detallesOperacion);
+                    $error();
                     return [
                         'tipo' => 'simple',
                         'titulo' => 'Error al devolver stock',
@@ -339,8 +336,7 @@ class ordenesServiciosModelo extends conexion
             }
             
             if (!empty($faltantes)) {
-                $detallesOperacion['error'] = 'Stock insuficiente: ' . implode(', ', $faltantes);
-                $error($detallesOperacion);
+                $error();
                 return [
                     'tipo' => 'simple',
                     'titulo' => 'Stock insuficiente',
@@ -360,7 +356,7 @@ class ordenesServiciosModelo extends conexion
                 ]);
                 
                 if ($resultado === false || $resultado <= 0) {
-                    $error($detallesOperacion);
+                    $error();
                     return [
                         'tipo' => 'simple',
                         'titulo' => 'Error al descontar stock',
@@ -371,12 +367,6 @@ class ordenesServiciosModelo extends conexion
             }
         }
         
-        $datosActualizar = ['status' => $this->nuevoStatus];
-        
-        if ($permitirCambioFecha && !empty($this->nuevaFechaEjecucion)) {
-            $datosActualizar['fecha_ejecucion'] = $this->nuevaFechaEjecucion;
-        }
-        
         $resultado = $this->actualizarDatos2([
             'tabla' => 'servicios_ordenes_entregas_presupuestos',
             'datos' => $datosActualizar,
@@ -384,7 +374,7 @@ class ordenesServiciosModelo extends conexion
         ]);
 
         if ($resultado === false || $resultado <= 0) {
-            $error($detallesOperacion);
+            $error();
             return [
                 'tipo' => 'simple',
                 'titulo' => 'Error al actualizar',
@@ -392,14 +382,20 @@ class ordenesServiciosModelo extends conexion
                 'icono' => 'error'
             ];
         }
-        
+
+        $this->commit();
+
+        $ordenDespues = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
+
+        $objBitacora->registrarBitacora(
+            'ordenesServicios',
+            'Actualización del estado de la orden de servicio',
+            'Éxito',
+            true,
+            $ordenAntes,
+            $ordenDespues
+        );
         $estadosTexto = [1 => 'Pendiente', 2 => 'Ejecutada', 3 => 'Retrasada', 4 => 'Cancelada'];
-        
-        $detallesOperacion['fecha_actualizacion'] = date('Y-m-d H:i:s');
-        $detallesOperacion['estado_anterior_texto'] = $estadosTexto[$statusAnterior] ?? 'Desconocido';
-        $detallesOperacion['estado_nuevo_texto'] = $estadosTexto[$this->nuevoStatus] ?? 'Desconocido';
-        
-        $objBitacora->registrarBitacora('ordenesServicios', 'Actualización del estado de la orden de servicio', 'Éxito', $detallesOperacion, true );
         
         $objMensajesWS = new mensajesWSModelo();
         $objMensajesWS->enviarMensajesWS([
@@ -430,8 +426,6 @@ class ordenesServiciosModelo extends conexion
             'noCommit' => true
         ]);
 
-        $this->commit();
-        
         $mensajeExito = '';
         if ($this->nuevoStatus == 4) {
             $mensajeExito = 'La orden ha sido cancelada exitosamente';

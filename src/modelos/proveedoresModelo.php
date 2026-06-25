@@ -3,7 +3,6 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
-use PDO;
 
 class proveedoresModelo extends conexion {
   private string $rifProveedor = '';
@@ -13,6 +12,7 @@ class proveedoresModelo extends conexion {
   private string $direccionProveedor = '';
 
   public function validarProveedores(array $instruccionesVal) {
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -47,7 +47,6 @@ class proveedoresModelo extends conexion {
           "campo_nombre" => "razon_social_proveedor",
           "campo_valor" => &$valor,
           "formulario_nombre" => "razón social del proveedor",
-          "requerido" => true,
           "minimo" => minRegexNombreObj,
           "maximo" => maxRegexNombreObj,
           "expresion_re" => regexNombreObj,
@@ -58,7 +57,6 @@ class proveedoresModelo extends conexion {
           "campo_nombre" => "telefono_proveedor",
           "campo_valor" => &$valor,
           "formulario_nombre" => "teléfono del proveedor",
-          "requerido" => true,
           "minimo" => minRegexTelefono,
           "maximo" => maxRegexTelefono,
           "expresion_re" => regexTelefono,
@@ -69,7 +67,6 @@ class proveedoresModelo extends conexion {
           "campo_nombre" => "correo_proveedor",
           "campo_valor" => &$valor,
           "formulario_nombre" => "correo electrónico del proveedor",
-          "requerido" => true,
           "minimo" => minRegexCorreo,
           "maximo" => maxRegexCorreo,
           "expresion_re" => regexCorreo,
@@ -79,7 +76,6 @@ class proveedoresModelo extends conexion {
         'direccion_proveedor' => [
           "campo_valor" => &$valor,
           "formulario_nombre" => "dirección del proveedor",
-          "requerido" => true,
           "minimo" => minRegexDescripcion,
           "maximo" => maxRegexDescripcion,
           "expresion_re" => regexDescripcion,
@@ -91,23 +87,7 @@ class proveedoresModelo extends conexion {
     foreach ($camposVal as $valorForm  => $campoVal) {
       if (is_numeric($valorForm)) $valorForm = $campoVal;
       if ($campoVal == 'telefono_proveedor') {
-        if (($infoVal['telefono_proveedor'] ?? '') == '') {
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'Telefono vacío',
-            'texto' => 'No puede enviar el formulario sin escribir el telefono',
-            'icono' => 'error'
-          ];
-        }
-        if (($infoVal['prefijo_telefono_proveedor'] ?? '') == '') {
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'Telefono vacío',
-            'texto' => 'No puede enviar el formulario sin elegir el prefijo del teléfono',
-            'icono' => 'error'
-          ];
-        }
-        $infoVal['telefono_proveedor'] = $infoVal['prefijo_telefono_proveedor'] . $infoVal['telefono_proveedor'];
+        $infoVal['telefono_proveedor'] = ($infoVal['prefijo_telefono_proveedor'] ?? '') . $infoVal['telefono_proveedor'];
       } elseif ($campoVal == 'rif_proveedor') {
         if (($infoVal['codigo_rif_proveedor'] ?? '') == '') {
           return [
@@ -125,7 +105,7 @@ class proveedoresModelo extends conexion {
             'icono' => 'error'
           ];
         }
-        $infoVal['rif_proveedor'] = $infoVal['codigo_rif_proveedor'] . $infoVal['rif_proveedor'];
+        $infoVal['rif_proveedor'] = ($infoVal['codigo_rif_proveedor'] ?? '') . $infoVal['rif_proveedor'];
       }
       $campos[] = $funcionAsignadora($campoVal, $infoVal[$valorForm]);
     }
@@ -187,12 +167,12 @@ class proveedoresModelo extends conexion {
     return $this->actualizarProveedoresP();
   }
   public function eliminarProveedores(array $info) {
-    if (empty ($info['rif_proveedor'])) { 
+    if (empty($info['rif_proveedor'])) {
       return [
-      'tipo' => 'simple',
-      'titulo' => 'error',
-      'texto' => 'No se ha proporcionado el RIF del proveedor a eliminar',
-      'icono' => 'error'
+        'tipo' => 'simple',
+        'titulo' => 'error',
+        'texto' => 'No se ha proporcionado el RIF del proveedor a eliminar',
+        'icono' => 'error'
       ];
     }
 
@@ -272,7 +252,7 @@ class proveedoresModelo extends conexion {
         "rif_proveedor" => $this->rifProveedor,
       ]
     ]);
-   
+
     if ($resultado == false || $resultado <= 0) {
       $alerta = [
         "tipo" => "simple",

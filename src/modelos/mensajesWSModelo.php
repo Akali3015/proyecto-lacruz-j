@@ -110,15 +110,15 @@ class mensajesWSModelo extends conexion {
   public function seleccionarNotificaciones($id = 0) {
     $this->idNotificacion = $id;
     $this->cedulaUsuario = $_SESSION['cedula'];
-    
+
     $campos = [[
       "campo_nombre" => "cedula_usuario",
       "campo_valor" => &$this->cedulaUsuario,
       "formulario_nombre" => "cédula",
       "requerido" => true,
-      "minimo" => minRegexCedulaRifLetra,
-      "maximo" => maxRegexCedulaRifLetra,
-      "expresion_re" => regexCedulaRifLetra,
+      "minimo" => minRegexCedulaRif,
+      "maximo" => maxRegexCedulaRif,
+      "expresion_re" => regexCedulaRif,
       "tabla" => "usuarios",
       "BD" => "seguridad",
       "debeExistir" => true,
@@ -209,9 +209,9 @@ class mensajesWSModelo extends conexion {
         "campo_valor" => &$cedula,
         "formulario_nombre" => "cedula",
         "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "BD" => "seguridad",
         "debeExistir" => true
@@ -277,9 +277,9 @@ class mensajesWSModelo extends conexion {
         "campo_valor" => &$_SESSION['cedula'],
         "formulario_nombre" => "cédula",
         "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "BD" => "seguridad",
         "debeExistir" => true
@@ -326,9 +326,9 @@ class mensajesWSModelo extends conexion {
         "campo_nombre" => "cedula_usuario",
         "campo_valor" => &$cedula,
         "formulario_nombre" => "cedula",
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
+        "minimo" => minRegexCedulaRif,
+        "maximo" => maxRegexCedulaRif,
+        "expresion_re" => regexCedulaRif,
         "tabla" => "usuarios",
         "BD" => "seguridad",
         "debeExistir" => true

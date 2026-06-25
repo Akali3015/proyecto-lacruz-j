@@ -48,6 +48,7 @@ class frontController
       'proveedores',
       'repartidores',
       'reportes',
+      'reportesEstadisticos',
       'recepciones',
       'roles',
       'rutas',

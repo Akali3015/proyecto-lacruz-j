@@ -41,17 +41,15 @@ class clientesModelo extends conexion {
         'razon_social_cliente' => [
           'tipo' => 'string',
           "nombreAlerta" => "razón social del cliente",
-          "requerido" => true,
-          "minL" => minRegexNombreObj,
-          "maxL" => maxRegexNombreObj,
-          "regex" => regexNombreObj,
+          "minL" => minRegexDescripcion,
+          "maxL" => maxRegexDescripcion,
+          "regex" => regexDescripcion,
           "tablaBD" => "clientes",
           "nombreBD" => "razon_social_cliente",
         ],
         'correo_cliente' => [
           'tipo' => 'string',
           "nombreAlerta" => "correo electrónico del cliente",
-          "requerido" => true,
           "minL" => minRegexCorreo,
           "maxL" => maxRegexCorreo,
           "regex" => regexCorreo,
@@ -62,7 +60,6 @@ class clientesModelo extends conexion {
         'direccion_cliente' => [
           'tipo' => 'string',
           "nombreAlerta" => "dirección del cliente",
-          "requerido" => true,
           "minL" => minRegexDescripcion,
           "maxL" => maxRegexDescripcion,
           "regex" => regexDescripcion,
@@ -100,8 +97,6 @@ class clientesModelo extends conexion {
     $resultado = $this->validarClientes($info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
-      'telefono_cliente',
-      'correo_cliente',
       'direccion_cliente'
     ]);
     if ($resultado) return $resultado;
@@ -118,8 +113,6 @@ class clientesModelo extends conexion {
     $resultado = $this->validarClientes($info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
-      'telefono_cliente',
-      'correo_cliente',
       'direccion_cliente'
     ]);
     if ($resultado) return $resultado;
@@ -134,7 +127,7 @@ class clientesModelo extends conexion {
   }
   public function eliminarClientes(array $info) {
     $resultado = $this->validarClientes($info, [
-      'rif_cedula_cliente_act' => 'rif_cedula_cliente',
+      'rif_cedula_cliente',
     ]);
     if ($resultado) return $resultado;
     $this->rifCedulaCliente = $info['rif_cedula_cliente'];
@@ -233,8 +226,8 @@ class clientesModelo extends conexion {
         'rif_cedula_cliente' => $this->rifCedulaCliente
       ]
     ]);
+
     if ($eliminarCliente <= 0) {
-    } else {
       return [
         "tipo" => "simple",
         "titulo" => "Cliente no encontrado",

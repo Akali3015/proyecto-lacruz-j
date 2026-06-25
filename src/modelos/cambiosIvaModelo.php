@@ -121,83 +121,73 @@ class cambiosIvaModelo extends conexion {
   private function registrarCambiosIvaP() {
     $objBitacora = new bitacoraModelo();
 
-    $ivaAnterior = $this->seleccionarDatos2([
-      'campos' => 'monto_cambio_iva',
-      'tabla' => 'cambios_iva',
-      'ORDER' => 'id_cambio_iva DESC',
-      'LIMIT' => 1
-    ])->fetch(PDO::FETCH_COLUMN);
-
-    $ivaAnterior = $ivaAnterior ?? 0;
+    $ivaAntes = $this->seleccionarCambiosIva([
+        'tipoConsulta' => 'ivaActual'
+    ]);
+    if (!$ivaAntes) {
+        $ivaAntes = ['monto_cambio_iva' => 0];
+    }
 
     $ultimoId = $this->guardarDatos2([
-      'tabla' => 'cambios_iva',
-      'datos' => [
-        "monto_cambio_iva" => $this->montoCambioIva,
-        "fecha_cambio_iva" => $this->FechaHora_Sel('fecha_hora_BD'),
-      ]
+        'tabla' => 'cambios_iva',
+        'datos' => [
+            "monto_cambio_iva" => $this->montoCambioIva,
+            "fecha_cambio_iva" => $this->FechaHora_Sel('fecha_hora_BD'),
+        ]
     ]);
 
     if ($ultimoId == false || $ultimoId <= 0) {
-      $this->rollback();
-      $objBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', [
-        'iva_anterior' => $ivaAnterior,
-        'iva_nuevo' => $this->montoCambioIva,
-        'error' => 'No se pudo registrar en la base de datos'
-      ],true);
-      return [
-        "tipo" => "simple",
-        "titulo" => "Valor no actualizado",
-        "texto" => "El valor del IVA no ha sido registrado exitosamente",
-        "icono" => "error",
-      ];
+        $this->rollback();
+        $objBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', true);
+        return [
+            "tipo" => "simple",
+            "titulo" => "Valor no actualizado",
+            "texto" => "El valor del IVA no ha sido registrado exitosamente",
+            "icono" => "error",
+        ];
     }
+    $ivaDespues = $this->seleccionarCambiosIva([
+        'tipoConsulta' => 'ivaActual'
+    ]);
+    $objBitacora->registrarBitacora('cambiosIva', 'registrar Cambios de IVA', 'Éxito',true, $ivaAntes, $ivaDespues );
 
-    $detallesBitacora = [
-      'iva_anterior' => $ivaAnterior,
-      'iva_nuevo' => $this->montoCambioIva,
-      'diferencia' => $this->montoCambioIva - $ivaAnterior,
-      'fecha_cambio' => date('Y-m-d H:i:s')
-    ];
-    $rb=$objBitacora->registrarBitacora('cambiosIva', 'registrar Cambios de IVA', 'Éxito', $detallesBitacora);
-    if(isset($rb['icono'])) return $rb;
     $objetoNot = new mensajesWSModelo();
-    $resultado = $objetoNot->enviarMensajesWS(
-      [
-        "receptor" => [
-          'tipo' => 'todosSinExcepcion',
-          //'cedula' => 30485684
+    $objetoNot->enviarMensajesWS(
+        [
+            "receptor" => [
+                'tipo' => 'todosSinExcepcion',
+            ],
+            'cuerpo' => [
+                [
+                    'accion' => "borrarDataModuloSS",
+                    'modulo' => 'cambiosIva'
+                ],
+                [
+                    'accion' => "actDT",
+                    'modulo' => 'cambiosIva'
+                ],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo' => 'simple',
+                        'titulo' => 'IVA actualizado',
+                        'texto' => 'El IVA ha sido actualizado de ' . $ivaAntes['monto_cambio_iva'] . '% a ' . $ivaDespues['monto_cambio_iva'] . '%',
+                        'icono' => 'info',
+                        'notifier' => true,
+                    ]
+                ],
+            ],
+            'noCommit' => true
         ],
-        'cuerpo' => [
-          [
-            'accion' => "borrarDataModuloSS",
-            'modulo' => 'cambiosIva'
-          ],
-          [
-            'accion' => "actDT",
-            'modulo' => 'cambiosIva'
-          ],
-          [
-            'accion' => 'alertar',
-            'alerta' => [
-              'tipo' => 'simple',
-              'titulo' => 'IVA actualizado',
-              'texto' => 'El precio del IVA acaba de ser actualizado de ' . $ivaAnterior . '% a ' . $this->montoCambioIva . '%',
-              'icono' => 'info',
-              'notifier' => true,
-            ]
-          ],
-        ],
-        'noCommit' => true
-      ],
     );
 
     $this->commit();
+
     return [
-      "tipo" => "limpiarYcerrar",
-      "titulo" => "Valor Actualizado",
-      "texto" => "El valor del IVA ha sido actualizado de " . $ivaAnterior . "% a " . $this->montoCambioIva . "%",
-      "icono" => "success",
+        "tipo" => "limpiarYcerrar",
+        "titulo" => "Valor Actualizado",
+        "texto" => "El valor del IVA ha sido actualizado de manera exitosa",
+        "icono" => "success",
     ];
-  }
+}
 }

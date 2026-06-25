@@ -4,6 +4,7 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
+use src\modelos\mensajesWSModelo;
 use PDO;
 
 class comprasModelo extends conexion {
@@ -85,7 +86,7 @@ class comprasModelo extends conexion {
     }
     return $this->limpiar_Verificar($totalValidaciones);
   }
-  public function seleccionarCompras(array $info = []) {
+  public function seleccionarCompra(array $info = []) {
     $this->id_compra = $info['id_compra'] ?? null;
 
     // Si hay ID validamos que exista
@@ -98,13 +99,18 @@ class comprasModelo extends conexion {
       if ($alerta !== false) return $alerta;
     }
 
-    return $this->seleccionarComprasP();
+    return $this->seleccionarCompraP();
   }
-  public function registrarCompras(array $info) {
+  public function registrarCompra(array $info) {
     $rif_proveedor = $info['rif_proveedor'] ?? '';
     $fecha_compra  = $info['fecha_compra']  ?? '';
     $detalles = [];
-    if (!empty($info['detalle_id']) && is_array($info['detalle_id'])) {
+    if (!empty($info['detalles'])) {
+      $decoded = json_decode($info['detalles'], true);
+      if (is_array($decoded)) {
+        $detalles = $decoded;
+      }
+    } elseif (!empty($info['detalle_id']) && is_array($info['detalle_id'])) {
       foreach ($info['detalle_id'] as $index => $id) {
         $detalles[] = [
           'proveedorId' => $info['detalle_proveedorId'][$index] ?? '',
@@ -168,14 +174,19 @@ class comprasModelo extends conexion {
     $this->fecha_compra  = $fecha_compra;
     $this->detalles      = $detalles;
 
-    return $this->registrarComprasP();
+    return $this->registrarCompraP();
   }
-  public function actualizarCompras(array $info) {
+  public function actualizarCompra(array $info) {
     $id_compra     = $info['id_compra']     ?? '';
     $rif_proveedor = $info['rif_proveedor'] ?? '';
     $fecha_compra  = $info['fecha_compra']  ?? '';
     $detalles = [];
-    if (!empty($info['detalle_id']) && is_array($info['detalle_id'])) {
+    if (!empty($info['detalles'])) {
+      $decoded = json_decode($info['detalles'], true);
+      if (is_array($decoded)) {
+        $detalles = $decoded;
+      }
+    } elseif (!empty($info['detalle_id']) && is_array($info['detalle_id'])) {
       foreach ($info['detalle_id'] as $index => $id) {
         $detalles[] = [
           'proveedorId' => $info['detalle_proveedorId'][$index] ?? '',
@@ -238,9 +249,9 @@ class comprasModelo extends conexion {
     $this->rif_proveedor = $rif_proveedor;
     $this->fecha_compra  = $fecha_compra;
     $this->detalles      = $detalles;
-    return $this->actualizarComprasP();
+    return $this->actualizarCompraP();
   }
-  public function eliminarCompras(array $info) {
+  public function eliminarCompra(array $info) {
     $id_compra = $info['id_compra'] ?? '';
 
     // Validar que el ID existe
@@ -252,9 +263,9 @@ class comprasModelo extends conexion {
     if ($alerta !== false) return $alerta;
 
     $this->id_compra = $id_compra;
-    return $this->eliminarComprasP();
+    return $this->eliminarCompraP();
   }
-  public function listarProductosParaCompras(): array {
+  public function listarProductosParaCompra(): array {
     $sql = "
       SELECT
         pp.id_presentacion_producto,
@@ -275,7 +286,7 @@ class comprasModelo extends conexion {
   }
 
   // Metodos privados (BD)
-  private function seleccionarComprasP() {
+  private function seleccionarCompraP() {
     // Listado general si no hay ID
     if (empty($this->id_compra)) {
       $sql = "
@@ -320,7 +331,7 @@ class comprasModelo extends conexion {
             INNER JOIN presentaciones_productos pp ON det.id_presentacion_producto = pp.id_presentacion_producto
             INNER JOIN productos prod ON pp.id_producto = prod.id_producto
             LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
-            WHERE c.status != 0 AND c.id_compra = :id
+            WHERE c.status != 0 AND c.id_compra = :id1
 
             UNION ALL
 
@@ -340,21 +351,24 @@ class comprasModelo extends conexion {
             INNER JOIN materias_primas_compras det ON c.id_compra = det.id_compra
             INNER JOIN materias_primas mp ON det.id_materia_prima = mp.id_materia_prima
             LEFT JOIN unidades_medidas um ON mp.id_unidad_medida = um.id_unidad_medida
-            WHERE c.status != 0 AND c.id_compra = :id
+            WHERE c.status != 0 AND c.id_compra = :id2
 
             ORDER BY TIPO DESC
         ";
     $stmt = $this->conectar()->prepare($sql);
-    $stmt->bindValue(':id', (string) $this->id_compra, PDO::PARAM_STR);
+    $stmt->bindValue(':id1', (string) $this->id_compra, PDO::PARAM_STR);
+    $stmt->bindValue(':id2', (string) $this->id_compra, PDO::PARAM_STR);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
-  private function registrarComprasP() {
+  private function registrarCompraP() {
     
     $bitacora = new bitacoraModelo();
-    $cn = $this->pdo;
+    $objProductos = new productosModelo();
+    $objMateriasPrimas = new materiasPrimasModelo();
+    $cn = $this->conectar();
     try {
-      $cn->beginTransaction();
+      // $cn->beginTransaction();
 
       // 1. Generar ID de compra (Manual pero robusto)
       $stMax = $cn->query('SELECT MAX(CAST(id_compra AS UNSIGNED)) FROM compras');
@@ -401,12 +415,10 @@ class comprasModelo extends conexion {
             ':cant'   => $cant
           ]);
 
-          $cn->prepare(
-            'UPDATE productos prod
-                         INNER JOIN presentaciones_productos pp ON pp.id_producto = prod.id_producto
-                         SET prod.stock_producto = prod.stock_producto + :cant
-                         WHERE pp.id_presentacion_producto = :id'
-          )->execute([':cant' => $cant, ':id' => $id_item]);
+          $resProd = $objProductos->modificarStock($id_item, $cant, $cn);
+          if ($resProd !== true) {
+            throw new \Exception($resProd);
+          }
         } elseif ($tipo === 'materia_prima') {
           $cn->prepare(
             'INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status)
@@ -417,16 +429,38 @@ class comprasModelo extends conexion {
             ':cant'   => $cant
           ]);
 
-          $cn->prepare(
-            'UPDATE materias_primas 
-                         SET stock_materia_prima = stock_materia_prima + :cant 
-                         WHERE id_materia_prima = :id'
-          )->execute([':cant' => $cant, ':id' => $id_item]);
+          $resMp = $objMateriasPrimas->modificarStock($id_item, $cant, $cn);
+          if ($resMp !== true) {
+            throw new \Exception($resMp);
+          }
         }
       }
 
       $bitacora->registrarBitacora('compras', 'Registrar', 'Registro de nueva compra exitoso (' . $id_compra . ')');
-      $cn->commit();
+      $this->commit();
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['compras' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'compras'],
+          ['accion' => "actDT", 'modulo' => 'compras'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Compras',
+              'texto' => "Se ha registrado la compra #$id_compra",
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
 
       return [
         'tipo'   => 'limpiar',
@@ -435,7 +469,7 @@ class comprasModelo extends conexion {
         'icono'  => 'success'
       ];
     } catch (\Throwable $th) {
-      if ($cn->inTransaction()) $cn->rollBack();
+      $this->rollback();
       return [
         'tipo'   => 'simple',
         'titulo' => 'Error de base de datos',
@@ -444,26 +478,27 @@ class comprasModelo extends conexion {
       ];
     }
   }
-  private function actualizarComprasP() {
+  private function actualizarCompraP() {
     $bitacora = new bitacoraModelo();
+    $objProductos = new productosModelo();
+    $objMateriasPrimas = new materiasPrimasModelo();
     try {
-      $cn = $this->pdo;
-      $cn->beginTransaction();
+      $cn = $this->conectar();
+      // $cn->beginTransaction();
 
       // 1. Revertir stock de ítems anteriores
-      $anteriores = $this->seleccionarCompras(['id_compra' => $this->id_compra]);
+      $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
       foreach ($anteriores as $item) {
         if ($item['TIPO'] === 'producto') {
-          $cn->prepare(
-            'UPDATE productos prod
-                         INNER JOIN presentaciones_productos pp ON pp.id_producto = prod.id_producto
-                         SET prod.stock_producto = prod.stock_producto - :cant
-                         WHERE pp.id_presentacion_producto = :id'
-          )->execute([':cant' => $item['cantidad_raw'], ':id' => $item['id_item']]);
+          $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+          if ($resProd !== true) {
+            throw new \Exception($resProd);
+          }
         } elseif ($item['TIPO'] === 'materia_prima') {
-          $cn->prepare(
-            'UPDATE materias_primas SET stock_materia_prima = stock_materia_prima - :cant WHERE id_materia_prima = :id'
-          )->execute([':cant' => $item['cantidad_raw'], ':id' => $item['id_item']]);
+          $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+          if ($resMp !== true) {
+            throw new \Exception($resMp);
+          }
         }
       }
 
@@ -495,25 +530,47 @@ class comprasModelo extends conexion {
             'INSERT INTO productos_compras (id_compra, id_presentacion_producto, cantidad_producto, status)
                          VALUES (:compra, :item, :cant, 1)'
           )->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cant]);
-          $cn->prepare(
-            'UPDATE productos prod
-                         INNER JOIN presentaciones_productos pp ON pp.id_producto = prod.id_producto
-                         SET prod.stock_producto = prod.stock_producto + :cant
-                         WHERE pp.id_presentacion_producto = :id'
-          )->execute([':cant' => $cant, ':id' => $id_item]);
+          $resProd = $objProductos->modificarStock($id_item, $cant, $cn);
+          if ($resProd !== true) {
+            throw new \Exception($resProd);
+          }
         } elseif ($tipo === 'materia_prima') {
           $cn->prepare(
             'INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status)
                          VALUES (:compra, :item, :cant, 1)'
           )->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cant]);
-          $cn->prepare(
-            'UPDATE materias_primas SET stock_materia_prima = stock_materia_prima + :cant WHERE id_materia_prima = :id'
-          )->execute([':cant' => $cant, ':id' => $id_item]);
+          $resMp = $objMateriasPrimas->modificarStock($id_item, $cant, $cn);
+          if ($resMp !== true) {
+            throw new \Exception($resMp);
+          }
         }
       }
 
       $bitacora->registrarBitacora('compras', 'Actualizar', 'Actualización de compra exitosa (' . $this->id_compra . ')');
-      $cn->commit();
+      $this->commit();
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['compras' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'compras'],
+          ['accion' => "actDT", 'modulo' => 'compras'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Compras',
+              'texto' => "Se ha actualizado la compra #{$this->id_compra}",
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
 
       return [
         "tipo"   => "limpiarYcerrar",
@@ -522,7 +579,7 @@ class comprasModelo extends conexion {
         "icono"  => "success"
       ];
     } catch (\Throwable $e) {
-      if (isset($cn) && $cn->inTransaction()) $cn->rollBack();
+      $this->rollback();
       $bitacora->registrarBitacora('compras', 'Actualizar', 'Fallido');
       return [
         "tipo"   => "simple",
@@ -532,60 +589,28 @@ class comprasModelo extends conexion {
       ];
     }
   }
-  private function eliminarComprasP() {
+  private function eliminarCompraP() {
     $bitacora = new bitacoraModelo();
+    $objProductos = new productosModelo();
+    $objMateriasPrimas = new materiasPrimasModelo();
     try {
-      $cn = $this->pdo;
-      $cn->beginTransaction();
+      $cn = $this->conectar();
+      // $cn->beginTransaction();
 
-      // 1. Revertir stock de PRODUCTOS
-      $stmtProd = $cn->prepare("
-                SELECT pc.id_presentacion_producto, pc.cantidad_producto,
-                       prod.stock_producto, prod.nombre_producto, prod.id_producto
-                FROM productos_compras pc
-                INNER JOIN presentaciones_productos pp ON pc.id_presentacion_producto = pp.id_presentacion_producto
-                INNER JOIN productos prod ON pp.id_producto = prod.id_producto
-                WHERE pc.id_compra = :id
-            ");
-      $stmtProd->execute([':id' => $this->id_compra]);
-
-      foreach ($stmtProd->fetchAll(\PDO::FETCH_ASSOC) as $prod) {
-        $nuevoStock = $prod['stock_producto'] - $prod['cantidad_producto'];
-        if ($nuevoStock < 0) {
-          $cn->rollBack();
-          return [
-            "tipo"   => "simple",
-            "titulo" => "Stock Insuficiente",
-            "texto"  => "El producto '{$prod['nombre_producto']}' quedaría con stock negativo ({$nuevoStock}).",
-            "icono"  => "error"
-          ];
+      // 1. Revertir stock de PRODUCTOS y MATERIAS PRIMAS (usando los modelos POO)
+      $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      foreach ($anteriores as $item) {
+        if ($item['TIPO'] === 'producto') {
+          $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+          if ($resProd !== true) {
+            throw new \Exception($resProd);
+          }
+        } elseif ($item['TIPO'] === 'materia_prima') {
+          $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+          if ($resMp !== true) {
+            throw new \Exception($resMp);
+          }
         }
-        $cn->prepare("UPDATE productos SET stock_producto = :stock WHERE id_producto = :id")
-          ->execute([':stock' => $nuevoStock, ':id' => $prod['id_producto']]);
-      }
-
-      // 2. Revertir stock de MATERIAS PRIMAS
-      $stmtMp = $cn->prepare("
-                SELECT mpc.id_materia_prima, mpc.cantidad_materia_prima, mp.stock_materia_prima, mp.nombre_materia_prima
-                FROM materias_primas_compras mpc
-                INNER JOIN materias_primas mp ON mpc.id_materia_prima = mp.id_materia_prima
-                WHERE mpc.id_compra = :id
-            ");
-      $stmtMp->execute([':id' => $this->id_compra]);
-
-      foreach ($stmtMp->fetchAll(\PDO::FETCH_ASSOC) as $mp) {
-        $nuevoStock = $mp['stock_materia_prima'] - $mp['cantidad_materia_prima'];
-        if ($nuevoStock < 0) {
-          $cn->rollBack();
-          return [
-            "tipo"   => "simple",
-            "titulo" => "Stock Insuficiente",
-            "texto"  => "La materia prima '{$mp['nombre_materia_prima']}' quedaría con stock negativo ({$nuevoStock}).",
-            "icono"  => "error"
-          ];
-        }
-        $cn->prepare("UPDATE materias_primas SET stock_materia_prima = :stock WHERE id_materia_prima = :id")
-          ->execute([':stock' => $nuevoStock, ':id' => $mp['id_materia_prima']]);
       }
 
       // 3. Soft delete en cascada
@@ -597,16 +622,39 @@ class comprasModelo extends conexion {
         ->execute([':id' => $this->id_compra]);
 
       $bitacora->registrarBitacora('compras', 'Eliminar', 'Eliminación de compra exitosa (' . $this->id_compra . ')');
-      $cn->commit();
+      $this->commit();
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['compras' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'compras'],
+          ['accion' => "actDT", 'modulo' => 'compras'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Compras',
+              'texto' => "Se ha anulado la compra #{$this->id_compra}",
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
 
       return [
-        "tipo"   => "simple",
+        "tipo"   => "recargar",
         "titulo" => "Compra eliminada",
         "texto"  => "La compra #{$this->id_compra} fue eliminada y el stock fue revertido correctamente.",
         "icono"  => "success"
       ];
     } catch (\Throwable $e) {
-      if (isset($cn) && $cn->inTransaction()) $cn->rollBack();
+      $this->rollback();
       $bitacora->registrarBitacora('compras', 'Eliminar', 'Fallido');
       return [
         "tipo"   => "simple",
