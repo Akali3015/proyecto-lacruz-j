@@ -18,19 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION['cedula'])) {
   switch ($accion) {
     case 'listar':
     case 'seleccionarUno':
-      $resultado = $objetoCompras->seleccionarCompra($_POST);
+      $resultado = $objetoCompras->seleccionarCompras($_POST);
       break;
     case 'listarProductosParaCompra':
-      $resultado = $objetoCompras->listarProductosParaCompra();
+      $resultado = $objetoCompras->listarProductosParaCompras();
       break;
     case 'registrar':
-      $resultado = $objetoCompras->registrarCompra($_POST);
+      $resultado = $objetoCompras->registrarCompras($_POST);
       break;
     case 'actualizar':
-      $resultado = $objetoCompras->actualizarCompra($_POST);
+      $resultado = $objetoCompras->actualizarCompras($_POST);
       break;
     case 'eliminar':
-      $resultado = $objetoCompras->eliminarCompra($_POST);
+      $resultado = $objetoCompras->eliminarCompras($_POST);
       break;
   }
 

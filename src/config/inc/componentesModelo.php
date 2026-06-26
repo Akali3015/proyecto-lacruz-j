@@ -45,7 +45,7 @@ class componentesModelo extends conexion {
         'permiso' => 'ver',
         'url' => 'compras',
         'icono' => 'shopping-cart-add',
-        'texto' => 'Compras',
+        'texto' => 'Recepciones',
       ],
       [
         'modulo' => 'ordenesServicios',
@@ -224,18 +224,18 @@ class componentesModelo extends conexion {
         'texto' => 'Roles',
       ],
       [
-        'modulo' => 'permisos',
-        'permiso' => 'ver',
-        'url' => 'permisos',
-        'icono' => 'holding-hand-key',
-        'texto' => 'Permisos',
-      ],
-      [
         'modulo' => 'modulos',
         'permiso' => 'ver',
         'url' => 'modulos',
         'icono' => 'module',
         'texto' => 'Módulos',
+      ],
+      [
+        'modulo' => 'permisos',
+        'permiso' => 'ver',
+        'url' => 'permisos',
+        'icono' => 'holding-hand-key',
+        'texto' => 'Permisos',
       ],
       [
         'modulo' => 'bitacora',

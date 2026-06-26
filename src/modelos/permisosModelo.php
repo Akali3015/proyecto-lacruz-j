@@ -52,7 +52,6 @@ class permisosModelo extends conexion {
     }
     return $this->limpiar_Verificar($campos);
   }
-
   public function seleccionarPermisos(array $info) {
     if (($info['id_permiso'] ?? '') != '') {
       $resultado = $this->validarPermisos([
@@ -66,7 +65,6 @@ class permisosModelo extends conexion {
     }
     return $this->seleccionarPermisosP();
   }
-
   public function registrarPermisos(array $info) {
     $resultado = $this->validarPermisos([
       'infoVal' => &$info,
@@ -80,7 +78,6 @@ class permisosModelo extends conexion {
 
     return $this->registrarPermisosP();
   }
-
   public function actualizarPermisos(array $info) {
     $resultado = $this->validarPermisos([
       'infoVal' => &$info,
@@ -95,7 +92,6 @@ class permisosModelo extends conexion {
 
     return $this->actualizarPermisosP();
   }
-
   public function eliminarPermisos(array $info) {
     $resultado = $this->validarPermisos([
       'infoVal' => &$info,
@@ -107,9 +103,8 @@ class permisosModelo extends conexion {
     $this->idPermiso = $info['id_permiso'];
     return $this->eliminarPermisosP();
   }
-
+  
   // ─── PRIVADOS ─────────────────────────────────────────────────────────
-
   private function seleccionarPermisosP() {
     if ($this->idPermiso == null || $this->idPermiso == "") {
       $resultado = $this->seleccionarDatos2([
@@ -141,7 +136,6 @@ class permisosModelo extends conexion {
       return $permiso;
     }
   }
-
   private function registrarPermisosP() {
     $objBitacora = new bitacoraModelo();
     
@@ -206,7 +200,6 @@ class permisosModelo extends conexion {
     }
     return $alerta;
   }
-
   private function actualizarPermisosP() {
     $objBitacora = new bitacoraModelo();
     
@@ -274,7 +267,6 @@ class permisosModelo extends conexion {
     }  
     return $alerta;
   }
-
   private function eliminarPermisosP() {
     $objBitacora = new bitacoraModelo();
   

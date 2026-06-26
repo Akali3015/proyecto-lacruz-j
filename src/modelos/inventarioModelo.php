@@ -103,7 +103,6 @@ class inventarioModelo extends conexion {
     }
     return $this->limpiar_Verificar($totalValidaciones);
   }
-
   public function registrarMovimientos(array $info) {
     $this->tipoItem = $info['tipo_item'] ?? '';
 
@@ -150,7 +149,6 @@ class inventarioModelo extends conexion {
       return $this->registrarMovimientosProductosP();
     }
   }
-
   public function verEntradasSalidas(array $info) {
     $this->tipo = $info['tipo'] ?? '';
 
@@ -169,7 +167,6 @@ class inventarioModelo extends conexion {
       "icono" => "error"
     ];
   }
-
   public function reporteProductos(array $info) {
     if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
       return [
@@ -196,7 +193,6 @@ class inventarioModelo extends conexion {
 
     return $this->reporteProductosP();
   }
-
   public function reporteMateriasPrimas(array $info) {
     if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
       return [
@@ -289,7 +285,6 @@ class inventarioModelo extends conexion {
     }
     return true;
   }
-
   private function registrarMovimientosProductosP() {
     $objBitacora = new bitacoraModelo();
     
@@ -443,7 +438,6 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function registrarMovimientosMateriasPrimasP() {
     $objBitacora = new bitacoraModelo();
     
@@ -551,7 +545,6 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function verMovimientosProductosP() {
     return $this->seleccionarDatos2([
       'campos' => 'map.id_movimiento_anomalo_producto, p.nombre_presentacion, map.cantidad_movimiento, map.tipo_movimiento, map.motivo_movimiento, map.fecha_movimiento, pr.id_producto, pr.nombre_producto',
@@ -568,7 +561,6 @@ class inventarioModelo extends conexion {
       'ORDER' => 'map.id_movimiento_anomalo_producto DESC'
     ])->fetchAll();
   }
-
   private function verMovimientosMateriasPrimasP() {
     return $this->seleccionarDatos2([
       'campos' => '
@@ -587,7 +579,6 @@ class inventarioModelo extends conexion {
       'ORDER' => 'mamp.id_movimiento_anomalo_materia_prima DESC'
     ])->fetchAll();
   }
-
   private function reporteProductosP() {
 
     $WHERE = [
@@ -653,7 +644,6 @@ class inventarioModelo extends conexion {
       "infoBD" => $infoCeldas,
     ]);
   }
-
   private function reporteMateriasPrimasP() {
     $where = [];
     $where['DATE(mamp.fecha_movimiento)'] = [

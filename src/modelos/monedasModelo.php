@@ -210,7 +210,6 @@ class monedasModelo extends conexion {
       'tabla' => 'v_cambios_monedas_todos',
     ])->fetchAll();
   }
-
   private function registrarMonedasP() {
     $objBitacora = new bitacoraModelo();
 
@@ -273,7 +272,6 @@ class monedasModelo extends conexion {
       "icono" => "success",
     ];
   }
-
   private function actualizarMonedasP($tipoAct = null) {
     $objBitacora = new bitacoraModelo();
 
@@ -321,7 +319,7 @@ class monedasModelo extends conexion {
 
     $this->commit();
     $mensajeNotificacion = 'La moneda "' . $datosAntes['nombre_moneda'] . '" ha sido actualizada';
-    
+
     if ($datosAntes['valor_moneda'] != $this->valorMoneda) {
       $mensajeNotificacion .= ' (valor: ' . $datosAntes['valor_moneda'] . ' → ' . $this->valorMoneda . ')';
     }
@@ -361,7 +359,6 @@ class monedasModelo extends conexion {
       "icono" => "success",
     ];
   }
-
   private function eliminarMonedasP() {
     $objBitacora = new bitacoraModelo();
 

@@ -17,7 +17,6 @@ class bitacoraModelo extends conexion {
   public function seleccionarBitacora() {
       return $this->seleccionarBitacoraP();
   }
-
   public function registrarBitacora(string $modulo, string $accion, string $resultado, bool|null $hacerCommit = null, $datos = null, $datosDespues = null,array|null $clavesIdentificacion = null) {
     $this->moduloBitacora = $modulo;
     $this->accionBitacora = $accion;
@@ -83,7 +82,6 @@ class bitacoraModelo extends conexion {
 
     return null;
   }
-
   private function compararRecursivo(array $datosAntes, array $datosDespues): array {
     $cambios = [];
     $camposIgnorar = ['contrasena_usuario'];
@@ -131,14 +129,12 @@ class bitacoraModelo extends conexion {
     
     return $cambios;
   }
-
   private function esArrayIndexado(array $array): bool {
     if (empty($array)) return true;
     
     $keys = array_keys($array);
     return $keys === range(0, count($array) - 1);
   }
-
   private function detectarClaveIdentificacion(array $lista): ?string {
     if (empty($lista)) return null;
     
@@ -188,7 +184,6 @@ class bitacoraModelo extends conexion {
     
     return $mejorClave;
   }
-
   private function obtenerNombreItem(array $item, string $claveId): string {
       foreach ($item as $campo => $valor) {
           $campoLower = strtolower($campo);
@@ -205,7 +200,6 @@ class bitacoraModelo extends conexion {
       
       return $item[$claveId] ?? 'Sin nombre';
   }
-
   private function compararListas(array $listaAntes, array $listaDespues): array {
     $cambios = [];
     $cambios['_lista'] = true;
@@ -301,7 +295,6 @@ class bitacoraModelo extends conexion {
 
     return $cambios;
   }
-
   private function elementosIguales(array $a, array $b): bool {
     if (count($a) !== count($b)) return false;
     
@@ -311,7 +304,6 @@ class bitacoraModelo extends conexion {
     }
     return true;
   }
-
   private function seleccionarBitacoraP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => '
@@ -345,7 +337,6 @@ class bitacoraModelo extends conexion {
     
     return $Bitacora;
   }
-
   private function registrarBitacoraP() {
     $idModulo = $this->VEYSNEC([
       'RSEN' => true,

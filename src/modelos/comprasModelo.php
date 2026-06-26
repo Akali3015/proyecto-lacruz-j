@@ -86,7 +86,7 @@ class comprasModelo extends conexion {
     }
     return $this->limpiar_Verificar($totalValidaciones);
   }
-  public function seleccionarCompra(array $info = []) {
+  public function seleccionarCompras(array $info = []) {
     $this->id_compra = $info['id_compra'] ?? null;
 
     // Si hay ID validamos que exista
@@ -101,7 +101,7 @@ class comprasModelo extends conexion {
 
     return $this->seleccionarCompraP();
   }
-  public function registrarCompra(array $info) {
+  public function registrarCompras(array $info) {
     $rif_proveedor = $info['rif_proveedor'] ?? '';
     $fecha_compra  = $info['fecha_compra']  ?? '';
     $detalles = [];
@@ -176,7 +176,7 @@ class comprasModelo extends conexion {
 
     return $this->registrarCompraP();
   }
-  public function actualizarCompra(array $info) {
+  public function actualizarCompras(array $info) {
     $id_compra     = $info['id_compra']     ?? '';
     $rif_proveedor = $info['rif_proveedor'] ?? '';
     $fecha_compra  = $info['fecha_compra']  ?? '';
@@ -251,7 +251,7 @@ class comprasModelo extends conexion {
     $this->detalles      = $detalles;
     return $this->actualizarCompraP();
   }
-  public function eliminarCompra(array $info) {
+  public function eliminarCompras(array $info) {
     $id_compra = $info['id_compra'] ?? '';
 
     // Validar que el ID existe
@@ -265,7 +265,7 @@ class comprasModelo extends conexion {
     $this->id_compra = $id_compra;
     return $this->eliminarCompraP();
   }
-  public function listarProductosParaCompra(): array {
+  public function listarProductosParaCompras(): array {
     $sql = "
       SELECT
         pp.id_presentacion_producto,
@@ -487,7 +487,7 @@ class comprasModelo extends conexion {
       // $cn->beginTransaction();
 
       // 1. Revertir stock de ítems anteriores
-      $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      $anteriores = $this->seleccionarCompras(['id_compra' => $this->id_compra]);
       foreach ($anteriores as $item) {
         if ($item['TIPO'] === 'producto') {
           $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
@@ -598,7 +598,7 @@ class comprasModelo extends conexion {
       // $cn->beginTransaction();
 
       // 1. Revertir stock de PRODUCTOS y MATERIAS PRIMAS (usando los modelos POO)
-      $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      $anteriores = $this->seleccionarCompras(['id_compra' => $this->id_compra]);
       foreach ($anteriores as $item) {
         if ($item['TIPO'] === 'producto') {
           $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);

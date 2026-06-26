@@ -7,9 +7,10 @@ use src\modelos\bitacoraModelo;
 use src\modelos\categoriasProductosModelo;
 use src\modelos\mensajesWSModelo;
 use PDO;
+
 class productosModelo extends conexion {
   private string $idProducto = '';
-  private string $idPresentacinProd = '';
+  private string $idPresentacionProd = '';
   private string $idUnidadMedida = '';
   private string $idCategoria = '';
   private string $nombreProducto = '';
@@ -20,19 +21,6 @@ class productosModelo extends conexion {
   private array $materiasPrimas = [];
   private array $fotoPresentacion = [];
 
-  public function modificarStock(string $id_producto, float $cantidad, $conexionTransaction = null) {
-    try {
-      $cn = $conexionTransaction ?? $this->conectar();
-      $stmt = $cn->prepare("UPDATE productos SET stock_producto = stock_producto + :cant WHERE id_producto = :id");
-      $stmt->execute([
-        ':cant' => $cantidad,
-        ':id' => $id_producto
-      ]);
-      return true;
-    } catch (\Throwable $th) {
-      return $th->getMessage();
-    }
-  }
 
   public function validarProductos(array $instruccionesVal) {
     [
@@ -213,6 +201,19 @@ class productosModelo extends conexion {
     }
     return $this->limpiar_Verificar($campos);
   }
+  public function modificarStock(string $id_producto, float $cantidad, $conexionTransaction = null) {
+    try {
+      $cn = $conexionTransaction ?? $this->conectar();
+      $stmt = $cn->prepare("UPDATE productos SET stock_producto = stock_producto + :cant WHERE id_producto = :id");
+      $stmt->execute([
+        ':cant' => $cantidad,
+        ':id' => $id_producto
+      ]);
+      return true;
+    } catch (\Throwable $th) {
+      return $th->getMessage();
+    }
+  }
   public function seleccionarProductos(array $info) {
     $campos = [];
 
@@ -228,20 +229,17 @@ class productosModelo extends conexion {
     }
 
     $this->idProducto = $info['id_producto'] ?? '';
-    $this->idPresentacinProd = $info['id_presentacion_producto'] ?? '';
+    $this->idPresentacionProd = $info['id_presentacion_producto'] ?? '';
     return $this->seleccionarProductosP($info);
   }
-
-  //Método exclusivo para uso del Chatbot
   public function obtenerParaChatbot() {
     $resultado = $this->seleccionarDatos2([
-        'campos' => 'nombre_producto, precio_producto, stock_producto',
-        'tabla' => 'productos',
-        'WHERE' => ['status' => 1]
+      'campos' => 'nombre_producto, precio_producto, stock_producto',
+      'tabla' => 'productos',
+      'WHERE' => ['status' => 1]
     ]);
     return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
   }
-
   public function registrarProductos(array $info) {
     $respuesta = $this->validarProductos([
       'infoVal' => &$info,
@@ -329,7 +327,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($respuesta !== false) return $respuesta;
-    $this->idPresentacinProd = $info['id_presentacion_producto'];
+    $this->idPresentacionProd = $info['id_presentacion_producto'];
     $this->fotoPresentacion = $info['foto_presentacion_producto'];
     return $this->actualizarFotPreProdP();
   }
@@ -382,7 +380,7 @@ class productosModelo extends conexion {
               "presentaciones as pr" => "prpr.id_presentacion = pr.id_presentacion",
             ],
             'WHERE' => [
-              'prpr.id_presentacion_producto' => $this->idPresentacinProd
+              'prpr.id_presentacion_producto' => $this->idPresentacionProd
             ]
           ])->fetch();
         case 'productosFactura':
@@ -610,7 +608,7 @@ class productosModelo extends conexion {
       }
     }
     $objBit->registrarBitacora("productos", "registrar", "éxito");
-    
+
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS([
       "receptor" => [
@@ -949,7 +947,7 @@ class productosModelo extends conexion {
       'tabla' => 'presentaciones_productos',
       'nombreCampoFoto' => 'foto_presentacion_producto',
       'nombreCampoId' => 'id_presentacion_producto',
-      'valorId' => $this->idPresentacinProd,
+      'valorId' => $this->idPresentacionProd,
     ]);
   }
   private function eliminarFotPreProdP() {
@@ -958,7 +956,7 @@ class productosModelo extends conexion {
       'tablaBD' => 'presentaciones_productos',
       'nombreCampoFoto' => 'foto_presentacion_producto',
       'nombreCampoId' => 'id_presentacion_producto',
-      'valorId' => $this->idPresentacinProd,
+      'valorId' => $this->idPresentacionProd,
     ]);
   }
 }

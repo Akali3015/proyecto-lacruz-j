@@ -77,7 +77,6 @@ class produccionesModelo extends conexion {
     }
     return $this->limpiar_Verificar($campos);
   }
-
   public function seleccionarProducciones(array $info) {
     if (($info['id_produccion'] ?? '') != '') {
       $resultado = $this->validarProducciones([
@@ -91,7 +90,6 @@ class produccionesModelo extends conexion {
     }
     return $this->seleccionarProduccionesP();
   }
-
   public function registrarProducciones(array $info) {
     $resultado = $this->validarProducciones([
       'infoVal' => &$info,
@@ -103,7 +101,6 @@ class produccionesModelo extends conexion {
     $this->productos = $info['productos'];
     return $this->registrarProduccionesP();
   }
-
   public function actualizarProducciones(array $info) {
     $resultado = $this->validarProducciones([
       'infoVal' => &$info,
@@ -159,7 +156,6 @@ class produccionesModelo extends conexion {
       return $produccion;
     }
   }
-
   private function registrarProduccionesP() {
     $bitacoraModelo = new bitacoraModelo();
 
@@ -300,7 +296,7 @@ class produccionesModelo extends conexion {
 
     $this->commit();
 
-    $bitacoraModelo->registrarBitacora( "producciones", "Registrar produccion", "Éxito", true);
+    $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Éxito", true);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(
@@ -338,7 +334,6 @@ class produccionesModelo extends conexion {
       'texto' => 'Se registró correctamente la producción #' . $idProduccion,
     ];
   }
-
   private function actualizarProduccionesP() {
     $bitacoraModelo = new bitacoraModelo();
 
