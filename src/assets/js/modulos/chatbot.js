@@ -1,19 +1,36 @@
+//#region IMPORTACIONES Y VARIABLES GLOBALES
+// El chatbot usa jQuery puro para AJAX, no se requiere pedir_datos_ajax() 
+// porque interactúa con un microservicio externo y no llena DataTables
+//#endregion
+
+//#region FUNCIONES PROPIAS DEL MÓDULO
+// Si se requieren funciones adicionales, se añaden aquí
+//#endregion
+
+//#region DELEGACIÓN DE EVENTOS
 $(document).ready(function() {
     
     // Toggle chat interface visibility
-    $('#chatbot-toggle-btn').on('click', function() {
+    $(document).off('click', '#chatbot-toggle-btn').on('click', '#chatbot-toggle-btn', function() {
         $('#chatbot-window').removeClass('d-none');
         $(this).addClass('d-none');
     });
 
     // Close chat modal
-    $('#chatbot-close-btn').on('click', function() {
+    $(document).off('click', '#chatbot-close-btn').on('click', '#chatbot-close-btn', function() {
         $('#chatbot-window').addClass('d-none');
         $('#chatbot-toggle-btn').removeClass('d-none');
     });
 
+    // Quick suggestions buttons handler
+    $(document).off('click', '#chatbot-suggestions button').on('click', '#chatbot-suggestions button', function() {
+        let texto = $(this).text();
+        $('#chatbot-input').val(texto);
+        $('#chatbot-form').submit(); 
+    });
+
     // Submit form (AJAX handler)
-    $('#chatbot-form').on('submit', function(e) {
+    $(document).off('submit', '#chatbot-form').on('submit', '#chatbot-form', function(e) {
         e.preventDefault();
 
         let inputElement = $('#chatbot-input');
@@ -117,11 +134,5 @@ $(document).ready(function() {
             });
         }
     });
-    
-    // Quick suggestions buttons handler
-    $('#chatbot-suggestions button').on('click', function() {
-        let texto = $(this).text();
-        $('#chatbot-input').val(texto);
-        $('#chatbot-form').submit(); 
-    });
 });
+//#endregion

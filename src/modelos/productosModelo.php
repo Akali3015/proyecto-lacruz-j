@@ -350,16 +350,16 @@ class productosModelo extends conexion {
           return $this->seleccionarDatos2([
             'campos' => '
               *,
-              (
+              ROUND((
                 (
                   (
                     SELECT mo.valor_moneda FROM monedas as mo WHERE id_moneda=1
                   )*p.precio_producto
                 )*pre.cantidad_pmp
-              ) as precio_bs,
-              (
+              ),2) as precio_bs,
+              ROUND((
                 p.precio_producto*pre.cantidad_pmp
-              ) as precio_dolar
+              ),2) as precio_dolar
             ',
             'tabla' => 'productos as p',
             'datosJoins' => [
@@ -369,7 +369,8 @@ class productosModelo extends conexion {
               "presentaciones as pre" => "pp.id_presentacion = pre.id_presentacion",
             ],
             'WHERE' => [
-              'pp.mostrar_ecommerce' => 1
+              'pp.mostrar_ecommerce' => 1,
+              'pp.status' => 1,
             ]
           ])->fetchAll();
         case 'presentacionExp':
@@ -385,12 +386,12 @@ class productosModelo extends conexion {
           ])->fetch();
         case 'productosFactura':
           return $this->seleccionarDatos2([
-            'tabla' => 'facturas as f',
+            'tabla' => 'ordenes_entregas_presupuestos as f',
             'campos' => '*,
               ( 
                 SELECT prpr.precio_producto 
                 FROM precios_productos as prpr 
-                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_factura 
+                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC 
                 LIMIT 1 
               ) AS precio_producto_factura, 
@@ -398,19 +399,19 @@ class productosModelo extends conexion {
               ( 
                 SELECT (prpr.precio_producto*pre.cantidad_pmp)  
                 FROM precios_productos as prpr 
-                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_factura 
+                WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC
                 LIMIT 1 
               ) as precio_presentacion_factura
             ',
             'datosJoins' => [
-              'productos_facturas as pf' => 'f.id_factura = pf.id_factura',
+              'productos_ordenes_entregas_presupuestos as pf' => 'f.id_orden_entrega_presupuesto = pf.id_orden_entrega_presupuesto',
               'presentaciones_productos as pp' => 'pf.id_presentacion_producto = pp.id_presentacion_producto',
               'productos as pr' => 'pp.id_producto = pr.id_producto',
               'presentaciones as pre' => 'pp.id_presentacion = pre.id_presentacion',
             ],
             'WHERE' => [
-              'pf.id_factura' => $info['id_factura'],
+              'pf.id_orden_entrega_presupuesto' => $info['id_factura'],
             ],
           ])->fetchAll();
         case 'indexadosPorId':

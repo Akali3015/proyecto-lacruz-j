@@ -26,8 +26,10 @@ def _construir_contexto_catalogo() -> str:
     if productos:
         lineas.append("PRODUCTOS DISPONIBLES:")
         for p in productos:
-            nombre = p.get("nombre_producto", "Sin nombre")
-            precio = p.get("precio_producto", "N/D")
+            nombre_base = p.get("nombre_producto", "Sin nombre")
+            presentacion = p.get("nombre_presentacion", "")
+            nombre = f"{nombre_base} ({presentacion})" if presentacion else nombre_base
+            precio = p.get("precio_calculado", "N/D")
             stock  = p.get("stock_producto", "N/D")
             lineas.append(
                 f"  * {nombre}: Precio {precio} Bs cada uno. (Stock disponible: {stock} unidades)"

@@ -25,6 +25,7 @@ class frontController
       'bitacora',
       'cambiosIva',
       'categoriasProductos',
+      'chatbot',
       'clientes',
       'compras',
       'empresasEnvios',

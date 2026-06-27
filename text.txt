@@ -1,0 +1,21 @@
+# 1. Entrar a la carpeta correcta del microservicio
+cd MicroServicioJLaCruz
+
+# 2. (OPCIONAL) Si tu compañero había creado el entorno virtual afuera por error, 
+# debe crearlo aquí adentro de nuevo:
+python -m venv venv
+
+# 3. Activar el entorno virtual correcto
+.\venv\Scripts\activate
+
+# 4. Ahora sí, instalar las librerías (el archivo requirements sí existe aquí adentro)
+pip install -r requirements.txt
+
+# 5. Encender el servidor
+python -m uvicorn app.main:app --reload --port 8000
+
+llave secreta: JLacruz2026Secure (cambiar por un texto base64)
+
+# URL del Sistema Principal para pedir datos (Catálogo) (convertir a variable de entorno)
+MAIN_SYSTEM_API_URL=http://localhost/proyecto-lacruz-j/index.php?views=chatbot&accion=obtenerCatalogo
+

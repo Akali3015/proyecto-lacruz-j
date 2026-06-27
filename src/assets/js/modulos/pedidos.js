@@ -2,7 +2,7 @@
 import {
   listarDataTable, listarItemPanelCarritoPedido, rutaFotos, cambiarFormatos,
   pedirDatosAjax, extraerDatosAjax, enviarFormulario, alertasAjax, reiniciarDataTables,
-  mostrarOcultarSpinnerCarga, objCacheSS
+  mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -56,8 +56,8 @@ async function cambiarEstadosPedido() {
       }
     });
     if (resultado?.icono == 'success') {
+      reiniciarDataModuloSS('pedidos');
       reiniciarDataTables();
-      console.log('llegue')
     }
     alertasAjax(resultado);
   }

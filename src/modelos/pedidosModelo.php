@@ -235,6 +235,7 @@ class pedidosModelo extends conexion {
     ]);
     if ($resultado) return $resultado;
 
+
     [
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
@@ -250,6 +251,7 @@ class pedidosModelo extends conexion {
       'cedula_repartidor',
     ]);
     if ($resultado) return $resultado;
+
 
     $this->deliveryPedido['id_delivery'] = $info['id_delivery'];
     $this->idPedido = $info['id_pedido'];
@@ -386,7 +388,7 @@ class pedidosModelo extends conexion {
       $objProductos = new productosModelo();
       $productos = $objProductos->seleccionarProductos([
         'tipoConsulta' => 'productosFactura',
-        'id_orden_entrega_presupuesto' => $this->idPedido,
+        'id_factura' => $this->idPedido,
       ]);
 
       $totalProductos = 0;
@@ -681,6 +683,7 @@ class pedidosModelo extends conexion {
 
     // #region TRANSACCIÓN
 
+
     // Cambio IVA
     $objIva = new cambiosIvaModelo();
     $cambioIva = $objIva->seleccionarCambiosIva([
@@ -777,6 +780,7 @@ class pedidosModelo extends conexion {
         'icono' => 'error',
       ];
     }
+
 
     // Detalles - pagos
     $this->pagosPedido = $this->indexarArrays([
@@ -938,6 +942,7 @@ class pedidosModelo extends conexion {
       ]
     ]);
 
+
     // Delivery
     $idDelivery = $this->generarCodSeg([
       'tablaBD' => 'deliveries',
@@ -993,6 +998,8 @@ class pedidosModelo extends conexion {
       'noCommit' => true
     ]);
     if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
+
+
     $diferencias = $this->sacarDiferenciaBitacora([
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
@@ -1032,6 +1039,7 @@ class pedidosModelo extends conexion {
         "comprobantes_pagos_2026_06_22_18_18_15_38.jpg"
       ]
     ];
+
     $datos = [];
     $rb = $objBitacora->registrarBitacora(
       'pedidos',
@@ -1081,6 +1089,7 @@ class pedidosModelo extends conexion {
         'icono' => 'error'
       ];
     }
+
 
     //status
     $resultado = $this->actualizarDatos2([
@@ -1133,10 +1142,41 @@ class pedidosModelo extends conexion {
     };
 
     $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
-    if (!isset($dataActualPedido['id_pedido'])) return $dataActualPedido;
+    if (!isset($dataActualPedido['id_orden_entrega_presupuesto'])) return $dataActualPedido;
     $productos = $dataActualPedido['productos'];
     $statusViejo = $dataActualPedido['status_pedido'];
+
+
+    $intruccionesPro = [
+      'sp' => 'sp_cambiar_estado_pedido',
+      'parametros' => [
+        'sp_id_pedido' => $this->idPedido,
+        'sp_estado' => $this->statusPedido,
+      ]
+    ];
+
+    $funcion = function ($instrucciones) {
+      $conexion = $this->conectar();
+
+      $sql = 'CALL ' . $instrucciones['sp'] . '(';
+      $c = 0;
+      foreach ($instrucciones['parametros'] ?? [] as $p => $v) {
+        $sql .= ':' . $p;
+        $c++;
+        if ($c < count($instrucciones['parametros'])) $sql .= ',';
+      }
+      $sql .= ')';
+      $consulta = $conexion->prepare($sql);
+      $resultado = $consulta->execute([
+        'sp_id_pedido' => '',
+        'sp_estado' => '',
+      ]);
+    };
+
     $productosViejos = [];
+
+
+    return $resultado;
 
     //Acciones expecíficas
     switch ($this->statusPedido) {
@@ -1149,6 +1189,7 @@ class pedidosModelo extends conexion {
             'WHERE' => [
               'id_producto' => $producto['id_producto']
             ]
+
           ])->fetch(PDO::FETCH_COLUMN);
           $cantidadBruta = $producto['cantidad_pmp'] * $producto['cantidad_producto'];
           $resultado = $this->actualizarDatos2([
@@ -1188,9 +1229,6 @@ class pedidosModelo extends conexion {
         }
         $productosViejos = $productos;
         break;
-      case 7:
-        $cedulaVendedor = $_SESSION['cedula'];
-        break;
     }
 
     //Estado
@@ -1204,7 +1242,6 @@ class pedidosModelo extends conexion {
         'id_orden_entrega_presupuesto' => $this->idPedido
       ]
     ]);
-
     if ($resultado <= 0 || $resultado == false) {
       $error();
       return [
@@ -1214,7 +1251,6 @@ class pedidosModelo extends conexion {
         'icono' => 'error'
       ];
     }
-
     $nuevo = [
       'status_pedido' => $this->statusPedido
     ];

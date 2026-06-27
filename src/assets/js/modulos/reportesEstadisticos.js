@@ -1,5 +1,11 @@
-import { alertasAjax, encabezadosPeticiones, rutaAbsoluta } from './global.js';
+//#region [ IMPORTACIONES ] COMIENZO
+import {
+  alertasAjax,
+  pedirDatosAjax
+} from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
+//#endregion [ IMPORTACIONES ] FIN
 
+//#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
 const DashboardApp = (function() {
   
   // Diccionario interno para manejar instancias de las gráficas
@@ -21,7 +27,6 @@ const DashboardApp = (function() {
   const init = () => {
     loadPDFDependencies();
     configurarChartJS();
-    vincularEventos();
     cargarDatos();
   };
 
@@ -42,50 +47,6 @@ const DashboardApp = (function() {
     }
   };
 
-  const vincularEventos = () => {
-    $('#btnRecargarDashboard').on('click', cargarDatos);
-
-    $('#filtroTiempoDashboard').on('change', function () {
-      if ($(this).val() === 'personalizado') {
-        $('#contenedorFechasPersonalizadas').removeClass('d-none');
-        if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) cargarDatos();
-      } else {
-        $('#contenedorFechasPersonalizadas').addClass('d-none');
-        cargarDatos();
-      }
-    });
-
-    $('#fechaInicioDash, #fechaFinDash').on('change', function() {
-      if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) cargarDatos();
-    });
-
-    $('.btn-export').on('click', function(e) {
-      e.preventDefault();
-      const canvasId = $(this).data('chart');
-      const filename = $(this).closest('.card').find('.card-title').text().trim() || 'Reporte';
-      exportarAPDF(canvasId, filename);
-    });
-
-    let resizeTimer;
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        Object.values(chartsRegistry).forEach(chart => {
-          try {
-            if (chart && typeof chart.resize === 'function') {
-              if (chart.canvas && chart.canvas.offsetParent !== null) {
-                chart.resize();
-                if (typeof chart.update === 'function') chart.update();
-              }
-            }
-          } catch (e) {
-            console.warn("Resize Warning:", e);
-          }
-        });
-      }, 150);
-    });
-  };
-
   const cargarDatos = async () => {
     const rango = $('#filtroTiempoDashboard').val();
     const fInicio = $('#fechaInicioDash').val();
@@ -96,25 +57,21 @@ const DashboardApp = (function() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('accion', 'obtenerDatosDashboard');
-    formData.append('rango', rango);
-    if (rango === 'personalizado') {
-      formData.append('fecha_inicio', fInicio);
-      formData.append('fecha_fin', fFin);
-    }
-
     try {
-      const response = await fetch(rutaAbsoluta + 'reportesEstadisticos', {
-        method: 'POST',
-        headers: encabezadosPeticiones,
-        body: formData
+      const data = await pedirDatosAjax({
+        modulo: 'reportesEstadisticos',
+        datosPe: {
+          accion: 'obtenerDatosDashboard',
+          rango: rango,
+          fecha_inicio: fInicio,
+          fecha_fin: fFin
+        },
+        noGuardarLocal: true // Regla 8 (SessionStorage): No cachear consultas complejas de dashboard si no es necesario
       });
 
-      const data = await response.json();
-      if (data.tipo === 'datos') {
+      if (data && data.tipo === 'datos') {
         renderizar(data.datos);
-      } else {
+      } else if (data) {
         alertasAjax(data);
       }
     } catch (error) {
@@ -146,8 +103,6 @@ const DashboardApp = (function() {
       if (emptyState) emptyState.classList.remove('active');
     }
   };
-
-
 
   // Plugin dinámico para texto central de la Dona
   const centerTextPlugin = (defaultText) => {
@@ -406,10 +361,72 @@ const DashboardApp = (function() {
     pdf.save(filename + '.pdf');
   };
 
-  return { init };
+  const redimensionarGraficas = () => {
+    Object.values(chartsRegistry).forEach(chart => {
+      try {
+        if (chart && typeof chart.resize === 'function') {
+          if (chart.canvas && chart.canvas.offsetParent !== null) {
+            chart.resize();
+            if (typeof chart.update === 'function') chart.update();
+          }
+        }
+      } catch (e) {
+        console.warn("Resize Warning:", e);
+      }
+    });
+  };
+
+  return { init, cargarDatos, exportarAPDF, redimensionarGraficas };
 
 })();
+//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
-$(document).ready(() => {
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+$(document).on('DOMContentLoaded', () => {
   DashboardApp.init();
 });
+
+// Evento para el botón de recargar datos (Delegación al document - Regla 3)
+$(document).off('click', '#btnRecargarDashboard');
+$(document).on('click', '#btnRecargarDashboard', function(e) {
+  e.preventDefault();
+  DashboardApp.cargarDatos.call(this);
+});
+
+// Evento para los cambios en el filtro de tiempo
+$(document).off('change', '#filtroTiempoDashboard');
+$(document).on('change', '#filtroTiempoDashboard', function () {
+  if ($(this).val() === 'personalizado') {
+    $('#contenedorFechasPersonalizadas').removeClass('d-none');
+    if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) DashboardApp.cargarDatos.call(this);
+  } else {
+    $('#contenedorFechasPersonalizadas').addClass('d-none');
+    DashboardApp.cargarDatos.call(this);
+  }
+});
+
+// Eventos para fechas personalizadas
+$(document).off('change', '#fechaInicioDash, #fechaFinDash');
+$(document).on('change', '#fechaInicioDash, #fechaFinDash', function() {
+  if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) DashboardApp.cargarDatos.call(this);
+});
+
+// Evento para los botones de exportar (Delegación al document - Regla 3)
+$(document).off('click', '.btn-export');
+$(document).on('click', '.btn-export', function(e) {
+  e.preventDefault();
+  const canvasId = $(this).data('chart');
+  const filename = $(this).closest('.card').find('.card-title').text().trim() || 'Reporte';
+  DashboardApp.exportarAPDF.call(this, canvasId, filename);
+});
+
+// Evento para redimensionar cuando cambian las pestañas de Bootstrap
+let resizeTimer;
+$(document).off('shown.bs.tab', 'button[data-bs-toggle="tab"]');
+$(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    DashboardApp.redimensionarGraficas.call(this);
+  }, 150);
+});
+//#endregion [DELEGACIÓN DE EVENTOS] FIN

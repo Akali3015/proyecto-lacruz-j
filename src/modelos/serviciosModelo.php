@@ -133,6 +133,10 @@ class serviciosModelo extends conexion {
 
   // Método exclusivo para uso del Chatbot
   public function obtenerParaChatbot() {
+    return $this->obtenerParaChatbotP();
+  }
+
+  private function obtenerParaChatbotP() {
     $resultado = $this->seleccionarDatos2([
         'campos' => 'nombre_servicio, precio_servicio',
         'tabla' => 'servicios',
