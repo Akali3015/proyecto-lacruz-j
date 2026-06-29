@@ -2,15 +2,7 @@
 import {
   listarDataTable, listarItemPanelCarritoPedido, rutaFotos, cambiarFormatos,
   pedirDatosAjax, extraerDatosAjax, enviarFormulario, alertasAjax, reiniciarDataTables,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mostrarOcultarSpinnerCarga, objCacheSS, reiniciarDataModuloSS, formateoCampos
-=======
-  mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
-  mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+  formateoCampos, mostrarOcultarSpinnerCarga, objCacheSS, reiniciarDataModuloSS
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -302,7 +294,7 @@ async function verDetallesPedido() {
 
     await Promise.all(promesas);
 
-    let preciosBs=$('.tablaProductosPedido').find('.precio_bs');
+    let preciosBs = $('.tablaProductosPedido').find('.precio_bs');
     formateoCampos(preciosBs, 'dineroBolivar');
 
     modalD.find('.btnTapProductos').trigger('click');

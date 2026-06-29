@@ -406,7 +406,7 @@ class productosModelo extends conexion {
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC 
                 LIMIT 1 
-              ) AS precio_producto_factura, 
+              ),2) AS precio_producto_factura, 
               (pre.cantidad_pmp * pf.cantidad_producto) as cantidad_bruta, 
               ( 
                 SELECT (prpr.precio_producto*pre.cantidad_pmp)  

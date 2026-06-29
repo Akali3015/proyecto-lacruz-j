@@ -446,7 +446,7 @@ class pdfModel extends FPDF {
     $this->SetMargins(10, 10, 10);
     $this->AddPage();
 
-    $this->Rect(10, 57, 185, 198);
+    $this->Rect(10, 57, 195, 198);
     $this->SetFont('Arial', '', 8);
 
     $itemPedido = $this->dataNotaEntrega ?: [];
@@ -454,53 +454,24 @@ class pdfModel extends FPDF {
 
     $this->SetXY(10, 57);
     $this->SetFont('Arial', 'B', 8);
-    $this->cell2(155, 6, 'NOMBRE APELLIDO O RAZÓN SOCIAL: ' . $cliente['razon_social_cliente'], 1, 0,);
+    $this->cell2(165, 6, 'NOMBRE APELLIDO O RAZÓN SOCIAL: ' . $cliente['razon_social_cliente'], 1, 0,);
     $this->cell2(30, 6, 'R.I.F: ' . ($cliente['rif_cedula_cliente'] ?? ''), 1, 1, 'C');
 
-    $this->cell2(185, 6, 'DOMICILIO FISCAL: ' . ($cliente['direccion_cliente'] ?? ''), 1, 1);
+    $this->cell2(195, 6, 'DOMICILIO FISCAL: ' . ($cliente['direccion_cliente'] ?? ''), 1, 1);
 
     $this->cell2(30, 4, 'TELÉFONO', 1, 0, 'C');
-    $this->cell2(70, 4, 'ORDEN DE ENTREGA/GUÍA DE DESPACHO', 1, 0, 'C');
+    $this->cell2(80, 4, 'ORDEN DE ENTREGA/GUÍA DE DESPACHO', 1, 0, 'C');
     $this->cell2(50, 4, 'CONDICIONES DE PAGO', 1, 0, 'C');
     $this->cell2(35, 4, 'VENCIMIENTO', 1, 1, 'C');
 
     $this->cell2(30, 4, $cliente['telefono_cliente'], 1, 0, 'C');
-    $this->cell2(70, 4, 'N° ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 1, 0, 'C');
+    $this->cell2(80, 4, 'N° ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 1, 0, 'C');
     $this->cell2(20, 4, 'CONTADO', 1, 0, 'C');
     $this->cell2(5, 4, 'X', 1, 0, 'C');
     $this->cell2(20, 4, 'CRÉDITO', 1, 0, 'C');
     $this->cell2(5, 4, '', 1, 0, 'C');
     $this->cell2(35, 4, '', 1, 1, 'C');
 
-
-    /*  $this->SetFont('Arial', 'B', 8);
-      $this->cell2(20, 4, 'Teléfono:'), 1, 0);
-      $this->SetFont('Arial', '', 8);
-      $this->cell2(80, 4, $cliente['telefono_cliente'] ?? ''), 1, 1);
-
-      $this->SetX(10);
-      $this->SetFont('Arial', 'B', 8);
-      $this->cell2(20, 4, 'Dirección:'), 1, 0);
-      $this->SetFont('Arial', '', 8);
-      $this->cell2(100, 4, $cliente['direccion_cliente'] ?? ''), 1, 1);
-
-      $this->SetY(80);
-      $this->cell2(30, 5, 'Condición de Pago:'), 'B', 0);
-      $this->SetFont('Arial', 'B', 8);
-      $this->cell2(90, 5, 'CANCELADO'), 'B', 0);
-
-      $this->SetFont('Arial', 'B', 8);
-      $this->cell2(15, 5, 'Asesor:', 'B', 0);
-      $this->SetFont('Arial', '', 8);
-
-      $vendedor = $this->dataNotaEntrega['vendedor'] ?
-        $this->dataNotaEntrega['vendedor']['nombre_usuario']
-        . ' ' .
-        $this->dataNotaEntrega['vendedor']['apellido_usuario'] :
-        'NO ATENDIDO';
-
-      $this->cell2(75, 5,  $vendedor), 'B', 1);
-    */
     $this->Ln();
     $fnBolivares = function ($valor) {
       $d = (float)$this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'];
@@ -509,7 +480,7 @@ class pdfModel extends FPDF {
     };
 
     //Encabezados
-    $anchosE = array(30, 30, 65, 30, 30);
+    $anchosE = array(30, 30, 75, 30, 30);
     $encabezados = array('COD.', 'CANT.', 'CONCEPTO O DESCRIPCIÓN DE LA VENTA',  'PRECIO UNIT.', 'MONTO');
     $this->SetFont('Arial', 'B', 8);
     for ($i = 0; $i < count($encabezados); $i++) {
@@ -521,7 +492,7 @@ class pdfModel extends FPDF {
     foreach (($itemPedido['productos'] ?? []) as $producto) {
       $this->cell2(30, 5, $producto['id_presentacion_producto'], 0, 0, 'C');
       $this->cell2(30, 5, $this->formatearStrings($producto['cantidad_producto'], 'dinero'), 0, 0, 'C');
-      $this->cell2(65, 5, $producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion'], 0, 0, 'C');
+      $this->cell2(75, 5, $producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion'], 0, 0, 'C');
       $this->cell2(30, 5, $fnBolivares($producto['precio_presentacion_factura']) . ' Bs', 0, 0, 'C');
       $this->cell2(30, 5, $fnBolivares($producto['subtotal_factura']) . ' Bs', 0, 1, 'R');
     }
@@ -529,7 +500,7 @@ class pdfModel extends FPDF {
     //Delivery
     $this->cell2(30, 5, '--------', 0, 0, 'C');
     $this->cell2(30, 5, '1,00', 0, 0, 'C');
-    $this->cell2(65, 5, 'ENVÍO', 0, 0, 'C');
+    $this->cell2(75, 5, 'ENVÍO', 0, 0, 'C');
     $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 0, 'C');
     $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 1, 'R');
 
@@ -538,33 +509,27 @@ class pdfModel extends FPDF {
     $hora = $fechaCompleta[1] . ' ' . $fechaCompleta[2];
     $fecha = implode('/', $fechaArray) . ' HORA: ' . $hora;
 
-    $this->SetXY(10, 210);
-    $this->SetFont('Arial', 'B', 7.5);
-    $this->cell2(80, 10,'   ORDEN PEDIDO NÚMERO: ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
-    $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES: ' . $this->dataNotaEntrega['calculos']['totalDescuento'].'$', 0, 1);
-    $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL: ' . $fecha, 0, 1);
+    $this->SetXY(10, 235);
+    $this->SetFont('Arial', 'B', 7);
+    $this->cell2(80, 10,'   ORDEN PEDIDO NÚMERO ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
+    $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES ' . $this->dataNotaEntrega['calculos']['total_IVA'].'$', 0, 1);
+    $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL ' . $fecha.'     '. $this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'].' Bs', 0, 1);
 
-    $this->SetXY(100, 235);
+    $this->SetXY(110, 240);
     $this->SetFont('Arial', '', 8);
 
     $this->SetFont('Arial', 'B', 7.5);
-    $this->cell2(50, 5, 'MONTO TOTAL BASE DISPONIBLE:', 1, 0);
+    $this->cell2(50, 5, 'MONTO TOTAL BASE DISPONIBLE', 1, 0);
     $this->SetFont('Arial', '', 7.5);
     $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['total']) . ' Bs', 1, 1, 'R');
 
-    $this->SetX(100);
-    $this->SetFont('Arial', 'B', 7.5);
-    $this->cell2(50, 5, 'MONTO TOTAL DESCUENTO', 1, 0);
-    $this->SetFont('Arial', '', 7.5);
-    $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalDescuento']) . ' Bs', 1, 1, 'R');
-
-    $this->SetX(100);
+    $this->SetX(110);
     $this->SetFont('Arial', 'B', 7.5);
     $this->cell2(50, 5, 'MONTO TOTAL IVA A PAGAR ' . $this->dataNotaEntrega['calculos']['porcentaje_IVA'] . '%', 1, 0);
     $this->SetFont('Arial', '', 7.5);
     $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['monto_IVA']) . ' Bs', 1, 1, 'R');
 
-    $this->SetX(100);
+    $this->SetX(110);
     $this->SetFont('Arial', 'B', 7.5);
     $this->cell2(50, 5, 'MONTO TOTAL A PAGAR:', 1, 0);
     $this->SetFont('Arial', '', 7.5);

@@ -399,6 +399,7 @@ class pedidosModelo extends conexion {
           $prodInd['descuento'] = $subtotal * 0.10;
           $totalDescuento += $subtotal * 0.10;
           $prodInd['precioSinDescuento'] = $subtotal;
+          $prodInd['precio_presentacion_factura'] -= (0.10 * $prodInd['precio_presentacion_factura']);
         } else {
           $prodInd['descuento'] = 0;
           $prodInd['precioSinDescuento'] = $subtotal;
@@ -511,12 +512,12 @@ class pedidosModelo extends conexion {
         'calculos' => [
           'dolar' => $monedas[1],
           'porcentaje_IVA' => $IVA,
-          'totalProductos' => $totalProductos,
-          'totalEnvio' => $totalEnvio,
-          'total' => $totalProductos + $totalEnvio,
-          'total_IVA' => ($totalProductos + $totalEnvio) + (($totalProductos + $totalEnvio) * ($IVA / 100)),
-          'monto_IVA' => (($totalProductos + $totalEnvio) * ($IVA / 100)),
-          'totalPagos' => $totalPagos,
+          'totalProductos' => round($totalProductos, 2),
+          'totalEnvio' => round($totalEnvio, 2),
+          'total' => round(($totalProductos + $totalEnvio), 2),
+          'total_IVA' => round(($totalProductos + $totalEnvio) + (($totalProductos + $totalEnvio) * ($IVA / 100)), 2),
+          'monto_IVA' => round((($totalProductos + $totalEnvio) * ($IVA / 100)), 2),
+          'totalPagos' => round($totalPagos, 2),
           'totalGeneral' => round(($totalPagos - $cargos), 2),
           'totalDescuento' => round($totalDescuento, 2),
         ]
@@ -581,7 +582,12 @@ class pedidosModelo extends conexion {
     $comprobantesPagos = [];
     $error = function () use ($objBitacora, $comprobantesPagos) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'registrar', 'Fallido', null, true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'pedidos',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       if ($comprobantesPagos != []) {
         $this->Imagenes_Eli2('comprobantes_pagos', $comprobantesPagos);
       }
@@ -686,7 +692,6 @@ class pedidosModelo extends conexion {
 
     // #region TRANSACCIÓN
 
-
     // Cambio IVA
     $objIva = new cambiosIvaModelo();
     $cambioIva = $objIva->seleccionarCambiosIva([
@@ -784,7 +789,6 @@ class pedidosModelo extends conexion {
         'icono' => 'error',
       ];
     }
-
 
     // Detalles - pagos
     $this->pagosPedido = $this->indexarArrays([
@@ -1004,55 +1008,18 @@ class pedidosModelo extends conexion {
     unset($objNot);
     if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
 
-
-    $diferencias = $this->sacarDiferenciaBitacora([
-      'productos' => $this->productosPedido,
-      'pagos' => $this->pagosPedido,
-      'delivery' => $this->deliveryPedido,
-      'comprobantes_pago' => $comprobantesPagos,
-    ], [], 'pedidos');
-
-    $datosDespues = [
-      'productos' => $this->productosPedido,
-      'pagos' => $this->pagosPedido,
-      'delivery' => $this->deliveryPedido,
-      'comprobantes_pago' => $comprobantesPagos,
-    ];
-
-    $datos = [
-      "productos" => [
-        [
-          "id_producto" => "PROD-26150-00001-39",
-          "id_presentacion" => "PRES-26123-00001-28",
-          "id_presentacion_producto" => "PRPR-26160-00001-60",
-          "cantidad" => 1
-        ]
-      ],
-      "pagos" => [
-        [
-          "id_metodo_pago" => "3",
-          "id_moneda" => "1",
-          "referencia_pago" => "123456",
-          "monto_pago" => 177
-        ]
-      ],
-      "delivery" => [
-        "latitud" => 9.857927907534492,
-        "longitud" => -69.61055517196657
-      ],
-      "comprobantes_pago" => [
-        "comprobantes_pagos_2026_06_22_18_18_15_38.jpg"
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'pedidos',
+      'accion' => 'registrar',
+      'resultado' => 'Éxito',
+      'antes' => [],
+      'despues' => [
+        'productos' => $this->productosPedido,
+        'pagos' => $this->pagosPedido,
+        'delivery' => $this->deliveryPedido,
+        'comprobantes_pago' => $comprobantesPagos,
       ]
-    ];
-
-    $datos = [];
-    $rb = $objBitacora->registrarBitacora(
-      'pedidos',
-      'registrar pedido con id: ' . $idPedido,
-      'Éxito',
-      false,
-      $datos
-    );
+    ]);
     unset($objBitacora);
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
@@ -1073,7 +1040,12 @@ class pedidosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor', 'Fallido', null, true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'pedidos',
+        'accion' => 'Asignar Repartidor al pedido (' . $this->idPedido . ')',
+        'resultado' => 'Fallido',
+        'commit' => true,
+      ]);
     };
 
     //Delivery
@@ -1096,7 +1068,6 @@ class pedidosModelo extends conexion {
       ];
     }
 
-
     //status
     $resultado = $this->actualizarDatos2([
       'tabla' => 'ordenes_entregas_presupuestos',
@@ -1118,17 +1089,19 @@ class pedidosModelo extends conexion {
       ];
     }
 
-    $loNuevo = [
-      'cedula_repartidor' => $this->deliveryPedido['cedula_repartidor'],
-      'status_pedido' => 7,
-      'cedula_usuario' => $_SESSION['cedula']
-    ];
-    $loViejo = [
-      'status_pedido' => $statusViejo,
-    ];
-    $diferencias = $this->sacarDiferenciaBitacora($loNuevo, $loViejo, 'pedidos');
-
-    $rb = $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor al pedido con id: ' . $this->idPedido, 'Éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'pedidos',
+      'accion' => 'Asignar Repartidor al pedido (' . $this->idPedido . ')',
+      'resultado' => 'Éxito',
+      'antes' => [
+        'status_pedido' => $statusViejo,
+      ],
+      'despues' => [
+        'status_pedido' => 7,
+        'cedula_repartidor' => $this->deliveryPedido['cedula_repartidor'],
+        'cedula_usuario' => $_SESSION['cedula'],
+      ]
+    ]);
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
     $this->commit();
@@ -1143,19 +1116,33 @@ class pedidosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('pedidos', 'actualizar', 'Fallido', null, true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'pedidos',
+        'accion' => 'Actualizar pedido (' . $this->idPedido . ')',
+        'resultado' => 'Fallido',
+        'commit' => true,
+      ]);
     };
 
     $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
     if (!isset($dataActualPedido['id_orden_entrega_presupuesto'])) return $dataActualPedido;
 
-    $this->procesosAlmacenados([
+    $resultado = $this->procesosAlmacenados([
       'sp' => 'sp_cambiar_estado_pedido',
       'parametros' => [
         'sp_id_pedido' => $this->idPedido,
         'sp_estado' => $this->statusPedido,
       ]
     ]);
+    if (!$resultado['exito']) {
+      $error();
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Fallo la actualización',
+        'texto' => 'No se pudo actualizar el estado del pedido',
+        'icono' => 'error'
+      ];
+    }
 
     $nuevo = [
       'status_pedido' => $this->statusPedido
@@ -1168,15 +1155,13 @@ class pedidosModelo extends conexion {
       $viejo['productos'] = $dataActualPedido['productos'];
     }
 
-    $rb = $objBitacora->registrarBitacora(
-      'pedidos',
-      'Actualizar pedido con id: ' . $this->idPedido,
-      'Éxito',
-      false,
-      $nuevo,
-      $viejo
-    );
-
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'pedidos',
+      'accion' => 'Actualizar pedido (' . $this->idPedido . ')',
+      'resultado' => 'Éxito',
+      'antes' => $viejo,
+      'despues' => $nuevo
+    ]);
     if (($rb['icono'] ?? '') == 'error') return $rb;
     $this->commit();
     return [
@@ -1196,11 +1181,11 @@ class pedidosModelo extends conexion {
     ]);
 
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora(
-      'pedidos',
-      'Imprimir pedido con id: ' . $this->idPedido,
-      'Éxito'
-    );
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'pedidos',
+      'accion' => 'Imprimir pedido (' . $this->idPedido . ')',
+      'resultado' => 'Éxito',
+    ]);
     if (($rb['icono'] ?? '') == 'error') return $rb;
     return $objReportes->notaEntrega();
   }

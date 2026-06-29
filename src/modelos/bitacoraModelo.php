@@ -17,19 +17,21 @@ class bitacoraModelo extends conexion {
   public function seleccionarBitacora() {
     return $this->seleccionarBitacoraP();
   }
-  public function registrarBitacora(string $modulo, string $accion, string $resultado, bool|null $hacerCommit = null, $datos = null, $datosDespues = null, array|null $clavesIdentificacion = null) {
-    $this->moduloBitacora = $modulo;
-    $this->accionBitacora = $accion;
-    $this->resultadoBitacora = $resultado;
-    $this->commit = $hacerCommit ?? false;
+  public function registrarBitacora(array $instrucciones) {
+
+    $this->moduloBitacora = $instrucciones['modulo'];
+    $this->accionBitacora = $instrucciones['accion'];
+    $this->resultadoBitacora = $instrucciones['resultado'];
+    $this->commit = $instrucciones['commit'] ?? false;
+    $viejo = $instrucciones['viejo'] ?? null;
+    $nuevo = $instrucciones['nuevo'] ?? null;
     $this->ipDispositivo = $_SERVER['HTTP_X_IP_DISPOSITIVO'] ?? '0.0.0.0';
-    $this->clavesIdentificacion = $clavesIdentificacion ?? [];
 
     $this->cambiosEfectuados = null;
-    if ($datos != null || $datosDespues != null) {
-      $this->cambiosEfectuados = $this->sacarDiferenciaBitacora($datos, $datosDespues);
+    if ($viejo != null || $nuevo != null) {
+      $this->cambiosEfectuados = $this->sacarDiferenciaBitacora($viejo, $nuevo);
     }
-    
+
     $campos = [
       [
         "campo_valor" => $this->moduloBitacora,
