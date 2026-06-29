@@ -1149,6 +1149,7 @@ class pedidosModelo extends conexion {
     $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
     if (!isset($dataActualPedido['id_orden_entrega_presupuesto'])) return $dataActualPedido;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     $resultado = $this->procesosAlmacenados([
       'sp' => 'sp_cambiar_estado_pedido',
@@ -1159,6 +1160,8 @@ class pedidosModelo extends conexion {
     ]);
     if (!$resultado['exito']) {
 =======
+=======
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
     $productos = $dataActualPedido['productos'];
     $statusViejo = $dataActualPedido['status_pedido'];
 

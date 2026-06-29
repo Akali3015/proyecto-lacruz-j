@@ -5,6 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 
 class reportesEstadisticosModelo extends conexion {
+<<<<<<< HEAD
   public function obtenerDatosDashboard(array $datos) {
     // Sanitización y armado de filtros (Regla 2, 3 y 4)
     $filtros = [
@@ -47,6 +48,13 @@ class reportesEstadisticosModelo extends conexion {
           $labels[] = $row[$labelKey];
           $values[] = $row[$valueKey];
 =======
+=======
+  use traitModelo;
+
+  public function obtenerDatosDashboard(array $datos) {
+    // Sanitización y armado de filtros (Regla 2, 3 y 4)
+    $filtros = [
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
         'ventas' => "AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
         'compras' => "AND c.fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
         'produccion' => "AND p.fecha_produccion >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
@@ -84,6 +92,9 @@ class reportesEstadisticosModelo extends conexion {
         foreach ($data as $row) {
             $labels[] = $row[$labelKey];
             $values[] = $row[$valueKey];
+<<<<<<< HEAD
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+=======
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
         }
         return ['labels' => $labels, 'data' => $values];
@@ -131,7 +142,11 @@ class reportesEstadisticosModelo extends conexion {
       $stmt->execute();
       $egresos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 =======
       
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
@@ -141,6 +156,7 @@ class reportesEstadisticosModelo extends conexion {
       sort($meses);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       $ingresosData = [];
       $egresosData = [];
       foreach ($meses as $mes) {
@@ -149,12 +165,17 @@ class reportesEstadisticosModelo extends conexion {
         $keyEg = array_search($mes, array_column($egresos, 'mes'));
         $egresosData[] = $keyEg !== false ? $egresos[$keyEg]['egresos_cant'] : 0;
 =======
+=======
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       $ingresosData = []; $egresosData = [];
       foreach ($meses as $mes) {
           $keyIn = array_search($mes, array_column($ingresos, 'mes'));
           $ingresosData[] = $keyIn !== false ? $ingresos[$keyIn]['ingresos_cant'] : 0;
           $keyEg = array_search($mes, array_column($egresos, 'mes'));
           $egresosData[] = $keyEg !== false ? $egresos[$keyEg]['egresos_cant'] : 0;
+<<<<<<< HEAD
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+=======
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       }
       $ingresosEgresos = empty($meses) ? ['fechas' => [], 'ingresos' => [], 'egresos' => []] : ['fechas' => $meses, 'ingresos' => $ingresosData, 'egresos' => $egresosData];
@@ -164,7 +185,11 @@ class reportesEstadisticosModelo extends conexion {
       $stmt1->execute();
       $p = $stmt1->fetchColumn() ?: 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 =======
       
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
@@ -198,7 +223,11 @@ class reportesEstadisticosModelo extends conexion {
       $stmt->execute();
       $pendientes = $stmt->fetchColumn() ?: 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 =======
       
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
@@ -239,9 +268,15 @@ class reportesEstadisticosModelo extends conexion {
       //Implementar Bitácora
       if (method_exists($this, 'guardar_bitacora')) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
       }
 
+=======
+         $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
+      }
+      
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 =======
          $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
       }

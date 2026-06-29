@@ -21,6 +21,7 @@ class productosModelo extends conexion {
   private array $materiasPrimas = [];
   private array $fotoPresentacion = [];
 
+
   public function validarProductos(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
@@ -232,7 +233,16 @@ class productosModelo extends conexion {
     return $this->seleccionarProductosP($info);
   }
   public function obtenerParaChatbot() {
+<<<<<<< HEAD
     return $this->obtenerParaChatbotP();
+=======
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'nombre_producto, precio_producto, stock_producto',
+      'tabla' => 'productos',
+      'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
   }
   public function registrarProductos(array $info) {
     $respuesta = $this->validarProductos([
@@ -399,21 +409,25 @@ class productosModelo extends conexion {
           return $this->seleccionarDatos2([
             'tabla' => 'ordenes_entregas_presupuestos as f',
             'campos' => '*,
+<<<<<<< HEAD
               ROUND(( 
+=======
+              ( 
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
                 SELECT prpr.precio_producto 
                 FROM precios_productos as prpr 
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC 
                 LIMIT 1 
-              ),2) AS precio_producto_factura, 
-              ROUND((pre.cantidad_pmp * pf.cantidad_producto),2) as cantidad_bruta, 
-              ROUND(( 
+              ) AS precio_producto_factura, 
+              (pre.cantidad_pmp * pf.cantidad_producto) as cantidad_bruta, 
+              ( 
                 SELECT (prpr.precio_producto*pre.cantidad_pmp)  
                 FROM precios_productos as prpr 
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 
                 ORDER BY prpr.id_precio_producto DESC
                 LIMIT 1 
-              ),2) as precio_presentacion_factura
+              ) as precio_presentacion_factura
             ',
             'datosJoins' => [
               'productos_ordenes_entregas_presupuestos as pf' => 'f.id_orden_entrega_presupuesto = pf.id_orden_entrega_presupuesto',

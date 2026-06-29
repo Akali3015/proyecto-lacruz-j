@@ -3,7 +3,11 @@ import {
   listarDataTable, listarItemPanelCarritoPedido, rutaFotos, cambiarFormatos,
   pedirDatosAjax, extraerDatosAjax, enviarFormulario, alertasAjax, reiniciarDataTables,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mostrarOcultarSpinnerCarga, objCacheSS, reiniciarDataModuloSS, formateoCampos
+=======
+  mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 =======
   mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f

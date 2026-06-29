@@ -318,6 +318,7 @@ class comprasModelo extends conexion {
 
     // Detalle completo por ID
     $sql = "
+<<<<<<< HEAD
           SELECT
             c.id_compra, c.fecha_compra, c.rif_proveedor,
             COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
@@ -336,9 +337,30 @@ class comprasModelo extends conexion {
           INNER JOIN productos prod ON pp.id_producto = prod.id_producto
           LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
           WHERE c.status != 0 AND c.id_compra = :id1
+=======
+            SELECT
+                c.id_compra, c.fecha_compra, c.rif_proveedor,
+                COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
+                'producto' AS TIPO,
+                prod.nombre_producto AS ARTICULO,
+                pp.id_presentacion_producto AS id_item,
+                det.cantidad_producto AS cantidad_raw,
+                CONCAT(det.cantidad_producto, ' ',
+                    COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+                um.id_unidad_medida,
+                um.nombre_unidad_medida
+            FROM compras c
+            LEFT JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
+            INNER JOIN productos_compras det ON c.id_compra = det.id_compra
+            INNER JOIN presentaciones_productos pp ON det.id_presentacion_producto = pp.id_presentacion_producto
+            INNER JOIN productos prod ON pp.id_producto = prod.id_producto
+            LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
+            WHERE c.status != 0 AND c.id_compra = :id1
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
           UNION ALL
 
+<<<<<<< HEAD
           SELECT
             c.id_compra, c.fecha_compra, c.rif_proveedor,
             COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
@@ -357,6 +379,25 @@ class comprasModelo extends conexion {
           INNER JOIN materias_primas mp ON det.id_materia_prima = mp.id_materia_prima
           LEFT JOIN unidades_medidas um ON mp.id_unidad_medida = um.id_unidad_medida
           WHERE c.status != 0 AND c.id_compra = :id2
+=======
+            SELECT
+                c.id_compra, c.fecha_compra, c.rif_proveedor,
+                COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
+                'materia_prima' AS TIPO,
+                mp.nombre_materia_prima AS ARTICULO,
+                det.id_materia_prima AS id_item,
+                det.cantidad_materia_prima AS cantidad_raw,
+                CONCAT(det.cantidad_materia_prima, ' ',
+                    COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
+                um.id_unidad_medida,
+                um.nombre_unidad_medida
+            FROM compras c
+            LEFT JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
+            INNER JOIN materias_primas_compras det ON c.id_compra = det.id_compra
+            INNER JOIN materias_primas mp ON det.id_materia_prima = mp.id_materia_prima
+            LEFT JOIN unidades_medidas um ON mp.id_unidad_medida = um.id_unidad_medida
+            WHERE c.status != 0 AND c.id_compra = :id2
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
           ORDER BY TIPO DESC
         ";

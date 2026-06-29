@@ -3,6 +3,7 @@ namespace src\modelos;
 use PDO;
 use src\config\connect\conexion;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use src\modelos\bitacoraModelo;
 
 class chatbotModelo extends conexion {
@@ -252,6 +253,8 @@ class chatbotModelo extends conexion {
           "respuesta" => "",
           "fecha" => $fila['fecha_prompt']
 =======
+=======
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
 class chatbotModelo extends conexion {
 
@@ -296,6 +299,9 @@ class chatbotModelo extends conexion {
                 'prompt' => $this->mensaje,
                 'status' => 1
             ]
+<<<<<<< HEAD
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+=======
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
         ];
         $resultado = $this->guardarDatos2($instrucciones);
@@ -307,6 +313,7 @@ class chatbotModelo extends conexion {
 
         return $resultado;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     return $historial;
   }
@@ -324,6 +331,8 @@ class chatbotModelo extends conexion {
     $objServicios = new \src\modelos\serviciosModelo();
     $catalogo['servicios'] = $objServicios->obtenerParaChatbot();
 =======
+=======
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
     // Guarda la respuesta generada por Gemini
     public function guardarRespuestaBot($cedula, $respuesta) {
@@ -352,6 +361,9 @@ class chatbotModelo extends conexion {
 
         return $this->guardarRespuestaBotP();
     }
+<<<<<<< HEAD
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+=======
 >>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
     private function guardarRespuestaBotP() {
