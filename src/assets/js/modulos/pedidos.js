@@ -2,7 +2,11 @@
 import {
   listarDataTable, listarItemPanelCarritoPedido, rutaFotos, cambiarFormatos,
   pedirDatosAjax, extraerDatosAjax, enviarFormulario, alertasAjax, reiniciarDataTables,
-  mostrarOcultarSpinnerCarga, objCacheSS
+<<<<<<< HEAD
+  mostrarOcultarSpinnerCarga, objCacheSS, reiniciarDataModuloSS, formateoCampos
+=======
+  mostrarOcultarSpinnerCarga, objCacheSS,reiniciarDataModuloSS
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -56,8 +60,8 @@ async function cambiarEstadosPedido() {
       }
     });
     if (resultado?.icono == 'success') {
+      reiniciarDataModuloSS('pedidos');
       reiniciarDataTables();
-      console.log('llegue')
     }
     alertasAjax(resultado);
   }
@@ -98,6 +102,7 @@ async function verDetallesPedido() {
     } = calculos;
 
     let promesas = [];
+
     //Productos
     promesas.push(listarDataTable({
       selectorTabla: '.tablaProductosPedido',
@@ -105,7 +110,7 @@ async function verDetallesPedido() {
         "id_presentacion_producto": "CÓDIGO",
         "nombre_producto": "PRODUCTO",
         "cantidad_producto": 'CANTIDAD',
-        "precio_producto_factura": 'PRECIO UNITARIO',
+        "precio_presentacion_factura": 'PRECIO UNITARIO',
         "cantidad_pmp": 'SUBTOTAL'
       },
       informacionPe: {
@@ -122,25 +127,25 @@ async function verDetallesPedido() {
         nombre_producto: (info) => {
           let foto = info.fila.foto_presentacion != '' ? info.fila.foto_presentacion : 'productoDefault.png';
           return `
-          <div class="d-flex fila_producto">
-            <div class="imagen_producto align-items-center justify-content-center text-muted">
-              <img src="${rutaFotos}presentaciones_productos/${foto}" class=" estiloFotoRegistro">
+            <div class="d-flex fila_producto">
+              <div class="imagen_producto align-items-center justify-content-center text-muted">
+                <img src="${rutaFotos}presentaciones_productos/${foto}" class=" estiloFotoRegistro">
+              </div>
+              <div class="ms-3 text-start fs-7">
+                <div class="mb-0 fw-bold text-dark">${info.fila.nombre_producto}</div>
+                <small class="text-muted">${info.fila.nombre_presentacion}</small>
+              </div>
             </div>
-            <div class="ms-3 text-start fs-7">
-              <div class="mb-0 fw-bold text-dark">${info.fila.nombre_producto}</div>
-              <small class="text-muted">${info.fila.nombre_presentacion}</small>
-            </div>
-          </div>
-        `;
+          `;
         },
-        precio_producto_factura: (info) => {
-          let precioBS = parseFloat(dolar.valor_fecha_moneda) * info.valor;
+        precio_presentacion_factura: (info) => {
+          let precioBS = (parseFloat(dolar.valor_fecha_moneda) * parseFloat(info.valor));
           return `
-          <div class="py-3 text-end listarItemsPedido">
-            <div class="precio_usd">${info.valor}$</div>
-            <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
-          </div>
-        `;
+            <div class="py-3 text-end listarItemsPedido">
+              <div class="precio_usd">${info.valor}$</div>
+              <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
+            </div>
+          `;
         },
         cantidad_pmp: (info) => {
           let {
@@ -148,11 +153,11 @@ async function verDetallesPedido() {
           } = info.fila;
           let precioBS = dolar.valor_fecha_moneda * subtotal_factura;
           return `
-          <div class="py-3 text-end listarItemsPedido">
-            <div class="precio_usd">${subtotal_factura.toFixed(2)}$</div>
-            <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
-          </div>
-        `;
+            <div class="py-3 text-end listarItemsPedido">
+              <div class="precio_usd">${subtotal_factura.toFixed(2)}$</div>
+              <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
+            </div>
+          `;
         }
       },
       datosFooter: {
@@ -292,6 +297,10 @@ async function verDetallesPedido() {
     }
 
     await Promise.all(promesas);
+
+    let preciosBs=$('.tablaProductosPedido').find('.precio_bs');
+    formateoCampos(preciosBs, 'dineroBolivar');
+
     modalD.find('.btnTapProductos').trigger('click');
   } catch (e) {
     console.error(e);

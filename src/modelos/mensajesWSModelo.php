@@ -110,7 +110,7 @@ class mensajesWSModelo extends conexion {
   public function seleccionarNotificaciones($id = 0) {
     $this->idNotificacion = $id;
     $this->cedulaUsuario = $_SESSION['cedula'];
-    
+
     $campos = [[
       "campo_nombre" => "cedula_usuario",
       "campo_valor" => &$this->cedulaUsuario,

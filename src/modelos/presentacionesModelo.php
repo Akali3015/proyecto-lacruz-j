@@ -148,10 +148,9 @@ class presentacionesModelo extends conexion {
           return $this->seleccionarDatos2([
             'campos' => '
               pr.id_presentacion, pr.nombre_presentacion, pr.cantidad_pmp, 
-              um.nombre_unidad_medida
+              um.id_unidad_medida,um.nombre_unidad_medida
             ',
             'tabla' => 'presentaciones as pr',
-            'PEL' => 'pr',
             'datosJoins' => [
               'unidades_medidas as um' => 'pr.id_unidad_medida = um.id_unidad_medida',
             ]

@@ -21,7 +21,7 @@ class componentesModelo extends conexion {
       ],
       [
         'url' => 'facturacion',
-        'texto' => 'Facturación',
+        'texto' => 'Órdenes de Entrega',
         'modulo' => 'facturacion',
         'icono' => 'receipt',
         'permiso' => 'ver',
@@ -45,7 +45,7 @@ class componentesModelo extends conexion {
         'permiso' => 'ver',
         'url' => 'compras',
         'icono' => 'shopping-cart-add',
-        'texto' => 'Compras',
+        'texto' => 'Recepciones',
       ],
       [
         'modulo' => 'ordenesServicios',
@@ -222,6 +222,13 @@ class componentesModelo extends conexion {
         'url' => 'roles',
         'icono' => 'organization-chart',
         'texto' => 'Roles',
+      ],
+      [
+        'modulo' => 'modulos',
+        'permiso' => 'ver',
+        'url' => 'modulos',
+        'icono' => 'module',
+        'texto' => 'Módulos',
       ],
       [
         'modulo' => 'permisos',

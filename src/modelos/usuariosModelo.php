@@ -285,6 +285,15 @@ class usuariosModelo extends conexion {
       ],
     ]);
     if ($resultado) return $resultado;
+    if ($this->cedulaUsuario == 30485684) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Borrado invalido',
+        'texto' => 'No puedes borrar al super adinistrador del sistema',
+        'icono' => 'error'
+      ];
+    }
+
     $this->cedulaUsuario = $info['cedula_usuario'];
     return $this->eliminarUsuariosP();
   }
@@ -309,6 +318,7 @@ class usuariosModelo extends conexion {
       ],
     ]);
     if ($resultado) return $resultado;
+
     $this->cedulaUsuario = $info['cedula_usuario'];
     return $this->eliminarFotosUsuariosP();
   }
@@ -375,7 +385,8 @@ class usuariosModelo extends conexion {
         'campos' => '
           cedula_usuario, nombre_usuario,
           apellido_usuario, telefono_usuario, correo_usuario,
-          usuario_usuario, id_rol,contrasena_usuario,direccion_usuario
+          usuario_usuario, id_rol,contrasena_usuario,direccion_usuario,
+          foto_usuario
         ',
         'tabla' => 'usuarios',
         'BD' => 'seguridad',
@@ -387,8 +398,13 @@ class usuariosModelo extends conexion {
   }
   private function registrarUsuariosP() {
     $fotoUsuario = '';
-    $error = function () use ($fotoUsuario) {
+    $objBitacora = new bitacoraModelo();
+
+    $error = function () use ($fotoUsuario, $objBitacora) {
       $this->rollback();
+      if (isset($_SESSION['cedula'])) {
+        $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'Fallido', true);
+      }
       if ($fotoUsuario != '') $this->Imagenes_Eli2('usuarios', $fotoUsuario);
     };
     if ($this->fotoUsuario != []) {
@@ -441,9 +457,11 @@ class usuariosModelo extends conexion {
 
     $diferencias = $this->sacarDiferenciaBitacora($datoNuevos, [], 'usuarios');
     if ($diferencias['icono'] ?? '' == 'error') return $diferencias;
-    $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'registrar', 'éxito');
-    if ($rb) return $rb;
+
+    if (isset($_SESSION['cedula'])) {
+      $rb = $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
+      if ($rb) return $rb;
+    }
     $this->commit();
 
     return [
@@ -513,7 +531,7 @@ class usuariosModelo extends conexion {
     $diferencias = $this->sacarDiferenciaBitacora($datosAct, $datosActuales, 'usuarios');
     if ($diferencias['icono'] ?? '' == 'error') return $diferencias;
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
     if ($rb) return $rb;
 
     $this->commit();
@@ -535,7 +553,7 @@ class usuariosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
 
     if ($eliminarUsuario <= 0) {
-      $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar', 'éxito', true);
+      $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito', true);
       if ($rb) return $rb;
       return [
         "tipo" => "simple",
@@ -544,7 +562,7 @@ class usuariosModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
     if ($rb) return $rb;
     $this->commit();
     return [
@@ -555,15 +573,8 @@ class usuariosModelo extends conexion {
     ];
   }
   private function actualizarFotosUsuariosP() {
-
-    $diferencias = null;
-    $usuarioAct = $this->seleccionarUsuarios(['cedula_usuario' => $this->cedulaUsuario]);
-    if ($usuarioAct['foto_usuario'] != $this->fotoUsuario) {
-      $diferencias = ['foto_usuario' => ['modificado' => $this->fotoUsuario]];
-    }
     $objBitacora = new bitacoraModelo();
-    $objBitacora->registrarBitacora('usuarios', 'actualizar', 'éxito', $diferencias);
-
+    $objBitacora->registrarBitacora('usuarios', 'actualizar', 'éxito');
     return $this->Imagenes_Act([
       'subCarpeta' => 'usuarios',
       'imagen' => $this->fotoUsuario,
@@ -575,9 +586,10 @@ class usuariosModelo extends conexion {
     ]);
   }
   private function eliminarFotosUsuariosP() {
+
     $diferencias = ['foto_usuario' => ['eliminado' => true]];
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar', 'éxito');
+    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
     $this->Imagenes_Eli([

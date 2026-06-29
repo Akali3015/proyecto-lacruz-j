@@ -48,6 +48,10 @@ class conexion {
   protected function eliminarDatos2(array $instrucciones) {
     return $this->eliminarDatosP2($instrucciones);
   }
+  protected function procesosAlmacenados(array $instrucciones) {
+    return $this->procesosAlmacenadosP($instrucciones);
+  }
+
   private function conectarP($BD = null) {
     $conexionElegida = self::$conexion;
     $this->nombreDB = 'proyecto_lacruz';
@@ -366,7 +370,6 @@ class conexion {
       //   }
       // }
       return $consulta;
-      
     } catch (\Throwable $th) {
       $this->rollback();
       $objCache->removeItem($instrucciones['tabla']);
@@ -711,6 +714,27 @@ class conexion {
       ];
       throw new errorBD($th->getMessage(), $error, (int)$th->getCode(), $th);
     }
+  }
+  private function procesosAlmacenadosP(array $instrucciones) {
+    $conexion = $this->conectar();
+    $sql = 'CALL ' . $instrucciones['sp'] . '(';
+    $c = 0;
+    foreach ($instrucciones['parametros'] ?? [] as $p => $v) {
+      $sql .= ':' . $p;
+      $c++;
+      if ($c < count($instrucciones['parametros'])) $sql .= ',';
+    }
+    $sql .= ')';
+    $consulta = $conexion->prepare($sql);
+
+    $parametrosExec = [];
+    foreach ($instrucciones['parametros'] ?? [] as $p => $v) {
+      $parametrosExec[':' . $p] = $v;
+    }
+    return [
+      'exito' => $consulta->execute($parametrosExec),
+      'retorno' => $consulta->fetchAll()
+    ];
   }
 }
 class errorBD extends Exception {

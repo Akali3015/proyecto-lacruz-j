@@ -1,8 +1,72 @@
 // Importaciones
 import {
-  enviarFormulario, listarDataTable, pedirDatosAjax
+  enviarFormulario, listarDataTable, pedirDatosAjax, reiniciarDataModuloSS
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js";
+
+//#region [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] COMIENZO
+driverAyuda('compras', {
+    pasos: [
+        {
+            element: '#dashboardCompras',
+            popover: {
+                title: 'Dashboard de Compras',
+                description: 'Aquí puedes ver métricas importantes: total de compras registradas, proveedores distintos y total de artículos comprados.',
+                side: 'bottom',
+                align: 'start'
+            }
+        },
+        {
+            element: 'button[data-bs-target=".modalRegistrar"]',
+            popover: {
+                title: 'Registrar Compra',
+                description: 'Haz clic aquí para registrar una nueva compra. Puedes agregar múltiples productos o materias primas en una misma compra.',
+                side: 'bottom',
+                align: 'start'
+            }
+        },
+        {
+            element: '.tabla-ajax',
+            popover: {
+                title: 'Lista de Compras',
+                description: 'Aquí puedes ver todas las compras registradas, con su fecha, proveedor y cantidad de artículos.',
+                side: 'top'
+            }
+        },
+        {
+            element: '.botonVer',
+            popover: {
+                title: 'Ver Detalles',
+                description: 'Haz clic aquí para ver todos los detalles de una compra específica.',
+                side: 'left'
+            }
+        },
+        {
+            element: '.botonEditar',
+            popover: {
+                title: 'Editar Compra',
+                description: 'Modifica los datos de una compra existente.',
+                side: 'left'
+            }
+        },
+        {
+            element: '.botonEliminar',
+            popover: {
+                title: 'Eliminar Compra',
+                description: 'Elimina una compra del sistema. Esta acción no se puede deshacer.',
+                side: 'left'
+            }
+        },
+        {
+            popover: {
+                title: '¡Ayuda completada!',
+                description: 'Ya conoces la gestión de compras. Puedes registrar compras con múltiples artículos y llevar el control de tu inventario.',
+                side: 'top'
+            }
+        }
+    ]
+});
+//#endregion [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] FIN
 
 // Variables globales
 let proveedoresOptionsCache = '';
@@ -758,7 +822,7 @@ $(document).on('submit', '.formularioAjax', async function (e) {
   }
 
   $(this).find('input[name="rif_proveedor"]').remove();
-  $(this).find('.input-detalle-hidden').remove();
+  $(this).find('input[name="detalles"]').remove();
 
   $('<input>', {
     type: 'hidden',
@@ -766,13 +830,11 @@ $(document).on('submit', '.formularioAjax', async function (e) {
     value: detalles[0].proveedorId
   }).appendTo(this);
 
-  // Enviar detalles como arreglos planos (flat structure)
-  detalles.forEach(d => {
-    $('<input>', { type: 'hidden', name: 'detalle_proveedorId[]', value: d.proveedorId, class: 'input-detalle-hidden' }).appendTo(this);
-    $('<input>', { type: 'hidden', name: 'detalle_tipo[]', value: d.tipo, class: 'input-detalle-hidden' }).appendTo(this);
-    $('<input>', { type: 'hidden', name: 'detalle_id[]', value: d.id, class: 'input-detalle-hidden' }).appendTo(this);
-    $('<input>', { type: 'hidden', name: 'detalle_cantidad[]', value: d.cantidad, class: 'input-detalle-hidden' }).appendTo(this);
-  });
+  $('<input>', {
+    type: 'hidden',
+    name: 'detalles',
+    value: JSON.stringify(detalles)
+  }).appendTo(this);
 
   let respuesta = await enviarFormulario({
     'formulario': this,
@@ -822,6 +884,7 @@ $(document).on("click", ".botonEliminar", function (e) {
       });
       if (respuesta && respuesta.icono === 'success') {
         Swal.fire('Eliminado', respuesta.texto || 'Compra eliminada correctamente.', 'success');
+        reiniciarDataModuloSS('compras');
         $('.tabla-ajax').DataTable().ajax.reload(null, false);
       } else {
         Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo eliminar la compra.', 'error');

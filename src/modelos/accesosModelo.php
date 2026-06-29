@@ -146,6 +146,9 @@ class accesosModelo extends conexion {
       case 'listarEcommerce':
         $this->permisoVal = 'listar';
         break;
+      case 'imprimirPedido':
+        $this->permisoVal = 'imprimir pedidos';
+        break;
       case 'actualizarFoto':
       case 'eliminarFoto':
       case 'cambiarEstado':
@@ -156,6 +159,7 @@ class accesosModelo extends conexion {
       case 'rechazarPedido':
       case 'marcarTodasNotComoLeidas':
       case 'actualizarValor':
+      case 'asignarRepartidor':
         $this->permisoVal = 'actualizar';
         break;
       case 'registrarToken':
@@ -511,17 +515,16 @@ class accesosModelo extends conexion {
   private function validarPermisosP() {
     $permisos = $this->seleccionarPermisosPorRol();
     if (!isset($permisos[$this->moduloVal])) {
-      $alerta = [
+      return [
         "tipo" => "simple",
         "titulo" => "Acción no autorizada",
         "texto" => "No posee permisos para realizar la acción solicitada",
         "icono" => "error"
       ];
-      return $alerta;
     }
 
     if (!in_array($this->permisoVal, $permisos[$this->moduloVal])) {
-      $alerta = [
+      return [
         "tipo" => "simple",
         "titulo" => "Acción no autorizada",
         "texto" => "No posee permisos para realizar la acción solicitada",
@@ -531,7 +534,6 @@ class accesosModelo extends conexion {
         "permisos del modulo" => $permisos[$this->moduloVal],
         "permiso recibido" => $this->permisoVal
       ];
-      return $alerta;
     }
     return false;
   }

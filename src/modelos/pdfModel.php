@@ -6,6 +6,7 @@ use FPDF;
 use DateTime;
 
 class pdfModel extends FPDF {
+
   use traitModelo;
   private string $tituloEncabezado = '';
   private bool $header = true;
@@ -104,64 +105,75 @@ class pdfModel extends FPDF {
       $fechaActual = $fechaActual->format('d-m-Y');
 
       $this->SetFont('Arial', 'B', 12);
-      $this->Cell(30, 10);
-      $this->Cell(135, 10, $this->tituloEncabezado, 0, 0, 'C');
-      $this->Cell(30, 10, 'EMITIDO EL: ' . $fechaActual, 0, 0, 'R');
+      $this->cell2(30, 10);
+      $this->cell2(135, 10, $this->tituloEncabezado, 0, 0, 'C');
+      $this->cell2(30, 10, 'EMITIDO EL: ' . $fechaActual, 0, 0, 'R');
       $this->Ln(20);
 
       if (count($this->datosExtraCabecera) > 0) {
         foreach ($this->datosExtraCabecera as $dato) {
           $dato = mb_convert_encoding($dato, 'ISO-8859-1', 'UTF-8');
-          $this->Cell(0, 10, $dato, 0, 1, 'C');
+          $this->cell2(0, 10, $dato, 0, 1, 'C');
         }
       }
     }
     if ($this->dataNotaEntrega) {
       // Cuadro exterior superior (Opcional, para delimitar la zona superior si se desea)
-      $this->Rect(10, 10, 190, 28);
-      $this->Image($_SERVER['DOCUMENT_ROOT'] . '/proyecto-lacruz-j/src/assets/images/logo2.png', 12, 15, 23, 20);
+      // $this->Rect(10, 10, 190, 30);
+      $this->Image($_SERVER['DOCUMENT_ROOT'] . '/proyecto-lacruz-j/src/assets/images/logo2.png', 12, 10, 28, 20);
 
       // Datos de la Empresa (Izquierda)
-      $this->SetFont('Arial', '', 7);
-      $this->SetTextColor(0);
-      $this->SetXY(35, 12);
-      $this->Cell(70, 3, 'J. LACRUZ C.A.', 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, 'MULTISERVICIOS GENERALES', 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('Telefonos: +58 424-5085666 / 0414-5718890'), 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('Dirección: Vda 21 Calle 6 Nro C-52'), 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('Barrio José Gregorio Hernández'), 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('Barquisimeto, Estado Lara'), 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('Zona Postal 3001'), 0, 1);
-      $this->SetX(35);
-      $this->Cell(70, 3, $this->CSE('RIF: J-412192701'), 0, 1);
-
-      // Bloque de la Nota de Entrega (Derecha)
-      $this->SetXY(115, 11);
+      $this->SetXY(42, 10);
+      $this->SetFont('Arial', 'B', 19);
+      $this->SetTextColor(14, 35, 125);
+      $this->cell2(50, 5, 'J. LACRUZ C.A.', 0, 1, 'C');
+      $this->SetX(42);
       $this->SetFont('Arial', 'B', 12);
-      $this->Cell(80, 5, 'NOTA DE ENTREGA', 0, 1, 'C');
-      $this->Ln(3);
+      $this->cell2(50, 5, 'Multiservicios Generales', 0, 1, 'C');
+      $this->SetX(42);
+      $this->SetFont('Arial', 'B', 7);
+      $this->cell2(50, 5, 'TELFS: +58 424-5085666 / 0414-5718890', 0, 1, 'C');
+      $this->SetX(42);
+      $this->cell2(50, 5, 'jlacruzca@gmail.com', 0, 1, 'C');
 
-      $this->SetFont('Arial', '', 7);
-      $this->SetX(115);
+      //Direccion y Rif
+      $this->SetFont('Arial', 'B', 8);
+      $this->SetXY(155, 10);
+      $this->cell2(40, 4, 'Vda 21 Calle 6 Nro C-52', 0, 1, 'C');
+      $this->SetX(155);
+      $this->cell2(40, 4, 'Barrio José Gregorio Hernández', 0, 1, 'C');
+      $this->SetX(155);
+      $this->cell2(40, 4, 'Barquisimeto, Estado Lara', 0, 1, 'C');
+      $this->SetX(155);
+      $this->cell2(40, 4, 'Zona Postal 3001', 0, 1, 'C');
+      $this->SetX(155);
+      $this->SetFont('Arial', 'B', 10);
+      $this->SetTextColor(10, 24, 82);
+      $this->cell2(40, 4, 'RIF.: J-412192701', 0, 1, 'C');
+      $this->SetTextColor(0);
 
-      $this->Cell(40, 3.5, $this->CSE('Fecha Emisión:'), 0, 0);
-      $this->Cell(40, 3.5, $this->FechaHora_Sel('fecha_hora_AM_PM', $this->dataNotaEntrega['fecha_orden']), 0, 1, 'R');
-      $this->SetX(115);
-      $this->Cell(40, 3.5, $this->CSE('Fecha Impresión:'), 0, 0);
-      $this->Cell(40, 3.5, $this->FechaHora_Sel('Fecha_Hora_Actual'), 0, 1, 'R');
+      $this->SetXY(10, 40);
+      $this->SetFont('Arial', 'B', 8);
+      $this->cell2(50, 6, 'LUGAR Y FECHA DE EMISIÓN', 1, 0, 'C');
+      $this->cell2(10, 6, 'DIA', 1, 0, 'C');
+      $this->cell2(10, 6, 'MES', 1, 0, 'C');
+      $this->cell2(10, 6, 'AÑO', 1, 1, 'C');
 
-      $this->SetXY(115, 28);
-      $this->Cell(35, 6, $this->CSE('Cod. Orden Entrega:'), 1, 0, 'C');
+      $fechaCompleta = explode(' ', $this->FechaHora_Sel('fecha_hora_AM_PM', $this->dataNotaEntrega['fecha_orden']));
+      $fechaArray = explode('-', $fechaCompleta[0]);
+
+      $this->SetFont('Arial', '', 8);
+      $this->cell2(50, 6, 'BARQUISIMETO', 1, 0, 'C');
+      $this->cell2(10, 6, $fechaArray[0], 1, 0, 'C');
+      $this->cell2(10, 6, $fechaArray[1], 1, 0, 'C');
+      $this->cell2(10, 6, $fechaArray[2], 1, 1, 'C');
+
+      $this->SetXY(155, 40);
       $this->SetFont('Arial', 'B', 9);
-      $this->Cell(45, 6, $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 1, 1, 'C');
-
-      $this->Ln(5);
+      $this->cell2(40, 5, 'N° ORDEN', 0, 1, 'C');
+      $this->SetX(155);
+      $this->SetFont('Arial', '', 9);
+      $this->cell2(40, 5, $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1, 'C');
     }
   }
   function Footer() {
@@ -172,7 +184,7 @@ class pdfModel extends FPDF {
       $this->SetFont('Arial', 'I', 10);
       // Número de página
       $pagina = mb_convert_encoding("Página", 'ISO-8859-1', 'UTF-8');
-      $this->Cell(0, 10, $pagina . ' ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
+      $this->cell2(0, 10, $pagina . ' ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
     }
   }
   public function crearPDF(array $datosPdf) {
@@ -180,7 +192,7 @@ class pdfModel extends FPDF {
 
       $configColumnas = $datosPdf['configColumnas'];
       $infoBD = $datosPdf['infoBD'];
-      $this->tituloEncabezado = $this->CSE($datosPdf['tituloReporte'] ?? '');
+      $this->tituloEncabezado = $datosPdf['tituloReporte'] ?? '';
       $this->datosExtraCabecera = $datosPdf['datosExtCabecera'] ?? [];
 
       // Primera sección o sección única: inicializar el documento
@@ -196,7 +208,7 @@ class pdfModel extends FPDF {
         $this->Ln();
         if (count($this->datosExtraCabecera) > 0) {
           foreach ($this->datosExtraCabecera as $dato) {
-            $this->Cell(0, 10, $this->CSE($dato), 0, 1, 'C');
+            $this->cell2(0, 10, $dato, 0, 1, 'C');
           }
         }
       }
@@ -204,7 +216,7 @@ class pdfModel extends FPDF {
       //Dibujamos los encabezados
       $this->SetFont("Arial", "B", "12");
       foreach ($configColumnas as $configInd) {
-        $this->Cell($configInd[1], 10, $this->CSE($configInd[0]), 1, 0, 'C');
+        $this->cell2($configInd[1], 10, $configInd[0], 1, 0, 'C');
       }
       $this->Ln();
 
@@ -232,7 +244,7 @@ class pdfModel extends FPDF {
           //Redibujamos los encabezados
           $this->SetFont("Arial", "B", "12");
           foreach ($configColumnas as $configInd) {
-            $this->Cell($configInd[1], 10, $this->CSE($configInd[0]), 1, 0, 'C');
+            $this->cell2($configInd[1], 10, $configInd[0], 1, 0, 'C');
           }
           $this->Ln();
           $this->SetFont("Arial", "", "10");
@@ -269,18 +281,18 @@ class pdfModel extends FPDF {
     $this->SetMargins(2, 0, 2);
     $this->SetAutoPageBreak(true, 10);
     $this->SetFont("Arial", "B", "10");
-    $this->Cell(0, 1, '', 0, 1);
+    $this->cell2(0, 1, '', 0, 1);
     $encabezado = mb_convert_encoding('THE VIÑA FAST FOOD', 'ISO-8859-1', 'UTF-8');
-    $this->Cell(0, 3, $encabezado, 0, 1, 'C');
+    $this->cell2(0, 3, $encabezado, 0, 1, 'C');
 
     foreach ($secciones as $seccion) {
 
       $this->SetFont("Arial", "B", "8");
-      $this->Cell(0, 5, '', 0, 1, '');
-      $this->Cell(0, 5, '---------------------------------------------------------', 0, 1, 'C');
+      $this->cell2(0, 5, '', 0, 1, '');
+      $this->cell2(0, 5, '---------------------------------------------------------', 0, 1, 'C');
 
       $encabezado = mb_convert_encoding($seccion['tituloSeccion'], 'ISO-8859-1', 'UTF-8');
-      $this->Cell(0, 3, $encabezado, 0, 1, 'C');
+      $this->cell2(0, 3, $encabezado, 0, 1, 'C');
 
       $datosExtraArriba = isset($seccion['datosExtra']['arriba']) ? $seccion['datosExtra']['arriba'] : false;
       $datosExtraAbajo = isset($seccion['datosExtra']['abajo']) ? $seccion['datosExtra']['abajo'] : false;
@@ -291,7 +303,7 @@ class pdfModel extends FPDF {
         $this->Ln();
         $CDA = 0;
         foreach ($datosExtraArriba['datosCeldas'] as $datoEx) {
-          $this->Cell(0, 3, $datoEx, 0, 1, $datosExtraArriba['alineaciones'][$CDA]);
+          $this->cell2(0, 3, $datoEx, 0, 1, $datosExtraArriba['alineaciones'][$CDA]);
           $CDA++;
         }
       }
@@ -308,14 +320,14 @@ class pdfModel extends FPDF {
         $this->SetY($this->GetY());
         $this->SetFont("Arial", "B", "8");
         $this->Ln();
-        $this->Cell(0, 5, $tituloEncabezado, 0, 1, 'C');
+        $this->cell2(0, 5, $tituloEncabezado, 0, 1, 'C');
 
         //Dibujamos los encabezados
         $c = 0;
         $this->SetFont("Arial", "B", "8");
         foreach ($encabezados as $encabezado) {
           $encabezado_convertido = mb_convert_encoding($encabezado, 'ISO-8859-1', 'UTF-8');
-          $this->Cell($anchoColumnas[$c], 3, $encabezado_convertido, 0, 0, 'C');
+          $this->cell2($anchoColumnas[$c], 3, $encabezado_convertido, 0, 0, 'C');
           $c++;
         }
         $this->Ln();
@@ -397,21 +409,21 @@ class pdfModel extends FPDF {
         $this->SetY($this->GetY() + ($alturaFila ?? 0) - 6);
       }
 
-      $this->Cell(0, 5, '', 0, 1);
+      $this->cell2(0, 5, '', 0, 1);
       //DATOS EXTRA DE ABAJO
       if ($datosExtraAbajo) {
         $this->SetFont("Arial", "B", "8");
         $CDEA = 0;
         foreach ($datosExtraAbajo['datosCeldas'] as $datoExt) {
-          $this->Cell(0, 3, $datoExt, 0, 1, $datosExtraAbajo['alineaciones'][$CDEA]);
+          $this->cell2(0, 3, $datoExt, 0, 1, $datosExtraAbajo['alineaciones'][$CDEA]);
           $CDEA++;
         }
       }
       if (isset($seccion['QR'])) {
         $imagenTemporalQR = $this->crearCodigoQR($seccion['QR']['dataQR'], $seccion['QR']['tamaño']);
         $tituloQR = mb_convert_encoding($seccion['QR']['tituloQR'], 'ISO-8859-1', 'UTF-8');
-        $this->Cell(0, 5, '', 0, 1);
-        $this->Cell(0, 3, $tituloQR, 0, 1, 'C');
+        $this->cell2(0, 5, '', 0, 1);
+        $this->cell2(0, 3, $tituloQR, 0, 1, 'C');
         $this->Image(
           $imagenTemporalQR,
           $this->GetX() + 16,
@@ -434,181 +446,137 @@ class pdfModel extends FPDF {
     $this->SetMargins(10, 10, 10);
     $this->AddPage();
 
-    $this->Rect(10, 43, 190, 15);
+    $this->Rect(10, 57, 185, 198);
     $this->SetFont('Arial', '', 8);
 
     $itemPedido = $this->dataNotaEntrega ?: [];
     $cliente = $itemPedido['cliente'] ?? [];
 
-    $this->SetXY(12, 45);
+    $this->SetXY(10, 57);
     $this->SetFont('Arial', 'B', 8);
-    $this->Cell(20, 4, 'Cliente:', 0, 0,);
-    $this->SetFont('Arial', '', 8);
-    $this->Cell(60, 4, $this->CSE($cliente['razon_social_cliente'] ?? ''), 0, 1);
+    $this->cell2(155, 6, 'NOMBRE APELLIDO O RAZÓN SOCIAL: ' . $cliente['razon_social_cliente'], 1, 0,);
+    $this->cell2(30, 6, 'R.I.F: ' . ($cliente['rif_cedula_cliente'] ?? ''), 1, 1, 'C');
 
-    $this->SetX(12);
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(20, 4, $this->CSE('RIF/CÉDULA:'), 0, 0);
-    $this->SetFont('Arial', '', 8);
-    $this->Cell(40, 4, $this->CSE($cliente['rif_cedula_cliente'] ?? ''), 0, 0);
+    $this->cell2(185, 6, 'DOMICILIO FISCAL: ' . ($cliente['direccion_cliente'] ?? ''), 1, 1);
 
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(20, 4, $this->CSE('Teléfono:'), 0, 0);
-    $this->SetFont('Arial', '', 8);
-    $this->Cell(80, 4, $this->CSE($cliente['telefono_cliente'] ?? ''), 0, 1);
+    $this->cell2(30, 4, 'TELÉFONO', 1, 0, 'C');
+    $this->cell2(70, 4, 'ORDEN DE ENTREGA/GUÍA DE DESPACHO', 1, 0, 'C');
+    $this->cell2(50, 4, 'CONDICIONES DE PAGO', 1, 0, 'C');
+    $this->cell2(35, 4, 'VENCIMIENTO', 1, 1, 'C');
 
-    $this->SetX(12);
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(20, 4, $this->CSE('Dirección:'), 0, 0);
-    $this->SetFont('Arial', '', 8);
-    $this->Cell(100, 4, $this->CSE($cliente['direccion_cliente'] ?? ''), 0, 1);
+    $this->cell2(30, 4, $cliente['telefono_cliente'], 1, 0, 'C');
+    $this->cell2(70, 4, 'N° ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 1, 0, 'C');
+    $this->cell2(20, 4, 'CONTADO', 1, 0, 'C');
+    $this->cell2(5, 4, 'X', 1, 0, 'C');
+    $this->cell2(20, 4, 'CRÉDITO', 1, 0, 'C');
+    $this->cell2(5, 4, '', 1, 0, 'C');
+    $this->cell2(35, 4, '', 1, 1, 'C');
 
-    $this->SetY(60);
-    $this->Cell(30, 5, $this->CSE('Condición de Pago:'), 'B', 0);
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(70, 5, $this->CSE('CANCELADO'), 'B', 0);
 
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(15, 5, 'Asesor:', 'B', 0);
-    $this->SetFont('Arial', '', 8);
-    $this->Cell(75, 5,  $this->CSE($cliente['vendedor'] ?? 'NO ATENDIDO'), 'B', 1);
+    /*  $this->SetFont('Arial', 'B', 8);
+      $this->cell2(20, 4, 'Teléfono:'), 1, 0);
+      $this->SetFont('Arial', '', 8);
+      $this->cell2(80, 4, $cliente['telefono_cliente'] ?? ''), 1, 1);
 
-    $this->Ln(4);
+      $this->SetX(10);
+      $this->SetFont('Arial', 'B', 8);
+      $this->cell2(20, 4, 'Dirección:'), 1, 0);
+      $this->SetFont('Arial', '', 8);
+      $this->cell2(100, 4, $cliente['direccion_cliente'] ?? ''), 1, 1);
 
+      $this->SetY(80);
+      $this->cell2(30, 5, 'Condición de Pago:'), 'B', 0);
+      $this->SetFont('Arial', 'B', 8);
+      $this->cell2(90, 5, 'CANCELADO'), 'B', 0);
+
+      $this->SetFont('Arial', 'B', 8);
+      $this->cell2(15, 5, 'Asesor:', 'B', 0);
+      $this->SetFont('Arial', '', 8);
+
+      $vendedor = $this->dataNotaEntrega['vendedor'] ?
+        $this->dataNotaEntrega['vendedor']['nombre_usuario']
+        . ' ' .
+        $this->dataNotaEntrega['vendedor']['apellido_usuario'] :
+        'NO ATENDIDO';
+
+      $this->cell2(75, 5,  $vendedor), 'B', 1);
+    */
+    $this->Ln();
     $fnBolivares = function ($valor) {
       $d = (float)$this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'];
-      return round((((float) $valor) * $d), 2);
-      
+      $bs= round((((float) $valor) * $d), 2);
+      return $this->formatearStrings($bs, 'dinero');
     };
 
     //Encabezados
-    $anchosE = array(30, 65, 20, 20, 15, 15, 25);
-    $encabezados = array('Código', 'Descripción', 'Cantidad', 'Precio Unit.', 'Des', 'I.V.A', 'Total');
+    $anchosE = array(30, 30, 65, 30, 30);
+    $encabezados = array('COD.', 'CANT.', 'CONCEPTO O DESCRIPCIÓN DE LA VENTA',  'PRECIO UNIT.', 'MONTO');
     $this->SetFont('Arial', 'B', 8);
     for ($i = 0; $i < count($encabezados); $i++) {
-      $this->Cell($anchosE[$i], 5,  $this->CSE($encabezados[$i]), 'B', 0, 'C');
+      $this->cell2($anchosE[$i], 6,  $encabezados[$i], 1, 0, 'C');
     }
     $this->Ln();
 
     $this->SetFont('Arial', '', 7.5);
     foreach (($itemPedido['productos'] ?? []) as $producto) {
-      $this->Cell(30, 5, $this->CSE($producto['id_presentacion_producto']), 0, 0, 'C');
-      $this->Cell(65, 5, $this->CSE($producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion']), 0, 0, 'C');
-      $this->Cell(20, 5, $this->CSE($producto['cantidad_producto']), 0, 0, 'C');
-      $this->Cell(20, 5, $this->CSE($fnBolivares($producto['precio_producto_factura'])) . ' Bs', 0, 0, 'C');
-      $this->Cell(15, 5, $this->CSE($fnBolivares($producto['descuento'])) . ' Bs', 0, 0, 'C');
-      $this->Cell(15, 5, $this->CSE($itemPedido['calculos']['porcentaje_IVA'] ?? 'C') . '%', 0, 0, 'C');
-      $this->Cell(25, 5, $this->CSE($fnBolivares($producto['subtotal_factura'])) . ' Bs', 0, 1, 'R');
+      $this->cell2(30, 5, $producto['id_presentacion_producto'], 0, 0, 'C');
+      $this->cell2(30, 5, $this->formatearStrings($producto['cantidad_producto'], 'dinero'), 0, 0, 'C');
+      $this->cell2(65, 5, $producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion'], 0, 0, 'C');
+      $this->cell2(30, 5, $fnBolivares($producto['precio_presentacion_factura']) . ' Bs', 0, 0, 'C');
+      $this->cell2(30, 5, $fnBolivares($producto['subtotal_factura']) . ' Bs', 0, 1, 'R');
     }
 
     //Delivery
-    $this->Cell(30, 5, '--------', 0, 0, 'C');
-    $this->Cell(65, 5, $this->CSE('ENVÍO'), 0, 0, 'C');
-    $this->Cell(20, 5, '1.00', 0, 0, 'C');
-    $this->Cell(20, 5, $this->CSE($fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio'])).' Bs', 0, 0, 'C');
-    $this->Cell(15, 5, '0.00 Bs', 0, 0, 'C');
-    $this->Cell(15, 5, $this->CSE($itemPedido['calculos']['porcentaje_IVA'] ?? 'C') . '%', 0, 0, 'C');
-    $this->Cell(25, 5, $this->CSE($fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio'])).' Bs', 0, 1, 'R');
+    $this->cell2(30, 5, '--------', 0, 0, 'C');
+    $this->cell2(30, 5, '1,00', 0, 0, 'C');
+    $this->cell2(65, 5, 'ENVÍO', 0, 0, 'C');
+    $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 0, 'C');
+    $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 1, 'R');
 
-    $this->SetY(225);
-    $this->Rect(10, 225, 105, 25);
-    $this->SetXY(12, 227);
-    $this->SetFont('Arial', 'B', 8);
-    $this->Cell(30, 4, 'Observaciones:', 0, 1);
+    $fechaCompleta = explode(' ', $this->FechaHora_Sel('fecha_hora_AM_PM', $this->dataNotaEntrega['fecha_orden']));
+    $fechaArray = explode('-', $fechaCompleta[0]);
+    $hora = $fechaCompleta[1] . ' ' . $fechaCompleta[2];
+    $fecha = implode('/', $fechaArray) . ' HORA: ' . $hora;
 
-    $this->Rect(120, 225, 80, 25);
-    $this->SetXY(122, 226);
+    $this->SetXY(10, 210);
+    $this->SetFont('Arial', 'B', 7.5);
+    $this->cell2(80, 10,'   ORDEN PEDIDO NÚMERO: ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
+    $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES: ' . $this->dataNotaEntrega['calculos']['totalDescuento'].'$', 0, 1);
+    $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL: ' . $fecha, 0, 1);
+
+    $this->SetXY(100, 235);
     $this->SetFont('Arial', '', 8);
 
-    $this->Cell(40, 4.5, 'Subtotal:', 0, 0);
+    $this->SetFont('Arial', 'B', 7.5);
+    $this->cell2(50, 5, 'MONTO TOTAL BASE DISPONIBLE:', 1, 0);
+    $this->SetFont('Arial', '', 7.5);
+    $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['total']) . ' Bs', 1, 1, 'R');
 
-    $this->Cell(36, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['total']).' Bs', 0, 1, 'R');
+    $this->SetX(100);
+    $this->SetFont('Arial', 'B', 7.5);
+    $this->cell2(50, 5, 'MONTO TOTAL DESCUENTO', 1, 0);
+    $this->SetFont('Arial', '', 7.5);
+    $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalDescuento']) . ' Bs', 1, 1, 'R');
 
-    $this->SetX(122);
-    $this->Cell(20, 4.5, 'Descuentos:', 0, 0);
-    $this->Cell(56, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['totalDescuento']).' Bs', 0, 1, 'R');
+    $this->SetX(100);
+    $this->SetFont('Arial', 'B', 7.5);
+    $this->cell2(50, 5, 'MONTO TOTAL IVA A PAGAR ' . $this->dataNotaEntrega['calculos']['porcentaje_IVA'] . '%', 1, 0);
+    $this->SetFont('Arial', '', 7.5);
+    $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['monto_IVA']) . ' Bs', 1, 1, 'R');
 
-    $this->SetX(122);
-    $this->Cell(20, 4.5, 'I.V.A ('.$this->dataNotaEntrega['calculos']['porcentaje_IVA'].'%):', 0, 0);
-    $this->Cell(56, 4.5, $fnBolivares($this->dataNotaEntrega['calculos']['monto_IVA']).' Bs', 0, 1, 'R');
-
-    $this->Line(120, 240, 200, 240);
-
-    $this->SetXY(122, 245)
-    ;
-    $this->SetFont('Arial', 'B', 9);
-    $this->Cell(40, 5, 'TOTAL:', 0, 0);
-    $this->Cell(36, 5, $fnBolivares($this->dataNotaEntrega['calculos']['total_IVA']).' Bs', 0, 1, 'R');
+    $this->SetX(100);
+    $this->SetFont('Arial', 'B', 7.5);
+    $this->cell2(50, 5, 'MONTO TOTAL A PAGAR:', 1, 0);
+    $this->SetFont('Arial', '', 7.5);
+    $this->cell2(45, 5, $fnBolivares($this->dataNotaEntrega['calculos']['total_IVA']) . ' Bs', 1, 1, 'R');
 
     return $this;
   }
   public function CSE(string $string) {
     return mb_convert_encoding($string, 'ISO-8859-1', 'UTF-8');
   }
-  function RoundedRect(int $x, int $y, int $w, int $h, int $r, string $corners = '1234', string $style = '') {
-    $k = $this->k;
-    $hp = $this->h;
-    if ($style == 'F')
-      $op = 'f';
-    elseif ($style == 'FD' || $style == 'DF')
-      $op = 'B';
-    else
-      $op = 'S';
-    $MyArc = 4 / 3 * (sqrt(2) - 1);
-    $this->_out(sprintf('%.2F %.2F m', ($x + $r) * $k, ($hp - $y) * $k));
-
-    $xc = $x + $w - $r;
-    $yc = $y + $r;
-    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - $y) * $k));
-    if (strpos($corners, '2') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $y) * $k));
-    else
-      $this->_Arc($xc + $r * $MyArc, $yc - $r, $xc + $r, $yc - $r * $MyArc, $xc + $r, $yc);
-
-    $xc = $x + $w - $r;
-    $yc = $y + $h - $r;
-    $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $yc) * $k));
-    if (strpos($corners, '3') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - ($y + $h)) * $k));
-    else
-      $this->_Arc($xc + $r, $yc + $r * $MyArc, $xc + $r * $MyArc, $yc + $r, $xc, $yc + $r);
-
-    $xc = $x + $r;
-    $yc = $y + $h - $r;
-    $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - ($y + $h)) * $k));
-    if (strpos($corners, '4') === false)
-      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - ($y + $h)) * $k));
-    else
-      $this->_Arc($xc - $r * $MyArc, $yc + $r, $xc - $r, $yc + $r * $MyArc, $xc - $r, $yc);
-
-    $xc = $x + $r;
-    $yc = $y + $r;
-    $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $yc) * $k));
-    if (strpos($corners, '1') === false) {
-      $this->_out(sprintf('%.2F %.2F l', ($x) * $k, ($hp - $y) * $k));
-      $this->_out(sprintf('%.2F %.2F l', ($x + $r) * $k, ($hp - $y) * $k));
-    } else
-      $this->_Arc($xc - $r, $yc - $r * $MyArc, $xc - $r * $MyArc, $yc - $r, $xc, $yc - $r);
-    $this->_out($op);
-  }
-  function _Arc(int $x1, int $y1, int  $x2, int  $y2, int $x3, int $y3) {
-    $h = $this->h;
-    $this->_out(sprintf(
-      '%.2F %.2F %.2F %.2F %.2F %.2F c ',
-      $x1 * $this->k,
-      ($h - $y1) * $this->k,
-      $x2 * $this->k,
-      ($h - $y2) * $this->k,
-      $x3 * $this->k,
-      ($h - $y3) * $this->k
-    ));
-  }
-  function RoundedCell(int $w, int $h, string $txt, int  $radius, array $colorCelda = array(255, 255, 255), array $colorTexto = array(0, 0, 0)) {
-    $x = $this->GetX();
-    $y = $this->GetY();
-    $this->SetFillColor($colorCelda[0], $colorCelda[1], $colorCelda[2]);
-    $this->RoundedRect($x, $y, $w, $h, $radius, 'DF');
-    $this->SetTextColor($colorTexto[0], $colorTexto[1], $colorTexto[2]);
-    $this->Cell($w, $h, $txt, 0, 0, 'C');
+  public function cell2(int $ancho, int $alto = 0, string $texto = '', string|int $borde = 0, int $saltoLinea = 0, string $alineacion = '', $colorFondo = false, $hipervinculo = '') {
+    $texto = mb_convert_encoding($texto, 'ISO-8859-1', 'UTF-8');
+    $this->Cell($ancho, $alto, $texto, $borde, $saltoLinea, $alineacion, $colorFondo, $hipervinculo);
   }
 }

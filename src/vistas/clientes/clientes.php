@@ -61,7 +61,7 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-6 mb-3">
               <label for="razon_social_cliente" class="form-label">Razón Social</label>
-              <input type="text" class="form-control noRepetir" name="razon_social_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control noRepetir" name="razon_social_cliente" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="prefijo_telefono_cliente" class="form-label">Teléfono</label>
@@ -70,8 +70,8 @@ echo $componente->listaDataTable($instruccionesLista);
                   data-prefijo=".selectPrefijoTelefono"
                   data-cuerpo="."
                   class="input-group-text selectPrefijoTelefono"
-                  name="prefijo_telefono_cliente"
-                  required>
+                  name="prefijo_telefono_cliente">
+                  <option value="">S/N</option>
                   <option value="0416">0416</option>
                   <option value="0426">0426</option>
                   <option value="0424">0424</option>
@@ -95,12 +95,12 @@ echo $componente->listaDataTable($instruccionesLista);
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
                   maxlengthC="<?php echo maxRegexTelefono ?>"
-                  required>
+                  >
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="correo_cliente" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control noRepetir" name="correo_cliente" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" required>
+              <input type="email" class="form-control noRepetir" name="correo_cliente" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>">
             </div>
             <div class="col-md-12 mb-3">
               <label for="direccion_cliente" class="form-label">Dirección</label>
@@ -139,7 +139,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" class="formularioActualizar" name="rif_cedula_cliente">
             <div class="col-md-6 mb-3">
               <label for="razon_social_cliente" class="form-label">Razón Social</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="razon_social_cliente" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
+              <input type="text" class="form-control formularioActualizar noRepetir" name="razon_social_cliente" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="prefijo_telefono_cliente" class="form-label">Teléfono</label>
@@ -149,7 +149,8 @@ echo $componente->listaDataTable($instruccionesLista);
                   data-cuerpo="."
                   class="input-group-text selectPrefijoTelefono"
                   name="prefijo_telefono_cliente"
-                  required>
+                  >
+                  <option value="">S/N</option>
                   <option value="0416">0416</option>
                   <option value="0426">0426</option>
                   <option value="0424">0424</option>
@@ -173,13 +174,12 @@ echo $componente->listaDataTable($instruccionesLista);
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
                   maxlengthC="<?php echo maxRegexTelefono ?>"
-                  required
                 >
               </div>
             </div>
             <div class="col-md-12 mb-3">
               <label for="correo_cliente" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control formularioActualizar noRepetir" name="correo_cliente" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" required>
+              <input type="email" class="form-control formularioActualizar noRepetir" name="correo_cliente" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>">
             </div>
             <div class="col-md-12 mb-3">
               <label for="direccion_cliente" class="form-label">Dirección</label>

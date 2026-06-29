@@ -17,16 +17,32 @@ class bitacoraModelo extends conexion {
   public function seleccionarBitacora() {
     return $this->seleccionarBitacoraP();
   }
+<<<<<<< HEAD
+  public function registrarBitacora(
+    string $modulo,
+    string $accion,
+    string $resultado,
+    bool|null $hacerCommit = null,
+    $datos = null,
+    $datosDespues = null,
+    array|null $clavesIdentificacion = null
+  ) {
+
+=======
   public function registrarBitacora(string $modulo, string $accion, string $resultado, bool|null $hacerCommit = null, $datos = null, $datosDespues = null, array|null $clavesIdentificacion = null) {
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
     $this->moduloBitacora = $modulo;
     $this->accionBitacora = $accion;
     $this->resultadoBitacora = $resultado;
     $this->commit = $hacerCommit ?? false;
-    $this->ipDispositivo = $_SERVER['HTTP_X_IP_DISPOSITIVO'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $this->ipDispositivo = $_SERVER['HTTP_X_IP_DISPOSITIVO'] ?? '0.0.0.0';
     $this->clavesIdentificacion = $clavesIdentificacion ?? [];
 
-    $this->cambiosEfectuados = $this->procesarDatosBitacora($datos, $datosDespues);
-
+    $this->cambiosEfectuados = null;
+    if ($datos != null || $datosDespues != null) {
+      $this->cambiosEfectuados = $this->sacarDiferenciaBitacora($datos, $datosDespues);
+    }
+    
     $campos = [
       [
         "campo_valor" => $this->moduloBitacora,
@@ -65,20 +81,18 @@ class bitacoraModelo extends conexion {
     if ($respuesta !== false) return $respuesta;
     return $this->registrarBitacoraP();
   }
+
   private function procesarDatosBitacora($datos = null, $datosDespues = null): ?array {
     if ($datos === null && $datosDespues === null) {
       return null;
     }
-
     if (is_array($datos) && is_array($datosDespues)) {
       $cambios = $this->compararRecursivo($datos, $datosDespues);
       return empty($cambios) ? null : $cambios;
     }
-
     if (is_array($datos) && !empty($datos)) {
       return $datos;
     }
-
     return null;
   }
   private function compararRecursivo(array $datosAntes, array $datosDespues): array {
@@ -86,7 +100,10 @@ class bitacoraModelo extends conexion {
     $camposIgnorar = ['contrasena_usuario'];
 
     $esLista = $this->esArrayIndexado($datosAntes) || $this->esArrayIndexado($datosDespues);
+<<<<<<< HEAD
+=======
 
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
     if ($esLista) {
       $resultado = $this->compararListas($datosAntes, $datosDespues);
       return $resultado;
@@ -130,7 +147,10 @@ class bitacoraModelo extends conexion {
   }
   private function esArrayIndexado(array $array): bool {
     if (empty($array)) return true;
+<<<<<<< HEAD
+=======
 
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
     $keys = array_keys($array);
     return $keys === range(0, count($array) - 1);
   }
@@ -204,8 +224,12 @@ class bitacoraModelo extends conexion {
     $cambios = [];
     $cambios['_lista'] = true;
 
+<<<<<<< HEAD
+    $claveId = $this->detectarClaveIdentificacion($listaAntes) ?? $this->detectarClaveIdentificacion($listaDespues);
+=======
     $claveId = $this->detectarClaveIdentificacion($listaAntes)
       ?? $this->detectarClaveIdentificacion($listaDespues);
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 
     if ($claveId === null) {
       foreach ($listaAntes as $itemAntes) {
@@ -232,7 +256,10 @@ class bitacoraModelo extends conexion {
 
       foreach ($listaDespues as $itemDespues) {
         if (!is_array($itemDespues)) continue;
+<<<<<<< HEAD
+=======
 
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
         if (isset($itemAntes[$claveId]) && isset($itemDespues[$claveId])) {
           if ($itemAntes[$claveId] === $itemDespues[$claveId]) {
             $diferencias = $this->compararRecursivo($itemAntes, $itemDespues);
@@ -283,6 +310,8 @@ class bitacoraModelo extends conexion {
 
     if (!empty($modificados)) {
       $cambios['_modificados'] = $modificados;
+<<<<<<< HEAD
+=======
     }
 
     if (!empty($eliminados)) {
@@ -291,7 +320,11 @@ class bitacoraModelo extends conexion {
 
     if (!empty($agregados)) {
       $cambios['_agregados'] = $agregados;
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
     }
+
+    if (!empty($eliminados)) $cambios['_eliminados'] = $eliminados;
+    if (!empty($agregados)) $cambios['_agregados'] = $agregados;
 
     return $cambios;
   }

@@ -70,8 +70,8 @@ echo $componente->listaDataTable($instruccionesLista);
                   data-prefijo=".selectPrefijoTelefono"
                   data-cuerpo=".telefonoProveedor"
                   class="input-group-text selectPrefijoTelefono"
-                  name="prefijo_telefono_proveedor"
-                  required>
+                  name="prefijo_telefono_proveedor">
+                  <option value="">S/N</option>
                   <option value="0416">0416</option>
                   <option value="0426">0426</option>
                   <option value="0424">0424</option>
@@ -94,17 +94,16 @@ echo $componente->listaDataTable($instruccionesLista);
                   minlength="<?php echo minRegexCuerpoTelefono ?>"
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
-                  maxlengthC="<?php echo maxRegexTelefono ?>"
-                  required>
+                  maxlengthC="<?php echo maxRegexTelefono ?>">
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="correo_proveedor" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control noRepetir" name="correo_proveedor" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" required>
+              <input type="email" class="form-control noRepetir" name="correo_proveedor" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" >
             </div>
             <div class="col-md-12 mb-3">
               <label for="direccion_proveedor" class="form-label">Dirección</label>
-              <textarea class="form-control" name="direccion_proveedor" rows="3" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" required></textarea>
+              <textarea class="form-control" name="direccion_proveedor" rows="3" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>"></textarea>
             </div>
           </div>
         </div>
@@ -149,7 +148,8 @@ echo $componente->listaDataTable($instruccionesLista);
                   data-cuerpo=".telefonoProveedor"
                   class="input-group-text formularioActualizar selectPrefijoTelefono"
                   name="prefijo_telefono_proveedor"
-                  required>
+                  >
+                  <option value="">S/N</option>
                   <option value="0416">0416</option>
                   <option value="0426">0426</option>
                   <option value="0424">0424</option>
@@ -173,16 +173,16 @@ echo $componente->listaDataTable($instruccionesLista);
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
                   maxlengthC="<?php echo maxRegexTelefono ?>"
-                  required>
+                  >
               </div>
             </div>
             <div class="col-md-12 mb-3">
               <label for="correo_proveedor" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control formularioActualizar noRepetir" name="correo_proveedor" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" required>
+              <input type="email" class="form-control formularioActualizar noRepetir" name="correo_proveedor" pattern="<?php echo regexCorreo ?>" minlength="<?php echo minRegexCorreo ?>" maxlength="<?php echo maxRegexCorreo ?>" >
             </div>
             <div class="col-md-12mb-3">
               <label for="direccion_proveedor" class="form-label">Dirección</label>
-              <textarea class="form-control formularioActualizar" name="direccion_proveedor" rows="3" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" required></textarea>
+              <textarea class="form-control formularioActualizar" name="direccion_proveedor" rows="3" pattern="<?php echo regexDescripcion ?>" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" ></textarea>
             </div>
           </div>
         </div>

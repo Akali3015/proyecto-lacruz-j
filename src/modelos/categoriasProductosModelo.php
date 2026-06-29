@@ -4,6 +4,7 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
+use src\modelos\mensajesWSModelo;
 
 class categoriasProductosModelo extends conexion {
   private int|string $idCategoria = 0;
@@ -143,9 +144,33 @@ class categoriasProductosModelo extends conexion {
     }
 
     $bitacoraModelo->registrarBitacora("Categorias de Productos", "Registrar", "Exito");
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['categoriasProductos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'categorias_productos'],
+        ['accion' => "actDT", 'modulo' => 'categorias_productos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Categorías',
+            'texto' => "Se ha registrado una nueva categoría de producto",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
-      "tipo" => "limpiarYcerrar",
+      "tipo" => "limpiar",
       "titulo" => "Registrada",
       "texto" => "Categoría exitosamente creada.",
       "icono" => "success"
@@ -176,6 +201,30 @@ class categoriasProductosModelo extends conexion {
       ];
     };
     $bitacoraModelo->registrarBitacora("Categorias de Productos", "Actualizar", "Exito");
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['categoriasProductos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'categorias_productos'],
+        ['accion' => "actDT", 'modulo' => 'categorias_productos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Categorías',
+            'texto' => "Se ha actualizado una categoría de producto",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -195,6 +244,30 @@ class categoriasProductosModelo extends conexion {
 
     if ($resultado == 1) {
       $modeloBitacora->registrarBitacora("Categorias de Productos", "Eliminar", "Exito");
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['categoriasProductos' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'categorias_productos'],
+          ['accion' => "actDT", 'modulo' => 'categorias_productos'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Categorías',
+              'texto' => "Se ha eliminado una categoría de producto",
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
+
       $this->commit();
       return [
         "tipo" => "simple",

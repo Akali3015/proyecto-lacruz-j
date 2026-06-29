@@ -116,9 +116,6 @@ class serviciosModelo extends conexion {
     }
     return $this->limpiar_Verificar($campos);
   }
-
-  // ─── SELECCIONAR ────────────────────────────────────────────────
-
   public function seleccionarServicios(array $info) {
     if (($info['id_servicio'] ?? '') != '') {
       $respuesta = $this->validarServicios([
@@ -130,9 +127,21 @@ class serviciosModelo extends conexion {
     }
     return $this->seleccionarServiciosP($info);
   }
+  public function obtenerParaChatbot() {
+    return $this->obtenerParaChatbotP();
+<<<<<<< HEAD
+=======
+  }
 
-  // ─── REGISTRAR ──────────────────────────────────────────────────
-
+  private function obtenerParaChatbotP() {
+    $resultado = $this->seleccionarDatos2([
+        'campos' => 'nombre_servicio, precio_servicio',
+        'tabla' => 'servicios',
+        'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
+  }
   public function registrarServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,
@@ -158,9 +167,6 @@ class serviciosModelo extends conexion {
 
     return $this->registrarServicioP();
   }
-
-  // ─── ACTUALIZAR ─────────────────────────────────────────────────
-
   public function actualizarServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,
@@ -188,9 +194,6 @@ class serviciosModelo extends conexion {
 
     return $this->actualizarServicioP();
   }
-
-  // ─── ELIMINAR ───────────────────────────────────────────────────
-
   public function eliminarServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,
@@ -201,9 +204,6 @@ class serviciosModelo extends conexion {
     $this->idServicio = $info['id_servicio'];
     return $this->eliminarServicioP();
   }
-
-  // ─── ACTUALIZAR FOTO ────────────────────────────────────────────
-
   public function actualizarFotoServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,
@@ -215,8 +215,14 @@ class serviciosModelo extends conexion {
     return $this->actualizarFotoServicioP();
   }
 
-  // ─── ELIMINAR FOTO ──────────────────────────────────────────────
-
+  private function obtenerParaChatbotP() {
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'nombre_servicio, precio_servicio',
+      'tabla' => 'servicios',
+      'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+  }
   public function eliminarFotoServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,
@@ -226,9 +232,6 @@ class serviciosModelo extends conexion {
     $this->idServicio = $info['id_servicio'];
     return $this->eliminarFotoServicioP();
   }
-
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-
   private function seleccionarServiciosP(array $info) {
     if ($this->idServicio == null || $this->idServicio == "") {
       $resultado = $this->seleccionarDatos2([
@@ -276,7 +279,6 @@ class serviciosModelo extends conexion {
       return $servicio;
     }
   }
-
   private function registrarServicioP() {
     $funcionError = function ($objBi) {
       $this->rollback();
@@ -359,7 +361,6 @@ class serviciosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function actualizarServicioP() {
     $SRV = 0;
     $PRS = 0;
@@ -444,7 +445,6 @@ class serviciosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function eliminarServicioP() {
     $funcionError = function ($objBi) {
       $this->rollback();
@@ -515,7 +515,6 @@ class serviciosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function actualizarFotoServicioP() {
     $nombreImagen = $this->Imagenes_Reg(
       'servicios',
@@ -548,7 +547,6 @@ class serviciosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function eliminarFotoServicioP() {
     $servicioActual = $this->seleccionarServicios(['id_servicio' => $this->idServicio]);
     if (($servicioActual['foto_servicio'] ?? '') != '') {

@@ -333,7 +333,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
       <div class="descuentoPedidoPorMayor d-flex justify-content-between mb-2">
         <span class="text-muted">Descuento por Mayor:</span>
         <div class="d-flex">
-          <span class="cantidadDescuentoPedidoPorMayor text-success fw-bold">0.00</span>
+          <span class="cantidadDescuentoPedidoPorMayor pe-1 text-success fw-bold">0.00</span>
           <span class="signoPrecio text-success fw-bold">Bs</span>
         </div>
       </div>

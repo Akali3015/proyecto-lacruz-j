@@ -3,7 +3,7 @@
 <div class="main-content px-4" id="mainContent">
   <div class="container py-5">
     <h2 class="text-center mb-5">Bienvenido a J.Lacruz</h2>
-    <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-center contenedorItemsInicio">
 
       <div class="col-md-4 col-lg-3">
         <a href="<?php echo APP_URL ?>clientes" style="text-decoration: none; color: inherit;">

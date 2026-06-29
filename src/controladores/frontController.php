@@ -5,18 +5,16 @@ namespace src\controladores;
 use src\modelos\accesosModelo;
 use src\modelos\traitModelo;
 
-class frontController
-{
+class frontController {
   use traitModelo;
-  
-  private $url;
-  private $vistasEstaticas;
-  private $controladores;
-  private $archivo;
-  private $objPermisos;
 
-  public function __construct()
-  {
+  private array|string $url = '';
+  private array $vistasEstaticas;
+  private array $controladores;
+  private string $archivo;
+  private ?accesosModelo $objPermisos = null;
+
+  public function __construct() {
     $this->objPermisos = new accesosModelo();
     $salidasFueraDeSesion = ['productos'];
     $this->controladores = [
@@ -25,6 +23,7 @@ class frontController
       'bitacora',
       'cambiosIva',
       'categoriasProductos',
+      'chatbot',
       'clientes',
       'compras',
       'empresasEnvios',
@@ -48,6 +47,7 @@ class frontController
       'proveedores',
       'repartidores',
       'reportes',
+      'reportesEstadisticos',
       'recepciones',
       'roles',
       'rutas',
@@ -71,29 +71,29 @@ class frontController
 
       if (in_array($this->url, $this->controladores) && isset($_SESSION['cedula'])) {
 
-        // if ($metodo == 'POST') {
-        //   $validacion = $this->objPermisos->validarPermisos($this->url, $accion);
-        //   $this->validarTokens();
-        // } else {
-        //   $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
-        // }
-        // if (isset($validacion['icono'])) {
-        //   $this->redireccionarUsuario();
-        //   return;
-        // }
+        if ($metodo == 'POST') {
+          $validacion = $this->objPermisos->validarPermisos($this->url, $accion);
+          $this->validarTokens();
+        } else {
+          $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
+        }
+        if (isset($validacion['icono'])) {
+          $this->redireccionarUsuario();
+          return;
+        }
 
-        // $vistasNoFuSe = [
-        //   'login',
-        //   'home',
-        //   'registrar-usuario',
-        //   'olvidar-contrasena-1',
-        //   'olvidar-contrasena-2'
-        // ];
-        // $vista = $urlCompleta[1] ?? $urlCompleta[0];
-        // if (isset($_SESSION['cedula']) && in_array($vista, $vistasNoFuSe)) {
-        //   $this->redireccionarUsuario();
-        //   return;
-        // }
+        $vistasNoFuSe = [
+          'login',
+          'home',
+          'registrar-usuario',
+          'olvidar-contrasena-1',
+          'olvidar-contrasena-2'
+        ];
+        $vista = $urlCompleta[1] ?? $urlCompleta[0];
+        if (isset($_SESSION['cedula']) && in_array($vista, $vistasNoFuSe)) {
+          $this->redireccionarUsuario();
+          return;
+        }
         if (is_file("src/controladores/" . $this->url . "Controlador.php")) {
           $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
           $_SESSION['vistaActual'] = $this->url;
@@ -127,8 +127,7 @@ class frontController
     }
     $this->llamarArchivo();
   }
-  private function llamarArchivo()
-  {
+  private function llamarArchivo() {
     if (file_exists($this->archivo)) {
       $urlActual = explode("/", ($_GET['views'] ?? ''));
       $url1 = $urlActual[0] ?? "";
@@ -138,8 +137,7 @@ class frontController
       $this->redireccionarUsuario();
     }
   }
-  private function transformarCuerpoAPost()
-  {
+  private function transformarCuerpoAPost() {
     if ($_SERVER["REQUEST_METHOD"] == 'POST') {
       if (isset($_POST['metadatos'])) {
         foreach (json_decode($_POST['metadatos'], true) as $clave => $valor) {
@@ -154,18 +152,17 @@ class frontController
           }
         }
       }
-      foreach($_FILES as $clave => $valor){
-        $_POST[$clave]=$valor;
+      foreach ($_FILES as $clave => $valor) {
+        $_POST[$clave] = $valor;
       }
     }
   }
-  private function validarTokens()
-  {
-    // $tokenCSRFRecibido = $_SERVER['HTTP_X_TOKEN_CSRF'] ?? '';
-    // $tokenCSRFSesion = $_SESSION['TOKEN_CSRF'] ?? '';
-    // if (empty($tokenCSRFSesion) || !hash_equals($tokenCSRFSesion, $tokenCSRFRecibido)) {
-    //   $this->redireccionarUsuario();
-    //   exit;
-    // }
+  private function validarTokens() {
+    $tokenCSRFRecibido = $_SERVER['HTTP_X_TOKEN_CSRF'] ?? '';
+    $tokenCSRFSesion = $_SESSION['TOKEN_CSRF'] ?? '';
+    if (empty($tokenCSRFSesion) || !hash_equals($tokenCSRFSesion, $tokenCSRFRecibido)) {
+      $this->redireccionarUsuario();
+      exit;
+    }
   }
 }

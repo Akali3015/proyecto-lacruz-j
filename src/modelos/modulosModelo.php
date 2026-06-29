@@ -6,13 +6,11 @@ use src\config\connect\conexion;
 use PDO;
 use src\modelos\bitacoraModelo;
 
-class modulosModelo extends conexion
-{
+class modulosModelo extends conexion {
   private int $idModulo = 0;
   private string $nombreModulo = '';
 
-  public function validarModulos(array $instruccionesVal)
-  {
+  public function validarModulos(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -53,8 +51,7 @@ class modulosModelo extends conexion
     }
     return $this->limpiar_Verificar($campos);
   }
-  public function seleccionarModulos($info=NULL)
-  {
+  public function seleccionarModulos($info = NULL) {
     if (($info['id_modulo'] ?? '') != "") {
       $resultado = $this->validarModulos([
         'infoVal' => &$info,
@@ -67,8 +64,7 @@ class modulosModelo extends conexion
     }
     return $this->seleccionarModulosP();
   }
-  public function registrarModulos(array $info)
-  {
+  public function registrarModulos(array $info) {
     $resultado = $this->validarModulos([
       'infoVal' => &$info,
       'camposVal' => [
@@ -80,8 +76,7 @@ class modulosModelo extends conexion
 
     return $this->registrarModulosP();
   }
-  public function actualizarModulos(array $info)
-  {
+  public function actualizarModulos(array $info) {
     $resultado = $this->validarModulos([
       'infoVal' => &$info,
       'camposVal' => [
@@ -95,8 +90,7 @@ class modulosModelo extends conexion
 
     return $this->actualizarModulosP();
   }
-  public function eliminarModulos(array $info)
-  {
+  public function eliminarModulos(array $info) {
     $resultado = $this->validarModulos([
       'infoVal' => &$info,
       'camposVal' => [
@@ -109,8 +103,7 @@ class modulosModelo extends conexion
   }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarModulosP()
-  {
+  private function seleccionarModulosP() {
     if ($this->idModulo == null || $this->idModulo == "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '*',
@@ -142,8 +135,7 @@ class modulosModelo extends conexion
       return $modulos;
     }
   }
-  private function registrarModulosP()
-  {
+  private function registrarModulosP() {
     $objBitacora = new bitacoraModelo();
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'modulos',
@@ -177,8 +169,7 @@ class modulosModelo extends conexion
     }
     return $alerta;
   }
-  private function actualizarModulosP()
-  {
+  private function actualizarModulosP() {
     $objBitacora = new bitacoraModelo();
     $resultado = $this->actualizarDatos2([
       'tabla' => 'modulos',
@@ -214,8 +205,7 @@ class modulosModelo extends conexion
     }
     return $alerta;
   }
-  private function eliminarModulosP()
-  {
+  private function eliminarModulosP() {
     $objBitacora = new bitacoraModelo();
     $eliminarUsuario = $this->eliminarDatos2([
       "tabla" => "modulos",

@@ -7,7 +7,7 @@ use PDO;
 use Exception;
 
 class exportarBDModelo extends conexion {
-  private $bases = [
+  private array $bases = [
     'proyecto_lacruz',
     'proyecto_lacruz_seguridad'
   ];
@@ -93,7 +93,6 @@ class exportarBDModelo extends conexion {
           if (is_null($v)) return "NULL";
           return "'" . addslashes($v) . "'";
         }, $fila);
-
         $dump .= "INSERT INTO `{$tabla}` VALUES (" . implode(", ", $valores) . ");\n";
       }
 

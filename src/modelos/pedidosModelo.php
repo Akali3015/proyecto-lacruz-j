@@ -2,13 +2,13 @@
 
 namespace src\modelos;
 
+use PDO;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\metodosPagoModelo;
 use src\modelos\presentacionesModelo;
 use src\modelos\rutasModelo;
 use src\modelos\cambiosIvaModelo;
-use PDO;
 use src\modelos\pdfModel;
 
 class pedidosModelo extends conexion {
@@ -226,7 +226,6 @@ class pedidosModelo extends conexion {
     return $this->listarPedidosP($info);
   }
   public function registrarPedidos(array $info) {
-
     $resultado = $this->validarPedidos($info, [
       'comprobantes_pago',
       'productos',
@@ -234,6 +233,7 @@ class pedidosModelo extends conexion {
       'delivery'
     ]);
     if ($resultado) return $resultado;
+
 
     [
       'productos' => $this->productosPedido,
@@ -250,6 +250,7 @@ class pedidosModelo extends conexion {
       'cedula_repartidor',
     ]);
     if ($resultado) return $resultado;
+
 
     $this->deliveryPedido['id_delivery'] = $info['id_delivery'];
     $this->idPedido = $info['id_pedido'];
@@ -386,7 +387,7 @@ class pedidosModelo extends conexion {
       $objProductos = new productosModelo();
       $productos = $objProductos->seleccionarProductos([
         'tipoConsulta' => 'productosFactura',
-        'id_orden_entrega_presupuesto' => $this->idPedido,
+        'id_factura' => $this->idPedido,
       ]);
 
       $totalProductos = 0;
@@ -595,6 +596,7 @@ class pedidosModelo extends conexion {
     $monedasBD = $objMon->seleccionarMonedas([
       'tipoConsulta' => 'indexadosPorId'
     ]);
+    unset($objMon);
     $dolar = $monedasBD[1];
     foreach ($this->pagosPedido as $pago) {
       $totalPagado += $pago['monto_pago'] * $monedasBD[$pago['id_moneda']]['valor_moneda'];
@@ -605,10 +607,12 @@ class pedidosModelo extends conexion {
     $productosBD = $objProd->seleccionarProductos([
       'tipoConsulta' => 'indexadosPorId'
     ]);
+    unset($objProd);
     $objPresentacion = new presentacionesModelo();
     $presentacionesBD = $objPresentacion->seleccionarPresentaciones([
       'tipoConsulta' => 'indexadosPorId'
     ]);
+    unset($objPresentacion);
 
     $descuentoStocks = [];
     foreach ($this->productosPedido as $producto) {
@@ -663,6 +667,7 @@ class pedidosModelo extends conexion {
       'tipoConsulta' => 'porKm',
       'km_recorrido' => $infoRuta['km_recorrido']
     ]);
+    unset($objRutas);
     if (isset($rutaBD['icono'])) return $rutaBD;
     $totalPagar += ($rutaBD['precio_ruta'] * $infoRuta['km_recorrido']) * $dolar['valor_moneda'];
 
@@ -681,11 +686,13 @@ class pedidosModelo extends conexion {
 
     // #region TRANSACCIÓN
 
+
     // Cambio IVA
     $objIva = new cambiosIvaModelo();
     $cambioIva = $objIva->seleccionarCambiosIva([
       'tipoConsulta' => 'ivaActual'
     ]);
+    unset($objIva);
 
     // Pedido
     $idPedido = $this->generarCodSeg([
@@ -777,6 +784,7 @@ class pedidosModelo extends conexion {
         'icono' => 'error',
       ];
     }
+
 
     // Detalles - pagos
     $this->pagosPedido = $this->indexarArrays([
@@ -938,6 +946,7 @@ class pedidosModelo extends conexion {
       ]
     ]);
 
+
     // Delivery
     $idDelivery = $this->generarCodSeg([
       'tablaBD' => 'deliveries',
@@ -962,8 +971,8 @@ class pedidosModelo extends conexion {
       ];
     }
 
-    $objetoNot = new mensajesWSModelo();
-    $resultado = $objetoNot->enviarMensajesWS([
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
       "receptor" => [
         'tipo' => 'porPermisos',
         'permisos' => [
@@ -992,7 +1001,10 @@ class pedidosModelo extends conexion {
       ],
       'noCommit' => true
     ]);
+    unset($objNot);
     if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
+
+
     $diferencias = $this->sacarDiferenciaBitacora([
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
@@ -1000,18 +1012,48 @@ class pedidosModelo extends conexion {
       'comprobantes_pago' => $comprobantesPagos,
     ], [], 'pedidos');
 
-    /* $datosDespues = [
+    $datosDespues = [
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
       'delivery' => $this->deliveryPedido,
       'comprobantes_pago' => $comprobantesPagos,
     ];
-    $datos = []; */
+
+    $datos = [
+      "productos" => [
+        [
+          "id_producto" => "PROD-26150-00001-39",
+          "id_presentacion" => "PRES-26123-00001-28",
+          "id_presentacion_producto" => "PRPR-26160-00001-60",
+          "cantidad" => 1
+        ]
+      ],
+      "pagos" => [
+        [
+          "id_metodo_pago" => "3",
+          "id_moneda" => "1",
+          "referencia_pago" => "123456",
+          "monto_pago" => 177
+        ]
+      ],
+      "delivery" => [
+        "latitud" => 9.857927907534492,
+        "longitud" => -69.61055517196657
+      ],
+      "comprobantes_pago" => [
+        "comprobantes_pagos_2026_06_22_18_18_15_38.jpg"
+      ]
+    ];
+
+    $datos = [];
     $rb = $objBitacora->registrarBitacora(
       'pedidos',
       'registrar pedido con id: ' . $idPedido,
       'Éxito',
+      false,
+      $datos
     );
+    unset($objBitacora);
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
     $this->commit();
@@ -1054,6 +1096,7 @@ class pedidosModelo extends conexion {
       ];
     }
 
+
     //status
     $resultado = $this->actualizarDatos2([
       'tabla' => 'ordenes_entregas_presupuestos',
@@ -1084,7 +1127,7 @@ class pedidosModelo extends conexion {
       'status_pedido' => $statusViejo,
     ];
     $diferencias = $this->sacarDiferenciaBitacora($loNuevo, $loViejo, 'pedidos');
-    
+
     $rb = $objBitacora->registrarBitacora('pedidos', 'Asignar Repartidor al pedido con id: ' . $this->idPedido, 'Éxito');
     if (($rb['icono'] ?? '') == 'error') return $rb;
 
@@ -1097,7 +1140,6 @@ class pedidosModelo extends conexion {
     ];
   }
   private function actualizarPedidoP() {
-
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
@@ -1105,10 +1147,52 @@ class pedidosModelo extends conexion {
     };
 
     $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
-    if (!isset($dataActualPedido['id_pedido'])) return $dataActualPedido;
+    if (!isset($dataActualPedido['id_orden_entrega_presupuesto'])) return $dataActualPedido;
+<<<<<<< HEAD
+
+    $resultado = $this->procesosAlmacenados([
+      'sp' => 'sp_cambiar_estado_pedido',
+      'parametros' => [
+        'sp_id_pedido' => $this->idPedido,
+        'sp_estado' => $this->statusPedido,
+      ]
+    ]);
+    if (!$resultado['exito']) {
+=======
     $productos = $dataActualPedido['productos'];
     $statusViejo = $dataActualPedido['status_pedido'];
+
+
+    $intruccionesPro = [
+      'sp' => 'sp_cambiar_estado_pedido',
+      'parametros' => [
+        'sp_id_pedido' => $this->idPedido,
+        'sp_estado' => $this->statusPedido,
+      ]
+    ];
+
+    $funcion = function ($instrucciones) {
+      $conexion = $this->conectar();
+
+      $sql = 'CALL ' . $instrucciones['sp'] . '(';
+      $c = 0;
+      foreach ($instrucciones['parametros'] ?? [] as $p => $v) {
+        $sql .= ':' . $p;
+        $c++;
+        if ($c < count($instrucciones['parametros'])) $sql .= ',';
+      }
+      $sql .= ')';
+      $consulta = $conexion->prepare($sql);
+      $resultado = $consulta->execute([
+        'sp_id_pedido' => '',
+        'sp_estado' => '',
+      ]);
+    };
+
     $productosViejos = [];
+
+
+    return $resultado;
 
     //Acciones expecíficas
     switch ($this->statusPedido) {
@@ -1121,6 +1205,7 @@ class pedidosModelo extends conexion {
             'WHERE' => [
               'id_producto' => $producto['id_producto']
             ]
+
           ])->fetch(PDO::FETCH_COLUMN);
           $cantidadBruta = $producto['cantidad_pmp'] * $producto['cantidad_producto'];
           $resultado = $this->actualizarDatos2([
@@ -1160,9 +1245,6 @@ class pedidosModelo extends conexion {
         }
         $productosViejos = $productos;
         break;
-      case 7:
-        $cedulaVendedor = $_SESSION['cedula'];
-        break;
     }
 
     //Estado
@@ -1176,8 +1258,8 @@ class pedidosModelo extends conexion {
         'id_orden_entrega_presupuesto' => $this->idPedido
       ]
     ]);
-
     if ($resultado <= 0 || $resultado == false) {
+>>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       $error();
       return [
         'tipo' => 'simple',
@@ -1186,23 +1268,26 @@ class pedidosModelo extends conexion {
         'icono' => 'error'
       ];
     }
-
     $nuevo = [
       'status_pedido' => $this->statusPedido
     ];
     $viejo = [
-      'status_pedido' => $statusViejo,
+      'status_pedido' =>  $dataActualPedido['status_pedido'],
     ];
-    if (count($productosViejos) > 0) {
+    if ($this->statusPedido == 6) {
       $nuevo['productos'] = [];
-      $viejo['productos'] = $productosViejos;
+      $viejo['productos'] = $dataActualPedido['productos'];
     }
-    $diferencias = $this->sacarDiferenciaBitacora($nuevo, $viejo, 'pedidos');
+
     $rb = $objBitacora->registrarBitacora(
       'pedidos',
       'Actualizar pedido con id: ' . $this->idPedido,
       'Éxito',
+      false,
+      $nuevo,
+      $viejo
     );
+
     if (($rb['icono'] ?? '') == 'error') return $rb;
     $this->commit();
     return [
