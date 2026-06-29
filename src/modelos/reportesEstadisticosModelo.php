@@ -5,11 +5,9 @@ namespace src\modelos;
 use src\config\connect\conexion;
 
 class reportesEstadisticosModelo extends conexion {
-<<<<<<< HEAD
   public function obtenerDatosDashboard(array $datos) {
     // Sanitización y armado de filtros (Regla 2, 3 y 4)
     $filtros = [
-<<<<<<< HEAD
       'ventas' => "AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
       'compras' => "AND c.fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
       'produccion' => "AND p.fecha_produccion >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
@@ -47,55 +45,6 @@ class reportesEstadisticosModelo extends conexion {
         foreach ($data as $row) {
           $labels[] = $row[$labelKey];
           $values[] = $row[$valueKey];
-=======
-=======
-  use traitModelo;
-
-  public function obtenerDatosDashboard(array $datos) {
-    // Sanitización y armado de filtros (Regla 2, 3 y 4)
-    $filtros = [
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-        'ventas' => "AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
-        'compras' => "AND c.fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
-        'produccion' => "AND p.fecha_produccion >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
-    ];
-
-    if (isset($datos['rango'])) {
-        if ($datos['rango'] === 'ultimos_3_meses') {
-            $filtros['ventas'] = "AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)";
-            $filtros['compras'] = "AND c.fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)";
-            $filtros['produccion'] = "AND p.fecha_produccion >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)";
-        } elseif ($datos['rango'] === 'personalizado' && !empty($datos['fecha_inicio']) && !empty($datos['fecha_fin'])) {
-            // Validar formato de fecha seguro (YYYY-MM-DD) para evitar inyecciones SQL
-            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $datos['fecha_inicio']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $datos['fecha_fin'])) {
-              $inicio = $datos['fecha_inicio'];
-              $fin = $datos['fecha_fin'] . ' 23:59:59';
-              $filtros['ventas'] = "AND o.fecha_orden_entrega_presupuesto BETWEEN '$inicio' AND '$fin'";
-              $filtros['compras'] = "AND c.fecha_compra BETWEEN '$inicio' AND '$fin'";
-              $filtros['produccion'] = "AND p.fecha_produccion BETWEEN '$inicio' AND '$fin'";
-            }
-        }
-    }
-    
-    // Llamar al método privado (Reglas 1 y 16)
-    return $this->obtenerDatosDashboardP($filtros);
-  }
-
-  private function obtenerDatosDashboardP(array $filtros) {
-    $this->conectar();
-    
-    try {
-      // Función lambda local para formatear datos para Chart.js
-      $formatChartData = function($data, $labelKey, $valueKey) {
-        if (!$data || empty($data)) return ['labels' => [], 'data' => []];
-        $labels = []; $values = [];
-        foreach ($data as $row) {
-            $labels[] = $row[$labelKey];
-            $values[] = $row[$valueKey];
-<<<<<<< HEAD
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
         }
         return ['labels' => $labels, 'data' => $values];
       };
@@ -141,22 +90,11 @@ class reportesEstadisticosModelo extends conexion {
       $stmt = self::$conexion->prepare("SELECT DATE_FORMAT(c.fecha_compra, '%Y-%m') as mes, COUNT(c.id_compra) as egresos_cant FROM compras c WHERE c.status = 1 AND c.fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY mes ORDER BY mes ASC");
       $stmt->execute();
       $egresos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       $meses = [];
       foreach (array_merge(array_column($ingresos, 'mes'), array_column($egresos, 'mes')) as $m) $meses[$m] = true;
       $meses = array_keys($meses);
       sort($meses);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
       $ingresosData = [];
       $egresosData = [];
       foreach ($meses as $mes) {
@@ -164,19 +102,6 @@ class reportesEstadisticosModelo extends conexion {
         $ingresosData[] = $keyIn !== false ? $ingresos[$keyIn]['ingresos_cant'] : 0;
         $keyEg = array_search($mes, array_column($egresos, 'mes'));
         $egresosData[] = $keyEg !== false ? $egresos[$keyEg]['egresos_cant'] : 0;
-=======
-=======
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-      $ingresosData = []; $egresosData = [];
-      foreach ($meses as $mes) {
-          $keyIn = array_search($mes, array_column($ingresos, 'mes'));
-          $ingresosData[] = $keyIn !== false ? $ingresos[$keyIn]['ingresos_cant'] : 0;
-          $keyEg = array_search($mes, array_column($egresos, 'mes'));
-          $egresosData[] = $keyEg !== false ? $egresos[$keyEg]['egresos_cant'] : 0;
-<<<<<<< HEAD
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       }
       $ingresosEgresos = empty($meses) ? ['fechas' => [], 'ingresos' => [], 'egresos' => []] : ['fechas' => $meses, 'ingresos' => $ingresosData, 'egresos' => $egresosData];
 
@@ -184,15 +109,6 @@ class reportesEstadisticosModelo extends conexion {
       $stmt1 = self::$conexion->prepare("SELECT COUNT(pof.id_producto_factura) as cant FROM productos_ordenes_entregas_presupuestos pof INNER JOIN ordenes_entregas_presupuestos o ON pof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status IN (7,8) $fVentas");
       $stmt1->execute();
       $p = $stmt1->fetchColumn() ?: 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       $stmt2 = self::$conexion->prepare("SELECT COUNT(sof.id_servicio_factura) as cant FROM servicios_ordenes_entregas_presupuestos sof INNER JOIN ordenes_entregas_presupuestos o ON sof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status IN (7,8) $fVentas");
       $stmt2->execute();
       $s = $stmt2->fetchColumn() ?: 0;
@@ -222,15 +138,6 @@ class reportesEstadisticosModelo extends conexion {
       $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status = 5");
       $stmt->execute();
       $pendientes = $stmt->fetchColumn() ?: 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status IN (7,8)");
       $stmt->execute();
       $pagadas = $stmt->fetchColumn() ?: 0;
@@ -267,21 +174,9 @@ class reportesEstadisticosModelo extends conexion {
 
       //Implementar Bitácora
       if (method_exists($this, 'guardar_bitacora')) {
-<<<<<<< HEAD
-<<<<<<< HEAD
         $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
       }
 
-=======
-         $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
-      }
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-=======
-         $this->guardar_bitacora(['accion' => 'Consultar Reportes Estadísticos']);
-      }
-      
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
       return $resultado;
     } catch (\Throwable $th) {
       return [

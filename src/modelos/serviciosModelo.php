@@ -129,34 +129,7 @@ class serviciosModelo extends conexion {
   }
   public function obtenerParaChatbot() {
     return $this->obtenerParaChatbotP();
-<<<<<<< HEAD
-=======
   }
-
-<<<<<<< HEAD
-=======
-  // Método exclusivo para uso del Chatbot
-  public function obtenerParaChatbot() {
-    return $this->obtenerParaChatbotP();
-  }
-
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-  private function obtenerParaChatbotP() {
-    $resultado = $this->seleccionarDatos2([
-        'campos' => 'nombre_servicio, precio_servicio',
-        'tabla' => 'servicios',
-        'WHERE' => ['status' => 1]
-    ]);
-    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
-<<<<<<< HEAD
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-  }
-=======
-  }
-
-  // ─── REGISTRAR ──────────────────────────────────────────────────
-
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
   public function registrarServicio(array $info) {
     $respuesta = $this->validarServicios([
       'infoVal' => &$info,

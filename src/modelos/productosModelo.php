@@ -233,16 +233,7 @@ class productosModelo extends conexion {
     return $this->seleccionarProductosP($info);
   }
   public function obtenerParaChatbot() {
-<<<<<<< HEAD
     return $this->obtenerParaChatbotP();
-=======
-    $resultado = $this->seleccionarDatos2([
-      'campos' => 'nombre_producto, precio_producto, stock_producto',
-      'tabla' => 'productos',
-      'WHERE' => ['status' => 1]
-    ]);
-    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
   }
   public function registrarProductos(array $info) {
     $respuesta = $this->validarProductos([
@@ -409,11 +400,7 @@ class productosModelo extends conexion {
           return $this->seleccionarDatos2([
             'tabla' => 'ordenes_entregas_presupuestos as f',
             'campos' => '*,
-<<<<<<< HEAD
               ROUND(( 
-=======
-              ( 
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
                 SELECT prpr.precio_producto 
                 FROM precios_productos as prpr 
                 WHERE prpr.id_producto = pr.id_producto AND prpr.fecha_cambio <= f.fecha_orden_entrega_presupuesto 

@@ -575,11 +575,8 @@ class pdfModel extends FPDF {
   public function CSE(string $string) {
     return mb_convert_encoding($string, 'ISO-8859-1', 'UTF-8');
   }
-<<<<<<< HEAD
   public function cell2(int $ancho, int $alto = 0, string $texto = '', string|int $borde = 0, int $saltoLinea = 0, string $alineacion = '', $colorFondo = false, $hipervinculo = '') {
     $texto = mb_convert_encoding($texto, 'ISO-8859-1', 'UTF-8');
     $this->Cell($ancho, $alto, $texto, $borde, $saltoLinea, $alineacion, $colorFondo, $hipervinculo);
   }
-=======
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
 }

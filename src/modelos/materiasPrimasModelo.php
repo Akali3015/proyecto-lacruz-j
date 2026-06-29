@@ -5,8 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 
-class materiasPrimasModelo extends conexion
-{
+class materiasPrimasModelo extends conexion {
   private string $idMateriaPrima = '';
   private string $idUnidadMedida = '';
   private string $nombreMateriaPrima = '';
@@ -29,8 +28,7 @@ class materiasPrimasModelo extends conexion
     }
   }
 
-  public function validarMateriasPrimas(array $instruccionesVal)
-  {
+  public function validarMateriasPrimas(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -137,8 +135,7 @@ class materiasPrimasModelo extends conexion
     }
     return $this->limpiar_Verificar($campos);
   }
-  public function seleccionarMateriasPrimas($info = null)
-  {
+  public function seleccionarMateriasPrimas($info = null) {
     if (isset($info['id_materia_prima'])) {
       $resultado = $this->validarMateriasPrimas([
         'infoVal' => &$info,
@@ -151,8 +148,7 @@ class materiasPrimasModelo extends conexion
     }
     return $this->seleccionarMateriasPrimasP();
   }
-  public function registrarMateriasPrimas(array $info)
-  {
+  public function registrarMateriasPrimas(array $info) {
     $resultado = $this->validarMateriasPrimas([
       'infoVal' => &$info,
       'camposVal' => [
@@ -175,8 +171,7 @@ class materiasPrimasModelo extends conexion
 
     return $this->registrarMateriasPrimasP();
   }
-  public function actualizarMateriasPrimas(array $info)
-  {
+  public function actualizarMateriasPrimas(array $info) {
     $resultado = $this->validarMateriasPrimas([
       'infoVal' => &$info,
       'camposVal' => [
@@ -201,8 +196,7 @@ class materiasPrimasModelo extends conexion
 
     return $this->actualizarMateriasPrimasP();
   }
-  public function eliminarMateriasPrimas(array $info)
-  {
+  public function eliminarMateriasPrimas(array $info) {
     $resultado = $this->validarMateriasPrimas([
       'infoVal' => &$info,
       'camposVal' => [
@@ -214,8 +208,7 @@ class materiasPrimasModelo extends conexion
     return $this->eliminarMateriasPrimasP();
   }
 
-  private function seleccionarMateriasPrimasP()
-  {
+  private function seleccionarMateriasPrimasP() {
     if ($this->idMateriaPrima == null || $this->idMateriaPrima == "") {
       $instruccionesBD = [
         'campos' => '
@@ -258,8 +251,7 @@ class materiasPrimasModelo extends conexion
       return $materiaPrima;
     }
   }
-  private function registrarMateriasPrimasP()
-  {
+  private function registrarMateriasPrimasP() {
     $idMateriaPrima = $this->generarCodSeg([
       'tablaBD' => 'materias_primas',
       'prefijo' => 'MATE',
@@ -326,8 +318,7 @@ class materiasPrimasModelo extends conexion
     }
     return $alerta;
   }
-  private function actualizarMateriasPrimasP()
-  {
+  private function actualizarMateriasPrimasP() {
     $MAT = 0;
     $PRE = 0;
 
@@ -415,8 +406,7 @@ class materiasPrimasModelo extends conexion
       "icono" => "success"
     ];
   }
-  private function eliminarMateriasPrimasP()
-  {
+  private function eliminarMateriasPrimasP() {
     $objBitacora = new bitacoraModelo();
     $error = function ($objBi) {
       $this->rollback();

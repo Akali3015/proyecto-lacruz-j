@@ -1148,129 +1148,15 @@ class pedidosModelo extends conexion {
 
     $dataActualPedido = $this->listarPedidos(['id_pedido' => $this->idPedido]);
     if (!isset($dataActualPedido['id_orden_entrega_presupuesto'])) return $dataActualPedido;
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-    $resultado = $this->procesosAlmacenados([
+    $this->procesosAlmacenados([
       'sp' => 'sp_cambiar_estado_pedido',
       'parametros' => [
         'sp_id_pedido' => $this->idPedido,
         'sp_estado' => $this->statusPedido,
       ]
     ]);
-    if (!$resultado['exito']) {
-=======
-=======
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-    $productos = $dataActualPedido['productos'];
-    $statusViejo = $dataActualPedido['status_pedido'];
 
-
-    $intruccionesPro = [
-      'sp' => 'sp_cambiar_estado_pedido',
-      'parametros' => [
-        'sp_id_pedido' => $this->idPedido,
-        'sp_estado' => $this->statusPedido,
-      ]
-    ];
-
-    $funcion = function ($instrucciones) {
-      $conexion = $this->conectar();
-
-      $sql = 'CALL ' . $instrucciones['sp'] . '(';
-      $c = 0;
-      foreach ($instrucciones['parametros'] ?? [] as $p => $v) {
-        $sql .= ':' . $p;
-        $c++;
-        if ($c < count($instrucciones['parametros'])) $sql .= ',';
-      }
-      $sql .= ')';
-      $consulta = $conexion->prepare($sql);
-      $resultado = $consulta->execute([
-        'sp_id_pedido' => '',
-        'sp_estado' => '',
-      ]);
-    };
-
-    $productosViejos = [];
-
-
-    return $resultado;
-
-    //Acciones expecíficas
-    switch ($this->statusPedido) {
-      case 6: //Cancelado
-        //Devolver stock de los productos
-        foreach ($productos as $producto) {
-          $stockActual = $this->seleccionarDatos2([
-            'tabla' => 'productos',
-            'campos' => 'stock_producto',
-            'WHERE' => [
-              'id_producto' => $producto['id_producto']
-            ]
-
-          ])->fetch(PDO::FETCH_COLUMN);
-          $cantidadBruta = $producto['cantidad_pmp'] * $producto['cantidad_producto'];
-          $resultado = $this->actualizarDatos2([
-            'tabla' => 'productos',
-            'datos' => [
-              'stock_producto' => $stockActual + $cantidadBruta,
-            ],
-            'WHERE' => [
-              'id_producto' => $producto['id_producto']
-            ]
-          ]);
-          if ($resultado <= 0 || $resultado == false) {
-            $error();
-            return [
-              'tipo' => 'simple',
-              'titulo' => 'Error en la actualización',
-              'texto' => 'Ocurrió un error en la actualización del stock de los productos',
-              'icono' => 'error'
-            ];
-          }
-        }
-        //Borrar los supuestos "pagos"
-        $resultado = $this->eliminarDatos2([
-          'tabla' => 'pagos',
-          'WHERE' => [
-            'id_orden_entrega_presupuesto' => $this->idPedido
-          ]
-        ]);
-        if ($resultado <= 0 || $resultado == false) {
-          $error();
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'Error en la actualización',
-            'texto' => 'Ocurrió un error eliminando los pagos del pedido',
-            'icono' => 'error'
-          ];
-        }
-        $productosViejos = $productos;
-        break;
-    }
-
-    //Estado
-    $resultado = $this->actualizarDatos2([
-      'tabla' => 'ordenes_entregas_presupuestos',
-      'datos' => [
-        'cedula_usuario' => $_SESSION['cedula'],
-        'status' => $this->statusPedido,
-      ],
-      'WHERE' => [
-        'id_orden_entrega_presupuesto' => $this->idPedido
-      ]
-    ]);
-    if ($resultado <= 0 || $resultado == false) {
->>>>>>> 3846421cf5efb48613d85c33c8d9e18934dd566f
-      $error();
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Error en la actualización',
-        'texto' => 'No se pudo actualizar el estado del pedido',
-        'icono' => 'error'
-      ];
-    }
     $nuevo = [
       'status_pedido' => $this->statusPedido
     ];
