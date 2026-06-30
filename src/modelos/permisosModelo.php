@@ -138,12 +138,7 @@ class permisosModelo extends conexion {
   }
   private function registrarPermisosP() {
     $objBitacora = new bitacoraModelo();
-    
-    $permisosJson = [
-      'nombre_permiso' => $this->nombrePermiso,
-      'accion' => 'registro nuevo'
-    ];
-    
+
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'permisos',
       'BD' => 'seguridad',
@@ -153,7 +148,11 @@ class permisosModelo extends conexion {
     ]);
     
     if ($ultimoId !== false && $ultimoId > 0) {
-      $objBitacora->registrarBitacora('permisos', 'Registrar', 'Éxito', $permisosJson);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'registrar',
+        'resultado' => 'Éxito',  
+      ]);
       $alerta = [
         "tipo" => "limpiarYcerrar",
         "titulo" => "Permiso registrado",
@@ -189,7 +188,12 @@ class permisosModelo extends conexion {
         ]);
       $this->commit();
     } else {
-      $objBitacora->registrarBitacora('permisos', 'Registrar', 'Error', $permisosJson);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'commit' => true,
+      ]);
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Permiso no registrado",
@@ -202,13 +206,7 @@ class permisosModelo extends conexion {
   }
   private function actualizarPermisosP() {
     $objBitacora = new bitacoraModelo();
-    
-    $permisosJson = [
-      'id_permiso' => $this->idPermiso,
-      'nombre_permiso' => $this->nombrePermiso,
-      'fecha' => date('Y-m-d H:i:s')
-    ];
-    
+    $viejo = $this->seleccionarPermisos(['id_permiso' => $this->idPermiso]);
     $resultado = $this->actualizarDatos2([
       'tabla' => 'permisos',
       'BD' => 'seguridad',
@@ -221,7 +219,12 @@ class permisosModelo extends conexion {
     ]);
     
     if ($resultado == false || $resultado <= 0) {
-      $objBitacora->registrarBitacora('permisos', 'actualizar permiso con id: ' . $this->idPermiso, 'Sin cambios', $permisosJson);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'Actualizar con id'.$this->idPermiso,
+        'resultado' => 'Sin cambios',
+        'commit' => true
+      ]);
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
@@ -229,7 +232,14 @@ class permisosModelo extends conexion {
         "icono" => "warning",
       ];
     } else {
-      $objBitacora->registrarBitacora('permisos', 'actualizar permiso con id: ' . $this->idPermiso, 'Éxito', $permisosJson);
+      $nuevo = $this->seleccionarPermisos(['id_permiso' => $this->idPermiso]);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'Actualizar con id '.$this->idPermiso,
+        'resultado' => 'Éxito',
+        'viejo' => $viejo,
+        'nuevo' => $nuevo
+      ]);
       $alerta = [
         "tipo" => "limpiarYcerrar",
         "titulo" => "Permiso actualizado",
@@ -268,17 +278,7 @@ class permisosModelo extends conexion {
     return $alerta;
   }
   private function eliminarPermisosP() {
-    $objBitacora = new bitacoraModelo();
-  
-    $permiso = $this->seleccionarPermisos(['id_permiso' => $this->idPermiso]);
-    
-    $permisosJson = [
-      'id_permiso' => $this->idPermiso,
-      'nombre_permiso' => is_array($permiso) ? ($permiso['nombre_permiso'] ?? 'desconocido') : 'desconocido',
-      'accion' => 'eliminacion',
-      'fecha' => date('Y-m-d H:i:s')
-    ];
-    
+    $objBitacora = new bitacoraModelo();  
     $eliminarPermisos = $this->eliminarDatos2([
       "tabla" => "permisos",
       'BD' => 'seguridad',
@@ -288,7 +288,11 @@ class permisosModelo extends conexion {
     ]);
     
     if ($eliminarPermisos == 1) {
-      $objBitacora->registrarBitacora('permisos', 'eliminar permiso con id: ' . $this->idPermiso, 'Éxito', $permisosJson);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'Eliminar con id '.$this->idPermiso,
+        'resultado' => 'Éxito',
+      ]);
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Permiso eliminado",
@@ -325,7 +329,12 @@ class permisosModelo extends conexion {
         ]);
       $this->commit();
     } else {
-      $objBitacora->registrarBitacora('permisos', 'eliminar permiso con id: ' . $this->idPermiso, 'Error', $permisosJson);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'permisos',
+        'accion' => 'Eliminar con id '.$this->idPermiso,
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Permiso no encontrado",

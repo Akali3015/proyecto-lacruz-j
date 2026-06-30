@@ -230,7 +230,12 @@ class rutasModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $alertaError = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('rutas', 'registrar', 'fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'rutas',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Ruta no registrada",
@@ -238,18 +243,25 @@ class rutasModelo extends conexion {
         "icono" => "error",
       ];
     };
+    $datosGuardar = [
+      "nombre_ruta" => $this->nombreRuta,
+      "precio_ruta" => $this->precioRuta,
+      "minimo_km_ruta" => $this->minimoKmRuta,
+      "maximo_km_ruta" => $this->maximoKmRuta,
+    ];
     $resultado = $this->guardarDatos2([
       'tabla' => 'rutas',
-      'datos' => [
-        "nombre_ruta" => $this->nombreRuta,
-        "precio_ruta" => $this->precioRuta,
-        "minimo_km_ruta" => $this->minimoKmRuta,
-        "maximo_km_ruta" => $this->maximoKmRuta,
-      ]
+      'datos' => $datosGuardar
     ]);
     if ($resultado == false || $resultado <= 0) return $alertaError();
-    $rb = $objBitacora->registrarBitacora('rutas', 'registrar', 'éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'rutas',
+      'accion' => 'Registrar',
+      'resultado' => 'Éxito',
+      'nuevo' => $datosGuardar,
+    ]);
+    if ($rb) return $rb;
 
     $this->commit();
     return   [
@@ -260,10 +272,16 @@ class rutasModelo extends conexion {
     ];
   }
   private function actualizarRutasP() {
+    $datosActuales = $this->seleccionarRutas(['id_ruta' => $this->idRuta]);
     $objBitacora = new bitacoraModelo();
     $alertaError = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('rutas', 'actualizar', 'fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'rutas',
+        'accion' => 'Actualizar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
@@ -284,9 +302,17 @@ class rutasModelo extends conexion {
       ]
     ]);
     if ($resultado == false || $resultado <= 0) return $alertaError();
-    $rb = $objBitacora->registrarBitacora('rutas', 'actualizar', 'éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
-    $this->commit();;
+
+    $datosDespues = $this->seleccionarRutas(['id_ruta' => $this->idRuta]);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'rutas',
+      'accion' => 'Actualizar',
+      'resultado' => 'Éxito',
+      'viejo' => $datosActuales,
+      'nuevo' => $datosDespues
+    ]);
+    if ($rb) return $rb;
+    $this->commit();
     return  [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Ruta actualizada",
@@ -303,7 +329,12 @@ class rutasModelo extends conexion {
       ]
     ]);
     if ($eliminarUsuario <= 0) {
-      $objBitacora->registrarBitacora('rutas', 'eliminar', 'fallido', true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'rutas',
+        'accion' => 'Eliminar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Ruta no encontrado",
@@ -311,8 +342,12 @@ class rutasModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $rb = $objBitacora->registrarBitacora('rutas', 'eliminar', 'éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'rutas',
+      'accion' => 'Eliminar',
+      'resultado' => 'Éxito',
+    ]);
+    if ($rb) return $rb;
 
     $this->commit();
     return [

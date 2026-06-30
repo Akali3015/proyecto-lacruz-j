@@ -305,7 +305,12 @@ class inventarioModelo extends conexion {
     ]);
 
     if ($resultado->rowCount() <= 0) {
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Producto',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Presentación no encontrada",
@@ -324,7 +329,12 @@ class inventarioModelo extends conexion {
     $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
 
     if ($this->tipoMovimiento == 0 && $nuevoStock < 0) {
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Producto',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Stock insuficiente",
@@ -347,7 +357,12 @@ class inventarioModelo extends conexion {
 
     if ($ultimoId === false || $ultimoId <= 0) {
       $this->rollback();
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Producto',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Movimiento no registrado",
@@ -390,7 +405,6 @@ class inventarioModelo extends conexion {
         ]
       ]);
     }
-
     // Actualizar stock del producto
     $this->actualizarDatos2([
       'tabla' => 'productos',
@@ -398,9 +412,11 @@ class inventarioModelo extends conexion {
       'WHERE' => ['id_producto' => $idProducto]
     ]);
 
-    $this->commit();
-
-    $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de producto", "Éxito", true);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'inventario',
+      'accion' => 'Registrar Anomalia de Producto',
+      'resultado' => 'Éxito',
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $tipoTexto = $this->tipoMovimiento == 1 ? 'CARGA' : 'DESCARGA';
@@ -430,6 +446,8 @@ class inventarioModelo extends conexion {
       ],
       'noCommit' => true
     ]);
+    
+    $this->commit();
 
     return [
       "tipo" => "limpiarYcerrar",
@@ -450,7 +468,12 @@ class inventarioModelo extends conexion {
     ]);
 
     if ($resultado->rowCount() <= 0) {
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Materia Prima',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Materia prima no encontrada",
@@ -466,7 +489,12 @@ class inventarioModelo extends conexion {
     $nuevoStock = ($this->tipoMovimiento == 1) ? $stockActual + $this->cantidadMovimiento : $stockActual - $this->cantidadMovimiento;
 
     if ($this->tipoMovimiento == 0 && $nuevoStock < 0) {
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Materia Prima',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Stock insuficiente",
@@ -489,7 +517,12 @@ class inventarioModelo extends conexion {
 
     if ($ultimoId === false || $ultimoId <= 0) {
       $this->rollback();
-      $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Error", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'inventario',
+        'accion' => 'Registrar Anomalia de Materia Prima',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Movimiento no registrado",
@@ -505,9 +538,11 @@ class inventarioModelo extends conexion {
       'WHERE' => ['id_materia_prima' => $this->idMateriaPrima]
     ]);
 
-    $this->commit();
-
-    $objBitacora->registrarBitacora("Inventario", "Registrar movimiento de materia prima", "Éxito", true);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'inventario',
+      'accion' => 'Registrar Anomalia de Materia Prima',
+      'resultado' => 'Éxito',
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $tipoTexto = $this->tipoMovimiento == 1 ? 'CARGA' : 'DESCARGA';
@@ -537,7 +572,7 @@ class inventarioModelo extends conexion {
       ],
       'noCommit' => true
     ]);
-
+    $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Movimiento registrado",

@@ -950,7 +950,6 @@ class pedidosModelo extends conexion {
       ]
     ]);
 
-
     // Delivery
     $idDelivery = $this->generarCodSeg([
       'tablaBD' => 'deliveries',
@@ -1012,8 +1011,8 @@ class pedidosModelo extends conexion {
       'modulo' => 'pedidos',
       'accion' => 'registrar',
       'resultado' => 'Éxito',
-      'antes' => [],
-      'despues' => [
+      'viejo' => [],
+      'nuevo' => [
         'productos' => $this->productosPedido,
         'pagos' => $this->pagosPedido,
         'delivery' => $this->deliveryPedido,
@@ -1040,7 +1039,7 @@ class pedidosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $rb = $objBitacora->registrarBitacora([
+      $objBitacora->registrarBitacora([
         'modulo' => 'pedidos',
         'accion' => 'Asignar Repartidor al pedido (' . $this->idPedido . ')',
         'resultado' => 'Fallido',
@@ -1093,16 +1092,16 @@ class pedidosModelo extends conexion {
       'modulo' => 'pedidos',
       'accion' => 'Asignar Repartidor al pedido (' . $this->idPedido . ')',
       'resultado' => 'Éxito',
-      'antes' => [
+      'viejo' => [
         'status_pedido' => $statusViejo,
       ],
-      'despues' => [
+      'nuevo' => [
         'status_pedido' => 7,
         'cedula_repartidor' => $this->deliveryPedido['cedula_repartidor'],
         'cedula_usuario' => $_SESSION['cedula'],
       ]
     ]);
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    if ($rb) return $rb;
 
     $this->commit();
     return [
@@ -1116,7 +1115,7 @@ class pedidosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $rb = $objBitacora->registrarBitacora([
+      $objBitacora->registrarBitacora([
         'modulo' => 'pedidos',
         'accion' => 'Actualizar pedido (' . $this->idPedido . ')',
         'resultado' => 'Fallido',
@@ -1159,10 +1158,10 @@ class pedidosModelo extends conexion {
       'modulo' => 'pedidos',
       'accion' => 'Actualizar pedido (' . $this->idPedido . ')',
       'resultado' => 'Éxito',
-      'antes' => $viejo,
-      'despues' => $nuevo
+      'viejo' => $viejo,
+      'nuevo' => $nuevo
     ]);
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    if ($rb) return $rb;
     $this->commit();
     return [
       'tipo' => 'simple',
@@ -1186,7 +1185,7 @@ class pedidosModelo extends conexion {
       'accion' => 'Imprimir pedido (' . $this->idPedido . ')',
       'resultado' => 'Éxito',
     ]);
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    if ($rb) return $rb;
     return $objReportes->notaEntrega();
   }
 }

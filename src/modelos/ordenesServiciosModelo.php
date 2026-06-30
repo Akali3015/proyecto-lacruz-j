@@ -242,7 +242,12 @@ class ordenesServiciosModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
       $this->rollback();
-      $objBitacora->registrarBitacora('ordenesServicios', 'Actualización de orden de servicio', 'Fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'ordenesServicios',
+        'accion' => 'Actualizar con id '.$this->idOrdenServicio,
+        'resultado' => 'Fallido',
+        'commit' => true,
+      ]);
     };
     $ordenAntes = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
     if (isset($ordenAntes['icono']) && $ordenAntes['icono'] == 'error') {
@@ -371,19 +376,15 @@ class ordenesServiciosModelo extends conexion {
         'icono' => 'error'
       ];
     }
-
-    $this->commit();
-
     $ordenDespues = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
 
-    $objBitacora->registrarBitacora(
-      'ordenesServicios',
-      'Actualización del estado de la orden de servicio',
-      'Éxito',
-      true,
-      $ordenAntes,
-      $ordenDespues
-    );
+    $objBitacora->registrarBitacora([
+      'modulo' => 'ordenesServicios',
+      'accion' => 'Actualizar con id '.$this->idOrdenServicio,
+      'resultado' => 'Éxito',
+      'viejo' => $ordenAntes,
+      'nuevo' => $ordenDespues
+    ]);
     $estadosTexto = [1 => 'Pendiente', 2 => 'Ejecutada', 3 => 'Retrasada', 4 => 'Cancelada'];
 
     $objMensajesWS = new mensajesWSModelo();
@@ -414,6 +415,7 @@ class ordenesServiciosModelo extends conexion {
       ],
       'noCommit' => true
     ]);
+    $this->commit();
 
     $mensajeExito = '';
     if ($this->nuevoStatus == 4) {

@@ -128,8 +128,12 @@ class empresasEnviosModelo extends conexion {
       ]
     ]);
     if ($ultimoId == false || $ultimoId <= 0) {
-      $rb = $objBitacora->registrarBitacora('roles', 'Registrar', 'Error', true);
-      if (($rb['icono'] ?? '') == 'error') return $rb;
+      $objBitacora->registrarBitacora([
+        'modulo' => 'empresasEnvios',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Empresa de envíos no registrada",
@@ -137,9 +141,15 @@ class empresasEnviosModelo extends conexion {
         "icono" => "error",
       ];
     }
-
-    $rb = $objBitacora->registrarBitacora('empresasEnvios', 'Registrar', 'Éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'empresasEnvios',
+      'accion' => 'Registrar',
+      'resultado' => 'Éxito',
+      'nuevo' => [
+        "nombre_empresa" => $this->nombreEmpresaEnvios,
+      ]
+    ]);
+    if ($rb) return $rb;
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -150,6 +160,7 @@ class empresasEnviosModelo extends conexion {
   }
   private function actualizarEmpresasEnviosP() {
     $objBitacora = new bitacoraModelo();
+    $datosViejos = $this->seleccionarEmpresasEnvios(['id_empresa_envios' => $this->idEmpresaEnvios]);
     $resultado = $this->actualizarDatos2([
       'tabla' => 'empresas_envios',
       'datos' => [
@@ -160,9 +171,13 @@ class empresasEnviosModelo extends conexion {
       ]
     ]);
 
-
     if ($resultado == false || $resultado <= 0) {
-      $rb = $objBitacora->registrarBitacora('roles', 'actualizar Empresa de envíos con id: ' . $this->idEmpresaEnvios, 'Error', true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'empresasEnvios',
+        'accion' => 'actualizar Empresa de envíos con id: ' . $this->idEmpresaEnvios,
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       if ($rb) return $rb;
       return [
         "tipo" => "simple",
@@ -171,7 +186,15 @@ class empresasEnviosModelo extends conexion {
         "icono" => "warning",
       ];
     }
-    $rb = $rb = $objBitacora->registrarBitacora('roles', 'actualizar Empresa de envíos con id: ' . $this->idEmpresaEnvios, 'Éxito');
+
+    $datosNuevos = $this->seleccionarEmpresasEnvios(['id_empresa_envios' => $this->idEmpresaEnvios]);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'empresasEnvios',
+      'accion' => 'actualizar Empresa de envíos con id: ' . $this->idEmpresaEnvios,
+      'resultado' => 'Éxito',
+      'viejo' => $datosViejos,
+      'nuevo' => $datosNuevos
+    ]);
     if ($rb) return $rb;
     $this->commit();
     return [
@@ -190,7 +213,12 @@ class empresasEnviosModelo extends conexion {
       ]
     ]);
     if ($eliminarUsuario <= 0) {
-      $rb = $objBitacora->registrarBitacora('empresasEnvios', 'eliminar Empresa de envíos con id: ' . $this->idEmpresaEnvios, 'Error', true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'empresasEnvios',
+        'accion' => 'Eliminar Empresa de envíos con id: ' . $this->idEmpresaEnvios,
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       if ($rb) return $rb;
       return [
         "tipo" => "simple",
@@ -200,7 +228,11 @@ class empresasEnviosModelo extends conexion {
       ];
     }
 
-    $rb = $objBitacora->registrarBitacora('empresasEnvios', 'eliminar Empresa de envíos con id: ' . $this->idEmpresaEnvios, 'Éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'empresasEnvios',
+      'accion' => 'Eliminar Empresa de envíos con id: ' . $this->idEmpresaEnvios,
+      'resultado' => 'Éxito',
+    ]);
     if ($rb) return $rb;
     $this->commit();
     return [

@@ -325,30 +325,30 @@ class usuariosModelo extends conexion {
   public function iniciarSesionUsuarios(array $info) {
 
     // Enviar verificacion interna al servidor de Google
-    // if (empty($info['g-recaptcha-response'])) {
-    //   return [
-    //     "tipo" => "simple",
-    //     "titulo" => "Seguridad",
-    //     "texto" => "Falta completar la validación del puzle de seguridad.",
-    //     "icono" => "error"
-    //   ];
-    // }
-    // $resultadoCaptcha = $this->hacerPeticionesAPIs([
-    //   'url' => 'https://www.google.com/recaptcha/api/siteverify',
-    //   'datosPe' => [
-    //     'secret'   => '6LdSVPgsAAAAAFAQ6_8Z-y0Q_0s-Xy3XVLGtydmw',
-    //     'response' => $info['g-recaptcha-response'],
-    //     'remoteip' => $_SERVER['REMOTE_ADDR']
-    //   ]
-    // ]);
-    // if (($resultadoCaptcha['success'] ?? false) != true) {
-    //   return [
-    //     "tipo" => "simple",
-    //     "titulo" => "Fallo de Seguridad",
-    //     "texto" => "La verificación del captcha falló. Inténtelo nuevamente.",
-    //     "icono" => "error"
-    //   ];
-    // }
+    /* if (empty($info['g-recaptcha-response'])) {
+      return [
+        "tipo" => "simple",
+        "titulo" => "Seguridad",
+        "texto" => "Falta completar la validación del puzle de seguridad.",
+        "icono" => "error"
+      ];
+    }
+    $resultadoCaptcha = $this->hacerPeticionesAPIs([
+      'url' => 'https://www.google.com/recaptcha/api/siteverify',
+      'datosPe' => [
+        'secret'   => '6LdSVPgsAAAAAFAQ6_8Z-y0Q_0s-Xy3XVLGtydmw',
+        'response' => $info['g-recaptcha-response'],
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+      ]
+    ]);
+    if (($resultadoCaptcha['success'] ?? false) != true) {
+      return [
+        "tipo" => "simple",
+        "titulo" => "Fallo de Seguridad",
+        "texto" => "La verificación del captcha falló. Inténtelo nuevamente.",
+        "icono" => "error"
+      ];
+    } */
 
     $resultado = $this->validarUsuarios([
       'infoVal' => &$info,
@@ -403,7 +403,12 @@ class usuariosModelo extends conexion {
     $error = function () use ($fotoUsuario, $objBitacora) {
       $this->rollback();
       if (isset($_SESSION['cedula'])) {
-        $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'Fallido', true);
+        $objBitacora->registrarBitacora([
+          'modulo' => 'usuarios',
+          'accion' => 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
       }
       if ($fotoUsuario != '') $this->Imagenes_Eli2('usuarios', $fotoUsuario);
     };
@@ -455,11 +460,13 @@ class usuariosModelo extends conexion {
       if (($resultado['icono'] ?? '') != 'success') return $resultado;
     }
 
-    $diferencias = $this->sacarDiferenciaBitacora($datoNuevos, [], 'usuarios');
-    if ($diferencias['icono'] ?? '' == 'error') return $diferencias;
-
     if (isset($_SESSION['cedula'])) {
-      $rb = $objBitacora->registrarBitacora('usuarios', 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'usuarios',
+        'accion' => 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+        'resultado' => 'Éxito',
+        'nuevo' => $datoNuevos,
+      ]);
       if ($rb) return $rb;
     }
     $this->commit();
@@ -527,11 +534,14 @@ class usuariosModelo extends conexion {
       $_SESSION['rol'] = $this->rolUsuario;
     }
 
-    $datosAct['cedula_usuario'] = $this->cedulaUsuario;
-    $diferencias = $this->sacarDiferenciaBitacora($datosAct, $datosActuales, 'usuarios');
-    if ($diferencias['icono'] ?? '' == 'error') return $diferencias;
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'usuarios',
+      'accion' => 'Actualizar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+      'resultado' => 'Éxito',
+      'viejo' => $datosActuales,
+      'nuevo' => $datosAct
+    ]);
     if ($rb) return $rb;
 
     $this->commit();
@@ -543,6 +553,7 @@ class usuariosModelo extends conexion {
     ];
   }
   private function eliminarUsuariosP() {
+    $objBitacora = new bitacoraModelo();
     $eliminarUsuario = $this->eliminarDatos2([
       'tabla' => "usuarios",
       'BD' => 'seguridad',
@@ -550,10 +561,13 @@ class usuariosModelo extends conexion {
         "cedula_usuario" => $this->cedulaUsuario
       ]
     ]);
-    $objBitacora = new bitacoraModelo();
-
     if ($eliminarUsuario <= 0) {
-      $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito', true);
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'usuarios',
+        'accion' => 'Eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+        'resultado' => 'Éxito',
+        'commit' => true
+      ]);
       if ($rb) return $rb;
       return [
         "tipo" => "simple",
@@ -562,7 +576,11 @@ class usuariosModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $rb = $objBitacora->registrarBitacora('usuarios', 'eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'usuarios',
+      'accion' => 'Eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+      'resultado' => 'Éxito',
+    ]);
     if ($rb) return $rb;
     $this->commit();
     return [
@@ -574,8 +592,18 @@ class usuariosModelo extends conexion {
   }
   private function actualizarFotosUsuariosP() {
     $objBitacora = new bitacoraModelo();
-    $objBitacora->registrarBitacora('usuarios', 'actualizar', 'éxito');
-    return $this->Imagenes_Act([
+    $usuariosActual = $this->seleccionarUsuarios([
+      'cedula_usuario' => $this->cedulaUsuario
+    ]);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'usuarios',
+      'accion' => 'Actualizar foto del usuario con la cedula/rif: ' . $this->cedulaUsuario,
+      'resultado' => 'Éxito',
+      'viejo' => ['fofo_usuario' => $usuariosActual['foto_usuario']],
+      'nuevo' => ['foto_usuario' => $this->fotoUsuario],
+    ]);
+    if ($rb) return $rb;
+    $resultado = $this->Imagenes_Act([
       'subCarpeta' => 'usuarios',
       'imagen' => $this->fotoUsuario,
       'tablaBD' => 'usuarios',
@@ -584,15 +612,19 @@ class usuariosModelo extends conexion {
       'valorId' => $this->cedulaUsuario,
       'BD' => 'seguridad',
     ]);
+    if ($resultado['icono'] == 'success') $this->commit();
+    return $resultado;
   }
   private function eliminarFotosUsuariosP() {
-
-    $diferencias = ['foto_usuario' => ['eliminado' => true]];
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'actualizar usuario con la cedula/rif: ' . $this->cedulaUsuario, 'éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'usuarios',
+      'accion' => 'Eliminar foto del usuario con la cedula/rif: ' . $this->cedulaUsuario,
+      'resultado' => 'Éxito',
+    ]);
+    if ($rb) return $rb;
 
-    $this->Imagenes_Eli([
+    $resultado= $this->Imagenes_Eli([
       'subCarpeta' => 'usuarios',
       'tablaBD' => 'usuarios',
       'nombreCampoFoto' => 'foto_usuario',
@@ -600,9 +632,12 @@ class usuariosModelo extends conexion {
       'valorId' => $this->cedulaUsuario,
       'BD' => 'seguridad',
     ]);
+    if($resultado['icono']=='success') $this->commit();
+    return $resultado;
   }
   private function iniciarSesionUsuariosP() {
-    $check_usuario = $this->seleccionarDatos2([
+
+    $instruccionesConsultaCom = [
       'campos' => "
         us.cedula_usuario, us.nombre_usuario, us.apellido_usuario,
         ro.id_rol, ro.nombre_rol, us.usuario_usuario, us.contrasena_usuario,
@@ -616,8 +651,9 @@ class usuariosModelo extends conexion {
       'WHERE' => [
         "us.usuario_usuario" => $this->usuarioUsuario,
       ],
-    ])->fetch();
-    if (!isset($check_usuario['cedula_usuario'])) {
+    ];
+    $datosUsAtuales = $this->seleccionarDatos2($instruccionesConsultaCom)->fetch();
+    if (!isset($datosUsAtuales['cedula_usuario'])) {
       return [
         "tipo" => "simple",
         "titulo" => "Usuario incorrecto",
@@ -625,7 +661,7 @@ class usuariosModelo extends conexion {
         "icono" => "error",
       ];
     }
-    if ($check_usuario['intentos_inicio_sesion_fallidos_usuario'] >= 5) {
+    if ($datosUsAtuales['intentos_inicio_sesion_fallidos_usuario'] >= 5) {
       return [
         'tipo' => 'simple',
         'titulo' => 'Demasiados intentos',
@@ -633,15 +669,15 @@ class usuariosModelo extends conexion {
         'icono' => 'error',
       ];
     }
-    if (!password_verify($this->contrasena1Usuario, $check_usuario['contrasena_usuario'])) {
+    if (!password_verify($this->contrasena1Usuario, $datosUsAtuales['contrasena_usuario'])) {
       $resultado = $this->actualizarDatos2([
         'tabla' => 'usuarios',
         'BD' => 'seguridad',
         'datos' => [
-          'intentos_inicio_sesion_fallidos_usuario' => ((int)$check_usuario['intentos_inicio_sesion_fallidos_usuario'] + 1)
+          'intentos_inicio_sesion_fallidos_usuario' => ((int)$datosUsAtuales['intentos_inicio_sesion_fallidos_usuario'] + 1)
         ],
         'WHERE' => [
-          'usuario_usuario' => $check_usuario['usuario_usuario']
+          'usuario_usuario' => $datosUsAtuales['usuario_usuario']
         ]
       ]);
       $this->commit();
@@ -669,8 +705,8 @@ class usuariosModelo extends conexion {
         'intentos_inicio_sesion_fallidos_usuario' => 0,
       ],
       'WHERE' => [
-        'usuario_usuario' => $check_usuario['usuario_usuario']
-      ]
+        'usuario_usuario' => $datosUsAtuales['usuario_usuario']
+      ],
     ]);
     if ($resultado == false) {
       return [
@@ -682,19 +718,29 @@ class usuariosModelo extends conexion {
     }
 
     /*Creamos las variables de sesión */
-    $_SESSION['cedula'] = $check_usuario['cedula_usuario'];
-    $_SESSION['nombre'] = $check_usuario['nombre_usuario'];
-    $_SESSION['apellido'] = $check_usuario['apellido_usuario'];
-    $_SESSION['usuario'] = $check_usuario['usuario_usuario'];
-    $_SESSION['rol'] = $check_usuario['id_rol'];
-    $_SESSION['nombreRol'] = $check_usuario['nombre_rol'];
-    $_SESSION['foto'] = $check_usuario['foto_usuario'];
+    $_SESSION['cedula'] = $datosUsAtuales['cedula_usuario'];
+    $_SESSION['nombre'] = $datosUsAtuales['nombre_usuario'];
+    $_SESSION['apellido'] = $datosUsAtuales['apellido_usuario'];
+    $_SESSION['usuario'] = $datosUsAtuales['usuario_usuario'];
+    $_SESSION['rol'] = $datosUsAtuales['id_rol'];
+    $_SESSION['nombreRol'] = $datosUsAtuales['nombre_rol'];
+    $_SESSION['foto'] = $datosUsAtuales['foto_usuario'];
     $_SESSION['TOKEN_CSRF'] = bin2hex(random_bytes(32));
-    $_SESSION['ultimo_inicio_sesion'] = $check_usuario['ultimo_acceso_usuario'];
+    $_SESSION['ultimo_inicio_sesion'] = $datosUsAtuales['ultimo_acceso_usuario'];
 
+    $datosUsuarioDespues = $this->seleccionarDatos2($instruccionesConsultaCom)->fetch();
     $objBitacora = new bitacoraModelo();
-    $rb = $objBitacora->registrarBitacora('usuarios', 'iniciar sesión', 'éxito');
-    if (($rb['icono'] ?? '') == 'error') return $rb;
+
+    unset($datosUsAtuales['contrasena_usuario']);
+    unset($datosUsuarioDespues['contrasena_usuario']);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'usuarios',
+      'accion' => 'Iniciar sesión',
+      'resultado' => 'Éxito',
+      'viejo' => $datosUsAtuales,
+      'nuevo' => $datosUsuarioDespues
+    ]);
+    if ($rb) return $rb;
     $this->commit();
     return [
       "tipo" => "redireccionar",

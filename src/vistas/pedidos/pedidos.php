@@ -197,30 +197,6 @@
                 </div>
                 <div class="contenedorCaptures">
                   <div class="accordion" id="acordionCaptures">
-                    <div class="accordion-item">
-                      <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                          Comprobante del pago #1
-                        </button>
-                      </h2>
-                      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#acordionCaptures">
-                        <div class="accordion-body">
-                          <img src="<?php echo APP_URL . DIR_FOTOS ?>comprobantes_pagos/comprobantes_pagos_2026_05_17_11_26_55_42.jpg" alt="" class="capturePagos">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="accordion-item">
-                      <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                          Accordion Item #2
-                        </button>
-                      </h2>
-                      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#acordionCaptures">
-                        <div class="accordion-body">
-                          <img src="<?php echo APP_URL . DIR_FOTOS ?>comprobantes_pagos/comprobantes_pagos_2026_05_17_11_26_55_42.jpg" alt="" class="capturePagos">
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

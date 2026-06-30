@@ -230,21 +230,27 @@ class metodosPagoModelo extends conexion {
   }
   private function registrarMetodosPagosP() {
     $objBitacora = new bitacoraModelo();
+    $datosRegistrar = [
+      "id_metodo_pago" => $this->idMetodoPago,
+      "nombre_metodo_pago" => $this->nombreMetodoPago,
+      "necesita_moneda" => $this->necesitaMoneda,
+      "necesita_banco_emisor" => $this->necesitaBancoEmisor,
+      "necesita_banco_receptor" => $this->necesitaBancoReceptor,
+      "necesita_referencia" => $this->necesitaReferencia,
+      "mostrar_ecommerce" => $this->mostrarEcommerce,
+    ];
     $resultado = $this->guardarDatos2([
       'tabla' => 'metodos_pagos',
-      'datos' => [
-        "id_metodo_pago" => $this->idMetodoPago,
-        "nombre_metodo_pago" => $this->nombreMetodoPago,
-        "necesita_moneda" => $this->necesitaMoneda,
-        "necesita_banco_emisor" => $this->necesitaBancoEmisor,
-        "necesita_banco_receptor" => $this->necesitaBancoReceptor,
-        "necesita_referencia" => $this->necesitaReferencia,
-        "mostrar_ecommerce" => $this->mostrarEcommerce,
-      ]
+      'datos' => $datosRegistrar
     ]);
     if ($resultado <= 0) {
-      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'registrar', 'fallido', true);
-      if (($rb['icono'] ?? '') == 'error') return $rb;
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'metodos-pagos',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
+      if ($rb) return $rb;
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -252,7 +258,12 @@ class metodosPagoModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'registrar', 'éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'metodos-pagos',
+      'accion' => 'registtrar',
+      'resultado' => 'Éxito',
+      'nuevo' => $datosRegistrar
+    ]);
     if ($rb) return $rb;
 
     $this->commit();
@@ -264,6 +275,7 @@ class metodosPagoModelo extends conexion {
     ];
   }
   private function actualizarMetodosPagosP() {
+    $datosViejos = $this->seleccionarMetodosPagos(['id_metodo_pago' => $this->idMetodoPago]);
     $resultado = $this->actualizarDatos2([
       'tabla' => 'metodos_pagos',
       'datos' => [
@@ -279,8 +291,13 @@ class metodosPagoModelo extends conexion {
 
     $objBitacora = new bitacoraModelo();
     if ($resultado == false || $resultado <= 0) {
-      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'actualizar', 'error', true);
-      if (($rb['icono'] ?? '') == 'error') return $rb;
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'metodos-pagos',
+        'accion' => 'Actualizar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
+      if ($rb) return $rb;
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -288,7 +305,14 @@ class metodosPagoModelo extends conexion {
         "icono" => "error"
       ];
     }
-    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'actualizar', 'éxito');
+    $datosNuevos = $this->seleccionarMetodosPagos(['id_metodo_pago' => $this->idMetodoPago]);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'metodos-pagos',
+      'accion' => 'Actualizar',
+      'resultado' => 'Éxito',
+      'viejo' => $datosViejos,
+      'nuevo' => $datosNuevos,
+    ]);
     if ($rb) return $rb;
 
     $this->commit();
@@ -309,8 +333,13 @@ class metodosPagoModelo extends conexion {
 
     $objBitacora = new bitacoraModelo();
     if ($resultado <= 0) {
-      $rb = $objBitacora->registrarBitacora('metodos-pagos', 'eliminar', 'error', true);
-      if (($rb['icono'] ?? '') == 'error') return $rb;
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'metodos-pagos',
+        'accion' => 'Eliminar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
+      if ($rb) return $rb;
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -319,7 +348,11 @@ class metodosPagoModelo extends conexion {
       ];
     }
 
-    $rb = $objBitacora->registrarBitacora('metodos-pagos', 'eliminar', 'éxito');
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'metodos-pagos',
+      'accion' => 'Eliminar',
+      'resultado' => 'Éxito',
+    ]);
     if ($rb) return $rb;
     $this->commit();
     return [

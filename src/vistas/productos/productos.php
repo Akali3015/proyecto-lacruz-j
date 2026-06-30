@@ -25,8 +25,7 @@ echo $componente->listaDataTable($instruccionesLista);
         type="text"
         name="materias_primas-[COD-FILA]-cantidad_materia_prima"
         class="form-control input-cantidad-materia dinero"
-        placeholder="Cantidad"
-      >
+        placeholder="Cantidad">
     </td>
     <td class="costo-unitario"></td>
     <td class=" subtotal"></td>
@@ -56,11 +55,11 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-2 mb-3">
               <label class="form-label">Stock Inicial</label>
-              <input type="number" class="form-control" name="stock_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="0" required>
+              <input type="text" class="form-control dineroPositivo" name="stock_producto" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" value="0" required>
             </div>
             <div class="col-md-2 mb-3">
               <label class="form-label">Stock Mínimo</label>
-              <input type="number" class="form-control" name="stock_minimo_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="5" required>
+              <input type="text" class="form-control dineroPositivo" name="stock_minimo_producto" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" value="5" required>
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">Unidad de medida</label>
@@ -74,7 +73,14 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">Precio Divisas ($)</label>
-              <input type="text" class="form-control dinero" name="precio_producto" pattern="<?php echo regexPrecioFront; ?>" required>
+              <input
+                type="text"
+                class="form-control dineroPositivo"
+                name="precio_producto"
+                pattern="<?php echo regexPrecioFront; ?>"
+                minlength="<?php echo minRegexPrecioFront; ?>"
+                maxlength="<?php echo maxRegexPrecioFront; ?>"
+                required>
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label">Precio BCV (Bs)</label>
@@ -152,11 +158,11 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Stock Inicial</label>
-              <input type="number" class="form-control formularioActualizar" name="stock_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="0" required>
+              <input type="text" class="form-control dineroPositivo formularioActualizar" name="stock_producto" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" value="0" required>
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Stock Mínimo</label>
-              <input type="number" class="form-control formularioActualizar" name="stock_minimo_producto" pattern="<?php echo regexCantidadItem ?>" minlength="<?php echo minRegexCantidadItem ?>" maxlength="<?php echo maxRegexCantidadItem ?>" value="5" required>
+              <input type="text" class="form-control dineroPositivo formularioActualizar" name="stock_minimo_producto" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" value="5" required>
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Unidad de medida</label>
@@ -177,7 +183,14 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Precio Divisas ($)</label>
-              <input type="text" class="form-control formularioActualizar" name="precio_producto" pattern="<?php echo regexPrecioFront; ?>" required>
+              <input
+                type="text"
+                class="form-control dineroPositivo formularioActualizar "
+                name="precio_producto"
+                pattern="<?php echo regexPrecioFront; ?>"
+                minlength="<?php echo minRegexPrecioFront; ?>"
+                maxlength="<?php echo maxRegexPrecioFront; ?>"
+                required>
             </div>
             <div class="col-md-3 mb-3">
               <label class="form-label">Precio BCV (Bs)</label>

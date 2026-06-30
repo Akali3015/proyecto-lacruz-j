@@ -120,7 +120,7 @@ class pdfModel extends FPDF {
     if ($this->dataNotaEntrega) {
       // Cuadro exterior superior (Opcional, para delimitar la zona superior si se desea)
       // $this->Rect(10, 10, 190, 30);
-      $this->Image($_SERVER['DOCUMENT_ROOT'] . '/proyecto-lacruz-j/src/assets/images/logo2.png', 12, 10, 28, 20);
+      $this->Image($_SERVER['DOCUMENT_ROOT'] . '/proyecto-lacruz-j/src/assets/images/logo2.png', 10, 10, 28, 20);
 
       // Datos de la Empresa (Izquierda)
       $this->SetXY(42, 10);
@@ -480,7 +480,7 @@ class pdfModel extends FPDF {
     };
 
     //Encabezados
-    $anchosE = array(30, 30, 75, 30, 30);
+    $anchosE = array(30, 20, 75, 35, 35);
     $encabezados = array('COD.', 'CANT.', 'CONCEPTO O DESCRIPCIÓN DE LA VENTA',  'PRECIO UNIT.', 'MONTO');
     $this->SetFont('Arial', 'B', 8);
     for ($i = 0; $i < count($encabezados); $i++) {
@@ -488,30 +488,30 @@ class pdfModel extends FPDF {
     }
     $this->Ln();
 
-    $this->SetFont('Arial', '', 7.5);
+    $this->SetFont('Arial', '', 7);
     foreach (($itemPedido['productos'] ?? []) as $producto) {
       $this->cell2(30, 5, $producto['id_presentacion_producto'], 0, 0, 'C');
-      $this->cell2(30, 5, $this->formatearStrings($producto['cantidad_producto'], 'dinero'), 0, 0, 'C');
+      $this->cell2(20, 5, $this->formatearStrings($producto['cantidad_producto'], 'dinero'), 0, 0, 'C');
       $this->cell2(75, 5, $producto['nombre_producto'] . ' - ' . $producto['nombre_presentacion'], 0, 0, 'C');
-      $this->cell2(30, 5, $fnBolivares($producto['precio_presentacion_factura']) . ' Bs', 0, 0, 'C');
-      $this->cell2(30, 5, $fnBolivares($producto['subtotal_factura']) . ' Bs', 0, 1, 'R');
+      $this->cell2(35, 5, $fnBolivares($producto['precio_presentacion_factura']) . ' Bs', 0, 0, 'C');
+      $this->cell2(35, 5, $fnBolivares($producto['subtotal_factura']) . ' Bs', 0, 1, 'R');
     }
 
     //Delivery
     $this->cell2(30, 5, '--------', 0, 0, 'C');
-    $this->cell2(30, 5, '1,00', 0, 0, 'C');
+    $this->cell2(20, 5, '1,00', 0, 0, 'C');
     $this->cell2(75, 5, 'ENVÍO', 0, 0, 'C');
-    $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 0, 'C');
-    $this->cell2(30, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 1, 'R');
+    $this->cell2(35, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 0, 'C');
+    $this->cell2(35, 5, $fnBolivares($this->dataNotaEntrega['calculos']['totalEnvio']) . ' Bs', 0, 1, 'R');
 
     $fechaCompleta = explode(' ', $this->FechaHora_Sel('fecha_hora_AM_PM', $this->dataNotaEntrega['fecha_orden']));
     $fechaArray = explode('-', $fechaCompleta[0]);
     $hora = $fechaCompleta[1] . ' ' . $fechaCompleta[2];
     $fecha = implode('/', $fechaArray) . ' HORA: ' . $hora;
 
-    $this->SetXY(10, 235);
+    $this->SetXY(10, 240);
     $this->SetFont('Arial', 'B', 7);
-    $this->cell2(80, 10,'   ORDEN PEDIDO NÚMERO ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
+    $this->cell2(80, 5,'   ORDEN PEDIDO NÚMERO ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
     $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES ' . $this->dataNotaEntrega['calculos']['total_IVA'].'$', 0, 1);
     $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL ' . $fecha.'     '. $this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'].' Bs', 0, 1);
 

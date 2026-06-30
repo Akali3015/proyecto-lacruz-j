@@ -69,6 +69,7 @@ class frontController {
       $_SESSION['vistaActual'] = $this->url[0];
       $this->url = $this->url[0];
 
+      
       if (in_array($this->url, $this->controladores) && isset($_SESSION['cedula'])) {
 
         if ($metodo == 'POST') {

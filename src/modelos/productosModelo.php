@@ -21,7 +21,6 @@ class productosModelo extends conexion {
   private array $materiasPrimas = [];
   private array $fotoPresentacion = [];
 
-
   public function validarProductos(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
@@ -110,12 +109,12 @@ class productosModelo extends conexion {
         'precio_producto' => [
           "campo_nombre" => "precio_producto_divisa",
           "campo_valor" => &$valor,
-          'comaPunto' => true,
           "formulario_nombre" => "precio en divisas",
           "requerido" => true,
           "minimo" => minRegexPrecio,
           "maximo" => maxRegexPrecio,
           "expresion_re" => regexPrecio,
+          'comaPunto' => true,
         ],
         'stock_producto' => [
           "campo_nombre" => "stock_producto",
@@ -125,6 +124,7 @@ class productosModelo extends conexion {
           "minimo" => minRegexCantidadItem,
           "maximo" => maxRegexCantidadItem,
           "expresion_re" => regexCantidadItem,
+          'comaPunto'=>true,
         ],
         'stock_minimo_producto' => [
           "campo_nombre" => "stock_producto",
@@ -134,6 +134,7 @@ class productosModelo extends conexion {
           "minimo" => minRegexCantidadItem,
           "maximo" => maxRegexCantidadItem,
           "expresion_re" => regexCantidadItem,
+          'comaPunto'=>true,
         ],
         'mostrar_ecommerce' => [
           "campo_valor" => &$valor,
@@ -145,12 +146,12 @@ class productosModelo extends conexion {
         ],
         'cantidad_materia_prima' => [
           "campo_valor" => &$valor,
-          "comaPunto" => true,
           "formulario_nombre" => "cantidad de la materia prima",
           "requerido" => true,
           "minimo" => minRegexCantidadItem,
           "maximo" => maxRegexCantidadItem,
           "expresion_re" => regexCantidadItem,
+          "comaPunto" => true,
         ],
       ];
       return $claveVal[$nombreCampo];
@@ -323,7 +324,7 @@ class productosModelo extends conexion {
     ]);
     if ($respuesta !== false) return $respuesta;
     $this->idPresentacionProd = $info['id_presentacion_producto'];
-    $this->fotoPresentacion = $info['foto_presentacion_producto'];
+    $this->fotoPresentacion = $info['foto_presentacion'];
     return $this->actualizarFotPreProdP();
   }
   public function eliminarFotPreProd(array $info) {
@@ -334,7 +335,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($respuesta !== false) return $respuesta;
-    $this->idProducto = $info['id_producto'];
+    $this->idPresentacionProd = $info['id_presentacion_producto'];
     return $this->eliminarFotPreProdP();
   }
 
@@ -511,22 +512,29 @@ class productosModelo extends conexion {
     }
   }
   private function registrarProductosP() {
-    $funcionError = function ($objBi, $arrayImg = NULL) {
+    $objBitacora = new bitacoraModelo();
+    $arrayImg = [];
+    $funcionError = function () use ($objBitacora, $arrayImg) {
       $this->rollback();
-      $objBi->registrarBitacora("productos", "registrar", "fallido", true);
-      if ($arrayImg) {
+      $rb = $objBitacora->registrarBitacora([
+        'modulo' => 'productos',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
+      if ($arrayImg != []) {
         foreach ($arrayImg as $nombreImagen) {
           $this->Imagenes_Eli2('presentaciones_productos', $nombreImagen);
         }
       }
+      if ($rb) return $rb;
     };
     $idProducto = $this->generarCodSeg([
       'tablaBD' => 'productos',
       'prefijo' => 'PROD',
       'campoID' => 'id_producto'
     ]);
-    // Registro de la imagen
-    $objBit = new bitacoraModelo();
+    // Registro de los metadatos
     $resultado = $this->guardarDatos2([
       'tabla' => 'productos',
       'datos' => [
@@ -539,9 +547,8 @@ class productosModelo extends conexion {
         "stock_minimo_producto" => $this->stockMinimoProducto,
       ],
     ]);
-
     if ($resultado == false || $resultado <= 0) {
-      $funcionError($objBit);
+      $funcionError();
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -551,17 +558,15 @@ class productosModelo extends conexion {
     }
 
     //Presentaciones
-    $arrayImagenes = [];
     foreach ($this->presentaciones as $pre) {
       //Imagen
       if (isset($pre['foto_presentacion']) && $pre['foto_presentacion'] != '') {
-        $arrayImagenes[] = $nombreImagen = $this->Imagenes_Reg(
+        $arrayImg[] = $nombreImagen = $this->Imagenes_Reg(
           'presentaciones_productos',
           $pre['foto_presentacion'],
           'presentaciones_productos'
         );
       }
-
       $idPresentacion = $this->generarCodSeg([
         'tablaBD' => 'presentaciones_productos',
         'prefijo' => 'PRPR',
@@ -579,7 +584,7 @@ class productosModelo extends conexion {
         ]
       ]);
       if ($idPre == false || $idPre <= 0) {
-        $funcionError($objBit, $arrayImagenes);
+        $funcionError();
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -593,13 +598,11 @@ class productosModelo extends conexion {
     $objCategorias = new categoriasProductosModelo();
     $categoriaBD = $objCategorias->seleccionarCategorias(['id_categoria_producto' => $this->idCategoria]);
     if ($categoriaBD['necesitan_materias_primas'] == 1) {
-
       $this->materiasPrimas = $this->indexarArrays([
         'indice' => 'id_materia_prima',
         'camposSumar' => 'cantidad_materia_prima',
         'array' => $this->materiasPrimas,
       ]);
-
       foreach ($this->materiasPrimas as $idMP => $cantidadMP) {
         $idMp = $this->guardarDatos2([
           'tabla' => 'materias_primas_productos',
@@ -610,7 +613,7 @@ class productosModelo extends conexion {
           ]
         ]);
         if ($idMp == false || $idMp <= 0) {
-          $funcionError($objBit, $arrayImagenes);
+          $funcionError();
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -620,7 +623,6 @@ class productosModelo extends conexion {
         }
       }
     }
-    $objBit->registrarBitacora("productos", "registrar", "éxito");
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS([
@@ -645,6 +647,14 @@ class productosModelo extends conexion {
       'noCommit' => true
     ]);
 
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'productos',
+      'accion' => 'Registrar',
+      'resultado' => 'Éxito',
+      'nuevo' => $this->seleccionarProductos(['id_producto' => $idProducto])
+    ]);
+    if ($rb) return $rb;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -657,13 +667,20 @@ class productosModelo extends conexion {
     $PRD = 0;
     $MPR = 0;
     $PRE = 0;
+    $objBitacora = new bitacoraModelo();
+    $imagenesPresentaciones = [];
+    $datosViejos = $this->seleccionarProductos(['id_producto' => $this->idProducto]);
 
-    $funcionError = function ($img = []) {
-      $bitacoraModelo = new bitacoraModelo();
+    $funcionError = function () use ($objBitacora, $imagenesPresentaciones) {
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("productos", "actualizar", "fallido", true);
-      if ($img != []) {
-        foreach ($img as $i) {
+      $objBitacora->registrarBitacora([
+        'modulo' => 'productos',
+        'accion' => 'Actualizar',
+        'resultado' => 'Éxito',
+        'commit' => true
+      ]);
+      if ($imagenesPresentaciones != []) {
+        foreach ($imagenesPresentaciones as $i) {
           $resultado = $this->Imagenes_Eli2('presentaciones_productos', $i);
           if ($resultado) return $resultado;
         }
@@ -749,7 +766,7 @@ class productosModelo extends conexion {
         }
       }
     }
-    $imagenesPresentaciones = [];
+
 
     foreach ($this->presentaciones as $pres) {
       $foto = '';
@@ -789,13 +806,18 @@ class productosModelo extends conexion {
       ];
     }
 
-    $bitacoraModelo = new bitacoraModelo();
-    $resultado = $bitacoraModelo->registrarBitacora("productos", "actualizar", "éxito");
-    if ($resultado) {
-      $funcionError($imagenesPresentaciones);
-      return $resultado;
+    $datosNuevos = $this->seleccionarProductos(['id_producto' => $this->idProducto]);
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'productos',
+      'accion' => 'Actualizar',
+      'resultado' => 'Éxito',
+      'viejo' => $datosViejos,
+      'nuevo' => $datosNuevos
+    ]);
+    if ($rb) {
+      $funcionError();
+      return $rb;
     }
-
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS([
       "receptor" => [
@@ -818,7 +840,6 @@ class productosModelo extends conexion {
       ],
       'noCommit' => true
     ]);
-
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -828,11 +849,17 @@ class productosModelo extends conexion {
     ];
   }
   private function eliminarProductosP() {
-    $funcionError = function ($objBi) {
+    $objBitacora = new bitacoraModelo();
+    $funcionError = function () use ($objBitacora) {
       $this->rollback();
-      $objBi->registrarBitacora("productos", "Eliminar", "Fallido", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'productos',
+        'accion' => 'Eliminar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
     };
-    $objBi = new bitacoraModelo();
+
     $productoActual = $this->seleccionarProductos([
       'id_producto' => $this->idProducto,
     ]);
@@ -845,7 +872,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($resultado <= 0 || $resultado == false) {
-      $funcionError($objBi);
+      $funcionError();
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -863,7 +890,7 @@ class productosModelo extends conexion {
         ]
       ]);
       if ($resultado <= 0 || $resultado == false) {
-        $funcionError($objBi);
+        $funcionError();
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -881,7 +908,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($resultado <= 0 || $resultado == false) {
-      $funcionError($objBi);
+      $funcionError();
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -898,7 +925,7 @@ class productosModelo extends conexion {
       ]
     ]);
     if ($resultado <= 0 || $resultado == false) {
-      $funcionError($objBi);
+      $funcionError();
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -907,19 +934,16 @@ class productosModelo extends conexion {
       ];
     }
 
-    if ($objBi->registrarBitacora("productos", "Eliminar", "Éxito")) {
-      $funcionError($objBi);
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Error',
-        'texto' => 'Ocurrió un error registrando el evento en la bitacora',
-        'icono' => 'error',
-      ];
-    };
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'productos',
+      'accion' => 'Eliminar',
+      'resultado' => 'Éxito',
+    ]);
+    if ($rb) return $rb;
 
     // Fotos de las presentaciones
     foreach ($productoActual['detallesExtra']['presentaciones'] as $presentacion) {
-      $resultado = $this->Imagenes_Eli2('presetaciones_productos', $presentacion['foto_presentacion']);
+      $this->Imagenes_Eli2('presetaciones_productos', $presentacion['foto_presentacion']);
     }
 
     $objetoNot = new mensajesWSModelo();
@@ -954,22 +978,45 @@ class productosModelo extends conexion {
     ];
   }
   private function actualizarFotPreProdP() {
-    return $this->Imagenes_Act([
+    $fotoVieja = $this->seleccionarDatos2([
+      'campos' => 'foto_presentacion',
+      'tabla' => 'presentaciones_productos',
+      'WHERE' => [
+        'id_presentacion_producto' => $this->idPresentacionProd
+      ]
+    ])->fetch(PDO::FETCH_COLUMN);
+
+    $resultado = $this->Imagenes_Act([
       'subCarpeta' => 'presentaciones_productos',
       'imagen' => $this->fotoPresentacion,
-      'tabla' => 'presentaciones_productos',
-      'nombreCampoFoto' => 'foto_presentacion_producto',
+      'tablaBD' => 'presentaciones_productos',
+      'nombreCampoFoto' => 'foto_presentacion',
       'nombreCampoId' => 'id_presentacion_producto',
       'valorId' => $this->idPresentacionProd,
     ]);
+    if ($resultado['icono'] != 'success') return $resultado;
+
+    $objBitacora = new bitacoraModelo();
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'presentaciones_productos',
+      'accion' => 'Actualizar foto de la presentacion (' . $this->idPresentacionProd . ')',
+      'resultado' => 'Éxito',
+      'viejo' => ['foto_presentacion' => $fotoVieja],
+      'nuevo' => ['foto_presentacion' => $resultado['nuevaImagen']],
+    ]);
+    if ($rb) return $rb;
+    $this->commit();
+    return $resultado;
   }
   private function eliminarFotPreProdP() {
-    return $this->Imagenes_Eli([
+    $resultado = $this->Imagenes_Eli([
       'subCarpeta' => 'presentaciones_productos',
       'tablaBD' => 'presentaciones_productos',
-      'nombreCampoFoto' => 'foto_presentacion_producto',
+      'nombreCampoFoto' => 'foto_presentacion',
       'nombreCampoId' => 'id_presentacion_producto',
       'valorId' => $this->idPresentacionProd,
     ]);
+    if (($resultado['icono'] ?? 'error') == 'success') $this->commit();
+    return $resultado;
   }
 }

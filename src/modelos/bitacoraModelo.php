@@ -12,7 +12,6 @@ class bitacoraModelo extends conexion {
   private string $ipDispositivo = '';
   private ?array $cambiosEfectuados = null;
   private int $commit = 0;
-  private array $clavesIdentificacion = [];
 
   public function seleccionarBitacora() {
     return $this->seleccionarBitacoraP();
@@ -23,16 +22,16 @@ class bitacoraModelo extends conexion {
     $this->accionBitacora = $instrucciones['accion'];
     $this->resultadoBitacora = $instrucciones['resultado'];
     $this->commit = $instrucciones['commit'] ?? false;
-    $viejo = $instrucciones['viejo'] ?? null;
-    $nuevo = $instrucciones['nuevo'] ?? null;
+    $nuevo = $instrucciones['nuevo'] ?? [];
+    $viejo = $instrucciones['viejo'] ?? [];
     $this->ipDispositivo = $_SERVER['HTTP_X_IP_DISPOSITIVO'] ?? '0.0.0.0';
 
-    $this->cambiosEfectuados = null;
-    if ($viejo != null || $nuevo != null) {
-      $this->cambiosEfectuados = $this->sacarDiferenciaBitacora($viejo, $nuevo);
+    $this->cambiosEfectuados = [];
+    if ($viejo != [] || $nuevo != []) {
+      $this->cambiosEfectuados = $this->sacarDiferenciaBitacora($nuevo, $viejo);
     }
 
-    $campos = [
+    $respuesta = $this->limpiar_Verificar([
       [
         "campo_valor" => $this->moduloBitacora,
         "formulario_nombre" => "nombre del modulo",
@@ -64,249 +63,9 @@ class bitacoraModelo extends conexion {
         "minimo" => 5,
         "maximo" => 25,
       ]
-    ];
-
-    $respuesta = $this->limpiar_Verificar($campos);
+    ]);
     if ($respuesta !== false) return $respuesta;
     return $this->registrarBitacoraP();
-  }
-
-  private function procesarDatosBitacora($datos = null, $datosDespues = null): ?array {
-    if ($datos === null && $datosDespues === null) {
-      return null;
-    }
-    if (is_array($datos) && is_array($datosDespues)) {
-      $cambios = $this->compararRecursivo($datos, $datosDespues);
-      return empty($cambios) ? null : $cambios;
-    }
-    if (is_array($datos) && !empty($datos)) {
-      return $datos;
-    }
-    return null;
-  }
-  private function compararRecursivo(array $datosAntes, array $datosDespues): array {
-    $cambios = [];
-    $camposIgnorar = ['contrasena_usuario'];
-
-    $esLista = $this->esArrayIndexado($datosAntes) || $this->esArrayIndexado($datosDespues);
-
-    if ($esLista) {
-      $resultado = $this->compararListas($datosAntes, $datosDespues);
-      return $resultado;
-    }
-
-    foreach ($datosDespues as $campo => $nuevoValor) {
-      if (in_array($campo, $camposIgnorar)) continue;
-
-      if (!array_key_exists($campo, $datosAntes)) {
-        $cambios[$campo] = ['anterior' => null, 'nuevo' => $nuevoValor];
-        continue;
-      }
-
-      $valorAnterior = $datosAntes[$campo];
-
-      if (is_array($nuevoValor) && is_array($valorAnterior)) {
-        $cambiosAnidados = $this->compararRecursivo($valorAnterior, $nuevoValor);
-        if (!empty($cambiosAnidados)) {
-          $cambios[$campo] = $cambiosAnidados;
-        }
-        continue;
-      }
-
-      if (is_array($nuevoValor) || is_array($valorAnterior)) {
-        $cambios[$campo] = ['anterior' => $valorAnterior, 'nuevo' => $nuevoValor];
-        continue;
-      }
-
-      if ($valorAnterior !== $nuevoValor) {
-        $cambios[$campo] = ['anterior' => $valorAnterior, 'nuevo' => $nuevoValor];
-      }
-    }
-
-    foreach ($datosAntes as $campo => $valorAnterior) {
-      if (!array_key_exists($campo, $datosDespues) && !in_array($campo, $camposIgnorar)) {
-        $cambios[$campo . '_eliminado'] = ['anterior' => $valorAnterior, 'nuevo' => null];
-      }
-    }
-
-    return $cambios;
-  }
-  private function esArrayIndexado(array $array): bool {
-    if (empty($array)) return true;
-    $keys = array_keys($array);
-    return $keys === range(0, count($array) - 1);
-  }
-  private function detectarClaveIdentificacion(array $lista): ?string {
-    if (empty($lista)) return null;
-
-    $primerElemento = $lista[0];
-    if (!is_array($primerElemento)) return null;
-
-    if (!empty($this->clavesIdentificacion)) {
-      foreach ($this->clavesIdentificacion as $clave) {
-        if (isset($primerElemento[$clave])) {
-          return $clave;
-        }
-      }
-    }
-
-    $prioridad = [
-      '/^id_/' => 10,
-      '/_id$/' => 10,
-      '/id/' => 5,
-      '/rif/' => 4,
-      '/cedula/' => 4,
-      '/codigo/' => 3,
-    ];
-
-    $mejorClave = null;
-    $mejorPuntaje = 0;
-
-    foreach (array_keys($primerElemento) as $campo) {
-      $campoLower = strtolower($campo);
-      $puntaje = 0;
-
-      foreach ($prioridad as $patron => $valor) {
-        if (preg_match($patron, $campoLower)) {
-          $puntaje += $valor;
-        }
-      }
-
-      $valor = $primerElemento[$campo];
-      if (is_string($valor) && preg_match('/^[A-Z0-9\-]+$/', $valor)) {
-        $puntaje += 2;
-      }
-
-      if ($puntaje > $mejorPuntaje) {
-        $mejorPuntaje = $puntaje;
-        $mejorClave = $campo;
-      }
-    }
-
-    return $mejorClave;
-  }
-  private function obtenerNombreItem(array $item, string $claveId): string {
-    foreach ($item as $campo => $valor) {
-      $campoLower = strtolower($campo);
-
-      if ((strpos($campoLower, 'nombre') !== false ||
-          strpos($campoLower, 'razon') !== false ||
-          strpos($campoLower, 'descripcion') !== false) &&
-        is_string($valor) &&
-        trim($valor) !== '' &&
-        $valor != ($item[$claveId] ?? '')
-      ) {
-        return $valor;
-      }
-    }
-
-    return $item[$claveId] ?? 'Sin nombre';
-  }
-  private function compararListas(array $listaAntes, array $listaDespues): array {
-    $cambios = [];
-    $cambios['_lista'] = true;
-
-    $claveId = $this->detectarClaveIdentificacion($listaAntes)
-      ?? $this->detectarClaveIdentificacion($listaDespues);
-
-    if ($claveId === null) {
-      foreach ($listaAntes as $itemAntes) {
-        if (!in_array($itemAntes, $listaDespues, true)) {
-          $cambios['_eliminados'][] = $itemAntes;
-        }
-      }
-      foreach ($listaDespues as $itemDespues) {
-        if (!in_array($itemDespues, $listaAntes, true)) {
-          $cambios['_agregados'][] = $itemDespues;
-        }
-      }
-
-      if (!isset($cambios['_eliminados']) && !isset($cambios['_agregados'])) {
-        return [];
-      }
-
-      return $cambios;
-    }
-
-    $modificados = [];
-    foreach ($listaAntes as $itemAntes) {
-      if (!is_array($itemAntes)) continue;
-
-      foreach ($listaDespues as $itemDespues) {
-        if (!is_array($itemDespues)) continue;
-        if (isset($itemAntes[$claveId]) && isset($itemDespues[$claveId])) {
-          if ($itemAntes[$claveId] === $itemDespues[$claveId]) {
-            $diferencias = $this->compararRecursivo($itemAntes, $itemDespues);
-            if (!empty($diferencias)) {
-              $nombre = $this->obtenerNombreItem($itemAntes, $claveId);
-
-              if ($nombre != $itemAntes[$claveId]) {
-                $modificados[] = [
-                  'id' => $itemAntes[$claveId],
-                  'nombre' => $nombre,
-                  'cambios' => $diferencias
-                ];
-              } else {
-                $modificados[] = [
-                  'id' => $itemAntes[$claveId],
-                  'cambios' => $diferencias
-                ];
-              }
-            }
-          }
-        }
-      }
-    }
-
-    $idsDespues = array_column($listaDespues, $claveId);
-    $eliminados = [];
-    foreach ($listaAntes as $itemAntes) {
-      if (!is_array($itemAntes)) continue;
-      if (isset($itemAntes[$claveId]) && !in_array($itemAntes[$claveId], $idsDespues)) {
-        $eliminados[] = $itemAntes;
-      }
-    }
-
-    $idsAntes = array_column($listaAntes, $claveId);
-    $agregados = [];
-    foreach ($listaDespues as $itemDespues) {
-      if (!is_array($itemDespues)) continue;
-      if (isset($itemDespues[$claveId]) && !in_array($itemDespues[$claveId], $idsAntes)) {
-        $agregados[] = $itemDespues;
-      }
-    }
-
-    $hayCambios = !empty($modificados) || !empty($eliminados) || !empty($agregados);
-
-    if (!$hayCambios) {
-      return [];
-    }
-
-    if (!empty($modificados)) {
-      $cambios['_modificados'] = $modificados;
-    }
-
-    if (!empty($eliminados)) {
-      $cambios['_eliminados'] = $eliminados;
-    }
-
-    if (!empty($agregados)) {
-      $cambios['_agregados'] = $agregados;
-    }
-
-    if (!empty($eliminados)) $cambios['_eliminados'] = $eliminados;
-    if (!empty($agregados)) $cambios['_agregados'] = $agregados;
-
-    return $cambios;
-  }
-  private function elementosIguales(array $a, array $b): bool {
-    if (count($a) !== count($b)) return false;
-
-    foreach ($a as $key => $value) {
-      if (!isset($b[$key])) return false;
-      if ($value !== $b[$key]) return false;
-    }
-    return true;
   }
   private function seleccionarBitacoraP() {
     $resultado = $this->seleccionarDatos2([

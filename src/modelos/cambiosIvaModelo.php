@@ -135,7 +135,12 @@ class cambiosIvaModelo extends conexion {
 
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
-      $objBitacora->registrarBitacora('cambiosIva', 'registrarIva', 'Fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'cambiosIva',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'commit' => true,
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Valor no actualizado",
@@ -146,7 +151,13 @@ class cambiosIvaModelo extends conexion {
     $ivaDespues = $this->seleccionarCambiosIva([
       'tipoConsulta' => 'ivaActual'
     ]);
-    $objBitacora->registrarBitacora('cambiosIva', 'registrar Cambios de IVA', 'Éxito', true, $ivaAntes, $ivaDespues);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'cambiosIva', 
+      'accion' => 'registrar', 
+      'resultado' => 'Éxito', 
+      'viejo' => $ivaAntes,
+      'nuevo' => $ivaDespues
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(

@@ -94,7 +94,8 @@ async function verDetallesPedido() {
       totalPagos,
       porcentaje_IVA,
       totalEnvio,
-      dolar
+      dolar,
+      monto_IVA
     } = calculos;
 
     let promesas = [];
@@ -190,9 +191,12 @@ async function verDetallesPedido() {
         }
       },
       datosFooter: {
-        [`Total Productos + IVA (${porcentaje_IVA}%)`]: [`${(total_IVA).toFixed(2)}$`, 2],
-        'Total Pagos': [`${totalPagos.toFixed(2)}$`, 2],
-        [tituloExcedente]: [`${(totalPagos - total_IVA).toFixed(2)}$`, 3],
+        'Total Productos': [totalProductos.toFixed(2) + '$',1],
+        'Total Envío': [totalEnvio.toFixed(2)+'$',1],
+        [`Monto IVA (${porcentaje_IVA}%)`]: [monto_IVA+'$', 2],
+        'Total General': [`${(total_IVA).toFixed(2)}$`, 1],
+        'Total Cancelado': [`${totalPagos.toFixed(2)}$`, 1],
+        [tituloExcedente]: [`${(totalPagos - total_IVA).toFixed(2)}$`, 1],
       }
     }));
 
@@ -385,8 +389,9 @@ $(document).on("DOMContentLoaded", async function () {
     }
   });
   if (permisos.pedidos.includes('ver pedidos propios')) {
+    let promesas = [];
     // Catalogo de productos
-    listarDataTable({
+    promesas.push(listarDataTable({
       encabezados: {
         "nombre_producto": "PRODUCTO",
         "id_presentacion_producto": "CÓDIGO",
@@ -441,9 +446,9 @@ $(document).on("DOMContentLoaded", async function () {
             '<i class="fi fi-rr-cross-circle text-danger fs-5" title="No disponiblek"></i>'
         },
       }
-    });
+    }));
     // Del cliente que inicio sesion
-    listarDataTable({
+    promesas.push(listarDataTable({
       selectorTabla: '.tablaPedidosRealizados',
       encabezados: {
         "id_orden_entrega_presupuesto": "COD",
@@ -510,7 +515,14 @@ $(document).on("DOMContentLoaded", async function () {
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
-    });
+    }));
+
+    Promise.all(promesas).then(() => {
+      let preciosDolares = $('#tapCatalogoProductos').find('.precio_usd');
+      let preciosBs = $('#tapCatalogoProductos').find('.precio_bs');
+      formateoCampos(preciosDolares, 'dineroDolar');
+      formateoCampos(preciosBs, 'dineroBolivar');
+    })
   }
   if (permisos.pedidos.includes('ver pedidos de los clientes')) {
     //Por confirmar

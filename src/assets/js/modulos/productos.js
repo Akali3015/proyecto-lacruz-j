@@ -101,12 +101,14 @@ async function calcularCostosMateriasPrimas(modal) {
 
   //Precio BCV producto
   let precioDivisas = $(modal).find('[name="precio_producto"]').val()
+  console.log(precioDivisas)
   precioDivisas = precioDivisas.replaceAll('.', '').replaceAll(',', '.')
   precioDivisas = parseFloat(precioDivisas);
-
-  let precioDolar = $('.precioDolar').val();
+  let precioDolar = parseFloat($('.precioDolar').val());
   let precioBCV = (isNaN(precioDivisas) ? 0 : precioDivisas) * precioDolar;
-  modal.find('.precioProductoBCV').val(precioBCV + ' Bs');
+  let inputPrecioBCV = modal.find('.precioProductoBCV');
+  inputPrecioBCV.val(precioBCV.toFixed(2));
+  formateoCampos(inputPrecioBCV, 'dineroBolivar');
 
   //Costo materias primas
   const tbody = modal.find(".cuerpoTablaMateriasPrimas");
@@ -497,6 +499,7 @@ $(document).on('click', '.btnVer', async function (e) {
             data-label_foto="Actualizar Foto de la Presentacion"
             data-texto_alerta="La foto de la presentación volverá a la configuración predeterminada"
             data-foto_default="productoDefault.png"
+            imgRespaldo="${rutaFotos}presentaciones_productos/productoDefault.png"
           >`;
       }
     }
@@ -547,11 +550,6 @@ $(document).on("change", ".select-materia-prima", function () {
   calcularCostosMateriasPrimas(modal);
 });
 
-$(document).off("input", ".input-cantidad-materia");
-$(document).on("input", ".input-cantidad-materia", function () {
-  let modal = $(this).closest(".modal");
-  calcularCostosMateriasPrimas(modal);
-});
 
 $(document).off("click", ".card-presentacion");
 $(document).on("click", ".card-presentacion", function (e) {
@@ -603,6 +601,7 @@ $(document).on("click", ".botonEditar", async function (e) {
   await cargarInputsActualizarQNR.call(modal.find("form"));
   modal.attr("id_producto", idProducto);
   inicializarModalProducto(modal);
+  modal.find('.dineroPositivo').trigger('input')
 });
 
 $(document).off("submit", ".formularioAjax");
@@ -633,22 +632,16 @@ $(document).on("click", ".botonEliminar", async function (e) {
     campoId: 'id_producto',
     modulo: 'productos',
   });
-  if (resultado?.respuestaBack?.icono == 'success') {
-    renderizarDashboard();
-  }
-});
-
-$(document).off("input", ".dinero");
-$(document).on("input", ".dinero", async function (e) {
-  let modal = $(this).closest('.modal')
-  calcularCostosMateriasPrimas(modal);
-  formateoCampos($(this), 'dinero');
+  if (resultado?.respuestaBack?.icono == 'success') renderizarDashboard();
 });
 
 //Evento para validar en tiempo real
 $(document).off('input', '.validar input, .validar select')
 $(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'productos');
+  if ($(this).hasClass('input-cantidad-materia') || $(this).attr('name') == 'precio_producto') {
+    calcularCostosMateriasPrimas($(this).closest('.modal'));
+  }
 })
 //#endregion [ DELEGACIÓN DE EVENTOS ] FIN
 

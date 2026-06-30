@@ -156,7 +156,7 @@ class produccionesModelo extends conexion {
     }
   }
   private function registrarProduccionesP() {
-    $bitacoraModelo = new bitacoraModelo();
+    $objBitacora = new bitacoraModelo();
 
     $idProduccion = $this->generarCodSeg([
       'tablaBD' => 'producciones',
@@ -174,7 +174,12 @@ class produccionesModelo extends conexion {
 
     if ($resultadoGuardar === false || $resultadoGuardar <= 0) {
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'producciones',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         'tipo' => 'simple',
         'titulo' => 'Error',
@@ -201,7 +206,12 @@ class produccionesModelo extends conexion {
 
       if ($idDetalle == 0 || $idDetalle == false) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+        'modulo' => 'producciones',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -232,7 +242,12 @@ class produccionesModelo extends conexion {
 
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+        'modulo' => 'producciones',
+        'accion' => 'Registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -261,7 +276,12 @@ class produccionesModelo extends conexion {
 
         if ($nuevoStock < 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora([
+            'modulo' => 'producciones',
+            'accion' => 'Registrar',
+            'resultado' => 'Fallido',
+            'commit' => true
+          ]);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -282,7 +302,12 @@ class produccionesModelo extends conexion {
 
         if ($resultado === false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora([
+            'modulo' => 'producciones',
+            'accion' => 'Registrar',
+            'resultado' => 'Fallido',
+            'commit' => true
+          ]);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -292,10 +317,11 @@ class produccionesModelo extends conexion {
         }
       }
     }
-
-    $this->commit();
-
-    $bitacoraModelo->registrarBitacora("producciones", "Registrar produccion", "Éxito", true);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'producciones',
+      'accion' => 'Registrar',
+      'resultado' => 'Éxito',
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(
@@ -325,16 +351,16 @@ class produccionesModelo extends conexion {
         ],
       ]
     );
-
+    $this->commit();
     return [
       'tipo' => 'limpiarYcerrar',
       'icono' => 'success',
       'titulo' => 'Éxito en el registro',
-      'texto' => 'Se registró correctamente la producción #' . $idProduccion,
+      'texto' => 'Se registró correctamente la producción: ' . $idProduccion,
     ];
   }
   private function actualizarProduccionesP() {
-    $bitacoraModelo = new bitacoraModelo();
+    $objBitacora = new bitacoraModelo();
 
     $datosAntes = $this->seleccionarProducciones([
       'id_produccion' => $this->idProduccion
@@ -381,7 +407,12 @@ class produccionesModelo extends conexion {
 
       if ($cantidadProducto > $infoGeneralProducto['stock_producto']) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+          'modulo' => 'producciones',
+          'accion' => 'Actualizar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -401,7 +432,12 @@ class produccionesModelo extends conexion {
       ]);
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+          'modulo' => 'producciones',
+          'accion' => 'Actualizar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -439,7 +475,12 @@ class produccionesModelo extends conexion {
         ]);
         if ($resultado === false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora([
+            'modulo' => 'producciones',
+            'accion' => 'Actualizar',
+            'resultado' => 'Fallido',
+            'commit' => true
+          ]);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -450,7 +491,7 @@ class produccionesModelo extends conexion {
       }
     }
 
-    // 7. Insertamos lo nuevo
+    // Insertamos lo nuevo
     foreach ($this->productos as $idProducto => $cantidad) {
       $idDetalle = $this->guardarDatos2([
         'tabla' => 'productos_producciones',
@@ -463,7 +504,12 @@ class produccionesModelo extends conexion {
 
       if ($idDetalle == 0 || $idDetalle === false) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+          'modulo' => 'producciones',
+          'accion' => 'Actualizar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -494,7 +540,12 @@ class produccionesModelo extends conexion {
 
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
-        $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+        $objBitacora->registrarBitacora([
+          'modulo' => 'producciones',
+          'accion' => 'Actualizar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -523,7 +574,12 @@ class produccionesModelo extends conexion {
 
         if ($nuevoStock < 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora([
+            'modulo' => 'producciones',
+            'accion' => 'Actualizar',
+            'resultado' => 'Fallido',
+            'commit' => true
+          ]);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -544,7 +600,12 @@ class produccionesModelo extends conexion {
 
         if ($resultado == false || $resultado <= 0) {
           $this->rollback();
-          $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Fallido", true);
+          $objBitacora->registrarBitacora([
+            'modulo' => 'producciones',
+            'accion' => 'Actualizar',
+            'resultado' => 'Fallido',
+            'commit' => true
+          ]);
           return [
             'tipo' => 'simple',
             'titulo' => 'Error',
@@ -561,7 +622,13 @@ class produccionesModelo extends conexion {
       'id_produccion' => $this->idProduccion
     ]);
 
-    $bitacoraModelo->registrarBitacora("producciones", "Actualizar produccion", "Éxito",  true, $datosAntes, $datosDespues);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'producciones',
+      'accion' => 'Actualizar',
+      'resultado' => 'Fallido',
+      'viejo' => $datosAntes,
+      'nuevo' => $datosDespues
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(

@@ -224,7 +224,11 @@ class monedasModelo extends conexion {
 
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
-      $objBitacora->registrarBitacora('monedas', 'registrar', 'Fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'monedas', 
+        'accion' => 'registrar', 
+        'resultado' => 'Fallido', 
+        'commit' => true]);
       return [
         "tipo" => "simple",
         "titulo" => "Moneda no registrada",
@@ -233,37 +237,13 @@ class monedasModelo extends conexion {
       ];
     }
 
-    $objBitacora->registrarBitacora('monedas', 'registrar', 'Éxito', true);
+    $objBitacora->registrarBitacora([
+      'modulo' => 'monedas', 
+      'accion' => 'registrar', 
+      'resultado' => 'Éxito',
+    ]);
 
     $this->commit();
-
-    $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS([
-      "receptor" => [
-        'tipo' => 'todosSinExcepcion',
-      ],
-      'cuerpo' => [
-        [
-          'accion' => "borrarDataModuloSS",
-          'modulo' => 'monedas'
-        ],
-        [
-          'accion' => "actDT",
-          'modulo' => 'monedas'
-        ],
-        [
-          'accion' => 'alertar',
-          'alerta' => [
-            'tipo' => 'simple',
-            'titulo' => 'Nueva moneda registrada',
-            'texto' => 'Se ha registrado la moneda "' . $this->nombreMoneda . '" con valor ' . $this->valorMoneda,
-            'icono' => 'info',
-            'notifier' => true,
-          ]
-        ],
-      ],
-      'noCommit' => true
-    ]);
 
     return [
       "tipo" => "limpiarYcerrar",
@@ -297,7 +277,12 @@ class monedasModelo extends conexion {
 
     if ($resultado == false || $resultado <= 0) {
       $this->rollback();
-      $objBitacora->registrarBitacora('monedas', 'actualizar', 'Sin cambios', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'monedas', 
+        'accion' => 'Acualizar con id: '.$this->idMoneda,
+        'resultado' => 'Fallido',
+        'commit' => true
+        ]);
       return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
@@ -308,18 +293,15 @@ class monedasModelo extends conexion {
 
     $datosDespues = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
 
-    $objBitacora->registrarBitacora(
-      'monedas',
-      'actualizar',
-      'Éxito',
-      true,
-      $datosAntes,
-      $datosDespues
-    );
-
-    $this->commit();
+    $objBitacora->registrarBitacora([
+      'modulo' => 'monedas', 
+      'accion' => 'Actualizar con id:'.$this->idMoneda, 
+      'resultado' => 'Éxito', 
+      'viejo' => $datosAntes,
+      'nuevo' => $datosDespues    
+    ]);
+ 
     $mensajeNotificacion = 'La moneda "' . $datosAntes['nombre_moneda'] . '" ha sido actualizada';
-
     if ($datosAntes['valor_moneda'] != $this->valorMoneda) {
       $mensajeNotificacion .= ' (valor: ' . $datosAntes['valor_moneda'] . ' → ' . $this->valorMoneda . ')';
     }
@@ -351,7 +333,7 @@ class monedasModelo extends conexion {
       ],
       'noCommit' => true
     ]);
-
+    $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Moneda actualizada",
@@ -370,7 +352,11 @@ class monedasModelo extends conexion {
     ]);
 
     if ($resultado == 1) {
-      $objBitacora->registrarBitacora('monedas', 'eliminar', 'Éxito', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'monedas', 
+        'accion' => 'Eliminar con id:'.$this->idMoneda, 
+        'resultado' => 'Éxito', 
+      ]);
 
       $objetoNot = new mensajesWSModelo();
       $objetoNot->enviarMensajesWS([
@@ -408,7 +394,11 @@ class monedasModelo extends conexion {
       ];
       $this->commit();
     } else {
-      $objBitacora->registrarBitacora('monedas', 'eliminar', 'Fallido', true);
+      $objBitacora->registrarBitacora([
+        'modulo' => 'monedas', 
+        'accion' => 'Eliminar con id:'.$this->idMoneda, 
+        'resultado' => 'Fallido', 
+      ]);
       $alerta = [
         "tipo" => "simple",
         "titulo" => "Moneda no encontrada",
