@@ -234,7 +234,6 @@ class pedidosModelo extends conexion {
     ]);
     if ($resultado) return $resultado;
 
-
     [
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,

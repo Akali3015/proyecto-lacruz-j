@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-06-2026 a las 23:00:30
+-- Tiempo de generación: 01-07-2026 a las 01:04:01
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -27,6 +27,69 @@ DELIMITER $$
 --
 -- Procedimientos
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_cambiar_estado_pedido` (IN `sp_id_pedido` VARCHAR(255), IN `sp_estado` INT)   BEGIN 
+	START TRANSACTION; 
+    -- Devolver el stock de los productos del pedido 
+		IF(sp_estado=6) THEN 
+		BEGIN 
+        	DECLARE v_cantidad_bruta decimal(10,2);
+            DECLARE v_stock_actual_producto decimal(10,2);
+            DECLARE v_id_producto VARCHAR(30);
+            DECLARE fin_consulta INT default 0;
+            DECLARE productosPedido CURSOR FOR 
+            SELECT (pres.cantidad_pmp * posp.cantidad_producto) as cantidad_bruta, prod.stock_producto,prod.id_producto 
+            FROM productos_ordenes_entregas_presupuestos as posp 
+            INNER JOIN presentaciones_productos as pp ON posp.id_presentacion_producto = pp.id_presentacion_producto 
+            INNER JOIN presentaciones as pres ON pp.id_presentacion = pres.id_presentacion 
+            INNER JOIN productos as prod ON pp.id_producto = prod.id_producto 
+            WHERE posp.id_orden_entrega_presupuesto = sp_id_pedido;
+            DECLARE CONTINUE HANDLER FOR NOT FOUND SET fin_consulta = 1; 
+            
+            OPEN productosPedido;
+            mi_ciclo: LOOP 
+            	FETCH productosPedido INTO v_cantidad_bruta, v_stock_actual_producto, v_id_producto; 
+            	IF fin_consulta = 1 THEN 
+                	LEAVE mi_ciclo; 
+                END IF; 
+            	-- Actualizamos cada stock 
+            	UPDATE productos SET stock_producto = v_stock_actual_producto+v_cantidad_bruta WHERE id_producto=v_id_producto; 
+                IF(ROW_COUNT()<=0) THEN 
+            		ROLLBACK; 
+            		SIGNAL SQLSTATE '45000'
+            		SET MESSAGE_TEXT = 'No se logró actualizar el stock de uno de los productos'; 
+            	END IF;
+                
+                -- Borramos los detalles de productos
+                UPDATE productos_ordenes_entregas_presupuestos set status =0 
+                WHERE id_orden_entrega_presupuesto = sp_id_pedido;
+                IF(ROW_COUNT()<=0) THEN 
+            		ROLLBACK; 
+            		SIGNAL SQLSTATE '45000'
+            		SET MESSAGE_TEXT = 'No se logró actualizar el stock de uno de los productos'; 
+            	END IF;
+            END LOOP mi_ciclo; 
+            CLOSE productosPedido; 
+        END; 
+            
+       -- Borrar los detalles del pago 
+       UPDATE pagos SET status = 0 
+       WHERE id_orden_entrega_presupuesto = sp_id_pedido; 
+       	IF(ROW_COUNT()<=0) THEN 
+       		ROLLBACK; 
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'No se borraron los detalles del pago'; 
+       	END IF; 
+	END IF; 
+   	-- Actualizamos en status del pedido 
+	UPDATE ordenes_entregas_presupuestos SET status = sp_estado 
+	WHERE id_orden_entrega_presupuesto = sp_id_pedido; 
+	IF(ROW_COUNT()<=0) THEN 
+    	ROLLBACK; 
+		SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se pudo actualizar el estado del pedido'; 
+    END IF; 
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_guardar_precio_materia_prima` (IN `id_materia_prima` VARCHAR(20), IN `precio_materia_prima` DECIMAL(20,2))   BEGIN
     INSERT INTO precios_materias_primas (id_materia_prima, precio_materia_prima) 
     VALUES (id_materia_prima, precio_materia_prima);
@@ -52,13 +115,7 @@ END$$
 --
 -- Funciones
 --
-CREATE DEFINER=`root`@`localhost` FUNCTION `funcionJJJ` () RETURNS DECIMAL(20,2) READS SQL DATA BEGIN
-	DECLARE valor_mm decimal(20,2);
-	SELECT valor_moneda INTO valor_mm FROM monedas WHERE id_moneda =1;
-    return valor_mm;
-END$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtener_iva_actual` () RETURNS DECIMAL(20,2) READS SQL DATA BEGIN
+CREATE DEFINER=`root`@`localhost` FUNCTION `fn_obtener_iva_actual` () RETURNS DECIMAL(20,2) READS SQL DATA BEGIN
     DECLARE v_iva decimal(20,2);
     SELECT monto_cambio_iva INTO v_iva 
     FROM cambios_iva 
@@ -67,22 +124,22 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `obtener_iva_actual` () RETURNS DECIM
     RETURN v_iva;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtener_iva_actual2` () RETURNS DECIMAL(20,2) READS SQL DATA BEGIN
-    DECLARE v_iva decimal(20,2);
-    SELECT monto_cambio_iva INTO v_iva 
-    FROM cambios_iva 
-    ORDER BY id_cambio_iva DESC
-    LIMIT 1;
-    RETURN v_iva;
+CREATE DEFINER=`root`@`localhost` FUNCTION `fn_precio_con_iva` (`precio` DECIMAL(10,2)) RETURNS DECIMAL(20,2)  BEGIN
+
+DECLARE iva_actual DECIMAL(20,2);
+DECLARE precio_con_iva DECIMAL(20,2);
+SELECT fn_obtener_iva_actual() INTO iva_actual;
+set precio_con_iva = (precio+((precio*iva_actual)/100));
+RETURN precio_con_iva;
+
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `obtener_iva_actual3` () RETURNS DECIMAL(20,2) READS SQL DATA BEGIN
-    DECLARE v_iva decimal(20,2);
-    SELECT monto_cambio_iva INTO v_iva 
-    FROM cambios_iva 
-    ORDER BY id_cambio_iva DESC
-    LIMIT 1;
-    RETURN v_iva;
+CREATE DEFINER=`root`@`localhost` FUNCTION `fn_sacar_raiz_cuadra` (`numero` DECIMAL(10,2)) RETURNS DECIMAL(10,2)  BEGIN
+	RETURN SQRT(numero);
+END$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `fn_sumar_dos_numeros` (`numero1` DECIMAL(10,2), `numero2` DECIMAL(10,2)) RETURNS DECIMAL(10,2)  BEGIN
+	RETURN numero1+ numero2;
 END$$
 
 DELIMITER ;
@@ -104,9 +161,38 @@ CREATE TABLE `bancos` (
 --
 
 INSERT INTO `bancos` (`id_banco`, `nombre_banco`, `status`) VALUES
-(1, 'BANCO DE VENEZUELA', 1),
-(2, 'BANCO PROVINCIAL', 1),
-(93, 'bando de ejemplo', 1);
+(1, 'VENEZUELA', 0),
+(2, 'BANCO PROVINCIAL', 0),
+(93, 'bando de ejemplo', 0),
+(2849, 'PROVINCIAL', 0),
+(2850, 'MENCÁNTIL', 0),
+(2851, 'BANESCO', 0),
+(2852, 'BICENTENARIO', 0),
+(2853, '0102 - BANCO DE VENEZUELA', 1),
+(2854, '0104 - BANCO VENEZOLANO DE CRÉDITO', 1),
+(2855, '0105 - BANCO MERCÁNTIL', 1),
+(2856, '0108 - BBVA PROVINCIAL', 1),
+(2857, '0114 - BANCARIBE', 1),
+(2858, '0115 - BANCO EXTERIOR', 1),
+(2859, '0128 - BANCO CARONÍ', 1),
+(2860, '0134 - BANESCO', 1),
+(2861, '0137 - BANCO SOFITASA', 1),
+(2862, '0138 - BANCO PLAZA', 1),
+(2863, '0146 - BANGENTE', 1),
+(2864, '0151 - BANCO FONDO COMÚN', 1),
+(2865, '0156 - 100% BANCO', 1),
+(2866, '0157 - DELSUR BANCO UNIVERSAL', 1),
+(2867, '0163 - BANCO DEL TESORO', 1),
+(2868, '0168 - BANCRECER', 1),
+(2869, '0169 - R4 BANCO MICROFINANCIERO C.A.', 1),
+(2870, '0171 - BANCO ACTIVO', 1),
+(2871, '0172 - BANCAMIGA BANCO UNIVERSAL', 1),
+(2872, '0174 - BAMPLUS', 1),
+(2873, '0175 - BANCO DIGITAL DE LOS TRABAJADORES', 1),
+(2874, '0177 - BANFANB', 1),
+(2875, '0178 - N58 BANCO DIGITAL MICROFINANCIERO S.A.', 1),
+(2876, '0191 - BANCO NACIONAL DE CRÉDITO', 1),
+(2877, '0601 - INSTITUTO NACIONAL DE CRÉDITO POPULAR', 1);
 
 -- --------------------------------------------------------
 
@@ -121,15 +207,6 @@ CREATE TABLE `bancos_detalles_pagos` (
   `es_emisor` tinyint(1) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `bancos_detalles_pagos`
---
-
-INSERT INTO `bancos_detalles_pagos` (`id_banco_detalle_pago`, `id_detalle_pago`, `id_banco`, `es_emisor`, `status`) VALUES
-(189, 161, 1, 1, 1),
-(190, 161, 2, 0, 1),
-(191, 162, 1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -195,7 +272,10 @@ INSERT INTO `cambios_iva` (`id_cambio_iva`, `monto_cambio_iva`, `fecha_cambio_iv
 (240, 1250.50, '2026-06-13 16:28:06', 1),
 (250, 77.00, '2026-06-13 16:47:54', 1),
 (251, 77.00, '2026-06-13 16:48:00', 1),
-(252, 87.00, '2026-06-13 16:48:18', 1);
+(252, 87.00, '2026-06-13 16:48:18', 1),
+(253, 16.00, '2026-06-13 19:30:36', 1),
+(254, 78.00, '2026-06-20 22:10:21', 1),
+(256, 16.00, '2026-06-27 13:41:17', 1);
 
 -- --------------------------------------------------------
 
@@ -251,7 +331,8 @@ INSERT INTO `cambios_monedas` (`id_cambio_moneda`, `id_moneda`, `valor_moneda`, 
 (105, 1, 567.00, '2026-06-08 21:19:55', 1),
 (133, 4, 1250000000000.00, '2026-06-13 16:27:13', 1),
 (134, 4, 1250.00, '2026-06-13 16:28:00', 1),
-(135, 4, 1250.50, '2026-06-13 16:28:06', 1);
+(135, 4, 1250.50, '2026-06-13 16:28:06', 1),
+(139, 1, 623.02, '2026-06-27 18:38:28', 1);
 
 -- --------------------------------------------------------
 
@@ -297,14 +378,33 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_cliente`, `correo_cliente`, `direccion_cliente`, `status`) VALUES
+('', 'ANDEROSN FREITEZ', '04161234567', 'andersonfreitezN@gmail.com', 'ANDERSON', 0),
 ('30485684', 'ANDEROSN FREITEZ', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 0),
 ('E25252525', 'ANDEROSN FREITE', '04169484647', 'andersonfreite5z6@gmail.com', '5454', 0),
 ('E30485684', 'ANDEROSN FREIT', '04169484645', 'andersonfreitez6@gmail.co', 'SANARE', 0),
-('V30485682', 'NADA', '04141234567', 'andersonfreitez6@gmail.co', 'SANARE', 1),
-('V30485683', 'ANDEROSN FREIT', '04161234568', 'andersonfreitez6@gmail.conk', 'SANARE', 0),
-('V30485684', 'ANDEROSN FREITE', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 1),
+('G200000589', 'Círculo Militar de la Fuerza Armada', '', '', 'Av. Morancon Av. Los Abogados Barquisimeto Edo. Lara', 1),
+('G200101350', 'Hospital Militar Dr. José Angel Alamo', '', 'oficinarecaudadolara25@gmail.com', 'Av. Principal El Ujano Edf. Hospital Militar Dr. José Angel Almo Barquisimeto Edo Lara', 1),
+('J001241345', 'Compañía Anónima Nacional Teléfonos de Venezuela (CANTV)', '02125007373', '', 'Final Av. Libertador Edificio CANTV Caracas Venezuela ', 1),
+('J001673920', 'Hospitalar C.A.', '04241941573', 'contigo@hospitalarve.com', 'Vda. Francisco de Miranda Edif. Centro Seguros La Paz Piso 7 Local 0-71, 0-73, 0-75, S-71 Urb. Boleita Caracas ( Petare) Miranda Zona Postal 1070', 1),
+('J070003448', 'Cervecería Regional C.A', '04129628546', 'andrea.linares@cerveceriaregional.com', 'Av. 17 Los Haticos Local N 112-13 Maracaibo Edo. Zulia', 1),
+('J310729425', 'Condominio Centro Comercial Profesional Rosancar', '04128479199', 'rosancarbarquisimeto@gmail.com', 'Calle 20 Esq. Carrera 31 C.C Rosancar Nivel 30-97 Local PB Sector Centro Barquisimeto Edo. Lara', 1),
+('J314964291', 'Mbzoluciones C.A', '', 'mbzolucioles@gmail.com', 'Calle 26 entre Carreras 16 y 17 Edif. Torre Ejecutiva piso 4 oficina 45 Barquisimeto Edo Lara', 1),
+('V12345666', 'Anderson Freitez', '04169484999', 'andersonfreitez776@gmail.com', 'BARQUISIMETO', 0),
+('V1234567', 'ANDEROSN FREITEZ', '04169484649', 'andersonfreitez6@gmail.com', 'BARQUISIMETO', 0),
+('V304856111', 'Anderson Freitei', '04169484647', 'andersonfreitez68@gmail.com', 'BARQUISIMETO', 0),
+('V30485680', 'Anderson Freitez', '04169484655', 'andersonfreitez76@gmail.com', 'SANARE', 0),
+('V30485682', 'NADA', '04141234567', 'andersonfreitez6@gmail.co', 'SANARE', 0),
+('V30485683', 'Anderson Freitez', '04169484648', 'andersonfreitez68@gmail.com', 'BARQUISIMETO', 1),
+('V30485684', 'ANDEROSN FREITE', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 0),
 ('V304856845', '54114', '04169484646', 'andersonfreitez66@gmail.com', 'hhhh', 0),
-('V30485689', 'ANDEROSN FREITEZ', '04169484648', 'andersonfreitez6@gmail.con', 'David', 0);
+('V30485686', 'Anderson Freitez', '04169999999', 'andersonfreitez6999@gmail.com', 'SANARE', 0),
+('V30485689', 'ANDEROSN FREITEZ', '04169484648', 'andersonfreitez6@gmail.con', 'David', 0),
+('V30485694', 'Anderson Freitez', '04169484699', 'andersonfreitez996@gmail.com', 'BARQUISIMETO', 0),
+('V33333331', 'ANDEROSN FREITEZaa', '04161234569', 'andersonfreitez6@gmail.coj', 'ANDERSON', 0),
+('V33333332', 'ANDEROSN FREITEZ', '04161234567', 'andersonfreitez12@gmail.com', 'Sanare', 0),
+('V33333333', 'ANDEROSN FREITEZ', '04169484649', 'andersonfreitez6@gmail.com', 'BARQUISIMETO', 0),
+('V333333333', 'ANDEROSN FREITEZG', '04161234567', 'andersonfreitez16@gmail.com', 'SANARE', 0),
+('V333333338', 'ANDEROSN FREITEj', '04161234560', 'andersonfreitez06@gmail.com', 'hhh', 0);
 
 -- --------------------------------------------------------
 
@@ -353,9 +453,9 @@ CREATE TABLE `comprobantes_pagos` (
 --
 
 INSERT INTO `comprobantes_pagos` (`id_comprobante_pago`, `id_pago`, `path_comprobante`, `status`) VALUES
-(45, 'PAG-26158-00001-63', 'comprobantes_pagos_2026_06_08_21_23_00_68.jpg', 1),
-(46, 'PAG-26159-00001-82', 'comprobantes_pagos_2026_06_09_11_02_36_100.jpg', 1),
-(47, 'PAG-26160-00001-75', 'comprobantes_pagos_2026_06_10_17_23_16_62.jpg', 1);
+(143, 'PAG-26179-00001-82', 'comprobantes_pagos_2026_06_29_18_09_11_18.jpg', 1),
+(144, 'PAG-26179-00002-96', 'comprobantes_pagos_2026_06_29_18_13_42_10.jpg', 1),
+(145, 'PAG-26180-00001-26', 'comprobantes_pagos_2026_06_30_16_36_36_81.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -376,9 +476,9 @@ CREATE TABLE `deliveries` (
 --
 
 INSERT INTO `deliveries` (`id_delivery`, `id_orden_entrega_presupuesto`, `id_direccion`, `cedula_repartidor`, `status`) VALUES
-('DELI-26158-00001-45', 'FACT-26158-00001-94', 64, NULL, 1),
-('DELI-26159-00001-49', 'FACT-26159-00001-27', 65, 'V30485684', 1),
-('DELI-26160-00001-18', 'FACT-26160-00001-42', 66, 'V30485684', 1);
+('DELI-26179-00001-53', 'FACT-26179-00001-24', 156, 'V12344567', 1),
+('DELI-26179-00002-63', 'FACT-26179-00002-67', 157, 'V12344567', 1),
+('DELI-26180-00001-89', 'FACT-26180-00001-62', 158, 'V12344567', 1);
 
 -- --------------------------------------------------------
 
@@ -400,9 +500,9 @@ CREATE TABLE `detalles_pagos` (
 --
 
 INSERT INTO `detalles_pagos` (`id_detalle_pago`, `id_pago`, `id_metodo_pago`, `id_moneda`, `monto_pago`, `status`) VALUES
-(153, 'PAG-26158-00001-63', 3, 1, 121.52, 1),
-(161, 'PAG-26159-00001-82', 1, 2, 10000.00, 1),
-(162, 'PAG-26160-00001-75', 2, 2, 4009.00, 1);
+(264, 'PAG-26179-00001-82', 3, 1, 113.00, 1),
+(265, 'PAG-26179-00002-96', 3, 1, 113.00, 1),
+(266, 'PAG-26180-00001-26', 3, 1, 529.00, 1);
 
 -- --------------------------------------------------------
 
@@ -444,7 +544,35 @@ INSERT INTO `direcciones` (`id_direccion`, `id_latitud_direccion`, `id_longitud_
 (63, 92, 88, 10, 1),
 (64, 93, 89, 10, 1),
 (65, 94, 90, 10, 1),
-(66, 95, 91, 10, 1);
+(66, 95, 91, 10, 1),
+(77, 106, 102, 11, 1),
+(78, 107, 103, 11, 1),
+(79, 108, 104, 11, 1),
+(80, 109, 105, 11, 1),
+(81, 110, 106, 11, 1),
+(82, 111, 107, 11, 1),
+(83, 112, 108, 11, 1),
+(84, 113, 109, 11, 1),
+(85, 114, 110, 11, 1),
+(86, 115, 111, 11, 1),
+(124, 153, 149, 11, 1),
+(125, 154, 150, 11, 1),
+(131, 160, 156, 11, 1),
+(141, 170, 166, 11, 1),
+(142, 171, 167, 11, 1),
+(143, 172, 168, 11, 1),
+(144, 173, 169, 11, 1),
+(145, 174, 170, 11, 1),
+(146, 175, 171, 11, 1),
+(149, 178, 174, 11, 1),
+(150, 179, 175, 11, 1),
+(151, 180, 169, 11, 1),
+(153, 182, 177, 11, 1),
+(154, 183, 178, 11, 1),
+(155, 184, 179, 11, 1),
+(156, 185, 180, 11, 1),
+(157, 186, 181, 11, 1),
+(158, 187, 182, 11, 1);
 
 -- --------------------------------------------------------
 
@@ -469,7 +597,9 @@ INSERT INTO `empresas_envios` (`id_empresa_envios`, `nombre_empresa`, `status`) 
 (4, 'ZOOM', 0),
 (5, 'ALIBABAB', 0),
 (6, 'ZOOM', 1),
-(7, 'ZOOM 2', 1);
+(7, 'ZOOM 2', 0),
+(34, 'ZOOM2', 0),
+(35, 'ZOOMMM', 0);
 
 -- --------------------------------------------------------
 
@@ -522,7 +652,35 @@ INSERT INTO `latitudes_direcciones` (`id_latitud_direccion`, `coordenada_latitud
 (92, '9.8613761802134', 1),
 (93, '9.8600626405522', 1),
 (94, '10.050305879849', 1),
-(95, '10.05010893544', 1);
+(95, '10.05010893544', 1),
+(106, '9.8601550931395', 1),
+(107, '9.859754768276', 1),
+(108, '9.8599933013011', 1),
+(109, '9.8599169544674', 1),
+(110, '9.8615897462498', 1),
+(111, '9.8616255287098', 1),
+(112, '9.8603268948328', 1),
+(113, '9.8603829908308', 1),
+(114, '9.860111242047', 1),
+(115, '9.8612437338729', 1),
+(153, '9.8604001121099', 1),
+(154, '9.8597670526368', 1),
+(160, '9.8597788105131', 1),
+(170, '9.861874', 1),
+(171, '9.861672', 1),
+(172, '9.8597561143133', 1),
+(173, '9.8600273814353', 1),
+(174, '9.8600766058849', 1),
+(175, '9.8592958653846', 1),
+(178, '9.8618713140662', 1),
+(179, '9.8594610351324', 1),
+(180, '9.8600262893916', 1),
+(182, '9.8618126247782', 1),
+(183, '9.8618387108127', 1),
+(184, '9.8603384904674', 1),
+(185, '9.8597834819881', 1),
+(186, '9.8601496311066', 1),
+(187, '9.861755', 1);
 
 -- --------------------------------------------------------
 
@@ -561,7 +719,34 @@ INSERT INTO `longitudes_direcciones` (`id_longitud_direccion`, `coordenada_longi
 (88, '-69.612072884695', 1),
 (89, '-69.611984815715', 1),
 (90, '-69.360347986221', 1),
-(91, '-69.326858521672', 1);
+(91, '-69.326858521672', 1),
+(102, '-69.61199178066', 1),
+(103, '-69.611963467553', 1),
+(104, '-69.61198011811', 1),
+(105, '-69.611974940021', 1),
+(106, '-69.612088084289', 1),
+(107, '-69.61208912813', 1),
+(108, '-69.61200079391', 1),
+(109, '-69.612006685027', 1),
+(110, '-69.611986751037', 1),
+(111, '-69.612064389881', 1),
+(149, '-69.612005278293', 1),
+(150, '-69.611963985342', 1),
+(156, '-69.611965316644', 1),
+(166, '-69.612083', 1),
+(167, '-69.61203', 1),
+(168, '-69.611963134899', 1),
+(169, '-69.611978425897', 1),
+(170, '-69.611981333779', 1),
+(171, '-69.611937', 1),
+(174, '-69.612083222138', 1),
+(175, '-69.611946478615', 1),
+(177, '-69.612078044944', 1),
+(178, '-69.612080150969', 1),
+(179, '-69.611995786211', 1),
+(180, '-69.611964647621', 1),
+(181, '-69.611986523216', 1),
+(182, '-69.612045', 1);
 
 -- --------------------------------------------------------
 
@@ -587,7 +772,7 @@ INSERT INTO `materias_primas` (`id_materia_prima`, `id_unidad_medida`, `nombre_m
 ('MATE-26123-00001-66', 2, 'HIPOCLORITO', 100.00, 10.00, 50.00, 1),
 ('MATE-26149-00001-45', 1, 'HIPOCLORITOm', 10.00, 8.00, 10.00, 0),
 ('MATE-26149-00002-90', 1, 'HIPOCLORITOSS', 222.00, 222.00, 111.00, 0),
-('MATE-26157-00001-95', 2, 'HIPOCLORITOm', 1.00, 1.00, 1.00, 1);
+('MATE-26157-00001-95', 2, 'HIPOCLORITOm', 101.00, 1.00, 1.00, 1);
 
 --
 -- Disparadores `materias_primas`
@@ -676,9 +861,7 @@ CREATE TABLE `materias_primas_productos` (
 --
 
 INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materia_prima`, `id_producto`, `cantidad_materia_prima`, `status`) VALUES
-(170, 'MATE-26123-00001-66', 'PROD-26150-00001-39', 20.00, 0),
-(171, 'MATE-26123-00001-66', 'PROD-26150-00001-39', 20.00, 0),
-(172, 'MATE-26123-00001-66', 'PROD-26150-00001-39', 20.00, 1);
+(179, 'MATE-26123-00001-66', 'PROD-26150-00001-39', 10.00, 1);
 
 -- --------------------------------------------------------
 
@@ -711,7 +894,10 @@ INSERT INTO `metodos_pagos` (`id_metodo_pago`, `nombre_metodo_pago`, `necesita_m
 (12, 'TRANSFERENCI', 1, 1, 1, 1, 0, 0),
 (13, 'ZELLEL', 1, 1, 1, 1, 0, 0),
 (17, 'TOPOmm', 1, 1, 1, 1, 1, 0),
-(18, 'TOPOm', 1, 0, 0, 0, 1, 0);
+(18, 'TOPOm', 1, 0, 0, 0, 1, 0),
+(51, 'OTRO', 0, 0, 0, 0, 0, 0),
+(52, 'EFECTIVOM', 1, 1, 1, 1, 1, 0),
+(53, 'ZINLI', 1, 0, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -732,7 +918,7 @@ CREATE TABLE `monedas` (
 --
 
 INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_moneda`, `status`) VALUES
-(1, 'DÓLAR', '$', 567.00, 1),
+(1, 'DÓLAR', '$', 623.02, 1),
 (2, 'BÓLIVAR', 'BS', 1.00, 1),
 (3, 'EURO', '€', 600.00, 1),
 (4, 'YUAN', '¥', 1250.50, 1),
@@ -743,7 +929,7 @@ INSERT INTO `monedas` (`id_moneda`, `nombre_moneda`, `simbolo_moneda`, `valor_mo
 --
 DELIMITER $$
 CREATE TRIGGER `tg_guardar_precio_moneda_act` AFTER UPDATE ON `monedas` FOR EACH ROW BEGIN
-IF NEW.VALOR_MONEDA <> OLD.VALOR_MONEDA THEn
+IF NEW.VALOR_MONEDA <> OLD.VALOR_MONEDA THEN
 CALL sp_guardar_precio_moneda(
 	NEW.id_moneda,
     NEW.valor_moneda
@@ -759,28 +945,6 @@ CALL sp_guardar_precio_moneda(
 	NEW.id_moneda,
     NEW.valor_moneda
 );
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `tg_trigger` AFTER UPDATE ON `monedas` FOR EACH ROW BEGIN 
-
-INSERT INTO cambios_iva(monto_cambio_iva)VALUES(NEW.valor_moneda);
-
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `tg_trigger2` AFTER UPDATE ON `monedas` FOR EACH ROW BEGIN 
-
-INSERT INTO cambios_iva(monto_cambio_iva)VALUES(NEW.valor_moneda);
-
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `tgg` AFTER INSERT ON `monedas` FOR EACH ROW BEGIN
-INSERT INTO cambios_monedas(id_moneda,valor_moneda) VALUES(NOW.id_moneda, NOW.valor_moneda);
 END
 $$
 DELIMITER ;
@@ -807,7 +971,8 @@ CREATE TABLE `movimientos_anomalos_materias_primas` (
 
 INSERT INTO `movimientos_anomalos_materias_primas` (`id_movimiento_anomalo_materia_prima`, `id_materia_prima`, `cantidad_movimiento`, `tipo_movimiento`, `motivo_movimiento`, `fecha_movimiento`, `status`) VALUES
 (0, 'MATE-26123-00001-66', 5, 1, 'llego', '2026-05-23 12:49:34', 1),
-(0, 'MATE-26123-00001-66', 10, 1, 'asd', '2026-05-23 13:54:10', 1);
+(0, 'MATE-26123-00001-66', 10, 1, 'asd', '2026-05-23 13:54:10', 1),
+(0, 'MATE-26157-00001-95', 100, 1, 'jaja', '2026-06-20 22:01:28', 1);
 
 -- --------------------------------------------------------
 
@@ -845,9 +1010,9 @@ CREATE TABLE `ordenes_entregas_presupuestos` (
 --
 
 INSERT INTO `ordenes_entregas_presupuestos` (`id_orden_entrega_presupuesto`, `cedula_usuario`, `id_cambio_iva`, `rif_cedula_cliente`, `fecha_orden_entrega_presupuesto`, `status`) VALUES
-('FACT-26158-00001-94', '', 201, '30485684', '2026-06-08 21:23:00', 6),
-('FACT-26159-00001-27', '', 234, '30485684', '2026-06-09 11:02:36', 8),
-('FACT-26160-00001-42', '30485684', 234, '30485684', '2026-06-10 17:23:16', 7);
+('FACT-26179-00001-24', 'V30485684', 256, 'V30485684', '2026-06-29 18:09:11', 7),
+('FACT-26179-00002-67', 'V30485684', 256, 'V30485684', '2026-06-29 18:13:42', 8),
+('FACT-26180-00001-62', 'V30485684', 256, 'V30485684', '2026-06-30 16:36:35', 7);
 
 -- --------------------------------------------------------
 
@@ -867,9 +1032,9 @@ CREATE TABLE `pagos` (
 --
 
 INSERT INTO `pagos` (`id_pago`, `id_orden_entrega_presupuesto`, `fecha_pago`, `status`) VALUES
-('PAG-26158-00001-63', 'FACT-26158-00001-94', '2026-06-08 00:00:00', 0),
-('PAG-26159-00001-82', 'FACT-26159-00001-27', '2026-06-09 00:00:00', 1),
-('PAG-26160-00001-75', 'FACT-26160-00001-42', '2026-06-10 00:00:00', 1);
+('PAG-26179-00001-82', 'FACT-26179-00001-24', '2026-06-29 00:00:00', 1),
+('PAG-26179-00002-96', 'FACT-26179-00002-67', '2026-06-29 00:00:00', 1),
+('PAG-26180-00001-26', 'FACT-26180-00001-62', '2026-06-30 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -918,7 +1083,12 @@ INSERT INTO `precios_productos` (`id_precio_producto`, `id_producto`, `precio_pr
 (42, 'PROD-26150-00001-39', 1.00, '2026-05-31 12:51:12', 1),
 (63, 'PROD-26150-00001-39', 2.00, '2026-06-04 10:44:02', 1),
 (65, 'PROD-26150-00001-39', 3.00, '2026-06-04 11:04:31', 1),
-(74, 'PROD-26150-00001-39', 1.00, '2026-06-08 21:20:19', 1);
+(74, 'PROD-26150-00001-39', 1.00, '2026-06-08 21:20:19', 1),
+(86, 'PROD-26150-00001-39', 100.00, '2026-06-21 18:26:52', 1),
+(87, 'PROD-26150-00001-39', 1.00, '2026-06-21 18:27:09', 1),
+(89, 'PROD-26150-00001-39', 100.00, '2026-06-29 18:43:02', 1),
+(90, 'PROD-26150-00001-39', 10000.00, '2026-06-29 18:43:11', 1),
+(91, 'PROD-26150-00001-39', 1.00, '2026-06-30 15:53:05', 1);
 
 -- --------------------------------------------------------
 
@@ -947,7 +1117,21 @@ INSERT INTO `precios_rutas` (`id_precio_ruta`, `id_ruta`, `precio_ruta`, `fecha_
 (52, 11, 3.00, '2026-06-08 21:21:37', 1),
 (53, 9, 0.50, '2026-06-08 21:21:46', 1),
 (54, 10, 1.00, '2026-06-08 21:21:54', 1),
-(55, 11, 2.00, '2026-06-08 21:22:00', 1);
+(55, 11, 2.00, '2026-06-08 21:22:00', 1),
+(76, 71, 30.00, '2026-06-14 14:38:18', 1),
+(77, 71, 3.00, '2026-06-14 14:38:26', 1),
+(78, 71, 0.30, '2026-06-14 14:38:33', 1),
+(79, 71, 30.00, '2026-06-14 14:39:44', 1),
+(80, 71, 3000.00, '2026-06-14 14:39:59', 1),
+(81, 71, 300.00, '2026-06-14 14:41:56', 1),
+(82, 71, 30000.00, '2026-06-14 14:47:51', 1),
+(83, 71, 3000.00, '2026-06-14 14:51:00', 1),
+(84, 71, 3.00, '2026-06-14 14:52:57', 1),
+(85, 72, 3.00, '2026-06-14 14:54:22', 1),
+(86, 73, 10.00, '2026-06-24 18:37:18', 1),
+(87, 73, 1000.00, '2026-06-24 18:37:26', 1),
+(88, 73, 100.00, '2026-06-24 18:37:56', 1),
+(89, 74, 1.00, '2026-06-30 16:28:05', 1);
 
 -- --------------------------------------------------------
 
@@ -968,8 +1152,7 @@ CREATE TABLE `precios_servicios` (
 --
 
 INSERT INTO `precios_servicios` (`id_precio_servicio`, `id_servicio`, `precio_servicio`, `fecha_cambio`, `status`) VALUES
-(2, 'SERV-26125-00001-08', 22.00, '2026-05-28 14:34:00', 1),
-(3, '', 10.00, '2026-05-28 14:35:20', 1);
+(2, 'SERV-26125-00001-08', 22.00, '2026-05-28 14:34:00', 1);
 
 -- --------------------------------------------------------
 
@@ -990,10 +1173,12 @@ CREATE TABLE `presentaciones` (
 --
 
 INSERT INTO `presentaciones` (`id_presentacion`, `id_unidad_medida`, `nombre_presentacion`, `cantidad_pmp`, `status`) VALUES
-('PRES-26123-00001-28', 2, 'POR LITRO', 1.00, 1),
+('PRES-26123-00001-28', 2, 'LITRO', 1.00, 1),
 ('PRES-26159-00001-42', 2, 'BIDÓN', 20.00, 1),
 ('PRES-26159-00002-78', 2, 'PIPA', 200.00, 1),
-('PRES-26159-00003-24', 2, 'GALÓN', 4.00, 1);
+('PRES-26159-00003-24', 2, 'GALÓN', 4.00, 1),
+('PRES-26177-00001-19', 2, 'CAJA - 1L', 12.00, 1),
+('PRES-26177-00002-40', 2, 'CAJA - GALÓN', 12.00, 1);
 
 -- --------------------------------------------------------
 
@@ -1038,12 +1223,12 @@ CREATE TABLE `presentaciones_productos` (
 --
 
 INSERT INTO `presentaciones_productos` (`id_presentacion_producto`, `id_producto`, `id_presentacion`, `mostrar_ecommerce`, `foto_presentacion`, `status`) VALUES
-('PRPR-26158-00001-06', 'PROD-26150-00001-39', 'PRES-26123-00001-28', 1, '', 0),
-('PRPR-26159-00001-70', 'PROD-26150-00001-39', 'PRES-26159-00001-42', 1, 'presentaciones_productos_2026-06-10_11_27_45.jpg?v=2026-06-10_18_03_23', 1),
-('PRPR-26159-00002-84', 'PROD-26150-00001-39', 'PRES-26159-00002-78', 1, 'presentaciones_productos_2026-06-10_18_06_25.jpg?v=2026-06-10_18_06_25', 1),
-('PRPR-26159-00003-15', 'PROD-26150-00001-39', 'PRES-26159-00003-24', 1, '', 0),
-('PRPR-26160-00001-60', 'PROD-26150-00001-39', 'PRES-26123-00001-28', 1, 'presentaciones_productos_2026-06-10_11_15_34.jpg?v=2026-06-10_17_54_04', 1),
-('PRPR-26160-00002-49', 'PROD-26150-00001-39', 'PRES-26159-00003-24', 0, 'presentaciones_productos_2026-06-10_11_15_21.jpg?v=2026-06-10_18_04_00', 1);
+('PRPR-26180-00001-41', 'PROD-26150-00001-39', 'PRES-26123-00001-28', 1, '', 1),
+('PRPR-26180-00002-67', 'PROD-26150-00001-39', 'PRES-26159-00001-42', 1, '', 1),
+('PRPR-26180-00003-08', 'PROD-26150-00001-39', 'PRES-26159-00002-78', 1, '', 1),
+('PRPR-26180-00004-33', 'PROD-26150-00001-39', 'PRES-26159-00003-24', 1, '', 1),
+('PRPR-26180-00005-71', 'PROD-26150-00001-39', 'PRES-26177-00001-19', 1, '', 1),
+('PRPR-26180-00006-67', 'PROD-26150-00001-39', 'PRES-26177-00002-40', 1, '', 1);
 
 -- --------------------------------------------------------
 
@@ -1089,7 +1274,7 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `id_categoria_producto`, `nombre_producto`, `precio_producto`, `stock_producto`, `stock_minimo_producto`, `status`) VALUES
-('PROD-26150-00001-39', 2, 1, 'CLORO', 1.00, 9.00, 2.00, 1);
+('PROD-26150-00001-39', 2, 1, 'CLORO', 1.00, 1600.00, 20.00, 1);
 
 --
 -- Disparadores `productos`
@@ -1148,9 +1333,7 @@ CREATE TABLE `productos_ordenes_entregas_presupuestos` (
 --
 
 INSERT INTO `productos_ordenes_entregas_presupuestos` (`id_producto_factura`, `id_orden_entrega_presupuesto`, `id_presentacion_producto`, `cantidad_producto`, `status`) VALUES
-(194, 'FACT-26158-00001-94', 'PRPR-26158-00001-06', 2.00, 1),
-(217, 'FACT-26159-00001-27', 'PRPR-26158-00001-06', 1.00, 1),
-(218, 'FACT-26160-00001-42', 'PRPR-26160-00001-60', 1.00, 1);
+(323, 'FACT-26180-00001-62', 'PRPR-26180-00003-08', 2.00, 1);
 
 -- --------------------------------------------------------
 
@@ -1209,12 +1392,17 @@ CREATE TABLE `proveedores` (
 INSERT INTO `proveedores` (`rif_proveedor`, `razon_social_proveedor`, `telefono_proveedor`, `correo_proveedor`, `direccion_proveedor`, `status`) VALUES
 ('123456789', 'ANDERSO', '04169484640', 'andersonfreitez60@gmail.com', 'HHHHBHBH', 0),
 ('1234567890', 'ANDERSONM', '04169484641', 'andersonfreitez6@gmail.com', 'DIRECCION', 0),
-('30485684', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'SANANA', 1),
+('30485684', 'ANDERSON', '04169484649', 'ANDERSONFREITEZ@GMAIL.COM', 'SANANA', 0),
+('J085185330', 'Arcosan', '02512302345', 'Arcosanbarquisimeto@gamil.com', 'Calle 30 entre carreras 23 y 24 Barquisimeto Edo Lara.', 1),
 ('J12345611', 'ANDERSON9K', '04169484699', 'andersonfreitez6@gmail.co', 'kmkmkm', 0),
 ('J12345678', 'ANDERS', '04169484688', 'andersonfreitez9@gmail.com', 'eejejej', 0),
+('J299682950', 'Mango Center', '', 'cajaprincipalcabudare@gmail.com', 'Av. Nectario Maria C.C Hipermercado Multimall Nivel Local del 02 al 08 Sector Tarabana Cabudare Edo. Lara', 1),
 ('J30485684', 'ANDERSON9', '04169484645', 'andersonfreitez61@gmail.co', 'jxjnjnj', 0),
-('V1234567899', 'ANDERSONNN', '04169484647', 'andersonfreitez677@gmail.com', 'SANARE', 1),
-('V30485684', 'ANDERSONNFA', '04169484648', 'andersonfreitez6@gmail.com', 'SANARESS', 1),
+('J4001234561', 'Comercializadora López 2018 C.A', '04245874877', 'Inversioneslopez@gmail.com', 'Carrera 24 entre calles 31 y 32. Barquisimeto Edo. Lara', 1),
+('J4002345761', 'Ferretería Hermano Hernández', '04141347890', 'Ferreteriahernandez2020@Gmail.com', 'Calle 4 entre Av. La Mata y Av. 2 Cabudare Edo. Lara.', 1),
+('J400602971', 'Químicos Alfonso', '', 'Adm.qalfonso@gmail.com', 'Calle 32 entre carreras 24 y 25 Barquisimeto Edo. Lara', 1),
+('V1234567899', 'ANDERSONNN', '04169484647', 'andersonfreitez677@gmail.com', 'SANARE', 0),
+('V30485684', 'ANDERSONNFA', '04169484648', 'andersonfreitez6@gmail.com', 'SANARESS', 0),
 ('V30485685', 'ANDERSON', '04169484640', 'andersonfreitez69@gmail.com', 'SANARE', 0);
 
 -- --------------------------------------------------------
@@ -1235,9 +1423,9 @@ CREATE TABLE `referencias_detalles_pagos` (
 --
 
 INSERT INTO `referencias_detalles_pagos` (`id_referencia_detalle_pago`, `id_detalle_pago`, `referencia_pago`, `status`) VALUES
-(102, 153, 123456, 1),
-(110, 161, 123456, 1),
-(111, 162, 123456, 1);
+(213, 264, 123456, 1),
+(214, 265, 123456, 1),
+(215, 266, 123456, 1);
 
 -- --------------------------------------------------------
 
@@ -1290,7 +1478,11 @@ INSERT INTO `rutas` (`id_ruta`, `nombre_ruta`, `precio_ruta`, `minimo_km_ruta`, 
 (6, 'TERCERO', 3.50, 11.00, 100.00, 0),
 (9, 'CERCANO', 0.50, 0.00, 5.00, 1),
 (10, 'LEJANO', 1.00, 6.00, 10.00, 1),
-(11, 'TERCERO', 2.00, 11.00, 100.00, 1);
+(11, 'TERCERO', 2.00, 11.00, 100.00, 1),
+(71, 'OTRA MAS', 3.00, 100.00, 1000.00, 0),
+(72, 'OTRA MAS1', 3.00, 1.00, 100.00, 0),
+(73, 'A DISTANCIA', 100.00, 100.00, 100.00, 0),
+(74, 'UNO', 1.00, 10.00, 1.00, 0);
 
 --
 -- Disparadores `rutas`
@@ -1337,8 +1529,7 @@ CREATE TABLE `servicios` (
 --
 
 INSERT INTO `servicios` (`id_servicio`, `id_unidad_medida`, `nombre_servicio`, `precio_servicio`, `mostrar_ecommerce`, `foto_servicio`, `status`) VALUES
-('', 1, 'LIMPIEZA', 10.00, 1, '', 1),
-('SERV-26125-00001-08', 2, 'FUMIGACION', 22.00, 0, '', 0);
+('SERV-26125-00001-08', 2, 'FUMIGACION', 22.00, 0, '', 1);
 
 --
 -- Disparadores `servicios`
@@ -1381,13 +1572,6 @@ CREATE TABLE `servicios_ordenes_entregas_presupuestos` (
   `precio_servicio_mapfre` decimal(20,2) DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `servicios_ordenes_entregas_presupuestos`
---
-
-INSERT INTO `servicios_ordenes_entregas_presupuestos` (`id_servicio_factura`, `id_orden_entrega_presupuesto`, `id_servicio`, `id_direccion`, `cantidad_servicio`, `fecha_ejecucion`, `es_precio_mapfre`, `precio_servicio_mapfre`, `status`) VALUES
-(1, 'FACT-26158-00001-94', 'SERV-26125-00001-08', 29, 2.00, '2026-06-12 09:09:31', 0, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1954,25 +2138,25 @@ ALTER TABLE `unidades_medidas`
 -- AUTO_INCREMENT de la tabla `bancos`
 --
 ALTER TABLE `bancos`
-  MODIFY `id_banco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2849;
+  MODIFY `id_banco` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2878;
 
 --
 -- AUTO_INCREMENT de la tabla `bancos_detalles_pagos`
 --
 ALTER TABLE `bancos_detalles_pagos`
-  MODIFY `id_banco_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=192;
+  MODIFY `id_banco_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=232;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_iva`
 --
 ALTER TABLE `cambios_iva`
-  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=253;
+  MODIFY `id_cambio_iva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=257;
 
 --
 -- AUTO_INCREMENT de la tabla `cambios_monedas`
 --
 ALTER TABLE `cambios_monedas`
-  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
+  MODIFY `id_cambio_moneda` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias_productos`
@@ -1984,37 +2168,37 @@ ALTER TABLE `categorias_productos`
 -- AUTO_INCREMENT de la tabla `comprobantes_pagos`
 --
 ALTER TABLE `comprobantes_pagos`
-  MODIFY `id_comprobante_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id_comprobante_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
-  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=163;
+  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=267;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=159;
 
 --
 -- AUTO_INCREMENT de la tabla `empresas_envios`
 --
 ALTER TABLE `empresas_envios`
-  MODIFY `id_empresa_envios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id_empresa_envios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `latitudes_direcciones`
 --
 ALTER TABLE `latitudes_direcciones`
-  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=188;
 
 --
 -- AUTO_INCREMENT de la tabla `longitudes_direcciones`
 --
 ALTER TABLE `longitudes_direcciones`
-  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=183;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_compras`
@@ -2032,13 +2216,13 @@ ALTER TABLE `materias_primas_producciones`
 -- AUTO_INCREMENT de la tabla `materias_primas_productos`
 --
 ALTER TABLE `materias_primas_productos`
-  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id_materia_prima_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=180;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pagos`
 --
 ALTER TABLE `metodos_pagos`
-  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT de la tabla `monedas`
@@ -2056,19 +2240,19 @@ ALTER TABLE `movimientos_anomalos_productos`
 -- AUTO_INCREMENT de la tabla `precios_materias_primas`
 --
 ALTER TABLE `precios_materias_primas`
-  MODIFY `id_precio_materia_prima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id_precio_materia_prima` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_productos`
 --
 ALTER TABLE `precios_productos`
-  MODIFY `id_precio_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
+  MODIFY `id_precio_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_rutas`
 --
 ALTER TABLE `precios_rutas`
-  MODIFY `id_precio_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id_precio_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT de la tabla `precios_servicios`
@@ -2080,7 +2264,7 @@ ALTER TABLE `precios_servicios`
 -- AUTO_INCREMENT de la tabla `presentaciones_materias_primas`
 --
 ALTER TABLE `presentaciones_materias_primas`
-  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id_materia_prima_presentacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_compras`
@@ -2092,13 +2276,13 @@ ALTER TABLE `productos_compras`
 -- AUTO_INCREMENT de la tabla `productos_ordenes_entregas_presupuestos`
 --
 ALTER TABLE `productos_ordenes_entregas_presupuestos`
-  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
+  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=324;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_producciones`
 --
 ALTER TABLE `productos_producciones`
-  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
+  MODIFY `id_producto_produccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_servicios`
@@ -2110,13 +2294,13 @@ ALTER TABLE `productos_servicios`
 -- AUTO_INCREMENT de la tabla `referencias_detalles_pagos`
 --
 ALTER TABLE `referencias_detalles_pagos`
-  MODIFY `id_referencia_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `id_referencia_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=216;
 
 --
 -- AUTO_INCREMENT de la tabla `rutas`
 --
 ALTER TABLE `rutas`
-  MODIFY `id_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id_ruta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios_ordenes_entregas_presupuestos`

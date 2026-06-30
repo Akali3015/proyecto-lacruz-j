@@ -460,6 +460,28 @@ class usuariosModelo extends conexion {
       if (($resultado['icono'] ?? '') != 'success') return $resultado;
     }
 
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'pedidos'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    unset($objNot);
+    if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
+
+
     if (isset($_SESSION['cedula'])) {
       $rb = $objBitacora->registrarBitacora([
         'modulo' => 'usuarios',
