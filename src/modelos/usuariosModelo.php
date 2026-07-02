@@ -4,6 +4,7 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\clientesModelo;
+use src\modelos\accesosModelo;
 
 class usuariosModelo extends conexion {
   private string $cedulaUsuario = '';
@@ -18,230 +19,168 @@ class usuariosModelo extends conexion {
   private string $direccionUsuario = '';
   private array $fotoUsuario = [];
 
-  public function validarUsuarios(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
+  public function validarUsuarios(string $permiso, null|array  &$info = null, null|array $requerido = null) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('usuarios', $permiso);
+    if ($r) return $r;
 
-    $arrayValidaciones = [
-      "apellido_usuario" => [
-        "formulario_nombre" => "apellido",
-        "requerido" => true,
-        "minimo" => minRegexNombrePer,
-        "maximo" => maxRegexNombrePer,
-        "expresion_re" => regexNombrePer,
-      ],
-      "cedula_usuario" => [
-        "campo_nombre" => "cedula_usuario",
-        "formulario_nombre" => "cédula",
-        "requerido" => true,
-        "minimo" => minRegexCedulaRifLetra,
-        "maximo" => maxRegexCedulaRifLetra,
-        "expresion_re" => regexCedulaRifLetra,
-        "tabla" => "usuarios",
-        "BD" => 'seguridad',
-        "debeSerUnico" => true,
-      ],
-      "contrasena_usuario" => [
-        "formulario_nombre" => "contraseña",
-        "minimo" => minRegexContrasena,
-        "maximo" => maxRegexContrasena,
-        "expresion_re" => regexContrasena,
-      ],
-      "correo_usuario" => [
-        "campo_nombre" => "correo_usuario",
-        "formulario_nombre" => "correo",
-        "requerido" => true,
-        "minimo" => minRegexCorreo,
-        "maximo" => maxRegexCorreo,
-        "expresion_re" => regexCorreo,
-        "tabla" => "usuarios",
-        "BD" => 'seguridad',
-        "debeSerUnico" => true
-      ],
-      "direccion_usuario" => [
-        "formulario_nombre" => "dirección",
-        "requerido" => true,
-        "minimo" => minRegexDescripcion,
-        "maximo" => maxRegexDescripcion,
-        "expresion_re" => regexDescripcion,
-      ],
-      "id_rol" => [
-        "campo_nombre" => "id_rol",
-        "formulario_nombre" => "rol",
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "roles",
-        "BD" => 'seguridad',
-        "debeExistir" => true
-      ],
-      "nombre_usuario" => [
-        "formulario_nombre" => "nombre",
-        "requerido" => true,
-        "minimo" => minRegexNombrePer,
-        "maximo" => maxRegexNombrePer,
-        "expresion_re" => regexNombrePer,
-      ],
-      "telefono_usuario" => [
-        "campo_nombre" => 'telefono_usuario',
-        "formulario_nombre" => "teléfono",
-        "requerido" => true,
-        "minimo" => minRegexTelefono,
-        "maximo" => maxRegexTelefono,
-        "expresion_re" => regexTelefono,
-        "tabla" => "usuarios",
-        "BD" => 'seguridad',
-        "debeSerUnico" => true,
-      ],
-      "usuario_usuario" => [
-        "campo_nombre" => "usuario_usuario",
-        "formulario_nombre" => "nombre de usuario",
-        "requerido" => true,
-        "minimo" => minRegexUsuario,
-        "maximo" => maxRegexUsuario,
-        "expresion_re" => regexUsuario,
-        "tabla" => "usuarios",
-        "BD" => 'seguridad',
-        "debeSerUnico" => true,
-      ],
-    ];
-    $totalValidaciones = [];
-    foreach ($camposVal as $valorForm  => $campoVal) {
-      if (is_numeric($valorForm)) $valorForm = $campoVal;
-      $validacion = [];
-      switch ($campoVal) {
-        case 'contrasena1_usuario':
-        case 'contrasena2_usuario':
-          $validacion = $arrayValidaciones['contrasena_usuario'];
-          $validacion['campo_valor'] = &$infoVal[$valorForm];
-          if ($campoVal == 'contrasena1_usuario') $validacion['camposIguales'] = &$infoVal['contrasena2_usuario'];
-          break;
-        case 'cedula_usuario':
-        case 'cedula_usuario_act':
-        case 'cedula_usuario_eli':
-          $validacion = $arrayValidaciones['cedula_usuario'];
-
-          if ($campoVal === 'cedula_usuario') {
-            if (($infoVal['codigo_cedula_usuario'] ?? '') == '') {
-              return [
-                'tipo' => 'simple',
-                'titulo' => 'Prefijo de cédula vacío',
-                'texto' => 'No puede enviar el formulario sin seleccionar el prefijo de la cédula del usuario',
-                'icono' => 'error'
-              ];
-            }
-            if (($infoVal['cedula_usuario'] ?? '') == '') {
-              return [
-                'tipo' => 'simple',
-                'titulo' => 'Cédula vacía',
-                'texto' => 'No puede enviar el formulario sin escribir la cédula del usuario',
-                'icono' => 'error'
-              ];
-            }
-            $infoVal['cedula_usuario'] = $infoVal['codigo_cedula_usuario'] . $infoVal['cedula_usuario'];
-          }
-
-          $validacion['campo_valor'] = &$infoVal['cedula_usuario'];
-          if ($campoVal == 'cedula_usuario_act' || $campoVal == 'cedula_usuario_eli') $validacion['debeExistir'] = true;
-          if ($campoVal == 'cedula_usuario_eli') {
-            $cedulasSuperUsuarios = $this->seleccionarDatos2([
-              'campos' => 'cedula_usuario',
-              'tabla' => 'usuarios',
-              'BD' => 'seguridad',
-              'WHERE' => [
-                'nombre_rol' => 'SUPER USUARIO'
-              ]
-            ])->fetch();
-            $validacion['camposDiferentes'] = $cedulasSuperUsuarios;
-          }
-          break;
-        case 'usuario_usuario_iniS':
-          $validacion = $arrayValidaciones['usuario_usuario'];
-          $validacion['campo_valor'] = &$infoVal[$valorForm];
-          unset($validacion['debeSerUnico']);
-          break;
-        case 'telefono_usuario':
-          if (isset($infoVal['prefijo_telefono_usuario'])) {
-            $infoVal['telefono_usuario'] = $infoVal['prefijo_telefono_usuario'] . $infoVal['telefono_usuario'];
-          }
-          if (($infoVal['telefono_usuario'] ?? '') == '') {
-            return [
-              'tipo' => 'simple',
-              'titulo' => 'Telefono vacío',
-              'texto' => 'No puede enviar el formulario sin escribir el telefono',
-              'icono' => 'error'
-            ];
-          }
-          $validacion = $arrayValidaciones[$campoVal];
-          $validacion['campo_valor'] = &$infoVal[$valorForm];
-          break;
-        default:
-          $validacion = $arrayValidaciones[$campoVal];
-          $validacion['campo_valor'] = &$infoVal[$valorForm];
-          break;
-      }
-      $totalValidaciones[] = $validacion;
+    //Concatenar los strings
+    if (isset($info['prefijo_telefono_usuario'])) {
+      $info['telefono_usuario'] = $info['prefijo_telefono_usuario'] . $info['telefono_usuario'];
     }
-    return $this->limpiar_Verificar($totalValidaciones);
+    if (isset($info['codigo_cedula_usuario'])) {
+      $info['cedula_usuario'] = $info['codigo_cedula_usuario'] . $info['cedula_usuario'];
+    }
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
+        "apellido_usuario" => [
+          ...molNombrePer,
+          "nombreAlerta" => "apellido",
+        ],
+        "cedula_usuario" => [
+          ...molCedulaRifLetra,
+          "nombreAlerta" => "cédula",
+          "nombreBD" => "cedula_usuario",
+          "tablaBD" => "usuarios",
+          "debeSerUnicoBD" => true,
+          "debeExistirBD" => true,
+          "BD" => 'seguridad',
+        ],
+        "contrasena1_usuario" => [
+          ...molContrasena,
+          "nombreAlerta" => "contraseña",
+        ],
+        "contrasena2_usuario" => [
+          ...molContrasena,
+          "nombreAlerta" => "contraseña de confirmación",
+        ],
+        "correo_usuario" => [
+          ...molCorreo,
+          "nombreBD" => "correo_usuario",
+          "nombreAlerta" => "correo",
+          "tablaBD" => "usuarios",
+          "BD" => 'seguridad',
+          "debeSerUnicoBD" => true
+        ],
+        "direccion_usuario" => [
+          ...molDescripcion,
+          "nombreAlerta" => "dirección",
+        ],
+        "foto_usuario" => [
+          ...molFotoInd,
+          "nombreAlerta" => "foto de pérfil",
+        ],
+        "id_rol" => [
+          ...molId,
+          "nombreAlerta" => "rol",
+          "nombreBD" => "id_rol",
+          "tabla" => "roles",
+          "BD" => 'seguridad',
+          "debeExistir" => true
+        ],
+        "nombre_usuario" => [
+          ...molNombrePer,
+          "nombreAlerta" => "nombre",
+        ],
+        "telefono_usuario" => [
+          ...molTelefono,
+          "nombreBD" => 'telefono_usuario',
+          "nombreAlerta" => "teléfono",
+          "tabla" => "usuarios",
+          "BD" => 'seguridad',
+          "debeSerUnico" => true,
+        ],
+        "usuario_usuario" => [
+          ...molUsuario,
+          "nombreBD" => "usuario_usuario",
+          "nombreAlerta" => "nombre de usuario",
+          "tabla" => "usuarios",
+          "BD" => 'seguridad',
+          "debeSerUnico" => true,
+        ],
+      ],
+      'requerido' => $requerido
+    ];
+    if (isset($info) && isset($requerido)) {
+
+      if ($info['accion'] == 'eliminar') {
+        $esquema['propiedades']['cedula_usuario']['debeSerDiferenteA'] = $this->seleccionarDatos2([
+          'campos' => 'cedula_usuario',
+          'tabla' => 'usuarios',
+          'BD' => 'seguridad',
+          'WHERE' => [
+            'nombre_rol' => 'SUPER USUARIO'
+          ]
+        ])->fetch();
+      }
+      if ($info['accion'] == 'iniciarSesion') {
+        unset($esquema['propiedades']['usuario_usuario']['debeSerUnicoBD']);
+      }
+      if ($info['accion'] == 'registrar') {
+        unset($esquema['propiedades']['cedula_usuario']['debeExistirBD']);
+        $esquema['propiedades']['contrasena1_usuario']['deberSerIgual'] = $info['contrasena2_usuario'] ?? '';
+        $esquema['propiedades']['contrasena2_usuario']['deberSerIgual'] = $info['contrasena1_usuario'] ?? '';
+      }
+
+      //Para verificar que si se quiere act la contraseña esta sea igual
+      if (
+        $info['accion'] == 'actualizar' && (
+          $info['contrasena1_usuario'] ?? '' != '' ||
+          $info['contrasena2_usuario'] ?? '' != '')
+      ) {
+        $esquema['propiedades']['contrasena1_usuario']['deberSerIgual'] = $info['contrasena2_usuario'] ?? '';
+        $esquema['propiedades']['contrasena2_usuario']['deberSerIgual'] = $info['contrasena1_usuario'] ?? '';
+      }
+
+      $r = $this->limpiarValidar($info, $esquema);
+      if ($r) return $r;
+    }
+    return false;
   }
   public function seleccionarUsuarios(array $info) {
     if (($info['cedula_usuario'] ?? '') != '') {
-      $resultado = $this->validarUsuarios([
-        'infoVal' => &$info,
-        'camposVal' => [
-          'cedula_usuario' => 'cedula_usuario_act',
-        ],
+      $r = $this->validarUsuarios('listar', $info, [
+        'cedula_usuario' => 'cedula_usuario_act',
       ]);
-      if ($resultado) return $resultado;
+      if ($r) return $r;
       $this->cedulaUsuario = $info['cedula_usuario'];
+    } else {
+      $r = $this->validarUsuarios('listar');
+      if ($r) return $r;
     }
     return $this->seleccionarUsuariosP();
   }
   public function registrarUsuarios(array $info) {
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'cedula_usuario',
-        'id_rol',
-        'nombre_usuario',
-        'apellido_usuario',
-        'usuario_usuario',
-        'contrasena1_usuario',
-        'contrasena2_usuario',
-        'telefono_usuario',
-        'correo_usuario',
-        'direccion_usuario',
-      ],
+    $r = $this->validarUsuarios('registrar', $info, [
+      'apellido_usuario',
+      'cedula_usuario',
+      'contrasena1_usuario',
+      'contrasena2_usuario',
+      'correo_usuario',
+      'id_rol',
+      'nombre_usuario',
+      'telefono_usuario',
+      'usuario_usuario',
     ]);
-    if ($resultado) return $resultado;
-    $this->cedulaUsuario = $info['cedula_usuario'];
-    $this->rolUsuario = $info['id_rol'];
-    $this->nombreUsuario = $info['nombre_usuario'];
-    $this->apellidoUsuario = $info['apellido_usuario'];
-    $this->usuarioUsuario = $info['usuario_usuario'];
-    $this->contrasena1Usuario = $info['contrasena1_usuario'];
-    $this->contrasena2Usuario = $info['contrasena2_usuario'];
-    $this->telefonoUsuario = $info['telefono_usuario'];
-    $this->correoUsuario = $info['correo_usuario'];
+    if ($r) return $r;
+    [
+      'apellido_usuario' => $this->apellidoUsuario,
+      'cedula_usuario' => $this->cedulaUsuario,
+      'contrasena1_usuario' => $this->contrasena1Usuario,
+      'contrasena2_usuario' => $this->contrasena2Usuario,
+      'id_rol' => $this->rolUsuario,
+      'nombre_usuario' => $this->nombreUsuario,
+      'telefono_usuario' => $this->telefonoUsuario,
+      'usuario_usuario' => $this->usuarioUsuario,
+    ] = $info;
+    $this->direccionUsuario = $info['direccion_usuario'] ?? '';
     $this->fotoUsuario = $info['foto_usuario'] ?? [];
-    $this->direccionUsuario = $info['direccion_usuario'] ?? [];
-
-    if ($this->contrasena1Usuario != $this->contrasena2Usuario) {
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Contraseñas diferentes',
-        'texto' => 'Ambas contraseñas deben ser iguales',
-        'icono' => 'warning',
-      ];
-    }
     $this->contrasena1Usuario = password_hash($this->contrasena1Usuario, PASSWORD_BCRYPT, ["cost" => 10]);
-
     return $this->registrarUsuariosP();
   }
   public function actualizarUsuarios(array $info) {
-    $campos = [
+    $requerido = [
       'cedula_usuario' => 'cedula_usuario_act',
       'id_rol',
       'nombre_usuario',
@@ -251,25 +190,24 @@ class usuariosModelo extends conexion {
       'correo_usuario',
       'direccion_usuario',
     ];
-    if (($info['contrasena1_usuario'] ?? '') != '') {
-      array_push($campos, 'contrasena1_usuario', 'contrasena2_usuario');
+    if (($info['contrasena1_usuario'] ?? '') != '' || ($info['contrasena2_usuario'] ?? '') != '') {
+      array_push($requerido, 'contrasena1_usuario', 'contrasena2_usuario');
     }
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => $campos,
-    ]);
+    $r = $this->validarUsuarios('actualizar', $info, $requerido);
+    if ($r) return $r;
 
-    if ($resultado) return $resultado;
-    $this->cedulaUsuario = $info['cedula_usuario'];
-    $this->rolUsuario = $info['id_rol'];
-    $this->nombreUsuario = $info['nombre_usuario'];
-    $this->apellidoUsuario = $info['apellido_usuario'];
-    $this->usuarioUsuario = $info['usuario_usuario'];
-    $this->contrasena1Usuario = $info['contrasena1_usuario'];
-    $this->contrasena2Usuario = $info['contrasena2_usuario'];
-    $this->telefonoUsuario = $info['telefono_usuario'];
-    $this->correoUsuario = $info['correo_usuario'];
-    $this->direccionUsuario = $info['direccion_usuario'];
+    [
+      'apellido_usuario' => $this->apellidoUsuario,
+      'cedula_usuario' => $this->cedulaUsuario,
+      'contrasena1_usuario' => $this->contrasena1Usuario,
+      'contrasena2_usuario' => $this->contrasena2Usuario,
+      'correo_usuario' => $this->correoUsuario,
+      'rol_usuario' => $this->rolUsuario,
+      'nombre_usuario' => $this->nombreUsuario,
+      'telefono_usuario' => $this->telefonoUsuario,
+      'usuario_usuario' => $this->usuarioUsuario,
+      'direccion_usuario' => $this->direccionUsuario,
+    ] = $info;
 
     //Usamos este metodo para procesar e incriptar la contraseña
     if ($this->contrasena1Usuario != '') {
@@ -278,47 +216,22 @@ class usuariosModelo extends conexion {
     return $this->actualizarUsuariosP();
   }
   public function eliminarUsuarios(array $info) {
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'cedula_usuario' => 'cedula_usuario_act',
-      ],
-    ]);
-    if ($resultado) return $resultado;
-    if ($this->cedulaUsuario == 30485684) {
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Borrado invalido',
-        'texto' => 'No puedes borrar al super adinistrador del sistema',
-        'icono' => 'error'
-      ];
-    }
+    $r = $this->validarUsuarios('eliminar', $info, ['cedula_usuario']);
+    if ($r) return $r;
 
     $this->cedulaUsuario = $info['cedula_usuario'];
     return $this->eliminarUsuariosP();
   }
   public function actualizarFotosUsuarios(array $info) {
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'cedula_usuario' => 'cedula_usuario_act',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+    $r = $this->validarUsuarios('actualizar', $info, ['cedula_usuario', 'foto_usuario']);
+    if ($r) return $r;
     $this->cedulaUsuario = $info['cedula_usuario'];
     $this->fotoUsuario = $info['foto_usuario'];
-
     return $this->actualizarFotosUsuariosP();
   }
   public function eliminarFotosUsuarios(array $info) {
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'cedula_usuario' => 'cedula_usuario_act',
-      ],
-    ]);
-    if ($resultado) return $resultado;
-
+    $r = $this->validarUsuarios('actualizar', $info, ['cedula_usuario']);
+    if ($r) return $r;
     $this->cedulaUsuario = $info['cedula_usuario'];
     return $this->eliminarFotosUsuariosP();
   }
@@ -350,17 +263,10 @@ class usuariosModelo extends conexion {
       ];
     } */
 
-    $resultado = $this->validarUsuarios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'usuario_usuario' => 'usuario_usuario_iniS',
-        'contrasena1_usuario',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+    $r = $this->validarUsuarios('listar', $info, ['usuario_usuario', 'contrasena1_usuario']);
+    if ($r) return $r;
     $this->usuarioUsuario = $info['usuario_usuario'];
     $this->contrasena1Usuario = $info['contrasena1_usuario'];
-
     return $this->iniciarSesionUsuariosP();
   }
   public function cerrarSesionUsuarios() {
@@ -646,7 +552,7 @@ class usuariosModelo extends conexion {
     ]);
     if ($rb) return $rb;
 
-    $resultado= $this->Imagenes_Eli([
+    $resultado = $this->Imagenes_Eli([
       'subCarpeta' => 'usuarios',
       'tablaBD' => 'usuarios',
       'nombreCampoFoto' => 'foto_usuario',
@@ -654,7 +560,7 @@ class usuariosModelo extends conexion {
       'valorId' => $this->cedulaUsuario,
       'BD' => 'seguridad',
     ]);
-    if($resultado['icono']=='success') $this->commit();
+    if ($resultado['icono'] == 'success') $this->commit();
     return $resultado;
   }
   private function iniciarSesionUsuariosP() {

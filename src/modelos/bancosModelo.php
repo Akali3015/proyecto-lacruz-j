@@ -2,6 +2,7 @@
 
 namespace src\modelos;
 
+use src\modelos\accesosModelo;
 use src\config\connect\conexion;
 use PDO;
 
@@ -13,7 +14,12 @@ class bancosModelo extends conexion {
     [
       'infoVal' => &$infoVal,
       'camposVal' => $camposVal,
+      'permiso' => $permiso,
     ] = $instruccionesVal;
+
+    $objAccesos = new accesosModelo();
+    $resultado = $objAccesos->validarPermisos('bancos', $permiso);
+    if ($resultado) return $resultado;
 
     $funcionAsignadora = function ($nombreCampo, &$valor) {
       $claveVal = [
@@ -54,6 +60,7 @@ class bancosModelo extends conexion {
       $resultado = $this->validarBancos([
         'infoVal' => &$info,
         'camposVal' => ['id_banco'],
+        'permiso' => 'listar'
       ]);
       if ($resultado) return $resultado;
       $this->idBanco = $info['id_banco'];

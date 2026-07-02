@@ -18,7 +18,6 @@ if (
 define('APP_URL', $PROTOCOLO . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/proyecto-lacruz-j/");
 const coorJLACRUZ = ['latitud' => 10.063276, 'longitud' => -69.31708];
 
-
 const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
 const APP_SESSION_NAME = "JLACRUZ";
 date_default_timezone_set("America/Caracas");
@@ -115,3 +114,80 @@ const maxRegexUrl = '255';
 const regexReferencia = '^\d{4,6}$';
 const minRegexReferencia = '4';
 const maxRegexReferencia = '6';
+
+//#region [ MOLÉCULAS - VALIDACIONES ]
+
+define('molId', [
+  'tipo' => 'string',
+  "minL" => minRegexId,
+  "maxL" => maxRegexId,
+  "regex" => regexId
+]);
+define('molIdSeguro', [
+  'tipo' => 'string',
+  "minL" => minRegexIdSeguro,
+  "maxL" => maxRegexIdSeguro,
+  "regex" => regexIdSeguro
+]);
+define('molCedulaRifLetra', [
+  'tipo' => 'string',
+  "minL" => minRegexCedulaRifLetra,
+  "maxL" => maxRegexCedulaRifLetra,
+  "regex" => regexCedulaRifLetra
+]);
+define('molNombrePer', [
+  'tipo' => 'string',
+  "minL" => minRegexNombrePer,
+  "maxL" => maxRegexNombrePer,
+  "regex" => regexNombrePer
+]);
+define('molNombreObj', [
+  'tipo' => 'string',
+  "minL" => minRegexNombreObj,
+  "maxL" => maxRegexNombreObj,
+  "regex" => regexNombreObj
+]);
+define('molContrasena', [
+  'tipo' => 'string',
+  "minL" => minRegexContrasena,
+  "maxL" => maxRegexContrasena,
+  "regex" => regexContrasena
+]);
+define('molCorreo', [
+  'tipo' => 'string',
+  "minL" => minRegexCorreo,
+  "maxL" => maxRegexCorreo,
+  "regex" => regexCorreo
+]);
+define('molDescripcion', [
+  'tipo' => 'string',
+  "minL" => minRegexDescripcion,
+  "maxL" => maxRegexDescripcion,
+  "regex" => regexDescripcion
+]);
+define('molTelefono', [
+  'tipo' => 'string',
+  "minL" => minRegexTelefono,
+  "maxL" => maxRegexTelefono,
+  "regex" => regexTelefono
+]);
+define('molUsuario', [
+  'tipo' => 'string',
+  "minL" => minRegexUsuario,
+  "maxL" => maxRegexUsuario,
+  "regex" => regexUsuario
+]);
+define('molFoto', [
+  'tipo' => 'archivo',
+  'extensiones' => ['jpg', 'png', 'jpeg', 'webp'],
+  'maximoMb' => 5,
+  'minItems'=>1
+]);
+define('molFotoInd', [
+  'tipo' => 'archivo',
+  'extensiones' => ['jpg', 'png', 'jpeg', 'webp'],
+  'maximoMb' => 5,
+  'minItems' => 1,
+  'maxItems'=>1
+]);
+//#endregion [ MOLÉCULAS - VALIDACIONES ]

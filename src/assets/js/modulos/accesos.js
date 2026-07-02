@@ -1,6 +1,6 @@
 // #region [IMPORTACIONES] COMIENZO
 import {
-  pedirDatosAjax, españolDataTable, reiniciarDataModuloSS
+  pedirDatosAjax, españolDataTable, reiniciarDataModuloSS, mLength
 } from './global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -10,134 +10,100 @@ import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriv
 
 let rolListado = '';
 async function listarPermisos(idRol) {
-  if (idRol == rolListado) {
-    return;
-  }
-
-  let permisos = await pedirDatosAjax({
+  if (idRol == rolListado) return;
+  rolListado = idRol;
+  let dataPermisos = await pedirDatosAjax({
     modulo: 'accesos',
     datosPe: {
       accion: 'listar',
       id_rol: idRol
     }
   });
-  let { generales, especiales } = permisos
+  let { mapeoPG, permisos } = dataPermisos
 
-  if (typeof generales === 'string') {
-    try {
-      generales = await JSON.parse(generales);
-    } catch (e) {
-      generales = [];
-    }
+  // PERMISOS TOTALES
+  let htmlPermisos = ``;
+  let contadorItem = 0;
+
+  let objetoOrdenado = {};
+  for (const [clave, valor] of Object.entries(permisos)) {
+    objetoOrdenado[clave.toLowerCase()] = valor;
   }
-  if (!Array.isArray(generales)) {
-    generales = [generales];
-  }
+  for (const [modulo, datos] of Object.entries(objetoOrdenado)) {
 
-  // PERMISOS GENERALES
-  const selector = '.listaPermisos';
-  if (!$.fn.DataTable.isDataTable(selector)) {
-    const arregloColumnas = [];
-    const dynamicColumnDefs = [];
-    let targetsCount = 0;
+    let { id_modulo, pg = false, pe = false } = datos
 
-    // Columna 'Módulo'
-    arregloColumnas.push({
-      data: 'modulo.nombre',
-      title: 'Módulo',
-      render: function (data, type, row) {
-        const modulo = data.toUpperCase().replace('_', ' ');
-        return `${modulo}<input type="hidden" class="id_modulo" value="${row.modulo.id}">`;
-      }
-    });
-    dynamicColumnDefs.push({
-      targets: [targetsCount],
-      className: 'dt-head-center'
-    });
-    targetsCount++;
-    const nombresPermisos = [
-      'ver',
-      'listar',
-      'registrar',
-      'actualizar',
-      'eliminar'
-    ];
-    nombresPermisos.forEach((nombrePermiso) => {
-      arregloColumnas.push({
-        data: null,
-        title: nombrePermiso.charAt(0).toUpperCase() + nombrePermiso.slice(1),
-        render: function (data, type, row) {
-          const permiso = row.permisos.find((p) => p.nombre === nombrePermiso);
-          let activo = permiso.activo === true ? 'checked' : '';
-          return `
-            <div class="d-flex justify-content-center form-check form-switch custom-switch-v1 mb-0">
-                <input type="checkbox" class="permiso_checkbox form-check-input input-primary" idPermiso="${permiso.id}" ${activo} >
-            </div>`
-            ;
-        }
-      });
-      dynamicColumnDefs.push({
-        targets: [targetsCount],
-        className: 'dt-head-center dt-body-center'
-      });
-      targetsCount++;
-    });
-
-    if (arregloColumnas.length === 0) {
-      arregloColumnas.push({
-        data: null,
-        title: 'No hay datos disponibles'
-      });
-      dynamicColumnDefs.push({
-        targets: [0],
-        className: 'dt-body-center'
-      });
-      targetsCount = 1;
-    }
-    const configDataTable = {
-      columns: arregloColumnas,
-      autoWidth: false,
-      columnDefs: dynamicColumnDefs,
-      data: generales,
-      language: españolDataTable
-    };
-    let tablaPermisos = $(selector).DataTable(configDataTable);
-  } else {
-    $(selector).DataTable().clear().rows.add(generales).draw();
-  }
-
-  // PERMISOS ESPECIALES
-  rolListado = idRol;
-  let CP = 2;
-  let permisosEspHTML = '';
-  especiales.forEach((permiso) => {
-    if (CP % 2 == 0) {
-      permisosEspHTML += `
-        <div class="input-group">
-      `;
-    }
-    const nombrePermiso = permiso.nombre_permiso.toUpperCase();
-    const checked = permiso.status == 1 ? 'checked' : '';
-
-    permisosEspHTML += `
-        <span class="form-control bg-blanco">${nombrePermiso}</span>
-        <div class="input-group-text">
+    //Permisos generales (5/f)
+    let htmlPG = ``;
+    if (pg) {
+      let html = ``;
+      for (const [id, estaActivo] of Object.entries(pg)) {
+        const nombrePermiso = mapeoPG[id].toUpperCase();
+        const checked = estaActivo == 1 ? 'checked' : '';
+        html += `
+          <span class="spanPG  nombrePermiso form-control bg-blanco align-items-center">${nombrePermiso}</span>
+          <div class="inputPG input-group-text">
             <div class="form-check form-switch p-0">
-                <input idModulo="${permiso.id_modulo}" idPermiso="${permiso.id_permiso}" class="permiso_checkbox m-0 form-check-input h5 position-relative input-primary" type="checkbox" role="switch" ${checked}>
+              <input 
+                idModulo="${id_modulo}" 
+                idPermiso="${id}" 
+                class="permiso_checkbox m-0 form-check-input h5 position-relative input-primary" 
+                type="checkbox" 
+                role="switch" 
+                ${checked}>
             </div>
-        </div>
-    `;
-
-    if (CP % 2 == 1) {
-      permisosEspHTML += `
-        </div>
-      `;
+          </div>
+        `;
+      }
+      htmlPG += `<div class="input-group permisos-generales">${html}</div>`;
     }
 
-    CP++;
-  });
+    //Permisos especiales (1-2/f)
+    let htmlPE = '';
+    if (pe) {
+      let CP = 2;
+      pe.forEach((permiso, indice) => {
+        let { id_permiso, nombre_permiso, status } = permiso;
+        if (CP % 2 == 0) htmlPE += `<div class="permisosEspeciales input-group ">`;
+        const nombrePermiso = nombre_permiso.toUpperCase();
+        const checked = status == 1 ? 'checked' : '';
+        htmlPE += `
+          <span class="nombrePermiso form-control bg-blanco align-items-center">${nombrePermiso}</span>
+          <div class="input-group-text">
+            <div class="form-check form-switch p-0">
+              <input 
+                idModulo="${id_modulo}" 
+                idPermiso="${id_permiso}" 
+                class="permiso_checkbox m-0 form-check-input h5 position-relative input-primary" 
+                type="checkbox" 
+                role="switch" 
+                ${checked}>
+            </div>
+          </div>
+        `;
+        if (CP % 2 == 1 || indice + 1 == pe.length) htmlPE += `</div>`;
+        CP++;
+      })
+    }
 
-  $('.containerPermEspe').empty().append(permisosEspHTML);
+    htmlPermisos += `
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingPermisoEsp${contadorItem}">
+          <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#permisoEsp${contadorItem}" aria-expanded="false" aria-controls="permisoEsp${contadorItem}">
+            ${modulo.toLocaleUpperCase()}
+          </button>
+        </h2>
+        <div id="permisoEsp${contadorItem}" class="accordion-collapse collapse" aria-labelledby="headingPermisoEsp${contadorItem}" data-bs-parent="#acordionCaptures" style="">
+          <div class="accordion-body">
+            ${htmlPG + htmlPE}
+          </div>
+        </div>
+      </div>
+    `;
+    contadorItem++;
+  }
+  $('.containerPermEspe').empty().append(`<div class="accordion">${htmlPermisos}</div>`);
+  mostrarPermisosPorIntervalo.call($('.containerPermEspe'), true)
 }
 async function cambioPermisos() {
 
@@ -167,7 +133,6 @@ async function cambioPermisos() {
       cambio: cambioP
     }
   });
-  console.log(respuesta)
   if (respuesta?.icono == 'success') {
     reiniciarDataModuloSS('accesos')
   }
@@ -179,6 +144,168 @@ function cambiarOpcionRol() {
     .removeClass('active');
   $(this).find('a').addClass('active');
 }
+function expandirContraerModulosPermisos() {
+  let esExpandir = $(this).text() == 'Expandir' ? true : false
+  let acordiones = $(this).closest('.contenedorPanel').find('.accordion-button')
+  console.log(acordiones)
+  acordiones.each(function () {
+    let item = $(this)
+    if (esExpandir && item.hasClass('collapsed')) item.trigger('click');
+    else if (!esExpandir && !item.hasClass('collapsed')) item.trigger('click');
+  })
+  if (esExpandir) $(this).text('Contraer').addClass('active')
+  else $(this).text('Expandir').removeClass('active')
+}
+function mostrarPermisosPorIntervalo(construirPaginador = false) {
+  let c = (s) => {
+    return $(this).closest('.contenedorPanel').find(s);
+  }
+  let cantidadFilasPorPagina = c('.selectCantidadFilasPermisos').val();
+  let textoBusqueda = c('.inputBusquedaPermisos').val()
+  let nroPaginaActual = c('.paginadorPermisos').find('.page-item.active').find('a').text()
+  let acordiones = c('.accordion-item');
+  let totalFilas = acordiones.length;
+  let inicio = nroPaginaActual == 1 ? 0 : ((parseInt(nroPaginaActual) - 1) * parseInt(cantidadFilasPorPagina));
+  if (construirPaginador) inicio = 0;
+  let fin = ((inicio + parseInt(cantidadFilasPorPagina)) <= totalFilas) ? (inicio + parseInt(cantidadFilasPorPagina)) : parseInt(totalFilas);
+  let acordionesMostrar = acordiones;
+
+  let ordenarObjeto = (itemsCoincidientes) => {
+    let objetoOrdenado = Object.keys(itemsCoincidientes).sort().reduce((obj, key) => (obj[key] = itemsCoincidientes[key], obj), {});
+    let arrayFinalOrdenado = Object.values(objetoOrdenado)
+    return acordionesMostrar = $(arrayFinalOrdenado);
+  }
+
+  //Filtramos por la busqueda
+  if (textoBusqueda != '') {
+    let itemsCoincidientes = {};
+    acordiones.each(function () {
+      let item = $(this);
+      let permisos = item.find('.nombrePermiso')
+      let tieneUnPermisoQueCoincide = false;
+      let nombreModulo = $(this).find('.accordion-button').text().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      permisos.each(function () {
+        let nombrePermisoLimpio = $(this).text().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (textoBusqueda == '' || nombrePermisoLimpio.includes(textoBusqueda) || nombreModulo.includes(textoBusqueda)) {
+          tieneUnPermisoQueCoincide = true;
+          $(this).removeClass('d-none').next().removeClass('d-none');
+        } else $(this).addClass('d-none').next().addClass('d-none');
+      })
+
+      if (tieneUnPermisoQueCoincide || nombreModulo.includes(textoBusqueda)) {
+        itemsCoincidientes[nombreModulo] = this;
+      }
+    })
+    acordionesMostrar = ordenarObjeto(itemsCoincidientes);
+    totalFilas = mLength(itemsCoincidientes);
+    fin = totalFilas < cantidadFilasPorPagina ? totalFilas : nroPaginaActual * cantidadFilasPorPagina;
+  } else {
+    let objeto = {}
+    acordiones.each(function () {
+      let item = $(this);
+      let nombreModulo = $(this).find('.accordion-button').text().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      objeto[nombreModulo] = this;
+    })
+    acordionesMostrar = ordenarObjeto(objeto);
+  }
+
+  //Filtramos por la pagina seleccionada y la cantidad de elementos
+  let elementosFinales = $(acordionesMostrar).slice(inicio, fin);
+  let elementosOcultar = $(acordiones).not(elementosFinales);
+
+  // console.log({ elementosFinales, elementosOcultar })
+  // console.log({ inicio, fin, elementosFinales, elementosOcultar, nroPaginaActual, textoBusqueda, totalFilas })
+
+  // Incertamos y mostramos los que queden
+  elementosOcultar.addClass('d-none');
+  elementosFinales.removeClass('d-none');
+  c('.containerPermEspe').find('.accordion').prepend(elementosFinales);
+
+  //leyenda de lo que se esta mostrando
+  if (totalFilas == 0) {
+    c('.textoMostrandoPermisos').text(`Sin registros disponibles`)
+  } else if (totalFilas == 1) {
+    c('.textoMostrandoPermisos').text(`Mostrando registro 1 de un total de 1 registro`)
+  } else {
+    c('.textoMostrandoPermisos').text(`Mostrando registros del ${inicio + 1} al ${fin} de un total de ${totalFilas} registros`)
+  }
+
+  if (construirPaginador) {
+
+    //Botones
+    let nroBotones = textoBusqueda != '' ? elementosFinales.length / cantidadFilasPorPagina : (totalFilas / cantidadFilasPorPagina);
+    nroBotones = Math.ceil(nroBotones)
+    let botones = ``;
+    for (let i = 0; i < nroBotones; i++) {
+      let active = i == 0 ? 'active' : '';
+      botones += `
+        <li class="paginate_button page-item ${active}">
+          <a href="#" class="page-link">${i + 1}</a>
+        </li>
+      `;
+    }
+
+    let disabled = (totalFilas == 0 || totalFilas == 1) ? 'disabled':''
+    let botonesC = `
+      <li class="paginate_button page-item previous disabled">
+        <a href="#" class="page-link">Anterior</a>
+      </li>
+      ${botones}
+      <li class="paginate_button page-item next ${disabled}">
+        <a href="#" class="page-link">Siguiente</a>
+      </li>
+    `;
+    c('.paginadorPermisos').empty().append(botonesC);
+  }
+}
+function cambiarPagina() {
+  $(this).siblings('.paginate_button').removeClass('active')
+  $(this).addClass('active');
+  let cp = $(this).closest('.paginadorPermisos')
+
+  let nroPaginaActual = $(this).text()
+  let nroTotalPaginas = cp.find('.page-item:not(.next,.previous)').length
+  if (nroPaginaActual == nroTotalPaginas) cp.find('.next').addClass('disabled')
+  else cp.find('.next').removeClass('disabled')
+
+  if (nroPaginaActual > 1) cp.find('.previous').removeClass('disabled')
+  else cp.find('.previous').addClass('disabled');
+
+  mostrarPermisosPorIntervalo.call(this)
+
+}
+function anteriorSiguientePagina() {
+
+  if ($(this).hasClass('disabled')) return;
+  let cp = $(this).closest('.paginadorPermisos');
+
+  let nroPaginaActual = $(this).siblings('.page-item.active').find('a').text()
+  if ($(this).hasClass('next')) {
+    nroPaginaActual++;
+  } else {
+    nroPaginaActual--
+  }
+  if (nroPaginaActual == 0) return;
+  let nuevaPagina = cp.find('a').get().find(a => {
+    return $(a).text() == nroPaginaActual;
+  });
+
+  nuevaPagina = $(nuevaPagina).parent();
+  if (nuevaPagina.length > 0) {
+    nuevaPagina.siblings().removeClass('active')
+    nuevaPagina.addClass('active')
+  }
+
+  let nroTotalPaginas = cp.find('.page-item:not(.next,.previous)').length
+  if (nroPaginaActual == nroTotalPaginas) cp.find('.next').addClass('disabled')
+  else cp.find('.next').removeClass('disabled')
+
+  if (nroPaginaActual > 1) cp.find('.previous').removeClass('disabled')
+  else cp.find('.previous').addClass('disabled')
+  mostrarPermisosPorIntervalo.call(this)
+}
+
 // #endregion [FUNCIONES PROPIAS DEL MÓDULO] FIN
 
 // #region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -194,7 +321,6 @@ $(document).on('DOMContentLoaded', async function (e) {
 
   let i = 0;
   let opcionRol = '';
-  console.log('roles: ', roles);
   roles.forEach((rol) => {
     const nombreRol = rol.nombre_rol.toUpperCase();
     if (i == 0) {
@@ -252,6 +378,31 @@ $(document).on('DOMContentLoaded', async function (e) {
       }
     ]
   });
+});
+
+$(document).off('click', '.paginadorPermisos .next,.previous');
+$(document).on('click', '.paginadorPermisos .next,.previous', function () {
+  anteriorSiguientePagina.call(this);
+});
+
+$(document).off('click', '.paginadorPermisos .paginate_button:not(".next, .previous")');
+$(document).on('click', '.paginadorPermisos .paginate_button:not(".next, .previous")', function () {
+  cambiarPagina.call(this);
+});
+
+$(document).off('change', '.selectCantidadFilasPermisos');
+$(document).on('change', '.selectCantidadFilasPermisos', function () {
+  mostrarPermisosPorIntervalo.call(this, true);
+});
+
+$(document).off('input', '.inputBusquedaPermisos');
+$(document).on('input', '.inputBusquedaPermisos', function () {
+  mostrarPermisosPorIntervalo.call(this, true);
+});
+
+$(document).off('click', '.btnExpandirContraerPermisos');
+$(document).on('click', '.btnExpandirContraerPermisos', function () {
+  expandirContraerModulosPermisos.call(this)
 });
 
 // Para cambiar los colores del menu de opciones de los roles de usuario

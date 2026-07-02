@@ -191,9 +191,9 @@ async function verDetallesPedido() {
         }
       },
       datosFooter: {
-        'Total Productos': [totalProductos.toFixed(2) + '$',1],
-        'Total Envío': [totalEnvio.toFixed(2)+'$',1],
-        [`Monto IVA (${porcentaje_IVA}%)`]: [monto_IVA+'$', 2],
+        'Total Productos': [totalProductos.toFixed(2) + '$', 1],
+        'Total Envío': [totalEnvio.toFixed(2) + '$', 1],
+        [`Monto IVA (${porcentaje_IVA}%)`]: [monto_IVA + '$', 2],
         'Total General': [`${(total_IVA).toFixed(2)}$`, 1],
         'Total Cancelado': [`${totalPagos.toFixed(2)}$`, 1],
         [tituloExcedente]: [`${(totalPagos - total_IVA).toFixed(2)}$`, 1],

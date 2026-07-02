@@ -58,8 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   if (isset($url2) && $url2 != "") {
-    if (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
-      if ($url2 == "dashboard" && isset($_SESSION['rol'])) {
+    if($url2=='login' && isset($_SESSION['cedula'])){
+      $this->redireccionarUsuario();
+      exit();
+    }elseif (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
+      if ($url2 == "dashboard" && isset($_SESSION['cedula'])) {
         $objComponentes = new componentesModelo();
         require_once "src/config/inc/header.php";
         echo $objComponentes->sidebar();

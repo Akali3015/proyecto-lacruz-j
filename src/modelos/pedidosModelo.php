@@ -10,6 +10,7 @@ use src\modelos\presentacionesModelo;
 use src\modelos\rutasModelo;
 use src\modelos\cambiosIvaModelo;
 use src\modelos\pdfModel;
+use src\modelos\accesosModelo;
 
 class pedidosModelo extends conexion {
   private string $idPedido = '';
@@ -19,7 +20,10 @@ class pedidosModelo extends conexion {
   private array $comprobantesPagos = [];
   private int $statusPedido = 0;
 
-  public function validarPedidos(array &$info, array $requerido) {
+  public function validarPedidos(string $permiso, ?array &$info, ?array $requerido) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('pedidos', $permiso);
+    if ($r) return $r;
     $esquemaPedidos = [
       "tipo" => 'arrayA',
       'propiedades' => [
@@ -201,77 +205,79 @@ class pedidosModelo extends conexion {
         ],
         'id_pedido' => [
           'tipo' => 'string',
-          "nombreBD" => "id_orden_entrega_presupuesto",
-          "nombreAlerta" => "id del pedido",
           "minL" => minRegexIdSeguro,
           "maxL" => maxRegexIdSeguro,
           "regex" => regexIdSeguro,
+          "nombreAlerta" => "id del pedido",
+          "nombreBD" => "id_orden_entrega_presupuesto",
           "tablaBD" => "ordenes_entregas_presupuestos",
           "debeExistirBD" => true,
-          "debeSerUnico" => true,
+          "debeSerUnicoBD" => true,
         ],
       ],
       'requerido' => $requerido
     ];
-    return $this->limpiarValidar($info, $esquemaPedidos);
+    $r = $this->limpiarValidar($info, $esquemaPedidos);
+    if ($r) return $r;
+    return false;
   }
   public function listarPedidos(array $info) {
-    if (($info['id_pedido'] ?? '') != "") {
-      $resultado = $this->validarPedidos($info, [
-        'id_pedido',
-      ]);
-      if ($resultado) return $resultado;
-      $this->idPedido = $info['id_pedido'];
-    }
+    $requerido = [];
+    if (($info['id_pedido'] ?? '') != "") $requerido[] = 'id_pedido';
+    $r = $this->validarPedidos('listar', $info, $requerido);
+    if (($info['id_pedido'] ?? '') != "") $this->idPedido = $info['id_pedido'];
+    if ($r) return $r;
     return $this->listarPedidosP($info);
   }
   public function registrarPedidos(array $info) {
-    $resultado = $this->validarPedidos($info, [
+    $resultado = $this->validarPedidos('registrar', $info, [
       'comprobantes_pago',
       'productos',
       'pagos',
       'delivery'
     ]);
     if ($resultado) return $resultado;
-
     [
       'productos' => $this->productosPedido,
       'pagos' => $this->pagosPedido,
       'delivery' => $this->deliveryPedido,
+      'comprobantes_pago' => $this->comprobantesPagos,
     ] = $info;
-    $this->comprobantesPagos = $info['comprobantes_pago'];
     return $this->registrarPedidosP();
   }
   public function asignarRepartidoresPedidos(array $info) {
-    $resultado = $this->validarPedidos($info, [
+    $resultado = $this->validarPedidos('asignar repartidores a pedidos', $info, [
       'id_delivery',
       'id_pedido',
       'cedula_repartidor',
     ]);
     if ($resultado) return $resultado;
 
-
-    $this->deliveryPedido['id_delivery'] = $info['id_delivery'];
-    $this->idPedido = $info['id_pedido'];
-    $this->deliveryPedido['cedula_repartidor'] = $info['cedula_repartidor'];
+    [
+      'id_delivery' => $this->deliveryPedido['id_delivery'],
+      'id_pedido' => $this->idPedido,
+      'cedula_repartidor' => $this->deliveryPedido['cedula_repartidor'],
+    ] = $info;
     return $this->asignarRepartidoresPedidosP();
   }
   public function actualizarPedidos(array $info) {
-    $resultado = $this->validarPedidos($info, [
+    $r = $this->validarPedidos('cambiar estado de los pedidos', $info, [
       'id_pedido',
       'status_pedido',
     ]);
-    if ($resultado) return $resultado;
-    $this->idPedido = $info['id_pedido'];
-    $this->statusPedido = $info['status_pedido'];
+    if ($r) return $r;
+    [
+      'id_pedido' => $this->idPedido,
+      'status_pedido' => $this->statusPedido,
+    ] = $info;
 
     return $this->actualizarPedidoP();
   }
   public function imprimirPedidos(array $info) {
-    $resultado = $this->validarPedidos($info, [
+    $r = $this->validarPedidos('imprimir pedidos', $info, [
       'id_pedido',
     ]);
-    if ($resultado) return $resultado;
+    if ($r) return $r;
     $this->idPedido = $info['id_pedido'];
     return $this->imprimirPedidosP();
   }

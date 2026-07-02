@@ -72,7 +72,7 @@ echo $componente->listaDataTable($instruccionesLista);
               <div class="input-group">
                 <select
                   data-prefijo=".selectPrefijoTelefono"
-                  data-cuerpo="."
+                  data-cuerpo=".telefonoRepartidor"
                   class="input-group-text selectPrefijoTelefono"
                   name="prefijo_telefono_repartidor"
                   required>
@@ -147,7 +147,7 @@ echo $componente->listaDataTable($instruccionesLista);
               <div class="input-group">
                 <select
                   data-prefijo=".selectPrefijoTelefono"
-                  data-cuerpo="."
+                  data-cuerpo=".telefonoRepartidor"
                   class="input-group-text selectPrefijoTelefono"
                   name="prefijo_telefono_repartidor"
                   required>

@@ -16,7 +16,7 @@ class frontController {
 
   public function __construct() {
     $this->objPermisos = new accesosModelo();
-    $salidasFueraDeSesion = ['productos'];
+    $salidasFueraDeSesion = ['productos','servicios','rutas','monedas'];
     $this->controladores = [
       'accesos',
       'bancos',
@@ -65,36 +65,12 @@ class frontController {
     $this->transformarCuerpoAPost();
     $accion = $_POST['accion'] ?? $_POST['reporte'] ?? '';
     if (isset($_GET["views"]) && $_GET["views"] != "") {
-      $urlCompleta = $this->url = explode("/", $_GET['views']);
+      $this->url = explode("/", $_GET['views']);
       $_SESSION['vistaActual'] = $this->url[0];
       $this->url = $this->url[0];
-
       
       if (in_array($this->url, $this->controladores) && isset($_SESSION['cedula'])) {
-
-        if ($metodo == 'POST') {
-          $validacion = $this->objPermisos->validarPermisos($this->url, $accion);
-          $this->validarTokens();
-        } else {
-          $validacion = $this->objPermisos->validarPermisos($this->url, 'ver');
-        }
-        if (isset($validacion['icono'])) {
-          $this->redireccionarUsuario();
-          return;
-        }
-
-        $vistasNoFuSe = [
-          'login',
-          'home',
-          'registrar-usuario',
-          'olvidar-contrasena-1',
-          'olvidar-contrasena-2'
-        ];
-        $vista = $urlCompleta[1] ?? $urlCompleta[0];
-        if (isset($_SESSION['cedula']) && in_array($vista, $vistasNoFuSe)) {
-          $this->redireccionarUsuario();
-          return;
-        }
+        if ($metodo == 'POST') $this->validarTokens();
         if (is_file("src/controladores/" . $this->url . "Controlador.php")) {
           $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
           $_SESSION['vistaActual'] = $this->url;
@@ -110,9 +86,7 @@ class frontController {
       } elseif (
         $_SESSION['vistaActual'] == 'usuarios' && (
           $accion == 'iniciarSesion' ||
-          $accion == 'obtenerUrlOPG' ||
           $accion == 'registrar' ||
-          $accion == 'verificarToken' ||
           $accion == 'restaurarContraseña'
         )
       ) {

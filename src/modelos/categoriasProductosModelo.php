@@ -134,7 +134,7 @@ class categoriasProductosModelo extends conexion {
 
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("Categorias de Productos", "Registrar", "Fallido", true);
+      $bitacoraModelo->registrarBitacora("categoriasProductos", "Registrar", "Fallido", true);
       return [
         "tipo" => "simple",
         "titulo" => "Error",

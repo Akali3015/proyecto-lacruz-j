@@ -1,0 +1,61 @@
+@media (max-width: 1100px) {
+  .permisos-generales {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .permisos-generales .spanPG,
+  .inputPG {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .input-group.permisosEspeciales {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .input-group.permisosEspeciales .nombrePermiso,
+  .input-group-text {
+    display: flex;
+    width: 50%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width:800px) {
+  .barraHerramientas {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 5px !important;
+  }
+
+  .barraHerramientas>div,
+  input,
+  button {
+    width: 100%;
+  }
+
+  .inputBusquedaPermisos {
+    margin: 0 !important;
+  }
+
+  .barraHerramientas .inputSelectorPaginas {
+    justify-content: center;
+  }
+
+  .input-group.permisosEspeciales .nombrePermiso,
+  .input-group-text {
+    font-size: 14px;
+  }
+
+  .permisos-generales .spanPG,
+  .inputPG {
+    font-size: 14px;
+  }
+}

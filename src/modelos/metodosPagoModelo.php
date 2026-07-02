@@ -245,7 +245,7 @@ class metodosPagoModelo extends conexion {
     ]);
     if ($resultado <= 0) {
       $rb = $objBitacora->registrarBitacora([
-        'modulo' => 'metodos-pagos',
+        'modulo' => 'metodos-pago',
         'accion' => 'registrar',
         'resultado' => 'Fallido',
         'commit' => true
@@ -259,7 +259,7 @@ class metodosPagoModelo extends conexion {
       ];
     }
     $rb = $objBitacora->registrarBitacora([
-      'modulo' => 'metodos-pagos',
+      'modulo' => 'metodos-pago',
       'accion' => 'registtrar',
       'resultado' => 'Éxito',
       'nuevo' => $datosRegistrar
@@ -292,7 +292,7 @@ class metodosPagoModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     if ($resultado == false || $resultado <= 0) {
       $rb = $objBitacora->registrarBitacora([
-        'modulo' => 'metodos-pagos',
+        'modulo' => 'metodos-pago',
         'accion' => 'Actualizar',
         'resultado' => 'Fallido',
         'commit' => true
@@ -307,7 +307,7 @@ class metodosPagoModelo extends conexion {
     }
     $datosNuevos = $this->seleccionarMetodosPagos(['id_metodo_pago' => $this->idMetodoPago]);
     $rb = $objBitacora->registrarBitacora([
-      'modulo' => 'metodos-pagos',
+      'modulo' => 'metodos-pago',
       'accion' => 'Actualizar',
       'resultado' => 'Éxito',
       'viejo' => $datosViejos,
@@ -334,7 +334,7 @@ class metodosPagoModelo extends conexion {
     $objBitacora = new bitacoraModelo();
     if ($resultado <= 0) {
       $rb = $objBitacora->registrarBitacora([
-        'modulo' => 'metodos-pagos',
+        'modulo' => 'metodos-pago',
         'accion' => 'Eliminar',
         'resultado' => 'Fallido',
         'commit' => true
@@ -349,7 +349,7 @@ class metodosPagoModelo extends conexion {
     }
 
     $rb = $objBitacora->registrarBitacora([
-      'modulo' => 'metodos-pagos',
+      'modulo' => 'metodos-pago',
       'accion' => 'Eliminar',
       'resultado' => 'Éxito',
     ]);
