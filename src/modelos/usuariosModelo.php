@@ -19,10 +19,12 @@ class usuariosModelo extends conexion {
   private string $direccionUsuario = '';
   private array $fotoUsuario = [];
 
-  public function validarUsuarios(string $permiso, null|array  &$info = null, null|array $requerido = null) {
-    $objAcceso = new accesosModelo();
-    $r = $objAcceso->validarPermisos('usuarios', $permiso);
-    if ($r) return $r;
+  public function validarUsuarios(string|null $permiso, null|array  &$info = null, null|array $requerido = null) {
+    if(isset($permiso)){
+      $objAcceso = new accesosModelo();
+      $r = $objAcceso->validarPermisos('usuarios', $permiso);
+      if ($r) return $r;
+    }
 
     //Concatenar los strings
     if (isset($info['prefijo_telefono_usuario'])) {
@@ -263,7 +265,7 @@ class usuariosModelo extends conexion {
       ];
     } */
 
-    $r = $this->validarUsuarios('listar', $info, ['usuario_usuario', 'contrasena1_usuario']);
+    $r = $this->validarUsuarios(null, $info, ['usuario_usuario', 'contrasena1_usuario']);
     if ($r) return $r;
     $this->usuarioUsuario = $info['usuario_usuario'];
     $this->contrasena1Usuario = $info['contrasena1_usuario'];
