@@ -10,84 +10,61 @@ class empresasEnviosModelo extends conexion {
   private string $idEmpresaEnvios = '';
   private string $nombreEmpresaEnvios = '';
 
-  public function validarEmpresasEnvios(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarEmpresasEnvios(string $permiso, array &$info = [], array $requerido = []) {
+
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('empresasEnvios', $permiso);
+    if ($v) return $v;
+
+    $v = $this->limpiarValidar($info, [
+      'tipo' => 'arrayA',
+      'propiedades' => [
         'id_empresa_envios' => [
-          "campo_nombre" => "id_empresa_envios",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la empresa de envíos",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "empresas_envios",
-          "debeSerUnico" => true,
-          "debeExistir" => true,
+          ...molId,
+          "nombreAlerta" => "id de la empresa de envíos",
+          "nombreBD" => "id_empresa_envios",
+          "tablaBD" => "empresas_envios",
+          "debeSerUnicoBD" => true,
+          "debeExistirBD" => true,
         ],
         'nombre_empresa' => [
-          "campo_nombre" => "nombre_empresa",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre de la empresa",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "empresas_envios",
-          "debeSerUnico" => true,
+          ...molNombreObj,
+          "nombreAlerta" => "nombre de la empresa",
+          "nombreBD" => "nombre_empresa",
+          "tablaBD" => "empresas_envios",
+          "debeSerUnicoBD" => true,
         ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-    }
-    return $this->limpiar_Verificar($campos);
+      ],
+      'requerido' => $requerido,
+    ]);
+    if ($v) return $v;
+
+    return false;
   }
   public function seleccionarEmpresasEnvios(array $info) {
     if (($info['id_empresa_envios'] ?? '') != '') {
-      $resultado = $this->validarEmpresasEnvios([
-        'infoVal' => &$info,
-        'camposVal' => ['id_empresa_envios'],
-      ]);
-      if ($resultado) return $resultado;
+      $v = $this->validarEmpresasEnvios('listar', $info, ['id_empresa_envios']);
+      if ($v) return $v;
       $this->idEmpresaEnvios = $info['id_empresa_envios'];
     }
     return $this->seleccionarEmpresasEnviosP();
   }
   public function registrarEmpresasEnvios(array $info) {
-    $resultado = $this->validarEmpresasEnvios([
-      'infoVal' => &$info,
-      'camposVal' => ['nombre_empresa'],
-    ]);
-    if ($resultado) return $resultado;
+    $v = $this->validarEmpresasEnvios('registrar', $info, ['nombre_empresa']);
+    if ($v) return $v;
     $this->nombreEmpresaEnvios = $info['nombre_empresa'];
     return $this->registrarEmpresasEnviosP();
   }
   public function actualizarEmpresasEnvios(array $info) {
-    $resultado = $this->validarEmpresasEnvios([
-      'infoVal' => &$info,
-      'camposVal' => ['id_empresa_envios', 'nombre_empresa'],
-    ]);
-    if ($resultado) return $resultado;
-
+    $v = $this->validarEmpresasEnvios('actualizar', $info, ['id_empresa_envios', 'nombre_empresa']);
+    if ($v) return $v;
     $this->idEmpresaEnvios = $info['id_empresa_envios'];
     $this->nombreEmpresaEnvios = $info['nombre_empresa'];
-
     return $this->actualizarEmpresasEnviosP();
   }
   public function eliminarEmpresasEnvios(array $info) {
-    $resultado = $this->validarEmpresasEnvios([
-      'infoVal' => &$info,
-      'camposVal' => ['id_empresa_envios'],
-    ]);
-    if ($resultado) return $resultado;
-
+    $v = $this->validarEmpresasEnvios('eliminar', $info, ['id_empresa_envios']);
+    if ($v) return $v;
     $this->idEmpresaEnvios = $info['id_empresa_envios'];
     return $this->eliminarEmpresasEnviosP();
   }
@@ -150,6 +127,26 @@ class empresasEnviosModelo extends conexion {
       ]
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'empresasEnvios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'empresasEnvios'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -196,6 +193,26 @@ class empresasEnviosModelo extends conexion {
       'nuevo' => $datosNuevos
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'empresasEnvios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'empresasEnvios'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -234,6 +251,26 @@ class empresasEnviosModelo extends conexion {
       'resultado' => 'Éxito',
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'empresasEnvios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'empresasEnvios'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       "tipo" => "simple",

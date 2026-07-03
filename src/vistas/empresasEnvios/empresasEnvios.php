@@ -57,7 +57,7 @@ echo $componente->listaDataTable($instruccionesLista);
     <div class="modal-content border-0">
       <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
         <h5 class="modal-title">
-          <i class="fas fa-edit me-2"></i> Editar Rol
+          <i class="fas fa-edit me-2"></i> Editar Empresa
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -68,7 +68,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" name="id_empresa_envios" class="formularioActualizar">
 
             <div class="col-md-12 mb-3">
-              <label for="cedula" class="form-label">Nombre del Rol</label>
+              <label for="cedula" class="form-label">Nombre de la empresa de envío</label>
               <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_empresa" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required placeholder="Ej: CARLOS">
             </div>
           </div>

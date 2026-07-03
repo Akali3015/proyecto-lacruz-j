@@ -8,9 +8,9 @@ use src\modelos\mensajesWSModelo;
 use PDO;
 
 class comprasModelo extends conexion {
-  private string|null $id_compra='';
-  private string $rif_proveedor='';
-  private string $fecha_compra='';
+  private string|null $id_compra = '';
+  private string $rif_proveedor = '';
+  private string $fecha_compra = '';
   private array $detalles = [];
 
   // Metodos publicos
@@ -366,7 +366,7 @@ class comprasModelo extends conexion {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
   private function registrarCompraP() {
-    
+
     $bitacora = new bitacoraModelo();
     $objProductos = new productosModelo();
     $objMateriasPrimas = new materiasPrimasModelo();
@@ -411,7 +411,7 @@ class comprasModelo extends conexion {
         if ($tipo === 'producto') {
           $cn->prepare(
             'INSERT INTO productos_compras (id_compra, id_presentacion_producto, cantidad_producto, status)
-                         VALUES (:compra, :item, :cant, 1)'
+            VALUES (:compra, :item, :cant, 1)'
           )->execute([
             ':compra' => $id_compra,
             ':item'   => $id_item,

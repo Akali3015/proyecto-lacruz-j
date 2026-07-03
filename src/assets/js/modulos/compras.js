@@ -6,65 +6,65 @@ import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriv
 
 //#region [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] COMIENZO
 driverAyuda('compras', {
-    pasos: [
-        {
-            element: '#dashboardCompras',
-            popover: {
-                title: 'Dashboard de Compras',
-                description: 'Aquí puedes ver métricas importantes: total de compras registradas, proveedores distintos y total de artículos comprados.',
-                side: 'bottom',
-                align: 'start'
-            }
-        },
-        {
-            element: 'button[data-bs-target=".modalRegistrar"]',
-            popover: {
-                title: 'Registrar Compra',
-                description: 'Haz clic aquí para registrar una nueva compra. Puedes agregar múltiples productos o materias primas en una misma compra.',
-                side: 'bottom',
-                align: 'start'
-            }
-        },
-        {
-            element: '.tabla-ajax',
-            popover: {
-                title: 'Lista de Compras',
-                description: 'Aquí puedes ver todas las compras registradas, con su fecha, proveedor y cantidad de artículos.',
-                side: 'top'
-            }
-        },
-        {
-            element: '.botonVer',
-            popover: {
-                title: 'Ver Detalles',
-                description: 'Haz clic aquí para ver todos los detalles de una compra específica.',
-                side: 'left'
-            }
-        },
-        {
-            element: '.botonEditar',
-            popover: {
-                title: 'Editar Compra',
-                description: 'Modifica los datos de una compra existente.',
-                side: 'left'
-            }
-        },
-        {
-            element: '.botonEliminar',
-            popover: {
-                title: 'Eliminar Compra',
-                description: 'Elimina una compra del sistema. Esta acción no se puede deshacer.',
-                side: 'left'
-            }
-        },
-        {
-            popover: {
-                title: '¡Ayuda completada!',
-                description: 'Ya conoces la gestión de compras. Puedes registrar compras con múltiples artículos y llevar el control de tu inventario.',
-                side: 'top'
-            }
-        }
-    ]
+  pasos: [
+    {
+      element: '#dashboardCompras',
+      popover: {
+        title: 'Dashboard de Compras',
+        description: 'Aquí puedes ver métricas importantes: total de compras registradas, proveedores distintos y total de artículos comprados.',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: 'button[data-bs-target=".modalRegistrar"]',
+      popover: {
+        title: 'Registrar Compra',
+        description: 'Haz clic aquí para registrar una nueva compra. Puedes agregar múltiples productos o materias primas en una misma compra.',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.tabla-ajax',
+      popover: {
+        title: 'Lista de Compras',
+        description: 'Aquí puedes ver todas las compras registradas, con su fecha, proveedor y cantidad de artículos.',
+        side: 'top'
+      }
+    },
+    {
+      element: '.botonVer',
+      popover: {
+        title: 'Ver Detalles',
+        description: 'Haz clic aquí para ver todos los detalles de una compra específica.',
+        side: 'left'
+      }
+    },
+    {
+      element: '.botonEditar',
+      popover: {
+        title: 'Editar Compra',
+        description: 'Modifica los datos de una compra existente.',
+        side: 'left'
+      }
+    },
+    {
+      element: '.botonEliminar',
+      popover: {
+        title: 'Eliminar Compra',
+        description: 'Elimina una compra del sistema. Esta acción no se puede deshacer.',
+        side: 'left'
+      }
+    },
+    {
+      popover: {
+        title: '¡Ayuda completada!',
+        description: 'Ya conoces la gestión de compras. Puedes registrar compras con múltiples artículos y llevar el control de tu inventario.',
+        side: 'top'
+      }
+    }
+  ]
 });
 //#endregion [ CONFIGURACIÓN DE LA AYUDA INTERACTIVA ] FIN
 

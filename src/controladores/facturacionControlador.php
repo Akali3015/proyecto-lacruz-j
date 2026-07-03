@@ -17,29 +17,24 @@ if (
       $resultado = $objeto->ListarFacturas();
       echo json_encode($resultado);
       exit();
-
     case 'listarMetodosPago':
       $resultado = $objeto->ListarMetodosPago();
       echo json_encode($resultado);
       exit();
-
     case 'obtenerUno':
       $id = $_POST['id_factura'] ?? '';
       echo json_encode($objeto->ObtenerFactura($id));
       exit();
-
     case 'obtenerDetalle':
       $id = $_POST['id_factura'] ?? '';
       echo json_encode($objeto->ObtenerDetalleFactura($id));
       exit();
-
     case 'registrar':
       $rifCliente = trim($_POST['rif_cedula_cliente'] ?? '');
       $productos  = json_decode($_POST['productos']  ?? '[]', true);
       $servicios  = json_decode($_POST['servicios']  ?? '[]', true);
       $delivery   = json_decode($_POST['delivery']   ?? '{}', true);
       $estadoSel  = intval($_POST['estadoSeleccionado'] ?? 1);
-
       $resultado = $objeto->RegistrarFactura(
         $rifCliente,
         is_array($productos) ? $productos : [],
@@ -49,11 +44,10 @@ if (
       );
       echo json_encode($resultado);
       exit();
-
     case 'registrarPago':
       $idFactura = $_POST['id_factura'] ?? '';
       $pagosArray = json_decode($_POST['pagos'] ?? '[]', true);
-      
+
       echo json_encode($objeto->RegistrarPago($idFactura, is_array($pagosArray) ? $pagosArray : []));
       exit();
 

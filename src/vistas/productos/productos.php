@@ -24,7 +24,7 @@ echo $componente->listaDataTable($instruccionesLista);
       <input
         type="text"
         name="materias_primas-[COD-FILA]-cantidad_materia_prima"
-        class="form-control input-cantidad-materia dinero"
+        class="form-control input-cantidad-materia dineroPositivo"
         placeholder="Cantidad">
     </td>
     <td class="costo-unitario"></td>

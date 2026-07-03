@@ -349,7 +349,7 @@ class facturacionModelo extends conexion {
     // Ojo, para cada servicio necesitamos saber qué materiales gastó
     $stmtMat = self::$conexion->prepare("
       SELECT ps.id_producto, ps.cantidad_producto,
-             p.nombre_producto, um.nombre_unidad_medida
+            p.nombre_producto, um.nombre_unidad_medida
       FROM productos_servicios ps
       JOIN productos p ON ps.id_producto = p.id_producto
       LEFT JOIN unidades_medidas um ON p.id_unidad_medida = um.id_unidad_medida
@@ -508,7 +508,7 @@ class facturacionModelo extends conexion {
           'datosJoins' => [
             'productos p' => 'pp.id_producto = p.id_producto'
           ],
-          'WHERE'      => [
+          'WHERE' => [
             'pp.id_presentacion_producto' => $idPresentacion,
             'pp.status'                   => 1
           ]
@@ -637,7 +637,6 @@ class facturacionModelo extends conexion {
             'prefijo' => 'DLVR',
             'campoID' => 'id_delivery',
           ]);
-
           $cedulaRepartidor = $this->delivery['cedula_repartidor'] ?? null;
 
           // Trait v2 para guardar deliveries

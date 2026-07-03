@@ -5,6 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\clientesModelo;
 use src\modelos\accesosModelo;
+use PDO;
 
 class usuariosModelo extends conexion {
   private string $cedulaUsuario = '';
@@ -13,17 +14,16 @@ class usuariosModelo extends conexion {
   private string $apellidoUsuario = '';
   private string $usuarioUsuario = '';
   private string $contrasena1Usuario = '';
-  private string $contrasena2Usuario = '';
   private string $telefonoUsuario = '';
   private string $correoUsuario = '';
   private string $direccionUsuario = '';
   private array $fotoUsuario = [];
 
   public function validarUsuarios(string|null $permiso, null|array  &$info = null, null|array $requerido = null) {
-    if(isset($permiso)){
+    if (isset($permiso)) {
       $objAcceso = new accesosModelo();
-      $r = $objAcceso->validarPermisos('usuarios', $permiso);
-      if ($r) return $r;
+      $v = $objAcceso->validarPermisos('usuarios', $permiso);
+      if ($v) return $v;
     }
 
     //Concatenar los strings
@@ -105,16 +105,26 @@ class usuariosModelo extends conexion {
       'requerido' => $requerido
     ];
     if (isset($info) && isset($requerido)) {
-
+      if (!isset($info['accion'])) {
+        return [
+          'icono' => 'error',
+          'tipo' => 'simple',
+          'titulo' => 'Sin acción',
+          'texto' => 'Ha ocurrido un error con la acción en el método del módulo de usuarios'
+        ];
+      }
       if ($info['accion'] == 'eliminar') {
-        $esquema['propiedades']['cedula_usuario']['debeSerDiferenteA'] = $this->seleccionarDatos2([
-          'campos' => 'cedula_usuario',
-          'tabla' => 'usuarios',
+        $esquema['propiedades']['cedula_usuario']['diferenteA'] = $this->seleccionarDatos2([
+          'campos' => 'u.cedula_usuario',
+          'tabla' => 'usuarios as u',
           'BD' => 'seguridad',
+          'datosJoins' => [
+            'roles as ro' => 'u.id_rol = ro.id_rol'
+          ],
           'WHERE' => [
-            'nombre_rol' => 'SUPER USUARIO'
+            'ro.nombre_rol' => 'SUPER USUARIO'
           ]
-        ])->fetch();
+        ])->fetch(PDO::FETCH_COLUMN);
       }
       if ($info['accion'] == 'iniciarSesion') {
         unset($esquema['propiedades']['usuario_usuario']['debeSerUnicoBD']);
@@ -135,16 +145,14 @@ class usuariosModelo extends conexion {
         $esquema['propiedades']['contrasena2_usuario']['deberSerIgual'] = $info['contrasena1_usuario'] ?? '';
       }
 
-      $r = $this->limpiarValidar($info, $esquema);
-      if ($r) return $r;
+      $v = $this->limpiarValidar($info, $esquema);
+      if ($v) return $v;
     }
     return false;
   }
   public function seleccionarUsuarios(array $info) {
     if (($info['cedula_usuario'] ?? '') != '') {
-      $r = $this->validarUsuarios('listar', $info, [
-        'cedula_usuario' => 'cedula_usuario_act',
-      ]);
+      $r = $this->validarUsuarios('listar', $info, ['cedula_usuario']);
       if ($r) return $r;
       $this->cedulaUsuario = $info['cedula_usuario'];
     } else {
@@ -170,13 +178,13 @@ class usuariosModelo extends conexion {
       'apellido_usuario' => $this->apellidoUsuario,
       'cedula_usuario' => $this->cedulaUsuario,
       'contrasena1_usuario' => $this->contrasena1Usuario,
-      'contrasena2_usuario' => $this->contrasena2Usuario,
       'id_rol' => $this->rolUsuario,
       'nombre_usuario' => $this->nombreUsuario,
       'telefono_usuario' => $this->telefonoUsuario,
+      'correo_usuario' => $this->correoUsuario,
       'usuario_usuario' => $this->usuarioUsuario,
+      'direccion_usuario' => $this->direccionUsuario,
     ] = $info;
-    $this->direccionUsuario = $info['direccion_usuario'] ?? '';
     $this->fotoUsuario = $info['foto_usuario'] ?? [];
     $this->contrasena1Usuario = password_hash($this->contrasena1Usuario, PASSWORD_BCRYPT, ["cost" => 10]);
     return $this->registrarUsuariosP();
@@ -202,9 +210,8 @@ class usuariosModelo extends conexion {
       'apellido_usuario' => $this->apellidoUsuario,
       'cedula_usuario' => $this->cedulaUsuario,
       'contrasena1_usuario' => $this->contrasena1Usuario,
-      'contrasena2_usuario' => $this->contrasena2Usuario,
       'correo_usuario' => $this->correoUsuario,
-      'rol_usuario' => $this->rolUsuario,
+      'id_rol' => $this->rolUsuario,
       'nombre_usuario' => $this->nombreUsuario,
       'telefono_usuario' => $this->telefonoUsuario,
       'usuario_usuario' => $this->usuarioUsuario,
@@ -368,12 +375,9 @@ class usuariosModelo extends conexion {
       if (($resultado['icono'] ?? '') != 'success') return $resultado;
     }
 
-
     $objNot = new mensajesWSModelo();
-    $resultado = $objNot->enviarMensajesWS([
-      "receptor" => [
-        'tipo' => 'todos',
-      ],
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
       'cuerpo' => [
         [
           'accion' => "borrarDataModuloSS",
@@ -381,14 +385,12 @@ class usuariosModelo extends conexion {
         ],
         [
           'accion' => "actDT",
-          'modulo' => 'pedidos'
+          'modulo' => 'usuarios'
         ],
       ],
-      'noCommit' => true
+      'noCommit' => true,
     ]);
-    unset($objNot);
-    if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
-
+    if (isset($r['error'])) return $r['error'];
 
     if (isset($_SESSION['cedula'])) {
       $rb = $objBitacora->registrarBitacora([
@@ -411,6 +413,7 @@ class usuariosModelo extends conexion {
   private function actualizarUsuariosP() {
     $datosActuales = $this->seleccionarUsuarios([
       "cedula_usuario" => $this->cedulaUsuario,
+      'accion' => 'listar'
     ]);
     if ($this->contrasena1Usuario == "") $this->contrasena1Usuario = $datosActuales['contrasena_usuario'];
     if ($this->rolUsuario == '') $this->rolUsuario = $datosActuales['id_rol'];
@@ -445,7 +448,7 @@ class usuariosModelo extends conexion {
     $clienteObj = new clientesModelo();
     $cliente = $clienteObj->seleccionarClientes(['rif_cedula_cliente' => $this->cedulaUsuario]);
     if (isset($cliente['rif_cedula_cliente'])) {
-      $resultado = $clienteObj->actualizarClientes([
+      $clienteObj->actualizarClientes([
         "rif_cedula_cliente" => $this->cedulaUsuario,
         "razon_social_cliente" => $this->nombreUsuario . ' ' . $this->apellidoUsuario,
         "telefono_cliente" => $this->telefonoUsuario,
@@ -453,7 +456,6 @@ class usuariosModelo extends conexion {
         "direccion_cliente" => $this->direccionUsuario,
         "sinCommit" => true,
       ]);
-      if (($resultado['icono'] ?? '') != 'success') return $resultado;
     }
 
     if ($this->cedulaUsuario == $_SESSION['cedula']) {
@@ -473,6 +475,23 @@ class usuariosModelo extends conexion {
       'nuevo' => $datosAct
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+    if (isset($r['error'])) return $r['error'];
 
     $this->commit();
     return [
@@ -512,6 +531,24 @@ class usuariosModelo extends conexion {
       'resultado' => 'Éxito',
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+    if (isset($r['error'])) return $r['error'];
+
     $this->commit();
     return [
       "tipo" => "simple",
@@ -523,8 +560,10 @@ class usuariosModelo extends conexion {
   private function actualizarFotosUsuariosP() {
     $objBitacora = new bitacoraModelo();
     $usuariosActual = $this->seleccionarUsuarios([
-      'cedula_usuario' => $this->cedulaUsuario
+      'cedula_usuario' => $this->cedulaUsuario,
+      'accion' => 'listar'
     ]);
+
     $rb = $objBitacora->registrarBitacora([
       'modulo' => 'usuarios',
       'accion' => 'Actualizar foto del usuario con la cedula/rif: ' . $this->cedulaUsuario,
@@ -533,6 +572,7 @@ class usuariosModelo extends conexion {
       'nuevo' => ['foto_usuario' => $this->fotoUsuario],
     ]);
     if ($rb) return $rb;
+
     $resultado = $this->Imagenes_Act([
       'subCarpeta' => 'usuarios',
       'imagen' => $this->fotoUsuario,
@@ -542,7 +582,26 @@ class usuariosModelo extends conexion {
       'valorId' => $this->cedulaUsuario,
       'BD' => 'seguridad',
     ]);
-    if ($resultado['icono'] == 'success') $this->commit();
+    if ($resultado['icono'] != 'success') return $resultado;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+    if (isset($r['error'])) return $r['error'];
+
+    $this->commit();
     return $resultado;
   }
   private function eliminarFotosUsuariosP() {
@@ -562,11 +621,29 @@ class usuariosModelo extends conexion {
       'valorId' => $this->cedulaUsuario,
       'BD' => 'seguridad',
     ]);
-    if ($resultado['icono'] == 'success') $this->commit();
+    if ($resultado['icono'] != 'success') return $resultado;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+    if (isset($r['error'])) return $r['error'];
+
+    $this->commit();
     return $resultado;
   }
   private function iniciarSesionUsuariosP() {
-
     $instruccionesConsultaCom = [
       'campos' => "
         us.cedula_usuario, us.nombre_usuario, us.apellido_usuario,
@@ -671,6 +748,24 @@ class usuariosModelo extends conexion {
       'nuevo' => $datosUsuarioDespues
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+    if (isset($r['error'])) return $r['error'];
+
     $this->commit();
     return [
       "tipo" => "redireccionar",

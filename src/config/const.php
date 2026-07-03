@@ -1,12 +1,17 @@
 <?php
-/*Constantes de la BD*/
+
+// #region [ CONSTANTES DE LA BD ]
+
 const DB_SERVER = "localhost";
 const DB_NAME = "proyecto_lacruz";
 const DB_USER = "root";
 const DB_PASS = "";
 const DIR_FOTOS = "src/assets/fotosModulos/";
 
-/*Constante de la APP */
+// #endregion [ CONSTANTES DE LA BD ]
+
+// #region [ CONSTANTES DE LA APP ]
+
 $PROTOCOLO = 'http://';
 if (
   (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
@@ -16,13 +21,15 @@ if (
   $PROTOCOLO = 'https://';
 }
 define('APP_URL', $PROTOCOLO . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/proyecto-lacruz-j/");
+define('modoDev',true);
 const coorJLACRUZ = ['latitud' => 10.063276, 'longitud' => -69.31708];
-
 const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
 const APP_SESSION_NAME = "JLACRUZ";
 date_default_timezone_set("America/Caracas");
 
-/*Expresiones regulares*/
+// #endregion [ CONSTANTES DE LA APP ]
+
+// #region [ EXPRESIONES REGULARES - ATOMOS ]
 const regexId = '^\d{1,9}$';
 const minRegexId = '1';
 const maxRegexId = '9';
@@ -114,11 +121,11 @@ const maxRegexUrl = '255';
 const regexReferencia = '^\d{4,6}$';
 const minRegexReferencia = '4';
 const maxRegexReferencia = '6';
+// #endregion [ EXPRESIONES REGULARES - ATOMOS ]
 
-//#region [ MOLÉCULAS - VALIDACIONES ]
-
+// #region [ MOLÉCULAS - VALIDACIONES ]
 define('molId', [
-  'tipo' => 'string',
+  'tipo' => 'int',
   "minL" => minRegexId,
   "maxL" => maxRegexId,
   "regex" => regexId
@@ -177,17 +184,39 @@ define('molUsuario', [
   "maxL" => maxRegexUsuario,
   "regex" => regexUsuario
 ]);
+define('molPrecio', [
+  'tipo' => 'string',
+  "minL" => minRegexPrecio,
+  "maxL" => maxRegexPrecio,
+  "regex" => regexPrecio,
+]);
+define('molPrecioFormateado', [
+  'tipo' => 'string',
+  "minL" => minRegexPrecio,
+  "maxL" => maxRegexPrecio,
+  "regex" => regexPrecio,
+  "cFloat" => true
+]);
+define('molBooleano', [
+  'tipo' => 'int',
+  "minL" => minRegexValorBoleano,
+  "maxL" => maxRegexValorBoleano,
+  "regex" => regexValorBoleano,
+]);
 define('molFoto', [
   'tipo' => 'archivo',
   'extensiones' => ['jpg', 'png', 'jpeg', 'webp'],
   'maximoMb' => 5,
-  'minItems'=>1
+  'minItems' => 1
 ]);
 define('molFotoInd', [
   'tipo' => 'archivo',
   'extensiones' => ['jpg', 'png', 'jpeg', 'webp'],
   'maximoMb' => 5,
   'minItems' => 1,
-  'maxItems'=>1
+  'maxItems' => 1
 ]);
-//#endregion [ MOLÉCULAS - VALIDACIONES ]
+// #endregion [ MOLÉCULAS - VALIDACIONES ]
+
+
+

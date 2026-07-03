@@ -3,164 +3,115 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\accesosModelo;
+use src\modelos\mensajesWSModelo;
 
 class rutasModelo extends conexion {
-  private int $idRuta = 0;
+  private string $idRuta = '';
   private string $nombreRuta = '';
-  private float $precioRuta = 0;
-  private float $minimoKmRuta = 0;
-  private float $maximoKmRuta = 0;
-  private float $kmRecorrido = 0;
+  private string $precioRuta = '';
+  private string $minimoKmRuta = '';
+  private string $maximoKmRuta = '';
+  private string $kmRecorrido = '';
 
-  public function validarRutas(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarRutas(string $permiso, array &$info = [], array $requerido = []) {
+    if (isset($permiso)) {
+      $objAcceso = new accesosModelo();
+      $r = $objAcceso->validarPermisos('rutas', $permiso);
+      if ($r) return $r;
+    }
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
         "id_ruta" => [
-          "campo_nombre" => "id_ruta",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "rutas",
-          "debeExistir" => true,
-          "debeSerUnico" => true
+          ...molId,
+          "nombreBD" => "id_ruta",
+          "tablaBD" => "rutas",
+          "nombreAlerta" => "id de la ruta",
+          "debeExistirBD" => true,
+          "debeSerUnicoBD" => true
         ],
         "nombre_ruta" => [
-          "campo_nombre" => "nombre_ruta",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "rutas",
+          ...molNombreObj,
+          "nombreAlerta" => "nombre de la ruta",
+          "nombreBD" => "nombre_ruta",
+          "tablaBD" => "rutas",
           "debeSerUnico" => true,
         ],
         "precio_ruta" => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "precio de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
-          'comaPunto' => true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "precio de la ruta",
         ],
         "minimo_km_ruta" => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "mínimo de km de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
-          'comaPunto' => true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "mínimo de km de la ruta",
         ],
         "maximo_km_ruta" => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "máximo de km de la ruta",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
-          'comaPunto' => true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "máximo de km de la ruta",
         ],
         "km_recorrido" => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "la cantidad de km recorridos",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
+          ...molPrecio,
+          "nombreAlerta" => "la cantidad de km recorridos",
         ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
+      ],
+      'requerido' => $requerido,
+    ];
+    if (isset($info)) {
+      $r = $this->limpiarValidar($info, $esquema);
+      if ($r) return $r;
     }
-    return $this->limpiar_Verificar($campos);
+    return false;
   }
   public function seleccionarRutas(array $info) {
-    $campos = [];
-    if (isset($info['id_ruta'])) {
-      $campos[] = 'id_ruta';
-    }
-    if (isset($info['km_recorrido'])) {
-      $campos[] = 'km_recorrido';
-    }
-    if ($campos != []) {
-      $resultado = $this->validarRutas([
-        'infoVal' => &$info,
-        'camposVal' => $campos,
-      ]);
-      if ($resultado) return $resultado;
-    }
-
-    $this->idRuta = $info['id_ruta'] ?? 0;
-    $this->kmRecorrido = $info['km_recorrido'] ?? 0;
+    $resultado = $this->validarRutas('listar', $info);
+    if ($resultado) return $resultado;
+    $this->idRuta = $info['id_ruta'] ?? '';
+    $this->kmRecorrido = $info['km_recorrido'] ?? '';
     return $this->seleccionarRutasP($info);
   }
   public function registrarRutas(array $info) {
-    $resultado = $this->validarRutas([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'nombre_ruta',
-        'precio_ruta',
-        'minimo_km_ruta',
-        'maximo_km_ruta'
-      ],
+    $r = $this->validarRutas('registrar', $info, [
+      'nombre_ruta',
+      'precio_ruta',
+      'minimo_km_ruta',
+      'maximo_km_ruta'
     ]);
-    if ($resultado) return $resultado;
+    if ($r) return $r;
 
     $this->nombreRuta = $info['nombre_ruta'];
-    $this->precioRuta = (float)$info['precio_ruta'];
-    $this->minimoKmRuta = (float)$info['minimo_km_ruta'];
-    $this->maximoKmRuta = (float)$info['maximo_km_ruta'];
+    $this->precioRuta = $info['precio_ruta'];
+    $this->minimoKmRuta = $info['minimo_km_ruta'];
+    $this->maximoKmRuta = $info['maximo_km_ruta'];
     return $this->registrarRutasP();
   }
   public function actualizarRutas(array $info) {
-
-    $resultado = $this->validarRutas([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_ruta',
-        'nombre_ruta',
-        'precio_ruta',
-        'minimo_km_ruta',
-        'maximo_km_ruta'
-      ],
+    $resultado = $this->validarRutas('actualizar', $info, [
+      'id_ruta',
+      'nombre_ruta',
+      'precio_ruta',
+      'minimo_km_ruta',
+      'maximo_km_ruta'
     ]);
     if ($resultado) return $resultado;
 
     $this->idRuta = $info['id_ruta'];
     $this->nombreRuta = $info['nombre_ruta'];
-    $this->precioRuta = (float) $info['precio_ruta'];
-    $this->minimoKmRuta = (float)$info['minimo_km_ruta'];
-    $this->maximoKmRuta = (float)$info['maximo_km_ruta'];
-
+    $this->precioRuta = $info['precio_ruta'];
+    $this->minimoKmRuta = $info['minimo_km_ruta'];
+    $this->maximoKmRuta = $info['maximo_km_ruta'];
 
     return $this->actualizarRutasP();
   }
   public function eliminarRutas(array $info) {
-    $resultado = $this->validarRutas([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_ruta',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+    $r = $this->validarRutas('eliminar', $info, ['id_ruta']);
+    if ($r) return $r;
 
     $this->idRuta = $info['id_ruta'];
     return $this->eliminarRutasP();
   }
 
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
+  //-- PRIVADOS [ ENCAPSULAMIENTO ] --//
   private function seleccionarRutasP(array $info) {
     if ($this->idRuta == null || $this->idRuta == "") {
       switch ($info['tipoConsulta'] ?? '') {
@@ -263,6 +214,25 @@ class rutasModelo extends conexion {
     ]);
     if ($rb) return $rb;
 
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'rutas'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'rutas'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return   [
       "tipo" => "limpiarYcerrar",
@@ -312,6 +282,26 @@ class rutasModelo extends conexion {
       'nuevo' => $datosDespues
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'rutas'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'rutas'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return  [
       "tipo" => "limpiarYcerrar",
@@ -348,6 +338,25 @@ class rutasModelo extends conexion {
       'resultado' => 'Éxito',
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'rutas'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'rutas'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
 
     $this->commit();
     return [

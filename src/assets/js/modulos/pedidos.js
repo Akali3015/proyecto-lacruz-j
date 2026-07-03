@@ -46,20 +46,25 @@ async function cambiarEstadosPedido() {
   })
 
   if (resultado.isConfirmed) {
-    let resultado = await pedirDatosAjax({
-      noGuardarLocal: true,
-      modulo: 'pedidos',
-      datosPe: {
-        accion: 'cambiarEstado',
-        id_pedido,
-        status_pedido: estado
+    try {
+      mostrarOcultarSpinnerCarga('mostrar');
+      let resultado = await pedirDatosAjax({
+        noGuardarLocal: true,
+        modulo: 'pedidos',
+        datosPe: {
+          accion: 'cambiarEstado',
+          id_pedido,
+          status_pedido: estado
+        }
+      });
+      if (resultado?.icono == 'success') {
+        reiniciarDataModuloSS('pedidos');
+        reiniciarDataTables();
       }
-    });
-    if (resultado?.icono == 'success') {
-      reiniciarDataModuloSS('pedidos');
-      reiniciarDataTables();
+      alertasAjax(resultado);
+    } finally {
+      mostrarOcultarSpinnerCarga('ocultar');
     }
-    alertasAjax(resultado);
   }
 
 }
@@ -74,11 +79,7 @@ async function verDetallesPedido() {
         'id_pedido': $(this).attr('value')
       }
     });
-
-    if (pedido.icono) {
-      alertasAjax(pedido)
-      throw new Error(pedido.texto);
-    }
+    if (pedido?.icono == 'error') return alertasAjax(pedido);
 
     let {
       calculos,
@@ -302,8 +303,7 @@ async function verDetallesPedido() {
     formateoCampos(preciosBs, 'dineroBolivar');
 
     modalD.find('.btnTapProductos').trigger('click');
-  } catch (e) {
-    console.error(e);
+
   } finally {
     mostrarOcultarSpinnerCarga('ocultar')
   }
@@ -356,8 +356,8 @@ async function imprimirPedido() {
   });
 
   if (resultado.isConfirmed) {
-    mostrarOcultarSpinnerCarga('mostrar');
     try {
+      mostrarOcultarSpinnerCarga('mostrar');
       let resultado = await pedirDatosAjax({
         'modulo': 'pedidos',
         'datosPe': {
@@ -365,11 +365,7 @@ async function imprimirPedido() {
           'id_pedido': $(this).attr('value')
         }
       });
-      if (resultado.icono) {
-        alertasAjax(resultado)
-      }
-    } catch (error) {
-      console.error(error);
+      if (resultado?.icono == 'error') return alertasAjax(resultado);
     } finally {
       mostrarOcultarSpinnerCarga('ocultar');
     }
@@ -388,6 +384,8 @@ $(document).on("DOMContentLoaded", async function () {
       accion: 'listarPorRol'
     }
   });
+  if (permisos?.icono == 'error') return alertasAjax(permisos);
+  
   if (permisos.pedidos.includes('ver pedidos propios')) {
     let promesas = [];
     // Catalogo de productos

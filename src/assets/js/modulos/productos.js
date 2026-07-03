@@ -3,7 +3,8 @@ import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR,
   extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice,
-  validarEnTiempoReal, formateoCampos, rutaFotos
+  validarEnTiempoReal, formateoCampos, rutaFotos,
+  alertasAjax,
 } from "/proyecto-lacruz-j/src/assets/js/modulos/global.js";
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -15,6 +16,8 @@ async function renderizarPresentaciones() {
     modulo: "presentaciones",
     datosPe: { accion: "listar" },
   });
+  if (presentacionesBD?.icono == 'error') return alertasAjax(presentacionesBD);
+
   let html = "";
 
   for (let i = 0; i < presentacionesBD.length; i++) {
@@ -101,7 +104,6 @@ async function calcularCostosMateriasPrimas(modal) {
 
   //Precio BCV producto
   let precioDivisas = $(modal).find('[name="precio_producto"]').val()
-  console.log(precioDivisas)
   precioDivisas = precioDivisas.replaceAll('.', '').replaceAll(',', '.')
   precioDivisas = parseFloat(precioDivisas);
   let precioDolar = parseFloat($('.precioDolar').val());
@@ -127,6 +129,7 @@ async function calcularCostosMateriasPrimas(modal) {
         'id_materia_prima': materiaId
       },
     });
+    if (materiaPrimaBD?.icono == 'error') return alertasAjax(materiaPrimaBD);
 
     if (materiaId && materiaPrimaBD) {
       const costoUnitario = parseFloat(materiaPrimaBD['precio_materia_prima']) || 0;
@@ -148,6 +151,11 @@ async function inicializarModalProducto(modal) {
         'id_producto': idProducto
       },
     });
+    if (productoBD?.icono == 'error') {
+      console.log(productoBD)
+      await alertasAjax(productoBD);
+      return;
+    }
 
     let {
       necesitan_materias_primas,
@@ -234,7 +242,7 @@ function renderizarDashboard() {
                 Valor Inventario ($)
               </h6>
               <h3 class="valorTotalInventario mb-0 fw-bold">
-                ${valorDivisas}$
+                ${formateoCampos(valorDivisas,'dineroDolar')}
               </h3>
             </div>
           </div>
@@ -264,9 +272,10 @@ function renderizarDashboard() {
     $(dashboardHTML).insertBefore($('.tabla-ajax').closest('.card'));
   } else {
     dashboard.find('.totalProdDashboard').text(total)
-    dashboard.find('.valorTotalInventario').text(`${valorDivisas}$`)
+    dashboard.find('.valorTotalInventario').text(`${formateoCampos(valorDivisas,'dineroDolar')}`)
     dashboard.find('.nroProdStockCriticos').text(criticos)
   }
+
 }
 function habilitarDeshabilitarPresentacion(cambio = null) {
   let card = $(this);
@@ -355,13 +364,13 @@ $(document).on("DOMContentLoaded", async function () {
     },
     infoTratoEspecial: {
       precio_producto: (info) => {
-        return `<strong>${parseFloat(info.valor).toFixed(2)}$</strong>`;
+        return `<strong class="valor">${formateoCampos(info.valor,'dineroDolar')}</strong>`;
       },
       stock_producto: (info) => {
         const stockActual = parseFloat(info.valor);
         const stockMinimo = parseFloat(info.fila?.stock_minimo_producto ?? 0);
         const clase = stockActual <= stockMinimo ? 'danger' : 'success';
-        return `<span class="badge bg-${clase} px-2 py-1" style="font-size:.85rem;">${stockActual}</span>`;
+        return `<span class="badge bg-${clase} px-2 py-1" style="font-size:.85rem;">${formateoCampos(stockActual,'dinero')}</span>`;
       },
     }
   });
@@ -371,6 +380,8 @@ $(document).on("DOMContentLoaded", async function () {
     modulo: "categoriasProductos",
     datosPe: { accion: "listar" }
   });
+  if (categorias?.icono == 'error') return alertasAjax(categorias);
+
   let htmlCat = '<option value="">Seleccione una categoría</option>';
   if (categorias && Array.isArray(categorias)) {
     categorias.forEach(cat => {
@@ -550,7 +561,6 @@ $(document).on("change", ".select-materia-prima", function () {
   calcularCostosMateriasPrimas(modal);
 });
 
-
 $(document).off("click", ".card-presentacion");
 $(document).on("click", ".card-presentacion", function (e) {
   habilitarDeshabilitarPresentacion.call(this);
@@ -598,10 +608,12 @@ $(document).on("click", ".botonEditar", async function (e) {
     campoId: 'id_producto',
     modulo: 'productos',
   });
+
   await cargarInputsActualizarQNR.call(modal.find("form"));
   modal.attr("id_producto", idProducto);
-  inicializarModalProducto(modal);
-  modal.find('.dineroPositivo').trigger('input')
+  await inicializarModalProducto(modal);
+  modal.find('.dineroPositivo').trigger('input');
+  calcularCostosMateriasPrimas(modal)
 });
 
 $(document).off("submit", ".formularioAjax");

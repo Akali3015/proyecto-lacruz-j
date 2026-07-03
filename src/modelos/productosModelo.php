@@ -21,186 +21,125 @@ class productosModelo extends conexion {
   private array $materiasPrimas = [];
   private array $fotoPresentacion = [];
 
-  public function validarProductos(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarProductos(string $permiso, array &$info = [], array $requerido = []) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('productos', $permiso);
+    if ($v) return $v;
+
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
+        'foto_presentacion' => [
+          ...molFotoInd,
+          'foto de la presentación'
+        ],
         'id_producto' => [
-          "campo_nombre" => "id_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del producto",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "productos",
-          "debeSerUnico" => true,
-          "debeExistir" => true,
+          ...molIdSeguro,
+          "nombreAlerta" => "id del producto",
+          "nombreBD" => "id_producto",
+          "tablaBD" => "productos",
+          "debeSerUnicoBD" => true,
+          "debeExistirBD" => true,
         ],
         'id_unidad_medida' => [
-          "campo_nombre" => "id_unidad_medida",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "unidades de medida",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "unidades_medidas",
-          "debeExistir" => true,
+          ...molId,
+          "nombreAlerta" => "unidades de medida",
+          "nombreBD" => "id_unidad_medida",
+          "tablaBD" => "unidades_medidas",
+          "debeExistirBD" => true,
         ],
         'id_categoria_producto' => [
-          "campo_nombre" => "id_categoria_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "categoria",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "categorias_productos",
-          "debeExistir" => true,
+          ...molId,
+          "nombreAlerta" => "categoria",
+          "nombreBD" => "id_categoria_producto",
+          "tablaBD" => "categorias_productos",
+          "debeExistirBD" => true,
         ],
-        'id_presentacion' => [
-          "campo_nombre" => "id_presentacion",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la presentación",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "presentaciones",
-          "debeExistir" => true,
-        ],
-        'id_presentacion_producto' => [
-          "campo_nombre" => "id_presentacion_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la presentación del producto",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "presentaciones_productos",
-          "debeExistir" => true,
-        ],
-        'id_materia_prima' => [
-          "campo_nombre" => "id_materia_prima",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id de la materia prima",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "materias_primas",
-          "debeExistir" => true,
+        'materias_primas' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_materia_prima' => [
+                ...molIdSeguro,
+                "nombreAlerta" => "id de la materia prima",
+                "nombreBD" => "id_materia_prima",
+                "tablaBD" => "materias_primas",
+                "debeExistirBD" => true,
+              ],
+              'cantidad_materia_prima' => [
+                ...molPrecioFormateado,
+                "nombreAlerta" => "cantidad de la materia prima",
+              ],
+            ],
+            'requerido' => ['id_materia_prima', 'cantidad_materia_prima']
+          ],
+          'nombreAlerta' => 'las materias primas del producto'
         ],
         'nombre_producto' => [
-          "campo_nombre" => "nombre_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre del producto",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "productos",
-          "debeSerUnico" => true,
+          ...molNombreObj,
+          "nombreAlerta" => "nombre del producto",
+          "nombreBD" => "nombre_producto",
+          "tablaBD" => "productos",
+          "debeSerUnicoBD" => true,
         ],
         'precio_producto' => [
-          "campo_nombre" => "precio_producto_divisa",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "precio en divisas",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
-          'comaPunto' => true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "precio en divisas",
         ],
         'stock_producto' => [
-          "campo_nombre" => "stock_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "stock",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-          'comaPunto'=>true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "stock del producto",
         ],
         'stock_minimo_producto' => [
-          "campo_nombre" => "stock_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "stock",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-          'comaPunto'=>true,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "stock mínimo del producto",
         ],
-        'mostrar_ecommerce' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "mostrar en el ecommerce",
-          "requerido" => true,
-          "minimo" => minRegexValorBoleano,
-          "maximo" => maxRegexValorBoleano,
-          "expresion_re" => regexValorBoleano,
+        'presentaciones' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_presentacion' => [
+                ...molIdSeguro,
+                "nombreBD" => "id_presentacion",
+                "nombreAlerta" => "id de la presentación",
+                "tablaBD" => "presentaciones",
+                "debeExistirBD" => true,
+              ],
+              'mostrar_ecommerce' => [
+                ...molBooleano,
+                "nombreAlerta" => "si se debe o no mostrar en el ecommerce",
+              ],
+            ],
+            'requerido' => ['id_presentacion']
+          ],
+          'minItems' => 1,
+          'nombreAlerta' => 'presentaciones del producto',
         ],
-        'cantidad_materia_prima' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "cantidad de la materia prima",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-          "comaPunto" => true,
+        'id_presentacion_producto' => [
+          ...molIdSeguro,
+          "nombreAlerta" => "id de la presentación del producto",
+          "nombreBD" => "id_presentacion_producto",
+          "tablaBD" => "presentaciones_productos",
+          "debeExistirBD" => true,
         ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      switch ($campo) {
-        case 'materias_primas':
-          $objCategorias = new categoriasProductosModelo();
-          $categoriaBD = $objCategorias->seleccionarCategorias(['id_categoria_producto' => $infoVal['id_categoria_producto']]);
-          if ($categoriaBD['necesitan_materias_primas'] == 1) {
-            if (($infoVal['materias_primas'] ?? []) == [] && $infoVal['id_categoria_producto'] == 1) {
-              return [
-                'tipo' => 'simple',
-                'titulo' => 'Sin Materias Primas',
-                'texto' => 'No has enviado las materias primas del producto',
-                'icono' => 'warning',
-              ];
-            }
-            foreach ($infoVal['materias_primas'] as &$materiaInd) {
-              $campos[] = $funcionAsignadora('id_materia_prima', $materiaInd['id_materia_prima']);
-              $campos[] = $funcionAsignadora('cantidad_materia_prima', $materiaInd['cantidad_materia_prima']);
-            }
-            unset($materiaInd);
-          }
-          break;
-        case 'presentaciones':
-          if (($infoVal['presentaciones'] ?? []) == []) {
-            return [
-              'tipo' => 'simple',
-              'titulo' => 'Sin presentaciones',
-              'texto' => 'No has enviado las presentaciones del producto',
-              'icono' => 'warning',
-            ];
-          }
-          foreach ($infoVal['presentaciones'] as &$pre) {
-            $campos[] = $funcionAsignadora('id_presentacion', $pre['id_presentacion']);
-            if (isset($pre['mostrar_ecommerce'])) {
-              $campos[] = $funcionAsignadora('mostrar_ecommerce', $pre['mostrar_ecommerce']);
-            }
-          }
-          unset($pre);
-          break;
-        default:
-          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-          break;
+      ],
+      'requerido' => $requerido,
+    ];
+    if (isset($info['id_categoria_producto']) && $info['id_categoria_producto'] != '') {
+      $objCategorias = new categoriasProductosModelo();
+      $categoriaBD = $objCategorias->seleccionarCategorias(['id_categoria_producto' => $info['id_categoria_producto']]);
+      if ($categoriaBD['necesitan_materias_primas'] == 1) {
+        $esquema['requerido'][]='materias_primas';
+        $esquema['propiedades']['materias_primas']['minItems'] = 1;
       }
     }
-    return $this->limpiar_Verificar($campos);
+    if (isset($info['presentaciones'])) $info['presentaciones'] = array_values($info['presentaciones']);
+    $v = $this->limpiarValidar($info, $esquema);
+    if ($v) return $v;
+
+    return false;
   }
   public function modificarStock(string $id_producto, float $cantidad, $conexionTransaction = null) {
     try {
@@ -216,41 +155,26 @@ class productosModelo extends conexion {
     }
   }
   public function seleccionarProductos(array $info) {
-    $campos = [];
-
-    if (($info['id_producto'] ?? '') != "") $campos[] = 'id_producto';
-    if (($info['id_presentacion_producto'] ?? '') != "") $campos[] = 'id_presentacion_producto';
-
-    if (!empty($campos)) {
-      $respuesta = $this->validarProductos([
-        'infoVal' => &$info,
-        'camposVal' => $campos,
-      ]);
-      if ($respuesta !== false) return $respuesta;
-    }
-
+    $v = $this->validarProductos('listar', $info);
+    if ($v !== false) return $v;
     $this->idProducto = $info['id_producto'] ?? '';
     $this->idPresentacionProd = $info['id_presentacion_producto'] ?? '';
     return $this->seleccionarProductosP($info);
   }
-  public function obtenerParaChatbot() {
+  public function obtenerParaChatbot(){
     return $this->obtenerParaChatbotP();
   }
   public function registrarProductos(array $info) {
-    $respuesta = $this->validarProductos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_unidad_medida',
-        'id_categoria_producto',
-        'nombre_producto',
-        'precio_producto',
-        'stock_producto',
-        'stock_minimo_producto',
-        'presentaciones',
-        'materias_primas',
-      ]
+    $v = $this->validarProductos('registrar', $info, [
+      'id_unidad_medida',
+      'id_categoria_producto',
+      'nombre_producto',
+      'precio_producto',
+      'stock_producto',
+      'stock_minimo_producto',
+      'presentaciones',
     ]);
-    if ($respuesta !== false) return $respuesta;
+    if ($v !== false) return $v;
 
     $this->idUnidadMedida = $info['id_unidad_medida'];
     $this->idCategoria = $info['id_categoria_producto'];
@@ -270,21 +194,18 @@ class productosModelo extends conexion {
     return $this->registrarProductosP();
   }
   public function actualizarProductos(array $info) {
-    $respuesta = $this->validarProductos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_producto',
-        'id_unidad_medida',
-        'id_categoria_producto',
-        'nombre_producto',
-        'precio_producto',
-        'stock_producto',
-        'stock_minimo_producto',
-        'presentaciones',
-        'materias_primas',
-      ]
+    $v = $this->validarProductos('actualizar', $info, [
+      'id_producto',
+      'id_unidad_medida',
+      'id_categoria_producto',
+      'nombre_producto',
+      'precio_producto',
+      'stock_producto',
+      'stock_minimo_producto',
+      'presentaciones',
     ]);
-    if ($respuesta !== false) return $respuesta;
+    if ($v !== false) return $v;
+
     $this->idProducto = $info['id_producto'];
     $this->idUnidadMedida = $info['id_unidad_medida'];
     $this->idCategoria = $info['id_categoria_producto'];
@@ -304,58 +225,29 @@ class productosModelo extends conexion {
     return $this->actualizarProductosP();
   }
   public function eliminarProductos(array $info) {
-    $respuesta = $this->validarProductos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_producto',
-      ]
-    ]);
-    if ($respuesta !== false) return $respuesta;
+    $v = $this->validarProductos('eliminar', $info, ['id_producto']);
+    if ($v !== false) return $v;
 
     $this->idProducto = $info['id_producto'];
     return $this->eliminarProductosP();
   }
   public function actualizarFotPreProd(array $info) {
-    $respuesta = $this->validarProductos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_presentacion_producto',
-      ]
+    $v = $this->validarProductos('actualizar', $info, [
+      'id_presentacion_producto',
+      'foto_presentacion'
     ]);
-    if ($respuesta !== false) return $respuesta;
+    if ($v !== false) return $v;
     $this->idPresentacionProd = $info['id_presentacion_producto'];
     $this->fotoPresentacion = $info['foto_presentacion'];
     return $this->actualizarFotPreProdP();
   }
   public function eliminarFotPreProd(array $info) {
-    $respuesta = $this->validarProductos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_presentacion_producto',
-      ]
-    ]);
-    if ($respuesta !== false) return $respuesta;
+    $v = $this->validarProductos('actualizar', $info, ['id_presentacion_producto']);
+    if ($v !== false) return $v;
     $this->idPresentacionProd = $info['id_presentacion_producto'];
     return $this->eliminarFotPreProdP();
   }
 
-  private function obtenerParaChatbotP() {
-    $resultado = $this->seleccionarDatos2([
-      'campos' => "
-        p.nombre_producto, 
-        pre.nombre_presentacion, 
-        (p.precio_producto * pre.cantidad_pmp) as precio_calculado, 
-        p.stock_producto
-      ",
-      'tabla' => 'productos AS p',
-      'datosJoins' => [
-        'presentaciones_productos AS pp' => 'p.id_producto = pp.id_producto',
-        'presentaciones AS pre' => 'pp.id_presentacion = pre.id_presentacion'
-      ],
-      'WHERE' => ['p.status' => 1]
-    ]);
-    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
-  }
   private function seleccionarProductosP(array $info) {
     if ($this->idProducto == null || $this->idProducto == "") {
       switch ($info['tipoConsulta'] ?? '') {
@@ -511,6 +403,23 @@ class productosModelo extends conexion {
       return $producto;
     }
   }
+  private function obtenerParaChatbotP() {
+    $resultado = $this->seleccionarDatos2([
+      'campos' => "
+        p.nombre_producto, 
+        pre.nombre_presentacion, 
+        (p.precio_producto * pre.cantidad_pmp) as precio_calculado, 
+        p.stock_producto
+      ",
+      'tabla' => 'productos AS p',
+      'datosJoins' => [
+        'presentaciones_productos AS pp' => 'p.id_producto = pp.id_producto',
+        'presentaciones AS pre' => 'pp.id_presentacion = pre.id_presentacion'
+      ],
+      'WHERE' => ['p.status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+  }
   private function registrarProductosP() {
     $objBitacora = new bitacoraModelo();
     $arrayImg = [];
@@ -655,6 +564,25 @@ class productosModelo extends conexion {
     ]);
     if ($rb) return $rb;
 
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'productos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'productos'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -681,8 +609,7 @@ class productosModelo extends conexion {
       ]);
       if ($imagenesPresentaciones != []) {
         foreach ($imagenesPresentaciones as $i) {
-          $resultado = $this->Imagenes_Eli2('presentaciones_productos', $i);
-          if ($resultado) return $resultado;
+          $this->Imagenes_Eli2('presentaciones_productos', $i);
         }
       }
     };
@@ -767,7 +694,6 @@ class productosModelo extends conexion {
       }
     }
 
-
     foreach ($this->presentaciones as $pres) {
       $foto = '';
 
@@ -790,14 +716,14 @@ class productosModelo extends conexion {
         ]
       ]);
       if ($resultado == false || $resultado <= 0) {
-        $funcionError($imagenesPresentaciones);
+        $funcionError();
       } else {
         $PRE++;
       }
     }
 
     if ($PRD == 0 && $PRE == 0 && $MPR == 0) {
-      $funcionError($imagenesPresentaciones);
+      $funcionError();
       return [
         'icono' => 'warning',
         'titulo' => 'Sin Modificaciones',
@@ -818,28 +744,29 @@ class productosModelo extends conexion {
       $funcionError();
       return $rb;
     }
-    $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS([
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
       "receptor" => [
-        'tipo' => 'permisos',
-        'permisos' => ['productos' => ['ver']]
+        'tipo' => 'todos',
       ],
       'cuerpo' => [
-        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
-        ['accion' => "actDT", 'modulo' => 'productos'],
         [
-          'accion' => 'alertar',
-          'alerta' => [
-            'tipo' => 'simple',
-            'titulo' => 'Productos',
-            'texto' => "Se ha actualizado un producto",
-            'icono' => 'info',
-            'notifier' => true,
-          ]
-        ]
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'productos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'productos'
+        ],
       ],
       'noCommit' => true
     ]);
+    if (isset($resultado['error'])) {
+      $funcionError();
+      return $resultado;
+    };
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -946,28 +873,19 @@ class productosModelo extends conexion {
       $this->Imagenes_Eli2('presetaciones_productos', $presentacion['foto_presentacion']);
     }
 
-    $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS([
-      "receptor" => [
-        'tipo' => 'permisos',
-        'permisos' => ['productos' => ['ver']]
-      ],
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
       'cuerpo' => [
         ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
         ['accion' => "actDT", 'modulo' => 'productos'],
-        [
-          'accion' => 'alertar',
-          'alerta' => [
-            'tipo' => 'simple',
-            'titulo' => 'Productos',
-            'texto' => "Se ha eliminado un producto",
-            'icono' => 'info',
-            'notifier' => true,
-          ]
-        ]
       ],
       'noCommit' => true
     ]);
+    if (isset($resultado['error'])) {
+      $funcionError();
+      return $resultado;
+    };
 
     $this->commit();
     return [
@@ -1005,6 +923,18 @@ class productosModelo extends conexion {
       'nuevo' => ['foto_presentacion' => $resultado['nuevaImagen']],
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
+        ['accion' => "actDT", 'modulo' => 'productos'],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($r['error'])) return $r;
+
     $this->commit();
     return $resultado;
   }
@@ -1016,7 +946,20 @@ class productosModelo extends conexion {
       'nombreCampoId' => 'id_presentacion_producto',
       'valorId' => $this->idPresentacionProd,
     ]);
-    if (($resultado['icono'] ?? 'error') == 'success') $this->commit();
+    if (($resultado['icono'] ?? 'error') == 'error') return $resultado;
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'productos'],
+        ['accion' => "actDT", 'modulo' => 'productos'],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($r['error'])) return $r;
+
+    $this->commit();
     return $resultado;
   }
 }

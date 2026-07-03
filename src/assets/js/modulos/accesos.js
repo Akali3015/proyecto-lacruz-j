@@ -1,6 +1,7 @@
 // #region [IMPORTACIONES] COMIENZO
 import {
-  pedirDatosAjax, españolDataTable, reiniciarDataModuloSS, mLength
+  pedirDatosAjax, españolDataTable, reiniciarDataModuloSS, mLength,
+  alertasAjax
 } from './global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -133,6 +134,7 @@ async function cambioPermisos() {
       cambio: cambioP
     }
   });
+  if (respuesta?.icono == 'error') return alertasAjax(respuesta);
   if (respuesta?.icono == 'success') {
     reiniciarDataModuloSS('accesos')
   }

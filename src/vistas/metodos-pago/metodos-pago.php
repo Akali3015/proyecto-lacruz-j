@@ -32,7 +32,7 @@ echo $componente->listaDataTable($instruccionesLista);
           </div>
           <div class="card bg-light p-3">
             <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>
-             <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" name="necesita_moneda" value="1" id="regMon">
               <label class="form-check-label" for="regMon">¿Requiere especificar Moneda?</label>
             </div>
@@ -78,7 +78,7 @@ echo $componente->listaDataTable($instruccionesLista);
 
           <div class="mb-4">
             <label class="form-label fw-bold">Nombre del Método</label>
-            <input type="text" class="form-control noRepetir" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
+            <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
           </div>
           <div class="card bg-light p-3">
             <h6 class="border-bottom pb-2 mb-3">Requerimientos de Información</h6>

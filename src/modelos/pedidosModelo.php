@@ -11,6 +11,7 @@ use src\modelos\rutasModelo;
 use src\modelos\cambiosIvaModelo;
 use src\modelos\pdfModel;
 use src\modelos\accesosModelo;
+use src\modelos\mensajesWSModelo;
 
 class pedidosModelo extends conexion {
   private string $idPedido = '';
@@ -367,6 +368,7 @@ class pedidosModelo extends conexion {
           'id_ruta' => $medioEnvio['id_ruta'],
           'fecha' => $datosGenerales['fecha_orden_entrega_presupuesto']
         ]);
+        if(isset($rutaFecha['icono'])) return $rutaFecha;
 
         $medioEnvio['precio_ruta_factura'] = $rutaFecha['precio_ruta_fecha'];
         $infoRuta = $this->calcularKmPorCarretera([
@@ -1010,7 +1012,7 @@ class pedidosModelo extends conexion {
       'noCommit' => true
     ]);
     unset($objNot);
-    if (($resultado['icono'] ?? '') == 'error' && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado;
+    if (isset($resultado['error']) && !isset($_COOKIE['TEMP']) && !isset($_ENV['MODO_TESTEO'])) return $resultado['error'];
 
     $rb = $objBitacora->registrarBitacora([
       'modulo' => 'pedidos',
@@ -1108,6 +1110,25 @@ class pedidosModelo extends conexion {
     ]);
     if ($rb) return $rb;
 
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'pedidos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'pedidos'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       'tipo' => 'limpiarYcerrar',
@@ -1167,6 +1188,26 @@ class pedidosModelo extends conexion {
       'nuevo' => $nuevo
     ]);
     if ($rb) return $rb;
+
+    $objNot = new mensajesWSModelo();
+    $resultado = $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'todos',
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'pedidos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'pedidos'
+        ],
+      ],
+      'noCommit' => true
+    ]);
+    if (isset($resultado['error'])) return $resultado;
+
     $this->commit();
     return [
       'tipo' => 'simple',
@@ -1191,6 +1232,7 @@ class pedidosModelo extends conexion {
       'resultado' => 'Éxito',
     ]);
     if ($rb) return $rb;
+
     return $objReportes->notaEntrega();
   }
 }
