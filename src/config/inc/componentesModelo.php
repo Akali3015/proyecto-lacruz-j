@@ -126,8 +126,8 @@ class componentesModelo extends conexion {
         'texto' => 'Presentaciones',
       ],
       [
-        'modulo' => 'cambios',
-        'permiso' => 'ver',
+        'modulo' => 'monedas',
+        'permiso' => 'ver historial de cambio de las divisas',
         'url' => 'monedas/cambios-monedas',
         'icono' => 'money-transfer-coin-arrow',
         'texto' => 'Cambio Monetario',
@@ -239,7 +239,7 @@ class componentesModelo extends conexion {
       ],
       [
         'modulo' => 'bitacora',
-        'permiso' => 'ver',
+        'permiso' => 'ver bitácora',
         'url' => 'bitacora',
         'icono' => 'file-spreadsheet',
         'texto' => 'Bitácora',

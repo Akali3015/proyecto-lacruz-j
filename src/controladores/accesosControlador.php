@@ -32,6 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   $modeloPermisos->DECORE($resultado);
   exit();
 } else {
+  $objAcceso = new accesosModelo();
+  $v = $objAcceso->validarPermisos('accesos', 'ver');
+  if ($v) $objAcceso->DECORE($v);
+
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

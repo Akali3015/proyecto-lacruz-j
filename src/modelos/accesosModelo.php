@@ -13,24 +13,64 @@ class accesosModelo extends conexion {
   private string $moduloVal = '';
   private string $permisoVal = '';
 
-  public function listarPermisos(int $idRol) {
-    $this->idRol = $idRol;
-    if ($this->idRol != '') {
-      $respuesta = $this->limpiar_Verificar([
-        [
-          "campo_nombre" => "id_rol",
-          "campo_valor" => &$this->idRol,
-          "formulario_nombre" => "id del rol",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "roles",
+  public function validarAccesos(string $permiso = '', array &$info = [], array $requerido = []) {
+    if ($permiso!='') {
+      $v = $this->validarPermisos('accesos', $permiso);
+      if ($v) return $v;
+    }
+
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
+        'id_rol' => [
+          ...molId,
+          "nombreAlerta" => "id del rol",
+          "nombreBD" => "id_rol",
+          "tablaBD" => "roles",
           'BD' => 'seguridad',
-          "debeExistir" => true
-        ]
-      ]);
-      if ($respuesta !== false) return $respuesta;
+          "debeExistirBD" => true
+        ],
+        'id_modulo' => [
+          ...molId,
+          "nombreAlerta" => "id del módulo",
+          "nombreBD" => "id_modulo",
+          "tablaBD" => "modulos",
+          'BD' => 'seguridad',
+          "debeExistirBD" => true
+        ],
+        'id_permiso' => [
+          ...molId,
+          "nombreAlerta" => "id del permiso",
+          "nombreBD" => "id_permiso",
+          "tablaBD" => "permisos",
+          'BD' => 'seguridad',
+          "debeExistirBD" => true
+        ],
+        'cambio' => [
+          ...molId,
+          "nombreAlerta" => "cambio del permiso",
+        ],
+        'nombre_modulo' => [
+          ...molNombreObj,
+          "formulario_nombre" => "modulo a validar",
+        ],
+        'nombre_permiso' => [
+          ...molDescripcion,
+          "formulario_nombre" => "permiso a validar",
+        ],
+      ],
+      'requerido' => $requerido,
+    ];
+    $v = $this->limpiarValidar($info, $esquema);
+    if ($v) return $v;
+    return false;
+  }
+  public function listarPermisos(int $idRol) {
+    if ($idRol != '') {
+      $info = ['id_rol' => $idRol];
+      $v = $this->validarAccesos('listar permisos', $info, ['id_rol']);
+      if ($v) return $v;
+      $this->idRol = $info['id_rol'];
     } else {
       $objRoles = new rolesModelo();
       $this->idRol = $objRoles->seleccionarRoles()[0]['id_rol'];
@@ -39,101 +79,47 @@ class accesosModelo extends conexion {
   }
   public function seleccionarPermisosPorRol($idRol = null) {
     $this->idRol = $idRol ?? $_SESSION['rol'] ?? 6;
-    if ($this->idRol != "") {
-      $respuesta = $this->limpiar_Verificar([
-        [
-          "campo_nombre" => "id_rol",
-          "campo_valor" => &$this->idRol,
-          "formulario_nombre" => "id del rol",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "roles",
-          'BD' => 'seguridad',
-          "debeExistir" => true
-        ]
-      ]);
-      if ($respuesta !== false) return $respuesta;
+    if ($idRol != null) {
+      $info = ['id_rol' => $idRol];
+      $v = $this->validarAccesos('listar permisos', $info, ['id_rol']);
+      if ($v) return $v;
+      $this->idRol = $info['id_rol'];
     }
     return $this->seleccionarPermisosPorRolP();
   }
   public function actualizarPermisos(int $rol, int $modulo, int $permiso, int $cambio) {
-    $respuesta = $this->limpiar_Verificar([
-      [
-        "campo_nombre" => "id_rol",
-        "campo_valor" => &$rol,
-        "formulario_nombre" => "id del rol",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "roles",
-        'BD' => 'seguridad',
-        "debeExistir" => true
-      ],
-      [
-        "campo_nombre" => "id_modulo",
-        "campo_valor" => &$modulo,
-        "formulario_nombre" => "id del módulo",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "modulos",
-        'BD' => 'seguridad',
-        "debeExistir" => true
-      ],
-      [
-        "campo_nombre" => "id_permiso",
-        "campo_valor" => &$permiso,
-        "formulario_nombre" => "id del permiso",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-        "tabla" => "permisos",
-        'BD' => 'seguridad',
-        "debeExistir" => true
-      ],
-      [
-        "campo_valor" => &$cambio,
-        "formulario_nombre" => "cambio del permiso",
-        "requerido" => true,
-        "minimo" => minRegexId,
-        "maximo" => maxRegexId,
-        "expresion_re" => regexId,
-      ],
+    $info = [
+      'id_rol' => $rol,
+      'id_modulo' => $modulo,
+      'id_permiso' => $permiso,
+      'cambio' => $cambio,
+    ];
+    $v = $this->validarAccesos('actualizar permisos', $info, [
+      'id_rol',
+      'id_modulo',
+      'id_permiso',
+      'cambio'
     ]);
-    if ($respuesta !== false) return $respuesta;
-    $this->idRol = $rol;
-    $this->idModulo = $modulo;
-    $this->idPermiso = $permiso;
-    $this->cambio = $cambio;
+    if ($v) return $v;
+
+    $this->idRol = $info['id_rol'];
+    $this->idModulo = $info['id_modulo'];
+    $this->idPermiso = $info['id_permiso'];
+    $this->cambio = $info['cambio'];
     return $this->actualizarPermisosP();
   }
   public function validarPermisos(string $modulo, string $permiso) {
-    $respuesta = $this->limpiar_Verificar([
-      [
-        "campo_valor" => &$modulo,
-        "formulario_nombre" => "modulo a validar",
-        "requerido" => true,
-        "minimo" => minRegexNombreObj,
-        "maximo" => maxRegexNombreObj,
-        "expresion_re" => regexNombreObj,
-      ],
-      [
-        "campo_valor" => &$permiso,
-        "formulario_nombre" => "permiso a validar",
-        "requerido" => true,
-        "minimo" => minRegexDescripcion,
-        "maximo" => maxRegexDescripcion,
-        "expresion_re" => regexDescripcion,
-      ],
-    ]);
-    if ($respuesta) return $respuesta;
-    $this->moduloVal = $modulo;
-    $this->permisoVal = $permiso;
+    $info = [
+      'nombre_modulo' => $modulo,
+      'nombre_permiso' => $permiso,
+    ];
+    // $v = $this->validarAccesos('', $info, [
+    //   'nombre_modulo',
+    //   'nombre_permiso',
+    // ]);
+    // if ($v) return $v;
+    $this->moduloVal = $info['nombre_modulo'];
+    $this->permisoVal = $info['nombre_permiso'];
     return $this->validarPermisosP();
   }
 
@@ -217,8 +203,7 @@ class accesosModelo extends conexion {
     $respaldoPerEsp = [
       'accesos' => [
         'ver',
-        'ver permisos generales',
-        'ver permisos especiales',
+        'listar permisos',
         'actualizar permisos',
       ],
       'bitacora' => [
@@ -242,6 +227,9 @@ class accesosModelo extends conexion {
         'registrar cargas o descargas de materias primas',
         'ver historial de e/s de las materias primas',
       ],
+      'monedas' => [
+        'ver historial de cambio de las divisas'
+      ],
       'pedidos' => [
         'asignar repartidores a pedidos',
         'cambiar estado de los pedidos',
@@ -251,6 +239,9 @@ class accesosModelo extends conexion {
         'ver detalles de pedidos propios',
         'ver pedidos de los clientes',
         'ver pedidos propios',
+      ],
+      'productos' => [
+        'ver detalles de los productos',
       ],
       'reportes' => [
         'ver reportes',
@@ -268,7 +259,6 @@ class accesosModelo extends conexion {
     ];
     $permisosTotales = [];
     foreach ($respaldoPerEsp as $modulo => $permisos) {
-
       if (!isset($permisosTotales[$modulo])) {
         $idModulo = $this->VEYSNEC([
           'RSEN' => true,
@@ -287,7 +277,6 @@ class accesosModelo extends conexion {
           ];
         }
       }
-
       foreach ($permisos as $permiso) {
         $idPermiso = $this->VEYSNEC([
           'RSEN' => true,
@@ -313,7 +302,6 @@ class accesosModelo extends conexion {
         ];
       }
     }
-
 
     //Obtenemos todos los modulos
     $modulosTotales = $this->seleccionarDatos2([

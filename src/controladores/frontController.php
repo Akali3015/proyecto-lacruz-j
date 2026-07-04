@@ -12,11 +12,9 @@ class frontController {
   private array $vistasEstaticas;
   private array $controladores;
   private string $archivo;
-  private ?accesosModelo $objPermisos = null;
 
   public function __construct() {
-    $this->objPermisos = new accesosModelo();
-    $salidasFueraDeSesion = ['productos','servicios','rutas','monedas'];
+    $salidasFueraDeSesion = ['productos', 'servicios', 'rutas', 'monedas'];
     $this->controladores = [
       'accesos',
       'bancos',
@@ -68,7 +66,7 @@ class frontController {
       $this->url = explode("/", $_GET['views']);
       $_SESSION['vistaActual'] = $this->url[0];
       $this->url = $this->url[0];
-      
+
       if (in_array($this->url, $this->controladores) && isset($_SESSION['cedula'])) {
         if ($metodo == 'POST') $this->validarTokens();
         if (is_file("src/controladores/" . $this->url . "Controlador.php")) {

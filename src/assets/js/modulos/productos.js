@@ -322,7 +322,7 @@ $(document).on("DOMContentLoaded", async function () {
     botones: (info) => {
       let { permisos, fila } = info;
       let btn = ``;
-      if (permisos.productos.includes('ver')) {
+      if (permisos.productos.includes('ver detalles de los productos')) {
         btn += `
           <li 
             class="list-inline-item align-bottom" 

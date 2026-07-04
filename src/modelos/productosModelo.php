@@ -31,7 +31,7 @@ class productosModelo extends conexion {
       'propiedades' => [
         'foto_presentacion' => [
           ...molFotoInd,
-          'foto de la presentación'
+          'nombreAlerta' => 'foto de la presentación'
         ],
         'id_producto' => [
           ...molIdSeguro,
@@ -54,27 +54,6 @@ class productosModelo extends conexion {
           "nombreBD" => "id_categoria_producto",
           "tablaBD" => "categorias_productos",
           "debeExistirBD" => true,
-        ],
-        'materias_primas' => [
-          'tipo' => 'array',
-          'items' => [
-            'tipo' => 'arrayA',
-            'propiedades' => [
-              'id_materia_prima' => [
-                ...molIdSeguro,
-                "nombreAlerta" => "id de la materia prima",
-                "nombreBD" => "id_materia_prima",
-                "tablaBD" => "materias_primas",
-                "debeExistirBD" => true,
-              ],
-              'cantidad_materia_prima' => [
-                ...molPrecioFormateado,
-                "nombreAlerta" => "cantidad de la materia prima",
-              ],
-            ],
-            'requerido' => ['id_materia_prima', 'cantidad_materia_prima']
-          ],
-          'nombreAlerta' => 'las materias primas del producto'
         ],
         'nombre_producto' => [
           ...molNombreObj,
@@ -102,8 +81,8 @@ class productosModelo extends conexion {
             'propiedades' => [
               'id_presentacion' => [
                 ...molIdSeguro,
-                "nombreBD" => "id_presentacion",
                 "nombreAlerta" => "id de la presentación",
+                "nombreBD" => "id_presentacion",
                 "tablaBD" => "presentaciones",
                 "debeExistirBD" => true,
               ],
@@ -116,6 +95,27 @@ class productosModelo extends conexion {
           ],
           'minItems' => 1,
           'nombreAlerta' => 'presentaciones del producto',
+        ],
+        'materias_primas' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_materia_prima' => [
+                ...molIdSeguro,
+                "nombreAlerta" => "id de la materia prima",
+                "nombreBD" => "id_materia_prima",
+                "tablaBD" => "materias_primas",
+                "debeExistirBD" => true,
+              ],
+              'cantidad_materia_prima' => [
+                ...molPrecioFormateado,
+                "nombreAlerta" => "cantidad de la materia prima",
+              ],
+            ],
+            'requerido' => ['id_materia_prima', 'cantidad_materia_prima']
+          ],
+          'nombreAlerta' => 'las materias primas del producto'
         ],
         'id_presentacion_producto' => [
           ...molIdSeguro,
@@ -131,7 +131,7 @@ class productosModelo extends conexion {
       $objCategorias = new categoriasProductosModelo();
       $categoriaBD = $objCategorias->seleccionarCategorias(['id_categoria_producto' => $info['id_categoria_producto']]);
       if ($categoriaBD['necesitan_materias_primas'] == 1) {
-        $esquema['requerido'][]='materias_primas';
+        $esquema['requerido'][] = 'materias_primas';
         $esquema['propiedades']['materias_primas']['minItems'] = 1;
       }
     }
@@ -155,13 +155,18 @@ class productosModelo extends conexion {
     }
   }
   public function seleccionarProductos(array $info) {
-    $v = $this->validarProductos('listar', $info);
-    if ($v !== false) return $v;
+    if (($info['tipoConsulta'] ?? '') == 'presentaciones') {
+      $v = $this->validarProductos('ver detalles de los productos', $info);
+    } else {
+      $v = $this->validarProductos('listar', $info);
+    }
+
+    if ($v) return $v;
     $this->idProducto = $info['id_producto'] ?? '';
     $this->idPresentacionProd = $info['id_presentacion_producto'] ?? '';
     return $this->seleccionarProductosP($info);
   }
-  public function obtenerParaChatbot(){
+  public function obtenerParaChatbot() {
     return $this->obtenerParaChatbotP();
   }
   public function registrarProductos(array $info) {

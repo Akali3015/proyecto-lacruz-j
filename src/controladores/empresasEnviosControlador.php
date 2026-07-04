@@ -2,13 +2,14 @@
 
 use src\modelos\empresasEnviosModelo;
 use src\config\inc\componentesModelo;
+use src\modelos\accesosModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
   $accion = $_POST["accion"];
   $objeto = new empresasEnviosModelo();
   ob_clean();
-    $resultado = [
+  $resultado = [
     'icono' => 'error',
     'titulo' => 'Acción no reconocida'
   ];
@@ -30,6 +31,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
   $objeto->DECORE($resultado);
   exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
+  $objAcceso = new accesosModelo();
+  $v = $objAcceso->validarPermisos('empresasEnvios', 'ver');
+  if ($v) $objAcceso->DECORE($v);
+
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

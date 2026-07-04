@@ -207,11 +207,11 @@ class produccionesModelo extends conexion {
       if ($idDetalle == 0 || $idDetalle == false) {
         $this->rollback();
         $objBitacora->registrarBitacora([
-        'modulo' => 'producciones',
-        'accion' => 'Registrar',
-        'resultado' => 'Fallido',
-        'commit' => true
-      ]);
+          'modulo' => 'producciones',
+          'accion' => 'Registrar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -243,11 +243,11 @@ class produccionesModelo extends conexion {
       if ($resultado === false || $resultado <= 0) {
         $this->rollback();
         $objBitacora->registrarBitacora([
-        'modulo' => 'producciones',
-        'accion' => 'Registrar',
-        'resultado' => 'Fallido',
-        'commit' => true
-      ]);
+          'modulo' => 'producciones',
+          'accion' => 'Registrar',
+          'resultado' => 'Fallido',
+          'commit' => true
+        ]);
         return [
           'tipo' => 'simple',
           'titulo' => 'Error',
@@ -372,7 +372,6 @@ class produccionesModelo extends conexion {
     }
 
     $detallesOriginales = $datosAntes['detalles'] ?? [];
-
     $detallesIndexados = $this->indexarArrays([
       'indice' => 'id_producto',
       'camposSumar' => 'cantidad_producida',
@@ -616,12 +615,9 @@ class produccionesModelo extends conexion {
       }
     }
 
-    $this->commit();
-
     $datosDespues = $this->seleccionarProducciones([
       'id_produccion' => $this->idProduccion
     ]);
-
     $objBitacora->registrarBitacora([
       'modulo' => 'producciones',
       'accion' => 'Actualizar',
@@ -631,34 +627,35 @@ class produccionesModelo extends conexion {
     ]);
 
     $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS(
-      [
-        "receptor" => [
-          'tipo' => 'todosSinExcepcion',
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'pemisos' => ['producciones' => 'ver']
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'producciones'
         ],
-        'cuerpo' => [
-          [
-            'accion' => "borrarDataModuloSS",
-            'modulo' => 'producciones'
-          ],
-          [
-            'accion' => "actDT",
-            'modulo' => 'producciones'
-          ],
-          [
-            'accion' => 'alertar',
-            'alerta' => [
-              'tipo' => 'simple',
-              'titulo' => 'Produccion actualizado',
-              'texto' => 'El stock de algunos productos a cambiado',
-              'icono' => 'info',
-              'notifier' => true,
-            ]
+        [
+          'accion' => "actDT",
+          'modulo' => 'producciones'
+        ],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Produccion actualizado',
+            'texto' => 'El stock de algunos productos a cambiado',
+            'icono' => 'info',
+            'notifier' => true,
           ]
-        ],
-      ]
-    );
+        ]
+      ],
+    ]);
 
+
+    $this->commit();
     return [
       'icono' => 'success',
       'titulo' => 'Éxito en la actualización',
