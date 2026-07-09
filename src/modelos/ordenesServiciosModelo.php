@@ -7,6 +7,7 @@ use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
 use src\modelos\serviciosModelo;
 use src\modelos\productosModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class ordenesServiciosModelo extends conexion {
@@ -15,7 +16,11 @@ class ordenesServiciosModelo extends conexion {
   private string $nuevaFechaEjecucion = '';
   private array $productosAsociados = [];
 
-  public function validarOrdenesServicios(array &$infoVal, array $camposVal) {
+  public function validarOrdenesServicios(string $permiso, array &$infoVal, array $camposVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('ordenesServicios', $permiso);
+    if ($r) return $r;
+
     $funcionAsignadora = function ($nombreCampo, &$valor) {
       $claveVal = [
         'id_servicio_factura' => [
@@ -55,14 +60,14 @@ class ordenesServiciosModelo extends conexion {
   }
   public function listarOrdenesServicios(array $info) {
     if (($info['id_servicio_factura'] ?? '') != "") {
-      $resultado = $this->validarOrdenesServicios($info, ['id_servicio_factura']);
+      $resultado = $this->validarOrdenesServicios('ver',$info, ['id_servicio_factura']);
       if ($resultado) return $resultado;
       $this->idOrdenServicio = $info['id_servicio_factura'];
     }
     return $this->listarOrdenesServiciosP($info);
   }
   public function actualizarOrdenesServicio(array $info) {
-    $resultado = $this->validarOrdenesServicios($info, ['id_servicio_factura', 'status']);
+    $resultado = $this->validarOrdenesServicios('actualizar',$info, ['id_servicio_factura', 'status']);
     if ($resultado) return $resultado;
 
     $this->idOrdenServicio = $info['id_servicio_factura'];

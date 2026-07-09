@@ -5,13 +5,18 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class permisosModelo extends conexion {
   private int $idPermiso = 0;
   private string $nombrePermiso = '';
 
-  public function validarPermisos(array $instruccionesVal) {
+  public function validarPermisos(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('permisos', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -54,7 +59,7 @@ class permisosModelo extends conexion {
   }
   public function seleccionarPermisos(array $info) {
     if (($info['id_permiso'] ?? '') != '') {
-      $resultado = $this->validarPermisos([
+      $resultado = $this->validarPermisos('ver',[
         'infoVal' => &$info,
         'camposVal' => [
           'id_permiso',
@@ -66,7 +71,7 @@ class permisosModelo extends conexion {
     return $this->seleccionarPermisosP();
   }
   public function registrarPermisos(array $info) {
-    $resultado = $this->validarPermisos([
+    $resultado = $this->validarPermisos('registrar',[
       'infoVal' => &$info,
       'camposVal' => [
         'nombre_permiso',
@@ -79,7 +84,7 @@ class permisosModelo extends conexion {
     return $this->registrarPermisosP();
   }
   public function actualizarPermisos(array $info) {
-    $resultado = $this->validarPermisos([
+    $resultado = $this->validarPermisos('actualizar',[
       'infoVal' => &$info,
       'camposVal' => [
         'id_permiso',
@@ -93,7 +98,7 @@ class permisosModelo extends conexion {
     return $this->actualizarPermisosP();
   }
   public function eliminarPermisos(array $info) {
-    $resultado = $this->validarPermisos([
+    $resultado = $this->validarPermisos('eliminar',[
       'infoVal' => &$info,
       'camposVal' => [
         'id_permiso',
@@ -151,7 +156,8 @@ class permisosModelo extends conexion {
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
         'accion' => 'registrar',
-        'resultado' => 'Éxito',  
+        'resultado' => 'Éxito', 
+        'nuevo' => $this->seleccionarPermisos(['id_permiso' => $ultimoId]) 
       ]);
       $alerta = [
         "tipo" => "limpiarYcerrar",

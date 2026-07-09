@@ -2,13 +2,14 @@
 
 use src\modelos\monedasModelo;
 use src\config\inc\componentesModelo;
+use src\modelos\accesosModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   $accion = $_POST["accion"];
   $objeto = new monedasModelo();
 
   ob_clean();
-    $resultado = [
+  $resultado = [
     'icono' => 'error',
     'titulo' => 'Acción no reconocida'
   ];
@@ -39,12 +40,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   exit();
 } else {
   $archivo = "src/vistas/monedas/monedas.php";
-  if (isset($url2) && $url2 != "") {
-    if (is_file("src/vistas/monedas/" . $url2 . ".php")) {
-      $archivo = "src/vistas/monedas/" . $url2 . ".php";
-      $_SESSION['vistaActual'] = $url2;
+  $objAcceso = new accesosModelo();
+  $vistaSolicitada = $url2 ?? 'monedas';
+  if ($vistaSolicitada === 'cambios-monedas') {
+    $v = $objAcceso->validarPermisos('monedas', 'ver historial de cambio de las divisas');
+    if ($v) $objAcceso->DECORE($v);
+
+    if (is_file("src/vistas/monedas/cambios-monedas.php")) {
+      $archivo = "src/vistas/monedas/cambios-monedas.php";
+      $_SESSION['vistaActual'] = 'cambios-monedas';
+    }
+  } else {
+    $v = $objAcceso->validarPermisos('monedas', 'ver');
+    if ($v) $objAcceso->DECORE($v);
+
+    if ($vistaSolicitada !== 'monedas' && is_file("src/vistas/monedas/" . $vistaSolicitada . ".php")) {
+      $archivo = "src/vistas/monedas/" . $vistaSolicitada . ".php";
+      $_SESSION['vistaActual'] = $vistaSolicitada;
     }
   }
+  
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

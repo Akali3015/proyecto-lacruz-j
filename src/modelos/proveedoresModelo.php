@@ -11,131 +11,94 @@ class proveedoresModelo extends conexion {
   private string $correoProveedor = '';
   private string $direccionProveedor = '';
 
-  public function validarProveedores(array $instruccionesVal) {
+  public function validarProveedores(string $permiso, array &$info, $requerido = []) {  
+  $objAcceso = new accesosModelo();
+    $v = $objAcceso -> validarPermisos('proveedores', $permiso);
+    if ($v) return $v;
 
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+    $esquemaProveedores = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
         'rif_proveedor' => [
-          "campo_nombre" => "rif_proveedor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "RIF",
+          ...molCedulaRifLetra,
+          "nombreAlerta" => "rif o cédula del proveedor",
+          "nombreBD" => "rif_proveedor",
+          "tablaBD" => "proveedores",
           "requerido" => true,
-          "minimo" => minRegexCedulaRifLetra,
-          "maximo" => maxRegexCedulaRifLetra,
-          "expresion_re" => regexCedulaRifLetra,
-          "tabla" => "proveedores",
-          "debeSerUnico" => true,
-        ],
-        'rif_proveedor_act' => [
-          "campo_nombre" => "rif_proveedor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "RIF",
-          "requerido" => true,
-          "minimo" => minRegexCedulaRifLetra,
-          "maximo" => maxRegexCedulaRifLetra,
-          "expresion_re" => regexCedulaRifLetra,
-          "tabla" => "proveedores",
-          "debeExistir" => true,
-          "debeSerUnico" => true,
+          "debeSerUnico" => true
         ],
         'razon_social_proveedor' => [
-          "campo_nombre" => "razon_social_proveedor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "razón social del proveedor",
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "proveedores",
-          "debeSerUnico" => true,
+          ...molDescripcion,
+          "nombreAlerta" => "razón social del proveedor",
+          "nombreBD" => "razon_social_proveedor",
+          "tablaBD" => "proveedores",
+          "requerido" => true,
         ],
         'telefono_proveedor' => [
-          "campo_nombre" => "telefono_proveedor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "teléfono del proveedor",
-          "minimo" => minRegexTelefono,
-          "maximo" => maxRegexTelefono,
-          "expresion_re" => regexTelefono,
-          "tabla" => 'proveedores',
-          "debeSerUnico" => true,
+          ...molTelefono,
+          "nombreAlerta" => "teléfono del proveedor",
+          "nombreBD" => "telefono_proveedor",
+          "tablaBD" => "proveedores",
+          "requerido" => true,
+          'debeSerUnico' => true
         ],
         'correo_proveedor' => [
-          "campo_nombre" => "correo_proveedor",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "correo electrónico del proveedor",
-          "minimo" => minRegexCorreo,
-          "maximo" => maxRegexCorreo,
-          "expresion_re" => regexCorreo,
-          "tabla" => 'proveedores',
-          "debeSerUnico" => true,
+          ...molCorreo,
+          "nombreAlerta" => "correo electrónico del proveedor",
+          "nombreBD" => "correo_proveedor",
+          "tablaBD" => "proveedores",
+          "requerido" => true,
+          'debeSerUnico' => true
         ],
         'direccion_proveedor' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "dirección del proveedor",
-          "minimo" => minRegexDescripcion,
-          "maximo" => maxRegexDescripcion,
-          "expresion_re" => regexDescripcion,
-        ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $valorForm  => $campoVal) {
-      if (is_numeric($valorForm)) $valorForm = $campoVal;
-      if ($campoVal == 'telefono_proveedor') {
-        $infoVal['telefono_proveedor'] = ($infoVal['prefijo_telefono_proveedor'] ?? '') . $infoVal['telefono_proveedor'];
-      } elseif ($campoVal == 'rif_proveedor') {
-        if (($infoVal['codigo_rif_proveedor'] ?? '') == '') {
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'RIF vacío',
-            'texto' => 'No puede enviar el formulario sin seleccionar el prefijo del RIF del proveedor',
-            'icono' => 'error'
-          ];
-        }
-        if (($infoVal['rif_proveedor'] ?? '') == '') {
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'RIF vacío',
-            'texto' => 'No puede enviar el formulario sin escribir el RIF del proveedor',
-            'icono' => 'error'
-          ];
-        }
-        $infoVal['rif_proveedor'] = ($infoVal['codigo_rif_proveedor'] ?? '') . $infoVal['rif_proveedor'];
-      }
-      $campos[] = $funcionAsignadora($campoVal, $infoVal[$valorForm]);
+          ...molDescripcion,
+          "nombreAlerta" => "dirección del proveedor",
+          "nombreBD" => "direccion_proveedor",
+          "tablaBD" => "proveedores",
+        ],  
+      ],
+      'requerido' => $requerido
+    ];
+      
+    if (isset($info['prefijo_telefono_proveedor'])) {
+      $info['telefono_proveedor'] = $info['prefijo_telefono_proveedor'] . $info['telefono_proveedor'];
     }
-    return $this->limpiar_Verificar($campos);
+    if (isset($info['codigo_rif_proveedor'])) {
+      $info['rif_proveedor'] = $info['codigo_rif_proveedor'] . $info['rif_proveedor'];
+    }
+    if (isset($info['esR'])) {
+      unset($esquemaProveedores['propiedades']['rif_proveedor']['debeExistirBD']);
+      unset($info['esR']);
+    }
+    $v = $this->limpiarValidar($info, $esquemaProveedores);
+    if ($v) return $v;
+
+    return false;
   }
+
   public function seleccionarProveedores(array $info) {
-    if (($info['rif_proveedor'] ?? '') != "") {
-      $resultado = $this->validarProveedores([
-        'infoVal' => &$info,
-        'camposVal' => [
-          'rif_proveedor_act' => 'rif_proveedor',
-        ],
-      ]);
-      if ($resultado) return $resultado;
-      $this->rifProveedor = $info['rif_proveedor'];
-    }
+     if (($info['rif_proveedor'] ?? '') != "") {
+      $v = $this->validarProveedores('ver detalles de los proveedores', $info);
+    } else {
+      $v = $this->validarProveedores('listar', $info);
+      }
+      if ($v) return $v;
+      $this->rifProveedor = $info['rif_proveedor'] ?? '';
+    
     return $this->seleccionarProveedoresP();
   }
+
   public function registrarProveedores(array $info) {
-    $resultado = $this->validarProveedores([
-      'infoVal' => &$info,
-      'camposVal' => [
+     $info['esR'] = true;
+
+    $v = $this->validarProveedores('registrar', $info,[
         'rif_proveedor',
         'razon_social_proveedor',
         'telefono_proveedor',
         'correo_proveedor',
         'direccion_proveedor',
-      ],
     ]);
-    if ($resultado) return $resultado;
+    if ($v) return $v;
 
     $this->rifProveedor = $info['rif_proveedor'];
     $this->razonSocialProveedor = $info['razon_social_proveedor'];
@@ -145,19 +108,18 @@ class proveedoresModelo extends conexion {
 
     return $this->registrarProveedoresP();
   }
+
   public function actualizarProveedores(array $info) {
-    $resultado = $this->validarProveedores([
-      'infoVal' => &$info,
-      'camposVal' => [
+    $v = $this->validarProveedores('actualizar', $info,[
+      
         'rif_proveedor' => 'rif_proveedor_act',
         'razon_social_proveedor',
         'telefono_proveedor',
         'correo_proveedor',
         'direccion_proveedor',
-      ],
     ]);
 
-    if ($resultado) return $resultado;
+    if ($v) return $v;
     $this->rifProveedor = $info['rif_proveedor'];
     $this->razonSocialProveedor = $info['razon_social_proveedor'];
     $this->telefonoProveedor = $info['telefono_proveedor'];
@@ -167,18 +129,12 @@ class proveedoresModelo extends conexion {
     return $this->actualizarProveedoresP();
   }
   public function eliminarProveedores(array $info) {
-    if (empty($info['rif_proveedor'])) {
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'error',
-        'texto' => 'No se ha proporcionado el RIF del proveedor a eliminar',
-        'icono' => 'error'
-      ];
-    }
-
+   $v = $this->validarProveedores('eliminar',$info, [
+      'rif_proveedor',
+    ]);
+    if ($v) return $v;
     $this->rifProveedor = $info['rif_proveedor'];
-
-    return $this->eliminarProveedoresP();
+    return $this->eliminarProveedoresP($info);
   }
 
   // PRIVADOS

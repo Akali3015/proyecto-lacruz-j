@@ -1,7 +1,8 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
-  alertasAjax, encabezadosPeticiones, rutaAbsoluta, enviarFormulario
+  alertasAjax, encabezadosPeticiones, rutaAbsoluta, enviarFormulario, 
 } from './global.js';
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
@@ -564,6 +565,77 @@ async function renderizarGraficas() {
 
 //#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
+//#region [ FUNCIONES DE AYUDA ] COMIENZO
+
+function registrarTutorial() {
+  driverAyuda('reportes', {
+    pasos: [
+      {
+        element: '.row .col-6:first-child .card',
+        popover: {
+          title: 'Reporte de Ventas',
+          description: 'Genera reportes de ventas. Puedes filtrar por tipo de item y rango de fechas.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '.row .col-6:last-child .card',
+        popover: {
+          title: 'Reporte de Compras',
+          description: 'Genera reportes de compras a proveedores.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '.row.mb-5:last-child .col-3:first-child .card',
+        popover: {
+          title: 'Cierre de Caja',
+          description: 'Genera el reporte de cierre de caja para una fecha específica.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '.row.mb-5:last-child .col-md-6.col-lg-3.mb-4:nth-child(2) .card',
+        popover: {
+          title: 'Reporte de Servicios',
+          description: 'Genera un listado completo de todos los servicios disponibles.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '.row.mb-5:last-child .col-md-6.col-lg-3.mb-4:nth-child(3) .card',
+        popover: {
+          title: 'Inventario de Productos',
+          description: 'Genera un listado completo de todos los productos disponibles.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '.row.mb-5:last-child .col-md-6.col-lg-3.mb-4:nth-child(4) .card',
+        popover: {
+          title: 'Inventario de Materias Primas',
+          description: 'Genera un listado completo de todas las materias primas disponibles.',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces los reportes disponibles.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
+//#endregion [ FUNCIONES DE AYUDA ] FIN
+
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 // Evento de carga de la pagina
@@ -576,6 +648,16 @@ $(document).on('DOMContentLoaded', function () {
       todayHighlight: true
     });
     i++;
+  }
+
+  registrarTutorial();
+  
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'reportes') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
   }
 });
 

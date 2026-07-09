@@ -8,6 +8,7 @@ use src\modelos\productosModelo;
 use src\modelos\materiasPrimasModelo;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class inventarioModelo extends conexion {
@@ -21,7 +22,11 @@ class inventarioModelo extends conexion {
   private string $tipoItem = '';
   private array $info = [];
 
-  public function validarInventario(array $instruccionesVal) {
+  public function validarInventario(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('inventario', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -107,7 +112,7 @@ class inventarioModelo extends conexion {
     $this->tipoItem = $info['tipo_item'] ?? '';
 
     if ($this->tipoItem === 'materia_prima') {
-      $resultado = $this->validarInventario([
+      $resultado = $this->validarInventario('registrar cargas o descargas de materias primas',[
         'infoVal' => &$info,
         'camposVal' => [
           'id_materia_prima',
@@ -117,7 +122,7 @@ class inventarioModelo extends conexion {
         ]
       ]);
     } else {
-      $resultado = $this->validarInventario([
+      $resultado = $this->validarInventario('registrar cargas o descargas de productos',[
         'infoVal' => &$info,
         'camposVal' => [
           'id_presentacion_producto',
@@ -153,29 +158,46 @@ class inventarioModelo extends conexion {
     $this->tipo = $info['tipo'] ?? '';
 
     if ($this->tipo === 'productos') {
-      $this->idProducto = $info['id_producto'] ?? '';
-      return $this->verMovimientosProductosP();
+        $resultado = $this->validarInventario('ver historial de e/s de los productos', [
+            'infoVal' => &$info,
+            'camposVal' => [
+                'id_producto',
+            ]
+        ]);
+        if ($resultado) return $resultado;
+        $this->idProducto = $info['id_producto'];
+        return $this->verMovimientosProductosP();
+        
     } else if ($this->tipo === 'materiasPrimas') {
-      $this->idMateriaPrima = $info['id_materia_prima'] ?? '';
-      return $this->verMovimientosMateriasPrimasP();
+        $resultado = $this->validarInventario('ver historial de e/s de las materias primas', [
+            'infoVal' => &$info,
+            'camposVal' => [
+                'id_materia_prima',
+            ]
+        ]);
+        if ($resultado) return $resultado;
+        $this->idMateriaPrima = $info['id_materia_prima'];
+        return $this->verMovimientosMateriasPrimasP();
     }
 
     return [
-      "tipo" => "simple",
-      "titulo" => "Error",
-      "texto" => "Tipo no reconocido",
-      "icono" => "error"
+        "tipo" => "simple",
+        "titulo" => "Error",
+        "texto" => "Tipo no reconocido. Debe ser 'productos' o 'materiasPrimas'",
+        "icono" => "error"
     ];
-  }
+}
   public function reporteProductos(array $info) {
-    if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
-      return [
-        'tipo' => 'simple',
-        'icono' => 'error',
-        'titulo' => 'Sin fecha especificada',
-        'texto' => 'Debe agregar una fecha de inicio y fin para el reporte'
-      ];
-    }
+    $resultado = $this->validarInventario('imprimir reportes de anomalias de productos', [
+        'infoVal' => &$info,
+        'camposVal' => [
+            'id_producto',
+            'fecha_desde',
+            'fecha_hasta'
+        ]
+    ]);
+    if ($resultado) return $resultado;
+    
     $this->info = $info;
     $this->info['id_producto'] = $info['id_producto'] ?? null;
 
@@ -194,14 +216,15 @@ class inventarioModelo extends conexion {
     return $this->reporteProductosP();
   }
   public function reporteMateriasPrimas(array $info) {
-    if (empty($info['fecha_desde']) || empty($info['fecha_hasta'])) {
-      return [
-        'tipo' => 'simple',
-        'icono' => 'error',
-        'titulo' => 'Sin fecha especificada',
-        'texto' => 'Debe agregar una fecha de inicio y fin para el reporte'
-      ];
-    }
+    $resultado = $this->validarInventario('imprimir reportes de anomalias de materias primas', [
+        'infoVal' => &$info,
+        'camposVal' => [
+            'id_materia_prima',
+            'fecha_desde',
+            'fecha_hasta'
+        ]
+    ]);
+    if ($resultado) return $resultado;
 
     $this->info = $info;
     $this->info['id_materia_prima'] = $info['id_materia_prima'] ?? null;
@@ -412,10 +435,32 @@ class inventarioModelo extends conexion {
       'WHERE' => ['id_producto' => $idProducto]
     ]);
 
+    $movimientoRegistrado = $this->seleccionarDatos2([
+      'campos' => '
+          map.id_movimiento_anomalo_producto,
+          p.nombre_presentacion,
+          map.cantidad_movimiento,
+          map.tipo_movimiento,
+          map.motivo_movimiento,
+          map.fecha_movimiento,
+          pr.nombre_producto
+        ',
+      'tabla' => 'movimientos_anomalos_productos as map',
+      'datosJoins' => [
+          "presentaciones_productos as pp" => "map.id_presentacion_producto = pp.id_presentacion_producto",
+          "presentaciones as p" => "pp.id_presentacion = p.id_presentacion",
+          "productos as pr" => "pp.id_producto = pr.id_producto"
+      ],
+      'WHERE' => [
+          "map.id_movimiento_anomalo_producto" => $ultimoId
+      ]
+    ])->fetch();
+
     $objBitacora->registrarBitacora([
       'modulo' => 'inventario',
       'accion' => 'Registrar Anomalia de Producto',
       'resultado' => 'Éxito',
+      'nuevo' => $movimientoRegistrado
     ]);
 
     $objetoNot = new mensajesWSModelo();
@@ -538,10 +583,29 @@ class inventarioModelo extends conexion {
       'WHERE' => ['id_materia_prima' => $this->idMateriaPrima]
     ]);
 
+    $movimientoRegistrado = $this->seleccionarDatos2([
+      'campos' => '
+          mamp.id_movimiento_anomalo_materia_prima,
+          mp.nombre_materia_prima,
+          mamp.cantidad_movimiento,
+          mamp.tipo_movimiento,
+          mamp.motivo_movimiento,
+          mamp.fecha_movimiento
+        ',
+      'tabla' => 'movimientos_anomalos_materias_primas as mamp',
+      'datosJoins' => [
+          "materias_primas as mp" => "mamp.id_materia_prima = mp.id_materia_prima"
+      ],
+      'WHERE' => [
+          "mamp.id_movimiento_anomalo_materia_prima" => $ultimoId
+      ]
+    ])->fetch();
+
     $objBitacora->registrarBitacora([
       'modulo' => 'inventario',
       'accion' => 'Registrar Anomalia de Materia Prima',
       'resultado' => 'Éxito',
+      'nuevo' => $movimientoRegistrado
     ]);
 
     $objetoNot = new mensajesWSModelo();

@@ -5,13 +5,18 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class cambiosIvaModelo extends conexion {
   private int $idCambio = 0;
   private float $montoCambioIva = 0;
 
-  public function validarCambiosIva(array $instruccionesVal) {
+  public function validarCambiosIva(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('cambiosIva', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -57,7 +62,7 @@ class cambiosIvaModelo extends conexion {
   }
   public function seleccionarCambiosIva(array $info) {
     if (($info['id_cambio_iva'] ?? '') != "") {
-      $resultado = $this->validarCambiosIva([
+      $resultado = $this->validarCambiosIva('ver',[
         'infoVal' => &$info,
         'camposVal' => ['id_cambio_iva'],
       ]);
@@ -67,7 +72,7 @@ class cambiosIvaModelo extends conexion {
     return $this->seleccionarCambiosIvaP($info);
   }
   public function registrarCambiosIva(array $info) {
-    $resultado = $this->validarCambiosIva([
+    $resultado = $this->validarCambiosIva('registrar', [
       'infoVal' => &$info,
       'camposVal' => ['monto_cambio_iva'],
     ]);
@@ -163,7 +168,8 @@ class cambiosIvaModelo extends conexion {
     $objetoNot->enviarMensajesWS(
       [
         "receptor" => [
-          'tipo' => 'todosSinExcepcion',
+          'tipo' => 'permisos',
+          'pemisos' => ['cambiosIva' => 'ver']
         ],
         'cuerpo' => [
           [

@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
   exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   $objAcceso = new accesosModelo();
-  $v = $objAcceso->validarPermisos('metodos-pago', 'ver');
+  $v = $objAcceso->validarPermisos('metodos-pago', 'vero');
   if ($v) $objAcceso->DECORE($v);
 
   $objComponentes = new componentesModelo();

@@ -12,57 +12,48 @@ class clientesModelo extends conexion {
   private string $correoCliente = '';
   private string $direccionCliente = '';
 
-  public function validarClientes(array &$info, $requerido = []) {
+  public function validarClientes(string $permiso,array &$info, $requerido = []) {
+   $objAcceso = new accesosModelo();
+    $v = $objAcceso -> validarPermisos('clientes', $permiso);
+    if ($v) return $v;
+
     $esquemaClientes = [
       'tipo' => 'arrayA',
       'propiedades' => [
         'rif_cedula_cliente' => [
-          'tipo' => 'string',
-          'regex' => regexCedulaRifLetra,
-          'minL' => minRegexCedulaRifLetra,
-          'maxL' => maxRegexCedulaRifLetra,
-          'nombreAlerta' => 'rif o cédula del cliente',
-          'tablaBD' => 'clientes',
-          'nombreBD' => 'rif_cedula_cliente',
-          'debeSerUnicoBD' => true,
-          'debeExistirBD' => true,
-        ],
-        'telefono_cliente' => [
-          'tipo' => 'string',
-          "nombreAlerta" => "teléfono del cliente",
-          "requerido" => true,
-          "minL" => minRegexTelefono,
-          "maxL" => maxRegexTelefono,
-          "regex" => regexTelefono,
+          ...molCedulaRifLetra,
+          "nombreAlerta" => "rif o cédula del cliente",
+          "nombreBD" => "rif_cedula_cliente",
           "tablaBD" => "clientes",
+          "debeSerUnicoBD" => true,
+          "debeExistirBD" => true,
+          ],
+        'telefono_cliente' => [
+          ...molTelefono,
+          "nombreAlerta" => "teléfono del cliente",
           "nombreBD" => "telefono_cliente",
+          "tablaBD" => "clientes",
+          "requerido" => true,        
           "debeSerUnicoBD" => true,
         ],
         'razon_social_cliente' => [
-          'tipo' => 'string',
+          ...molDescripcion,  
           "nombreAlerta" => "razón social del cliente",
-          "minL" => minRegexDescripcion,
-          "maxL" => maxRegexDescripcion,
-          "regex" => regexDescripcion,
-          "tablaBD" => "clientes",
           "nombreBD" => "razon_social_cliente",
+          "tablaBD" => "clientes",
         ],
         'correo_cliente' => [
-          'tipo' => 'string',
+          ...molCorreo,
           "nombreAlerta" => "correo electrónico del cliente",
-          "minL" => minRegexCorreo,
-          "maxL" => maxRegexCorreo,
-          "regex" => regexCorreo,
-          "tablaBD" => 'clientes',
           "nombreBD" => "correo_cliente",
+          "tablaBD" => 'clientes',
           "debeSerUnicoBD" => true,
         ],
         'direccion_cliente' => [
-          'tipo' => 'string',
+          ...molDescripcion,
           "nombreAlerta" => "dirección del cliente",
-          "minL" => minRegexDescripcion,
-          "maxL" => maxRegexDescripcion,
-          "regex" => regexDescripcion,
+          "nombreBD" => "direccion_cliente",
+          "tablaBD" => 'clientes',
         ],
       ],
       'requerido' => $requerido
@@ -78,28 +69,34 @@ class clientesModelo extends conexion {
       unset($esquemaClientes['propiedades']['rif_cedula_cliente']['debeExistirBD']);
       unset($info['esR']);
     }
-    return $this->limpiarValidar($info, $esquemaClientes);
+    $v = $this->limpiarValidar($info, $esquemaClientes);
+    if ($v) return $v;
+
+    return false;
   }
+
   public function seleccionarClientes(array $info) {
     if (($info['rif_cedula_cliente'] ?? '') != '') {
       $info['cedula_exis'] = true;
-      $resultado = $this->validarClientes($info, [
-        'rif_cedula_cliente'
-      ]);
-      if ($resultado) return $resultado;
-      $this->rifCedulaCliente = $info['rif_cedula_cliente'];
-    }
+      $v = $this->validarClientes('ver detalles de los clientes', $info);
+      } else {
+      $v = $this->validarClientes('listar', $info);
+      }
+      
+      if ($v) return $v;
+      $this->rifCedulaCliente = $info['rif_cedula_cliente'] ?? '';
+    
     return $this->seleccionarClientesP();
   }
   public function registrarClientes(array $info) {
     $info['esR'] = true;
 
-    $resultado = $this->validarClientes($info, [
+    $v = $this->validarClientes('registrar', $info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
       'direccion_cliente'
     ]);
-    if ($resultado) return $resultado;
+    if ($v !== false) return $v;
 
     $this->rifCedulaCliente = $info['rif_cedula_cliente'];
     $this->razonSocialCliente = $info['razon_social_cliente'];
@@ -110,12 +107,12 @@ class clientesModelo extends conexion {
     return $this->registrarClientesP($info);
   }
   public function actualizarClientes(array $info) {
-    $resultado = $this->validarClientes($info, [
+    $v = $this->validarClientes('actualizar', $info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
       'direccion_cliente'
     ]);
-    if ($resultado) return $resultado;
+    if ($v) return $v;
 
     $this->rifCedulaCliente = $info['rif_cedula_cliente'];
     $this->razonSocialCliente = $info['razon_social_cliente'];
@@ -126,10 +123,10 @@ class clientesModelo extends conexion {
     return $this->actualizarClientesP($info);
   }
   public function eliminarClientes(array $info) {
-    $resultado = $this->validarClientes($info, [
+    $v = $this->validarClientes('eliminar',$info, [
       'rif_cedula_cliente',
     ]);
-    if ($resultado) return $resultado;
+    if ($v) return $v;
     $this->rifCedulaCliente = $info['rif_cedula_cliente'];
     return $this->eliminarClientesP($info);
   }

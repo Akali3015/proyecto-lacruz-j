@@ -2,6 +2,7 @@
 
 use src\modelos\inventarioModelo;
 use src\config\inc\componentesModelo;
+use src\modelos\accesosModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   
@@ -37,6 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"])) {
   $modeloInventarios->DECORE($resultado);
   exit();
 } else {
+  $objAcceso= new accesosModelo();
+  $v= $objAcceso->validarPermisos('inventario','ver inventario');
+  if($v) $objAcceso->DECORE($v);
+
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

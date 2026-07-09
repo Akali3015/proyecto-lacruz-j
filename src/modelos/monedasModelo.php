@@ -5,6 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\mensajesWSModelo;
 use src\modelos\bitacoraModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class monedasModelo extends conexion {
@@ -14,7 +15,11 @@ class monedasModelo extends conexion {
   private string $simboloMoneda = '';
   private float $valorMoneda = 0;
 
-  public function validarMonedas(array $instruccionesVal) {
+  public function validarMonedas(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('monedas', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -94,7 +99,7 @@ class monedasModelo extends conexion {
   }
   public function seleccionarMonedas(array $info) {
     if (($info['id_moneda'] ?? '') != '') {
-      $resultado = $this->validarMonedas([
+      $resultado = $this->validarMonedas('ver',[
         'infoVal' => &$info,
         'camposVal' => [
           'id_moneda',
@@ -110,7 +115,7 @@ class monedasModelo extends conexion {
   }
   public function registrarMonedas(array $info) {
 
-    $resultado = $this->validarMonedas([
+    $resultado = $this->validarMonedas('registrar',[
       'infoVal' => &$info,
       'camposVal' => [
         'valor_moneda',
@@ -131,7 +136,7 @@ class monedasModelo extends conexion {
     if (($info['tipoAct'] ?? '') == 'completa') {
       array_push($campos, 'nombre_moneda', 'simbolo_moneda');
     }
-    $resultado = $this->validarMonedas([
+    $resultado = $this->validarMonedas('actualizar',[
       'infoVal' => &$info,
       'camposVal' => $campos,
     ]);
@@ -145,7 +150,7 @@ class monedasModelo extends conexion {
     return $this->actualizarMonedasP($info['tipoAct'] ?? NULL);
   }
   public function eliminarMonedas(array &$info) {
-    $resultado = $this->validarMonedas([
+    $resultado = $this->validarMonedas('eliminar',[
       'infoVal' => &$info,
       'camposVal' => [
         'id_moneda',
@@ -241,6 +246,7 @@ class monedasModelo extends conexion {
       'modulo' => 'monedas', 
       'accion' => 'registrar', 
       'resultado' => 'Éxito',
+      'nuevo' => $this->seleccionarMonedas(['id_moneda' => $ultimoId])
     ]);
 
     $this->commit();

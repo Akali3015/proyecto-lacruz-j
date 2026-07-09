@@ -584,7 +584,7 @@ class pedidosModelo extends conexion {
       }
     }
   }
-  private function registrarPedidosP() {
+private function registrarPedidosP() {
     $objBitacora = new bitacoraModelo();
     $comprobantesPagos = [];
     $error = function () use ($objBitacora, $comprobantesPagos) {
@@ -598,7 +598,7 @@ class pedidosModelo extends conexion {
       if ($comprobantesPagos != []) {
         $this->Imagenes_Eli2('comprobantes_pagos', $comprobantesPagos);
       }
-    };
+};
 
     // #region VALIDACIONES DE LOGICA DE NEGOCIO
     $totalPagar = 0;

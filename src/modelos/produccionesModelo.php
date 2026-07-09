@@ -7,12 +7,17 @@ use src\modelos\bitacoraModelo;
 use src\modelos\productosModelo;
 use src\modelos\materiasPrimasModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 
 class produccionesModelo extends conexion {
   private string $idProduccion = '';
   private array $productos = [];
 
-  public function validarProducciones(array $instruccionesVal) {
+  public function validarProducciones(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('producciones', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -78,7 +83,7 @@ class produccionesModelo extends conexion {
   }
   public function seleccionarProducciones(array $info) {
     if (($info['id_produccion'] ?? '') != '') {
-      $resultado = $this->validarProducciones([
+      $resultado = $this->validarProducciones('ver', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_produccion',
@@ -90,7 +95,7 @@ class produccionesModelo extends conexion {
     return $this->seleccionarProduccionesP();
   }
   public function registrarProducciones(array $info) {
-    $resultado = $this->validarProducciones([
+    $resultado = $this->validarProducciones('registrar',[
       'infoVal' => &$info,
       'camposVal' => [
         'productos',
@@ -101,7 +106,7 @@ class produccionesModelo extends conexion {
     return $this->registrarProduccionesP();
   }
   public function actualizarProducciones(array $info) {
-    $resultado = $this->validarProducciones([
+    $resultado = $this->validarProducciones('actualizar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_produccion',
@@ -321,13 +326,17 @@ class produccionesModelo extends conexion {
       'modulo' => 'producciones',
       'accion' => 'Registrar',
       'resultado' => 'Éxito',
+      'nuevo' => $this->seleccionarProducciones([
+        'id_produccion' => $idProduccion
+      ])
     ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS(
       [
         "receptor" => [
-          'tipo' => 'todosSinExcepcion',
+          'tipo' => 'permisos',
+          'permisos' => ['producciones' => 'ver']
         ],
         'cuerpo' => [
           [
@@ -621,7 +630,7 @@ class produccionesModelo extends conexion {
     $objBitacora->registrarBitacora([
       'modulo' => 'producciones',
       'accion' => 'Actualizar',
-      'resultado' => 'Fallido',
+      'resultado' => 'Éxito',
       'viejo' => $datosAntes,
       'nuevo' => $datosDespues
     ]);
@@ -653,7 +662,6 @@ class produccionesModelo extends conexion {
         ]
       ],
     ]);
-
 
     $this->commit();
     return [

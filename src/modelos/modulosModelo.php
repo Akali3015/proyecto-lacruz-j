@@ -5,99 +5,89 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use PDO;
 use src\modelos\bitacoraModelo;
+use src\modelos\accesosModelo;
 
 class modulosModelo extends conexion {
-  private int $idModulo = 0;
+  private string $idModulo = '';
   private string $nombreModulo = '';
 
-  public function validarModulos(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
-        "id_modulo" => [
-          "campo_nombre" => "id_modulo",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del módulo",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "modulos",
-          'BD' => 'seguridad',
+  public function validarModulos(string|null $permiso, null|array &$info, $requerido = []) {
+    $objAcceso = new accesosModelo();
+    $v= $objAcceso-> validarPermisos('modulos', $permiso);
+    if ($v) return $v;
+  
+      $esquemaModulo = [
+        'tipo' => 'arrayA',
+        'propiedades' => [
+          "id_modulo" => [
+          ...molId,
+          "nombreAlerta" => "id del modulo",
+          "nombreBD" => "id_modulo",
+          "tablaBD" => "modulos",
+          "requerido" => true,          
+          "BD" => 'seguridad',
           "debeExistir" => true,
           "debeSerUnico" => true
         ],
-        "nombre_modulo" => [
-          "campo_nombre" => "nombre_modulo",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre del módulo",
+          "nombre_modulo" => [
+          ...molNombreObj,
+          "nombreAlerta" => "nombre del modulo",
+          "nombreBD" => "nombre_modulo",
+          "tablaBD" => "modulos",
           "requerido" => true,
-          "minimo" => minRegexNombrePer,
-          "maximo" => maxRegexNombrePer,
-          "expresion_re" => regexNombrePer,
-          "tabla" => "modulos",
-          'BD' => 'seguridad',
+          "BD" => 'seguridad',
           "debeSerUnico" => true
         ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-    }
-    return $this->limpiar_Verificar($campos);
-  }
-  public function seleccionarModulos($info = NULL) {
-    if (($info['id_modulo'] ?? '') != "") {
-      $resultado = $this->validarModulos([
-        'infoVal' => &$info,
-        'camposVal' => [
-          'id_modulo',
         ],
-      ]);
-      if ($resultado) return $resultado;
-      $this->idModulo = $info['id_modulo'];
+        'requerido' => $requerido
+      ];
+     
+    $v = $this->limpiarValidar($info, $esquemaModulo);
+  
+    if ($v) return $v;
+    return false;}
+  public function seleccionarModulos(array &$info) {
+    if (($info['id_modulo'] ?? '') != "") {
+      $v = $this->validarModulos('ver detalles de los clientes', $info);
+    } else {
+      $v = $this ->validarModulos('listar', $info);
     }
+        
+      if ($v) return $v;
+      $this->idModulo = $info['id_modulo'] ?? '';
+
     return $this->seleccionarModulosP();
   }
+
   public function registrarModulos(array $info) {
-    $resultado = $this->validarModulos([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'nombre_modulo',
-      ],
+    $v = $this->validarModulos('registrar', $info, [
+       'nombre_modulo',
     ]);
-    if ($resultado) return $resultado;
+     if ($v !== false) return $v;
+
     $this->nombreModulo = $info['nombre_modulo'];
 
     return $this->registrarModulosP();
   }
+
   public function actualizarModulos(array $info) {
-    $resultado = $this->validarModulos([
-      'infoVal' => &$info,
-      'camposVal' => [
+    $v = $this->validarModulos('actualizar', $info, [
         'id_modulo',
         'nombre_modulo',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+      ]);
+      if ($v) return $v;
+
     $this->idModulo = $info['id_modulo'];
     $this->nombreModulo = $info['nombre_modulo'];
 
     return $this->actualizarModulosP();
   }
   public function eliminarModulos(array $info) {
-    $resultado = $this->validarModulos([
-      'infoVal' => &$info,
-      'camposVal' => [
+    $v = $this->validarModulos('eliminar', $info,[
         'id_modulo',
-      ],
-    ]);
-    if ($resultado) return $resultado;
+      ]);
+      
+    if ($v) return $v;
     $this->idModulo = $info['id_modulo'];
     return $this->eliminarModulosP();
   }
@@ -137,13 +127,36 @@ class modulosModelo extends conexion {
   }
   private function registrarModulosP() {
     $objBitacora = new bitacoraModelo();
+    $datoNuevos = [
+      'nombre_modulo' => $this->nombreModulo,
+    ];
+
+
     $ultimoId = $this->guardarDatos2([
+      'datos' => $datoNuevos,
       'tabla' => 'modulos',
       'BD' => 'seguridad',
-      'datos' => [
-        "nombre_modulo" => $this->nombreModulo,
+      'WHERE' => [
+        "id_modulo" => $this->idModulo,
       ]
     ]);
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'modulos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'modulos'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+
     if ($ultimoId !== false && $ultimoId > 0) {
       $alerta = [
         "tipo" => "limpiarYcerrar",
@@ -151,8 +164,13 @@ class modulosModelo extends conexion {
         "texto" => "El módulo ha sido registrado exitosamente",
         "icono" => "success",
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'Registrar', 'Éxito');
-      $this->commit();
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'Registrar',
+        'resultado' => 'Éxito',
+        'commit' => true
+      ]);
+      //$this->commit();
     } else {
       $alerta = [
         "tipo" => "simple",
@@ -160,8 +178,13 @@ class modulosModelo extends conexion {
         "texto" => "El módulo no ha sido registrado exitosamente",
         "icono" => "error",
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'Registrar', 'Error');
-      $this->rollback();
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'Registrar',
+        'resultado' => 'Error', 
+        'commit' => false
+      ]);
+     // $this->rollback();
     }
     if ($resultadoB != false) {
       $this->rollback();
@@ -171,12 +194,15 @@ class modulosModelo extends conexion {
   }
   private function actualizarModulosP() {
     $objBitacora = new bitacoraModelo();
+    $datosActuales = $objBitacora -> $this->seleccionarModulos(['id_modulo' => $this->idModulo]);
+      $datosAct = [
+        "nombre_modulo" => $datosActuales['nombre_modulo'],
+      ];
+
     $resultado = $this->actualizarDatos2([
-      'tabla' => 'modulos',
+      "datos" => $datosAct,
+      "tabla" => "modulos",
       'BD' => 'seguridad',
-      'datos' => [
-        "nombre_modulo" => $this->nombreModulo,
-      ],
       "WHERE" => [
         "id_modulo" => $this->idModulo,
       ]
@@ -188,7 +214,12 @@ class modulosModelo extends conexion {
         "texto" => "No se realizó ningún cambio en el módulo",
         "icono" => "warning",
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'actualizar módulo con id: ' . $this->idModulo, 'Error');
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'actualizar módulo con id: ' . $this->idModulo,
+        'resultado' => 'Error',
+        'commit' => false 
+        ]); 
     } else {
       $alerta = [
         "tipo" => "limpiarYcerrar",
@@ -196,9 +227,31 @@ class modulosModelo extends conexion {
         "texto" => "El módulo ha sido actualizado exitosamente",
         "icono" => "success",
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'actualizar módulo con id: ' . $this->idModulo, 'Éxito');
-      $this->commit();
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'actualizar módulo con id: ' . $this->idModulo,
+        'resultado' => 'Éxito',
+        'commit' => true
+      ]);
     }
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'modulos'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'usuarios'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+
+
     if ($resultadoB != false) {
       $this->rollback();
       return $resultadoB;
@@ -221,8 +274,12 @@ class modulosModelo extends conexion {
         "texto" => "El módulo ha sido eliminado con éxito",
         "icono" => "success"
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'eliminar módulo con id: ' . $this->idModulo, 'Éxito');
-      $this->commit();
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'eliminar módulo con id: ' . $this->idModulo,
+        'resultado' => 'Éxito',
+        'commit' => true
+      ]);
     } else {
       $alerta = [
         "tipo" => "simple",
@@ -230,8 +287,30 @@ class modulosModelo extends conexion {
         "texto" => "El módulo no existe en la Base de Datos",
         "icono" => "error"
       ];
-      $resultadoB = $objBitacora->registrarBitacora('modulos', 'eliminar módulo con id: ' . $this->idModulo, 'Error');
+      $resultadoB = $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'eliminar módulo con id: ' . $this->idModulo,
+        'resultado' => 'Error',
+        'commit' => false
+      ]);
     }
+
+    $objNot = new mensajesWSModelo();
+    $r = $objNot->enviarMensajesWS([
+      "receptor" => ['tipo' => 'todos'],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'usuarios'
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'modulos'
+        ],
+      ],
+      'noCommit' => true,
+    ]);
+
     if ($resultadoB != false) {
       $this->rollback();
       return $resultadoB;

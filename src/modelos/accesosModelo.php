@@ -14,7 +14,7 @@ class accesosModelo extends conexion {
   private string $permisoVal = '';
 
   public function validarAccesos(string $permiso = '', array &$info = [], array $requerido = []) {
-    if ($permiso!='') {
+    if ($permiso != '') {
       $v = $this->validarPermisos('accesos', $permiso);
       if ($v) return $v;
     }
@@ -113,11 +113,11 @@ class accesosModelo extends conexion {
       'nombre_modulo' => $modulo,
       'nombre_permiso' => $permiso,
     ];
-    // $v = $this->validarAccesos('', $info, [
-    //   'nombre_modulo',
-    //   'nombre_permiso',
-    // ]);
-    // if ($v) return $v;
+    $v = $this->validarAccesos('', $info, [
+      'nombre_modulo',
+      'nombre_permiso',
+    ]);
+    if ($v) return $v;
     $this->moduloVal = $info['nombre_modulo'];
     $this->permisoVal = $info['nombre_permiso'];
     return $this->validarPermisosP();
