@@ -2,39 +2,43 @@
 
 use src\modelos\comprasModelo;
 use src\config\inc\componentesModelo;
+use src\modelos\accesosModelo;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION['cedula'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
-  $accion = $_POST['accion'] ?? '';
-  $objetoCompras = new comprasModelo();
+  $accion = $_POST["accion"];
+
+  $objeto = new comprasModelo();
+  ob_clean();
   $resultado = [
-    'icono'  => 'error',
+    'icono' => 'error',
     'titulo' => 'Acción no reconocida'
   ];
-
-  ob_clean();
   switch ($accion) {
     case 'listar':
     case 'seleccionarUno':
-      $resultado = $objetoCompras->seleccionarCompra($_POST);
+      $resultado = $objeto->seleccionarCompra($_POST);
       break;
     case 'listarProductosParaCompra':
-      $resultado = $objetoCompras->listarProductosParaCompra();
+      $resultado = $objeto->listarProductosParaCompra();
       break;
     case 'registrar':
-      $resultado = $objetoCompras->registrarCompra($_POST);
+      $resultado = $objeto->registrarCompra($_POST);
       break;
     case 'actualizar':
-      $resultado = $objetoCompras->actualizarCompra($_POST);
+      $resultado = $objeto->actualizarCompra($_POST);
       break;
     case 'eliminar':
-      $resultado = $objetoCompras->eliminarCompra($_POST);
+      $resultado = $objeto->eliminarCompra($_POST);
       break;
   }
-
-  $objetoCompras->DECORE($resultado);
+  $objeto->DECORE($resultado);
   exit();
-} elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
+} elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
+  $objAcceso = new accesosModelo();
+  $v = $objAcceso->validarPermisos('compras', 'ver');
+  if ($v) $objAcceso->DECORE($v);
+
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();

@@ -2,9 +2,11 @@
 
 namespace src\controladores;
 
-use src\config\connect\conexion;
+use src\modelos\accesosModelo;
+use src\modelos\traitModelo;
 
-class frontController extends conexion {
+class frontController {
+  use traitModelo;
 
   private array|string $url = '';
   private array $vistasEstaticas;
@@ -41,6 +43,7 @@ class frontController extends conexion {
       'productos',
       'producciones',
       'proveedores',
+      'pagos',
       'repartidores',
       'reportes',
       'reportesEstadisticos',

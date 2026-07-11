@@ -7,8 +7,8 @@ import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriv
 
 //#endregion [ IMPORTACIONES ] FIN
 
-//#region [DELEGACIÓN DE EVENTOS] COMIENZO
-$(document).on('DOMContentLoaded', async function (e) {
+//#region [ FUNCIONES PROPIAS DEL MODULO ] COMIENZO
+async function inicializarModulo() {
   await listarDataTable({
     encabezados: {
       "id_rol": "ID DEL ROL",
@@ -68,32 +68,26 @@ $(document).on('DOMContentLoaded', async function (e) {
         }
       ]
   });
-})
+}
 
-//Evento para el envío de formularios
-$(document).off('submit', '.formularioAjax');
-$(document).on('submit', '.formularioAjax', function (e) {
+function submitFormularioAjax(e) {
   e.preventDefault();
   enviarFormulario({
     'formulario': this,
     'modulo': 'roles'
-  })
-});
+  });
+}
 
-//Evento para el envío de formularios
-$(document).off('click', '.botonEliminar');
-$(document).on('click', '.botonEliminar', function (e) {
+function clickBotonEliminar(e) {
   e.preventDefault();
   eliminarRegistro({
     boton: this,
     campoId: 'id_rol',
     modulo: 'roles',
   });
-});
+}
 
-//Evento para los botones de editar
-$(document).off('click', '.botonEditar');
-$(document).on('click', '.botonEditar', async function (e) {
+async function clickBotonEditar(e) {
   e.preventDefault();
   await obtenerDatosRegistro({
     boton: this,
@@ -101,11 +95,40 @@ $(document).on('click', '.botonEditar', async function (e) {
     modulo: 'roles',
   });
   cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
+}
+
+function inputValidarTiempoReal() {
+  validarEnTiempoReal(this, 'roles');
+}
+//#region [ FUNCIONES PROPIAS DEL MODULO ] FIN
+
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+$(document).on('DOMContentLoaded', async function (e) {
+  inicializarModulo.call(this);
+});
+
+//Evento para el envío de formularios
+$(document).off('submit', '.formularioAjax');
+$(document).on('submit', '.formularioAjax', function (e) {
+  submitFormularioAjax.call(this, e);
+});
+
+//Evento para el envío de formularios
+$(document).off('click', '.botonEliminar');
+$(document).on('click', '.botonEliminar', function (e) {
+  clickBotonEliminar.call(this, e);
+});
+
+//Evento para los botones de editar
+$(document).off('click', '.botonEditar');
+$(document).on('click', '.botonEditar', function (e) {
+  clickBotonEditar.call(this, e);
 });
 
 //Evento para validar en tiempo real
-$(document).off('input', '.validar input, .validar select')
+$(document).off('input', '.validar input, .validar select');
 $(document).on('input', '.validar input, .validar select', function () {
-  validarEnTiempoReal(this, 'roles');
-})
+  inputValidarTiempoReal.call(this);
+});
+
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

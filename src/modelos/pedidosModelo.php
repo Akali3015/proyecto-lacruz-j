@@ -368,7 +368,7 @@ class pedidosModelo extends conexion {
           'id_ruta' => $medioEnvio['id_ruta'],
           'fecha' => $datosGenerales['fecha_orden_entrega_presupuesto']
         ]);
-        if(isset($rutaFecha['icono'])) return $rutaFecha;
+        if (isset($rutaFecha['icono'])) return $rutaFecha;
 
         $medioEnvio['precio_ruta_factura'] = $rutaFecha['precio_ruta_fecha'];
         $infoRuta = $this->calcularKmPorCarretera([
@@ -584,7 +584,7 @@ class pedidosModelo extends conexion {
       }
     }
   }
-private function registrarPedidosP() {
+  private function registrarPedidosP() {
     $objBitacora = new bitacoraModelo();
     $comprobantesPagos = [];
     $error = function () use ($objBitacora, $comprobantesPagos) {
@@ -598,7 +598,7 @@ private function registrarPedidosP() {
       if ($comprobantesPagos != []) {
         $this->Imagenes_Eli2('comprobantes_pagos', $comprobantesPagos);
       }
-};
+    };
 
     // #region VALIDACIONES DE LOGICA DE NEGOCIO
     $totalPagar = 0;
@@ -683,7 +683,7 @@ private function registrarPedidosP() {
     unset($objRutas);
     if (isset($rutaBD['icono'])) return $rutaBD;
     $totalPagar += ($rutaBD['precio_ruta'] * $infoRuta['km_recorrido']) * $dolar['valor_moneda'];
-
+ 
     //Validamos que haya pagado completo
     if ($totalPagado < $totalPagar) {
       $error();

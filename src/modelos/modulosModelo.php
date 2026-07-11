@@ -13,23 +13,23 @@ class modulosModelo extends conexion {
 
   public function validarModulos(string|null $permiso, null|array &$info, $requerido = []) {
     $objAcceso = new accesosModelo();
-    $v= $objAcceso-> validarPermisos('modulos', $permiso);
+    $v = $objAcceso->validarPermisos('modulos', $permiso);
     if ($v) return $v;
-  
-      $esquemaModulo = [
-        'tipo' => 'arrayA',
-        'propiedades' => [
-          "id_modulo" => [
+
+    $esquemaModulo = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
+        "id_modulo" => [
           ...molId,
           "nombreAlerta" => "id del modulo",
           "nombreBD" => "id_modulo",
           "tablaBD" => "modulos",
-          "requerido" => true,          
+          "requerido" => true,
           "BD" => 'seguridad',
           "debeExistir" => true,
           "debeSerUnico" => true
         ],
-          "nombre_modulo" => [
+        "nombre_modulo" => [
           ...molNombreObj,
           "nombreAlerta" => "nombre del modulo",
           "nombreBD" => "nombre_modulo",
@@ -38,44 +38,38 @@ class modulosModelo extends conexion {
           "BD" => 'seguridad',
           "debeSerUnico" => true
         ],
-        ],
-        'requerido' => $requerido
-      ];
-     
+      ],
+      'requerido' => $requerido
+    ];
+
     $v = $this->limpiarValidar($info, $esquemaModulo);
-  
+
     if ($v) return $v;
-    return false;}
-  public function seleccionarModulos(array &$info) {
-    if (($info['id_modulo'] ?? '') != "") {
-      $v = $this->validarModulos('ver detalles de los clientes', $info);
-    } else {
-      $v = $this ->validarModulos('listar', $info);
-    }
-        
-      if ($v) return $v;
-      $this->idModulo = $info['id_modulo'] ?? '';
+    return false;
+  }
+  public function seleccionarModulos(array $info) {
+    $v = $this->validarModulos('listar', $info);
+    if ($v) return $v;
+    $this->idModulo = $info['id_modulo'] ?? '';
 
     return $this->seleccionarModulosP();
   }
-
   public function registrarModulos(array $info) {
     $v = $this->validarModulos('registrar', $info, [
-       'nombre_modulo',
+      'nombre_modulo',
     ]);
-     if ($v !== false) return $v;
+    if ($v !== false) return $v;
 
     $this->nombreModulo = $info['nombre_modulo'];
 
     return $this->registrarModulosP();
   }
-
   public function actualizarModulos(array $info) {
     $v = $this->validarModulos('actualizar', $info, [
-        'id_modulo',
-        'nombre_modulo',
-      ]);
-      if ($v) return $v;
+      'id_modulo',
+      'nombre_modulo',
+    ]);
+    if ($v) return $v;
 
     $this->idModulo = $info['id_modulo'];
     $this->nombreModulo = $info['nombre_modulo'];
@@ -83,16 +77,15 @@ class modulosModelo extends conexion {
     return $this->actualizarModulosP();
   }
   public function eliminarModulos(array $info) {
-    $v = $this->validarModulos('eliminar', $info,[
-        'id_modulo',
-      ]);
-      
+    $v = $this->validarModulos('eliminar', $info, [
+      'id_modulo',
+    ]);
+
     if ($v) return $v;
     $this->idModulo = $info['id_modulo'];
     return $this->eliminarModulosP();
   }
 
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
   private function seleccionarModulosP() {
     if ($this->idModulo == null || $this->idModulo == "") {
       $resultado = $this->seleccionarDatos2([
@@ -181,10 +174,10 @@ class modulosModelo extends conexion {
       $resultadoB = $objBitacora->registrarBitacora([
         'modulo' => 'modulos',
         'accion' => 'Registrar',
-        'resultado' => 'Error', 
+        'resultado' => 'Error',
         'commit' => false
       ]);
-     // $this->rollback();
+      // $this->rollback();
     }
     if ($resultadoB != false) {
       $this->rollback();
@@ -194,13 +187,16 @@ class modulosModelo extends conexion {
   }
   private function actualizarModulosP() {
     $objBitacora = new bitacoraModelo();
-    $datosActuales = $objBitacora -> $this->seleccionarModulos(['id_modulo' => $this->idModulo]);
-      $datosAct = [
-        "nombre_modulo" => $datosActuales['nombre_modulo'],
-      ];
+    $datosActuales = $this->seleccionarModulos(['id_modulo' => $this->idModulo]);
+    $datosAct = [
+      "nombre_modulo" => $datosActuales['nombre_modulo'],
+    ];
+    $datoNuevos = [
+      'nombre_modulo' => $this->nombreModulo
+    ];
 
     $resultado = $this->actualizarDatos2([
-      "datos" => $datosAct,
+      "datos" => $datoNuevos,
       "tabla" => "modulos",
       'BD' => 'seguridad',
       "WHERE" => [
@@ -208,31 +204,18 @@ class modulosModelo extends conexion {
       ]
     ]);
     if ($resultado == false || $resultado <= 0) {
-      $alerta = [
+      $objBitacora->registrarBitacora([
+        'modulo' => 'modulos',
+        'accion' => 'actualizar módulo con id: ' . $this->idModulo,
+        'resultado' => 'Error',
+        'commit' => true
+      ]);
+      return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
         "texto" => "No se realizó ningún cambio en el módulo",
         "icono" => "warning",
       ];
-      $resultadoB = $objBitacora->registrarBitacora([
-        'modulo' => 'modulos',
-        'accion' => 'actualizar módulo con id: ' . $this->idModulo,
-        'resultado' => 'Error',
-        'commit' => false 
-        ]); 
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Módulo actualizado",
-        "texto" => "El módulo ha sido actualizado exitosamente",
-        "icono" => "success",
-      ];
-      $resultadoB = $objBitacora->registrarBitacora([
-        'modulo' => 'modulos',
-        'accion' => 'actualizar módulo con id: ' . $this->idModulo,
-        'resultado' => 'Éxito',
-        'commit' => true
-      ]);
     }
 
     $objNot = new mensajesWSModelo();
@@ -250,13 +233,23 @@ class modulosModelo extends conexion {
       ],
       'noCommit' => true,
     ]);
+    if (isset($r['error'])) return $r;
 
-
-    if ($resultadoB != false) {
-      $this->rollback();
-      return $resultadoB;
-    }
-    return $alerta;
+    $rb = $objBitacora->registrarBitacora([
+      'modulo' => 'modulos',
+      'accion' => 'actualizar módulo con id: ' . $this->idModulo,
+      'resultado' => 'Éxito',
+      'nuevo' => $datoNuevos,
+      'viejo' => $datosAct,
+    ]);
+    if ($rb) return $rb;
+    $this->commit();
+    return [
+      "tipo" => "limpiarYcerrar",
+      "titulo" => "Módulo actualizado",
+      "texto" => "El módulo ha sido actualizado exitosamente",
+      "icono" => "success",
+    ];
   }
   private function eliminarModulosP() {
     $objBitacora = new bitacoraModelo();

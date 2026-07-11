@@ -333,6 +333,20 @@ class productosModelo extends conexion {
               "categorias_productos as cp" => "p.id_categoria_producto = cp.id_categoria_producto",
             ]
           ])->fetchAll(PDO::FETCH_UNIQUE);
+        case 'todasLasPresentaciones':
+          return $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla' => 'productos as p',
+            'datosJoins' => [
+              "unidades_medidas as um" => "p.id_unidad_medida = um.id_unidad_medida",
+              "categorias_productos as cp" => "p.id_categoria_producto = cp.id_categoria_producto",
+              "presentaciones_productos as pp" => "p.id_producto = pp.id_producto",
+              "presentaciones as pre" => "pp.id_presentacion = pre.id_presentacion",
+            ],
+            'WHERE' => [
+              'pp.status' => 1,
+            ]
+          ])->fetchAll();
         default:
           return $this->seleccionarDatos2([
             'campos' => '*',

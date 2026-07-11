@@ -81,10 +81,8 @@ async function cargarDashboard() {
     containerHTML.find('.totalReventa').text(reventa);
   }
 }
-//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
-//#region [DELEGACIÓN DE EVENTOS] COMIENZO
-$(document).on("DOMContentLoaded", async function () {
+async function inicializarModulo() {
   await listarDataTable({
     encabezados: {
       "id_categoria_producto": "ID",
@@ -140,7 +138,7 @@ $(document).on("DOMContentLoaded", async function () {
           title: 'Editar Categoría',
           description: 'Modifica el nombre o el tipo de cualquier categoría haciendo clic en este botón.',
           side: 'left'
-        }
+         }
       },
       {
         element: '.botonEliminar',
@@ -159,10 +157,9 @@ $(document).on("DOMContentLoaded", async function () {
       }
     ]
   });
-});
+}
 
-$(document).off("click", ".botonEditar");
-$(document).on("click", ".botonEditar", async function (e) {
+async function clickBotonEditar(e) {
   e.preventDefault();
   const modalTarget = $(this).attr("data-bs-target");
   const modal = $(modalTarget);
@@ -172,35 +169,55 @@ $(document).on("click", ".botonEditar", async function (e) {
     modulo: 'categoriasProductos',
   });
   await cargarInputsActualizarQNR.call(modal.find("form"));
-});
+}
 
-$(document).off("submit", ".formularioAjax");
-$(document).on("submit", ".formularioAjax", async function (e) {
+async function submitFormularioAjax(e) {
   e.preventDefault();
   let resultado = await enviarFormulario({
     'formulario': this,
     'modulo': 'categoriasProductos'
-  })
+  });
   cargarDashboard();
   console.log(resultado);
-  if (resultado['icono'] && resultado['icono'] == "success") {
+}
 
-  }
-});
-
-$(document).off("click", ".botonEliminar");
-$(document).on("click", ".botonEliminar", async function (e) {
+function clickBotonEliminar(e) {
   e.preventDefault();
   eliminarRegistro({
     boton: this,
     campoId: 'id_categoria_producto',
     modulo: 'categoriasProductos',
   });
+}
+
+function inputValidarTiempoReal() {
+  validarEnTiempoReal(this, 'categoriasProductos');
+}
+//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
+
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+$(document).on("DOMContentLoaded", async function () {
+  inicializarModulo.call(this);
+});
+
+$(document).off("click", ".botonEditar");
+$(document).on("click", ".botonEditar", function (e) {
+  clickBotonEditar.call(this, e);
+});
+
+$(document).off("submit", ".formularioAjax");
+$(document).on("submit", ".formularioAjax", function (e) {
+  submitFormularioAjax.call(this, e);
+});
+
+$(document).off("click", ".botonEliminar");
+$(document).on("click", ".botonEliminar", function (e) {
+  clickBotonEliminar.call(this, e);
 });
 
 //Evento para validar en tiempo real
-$(document).off('input', '.validar input, .validar select')
+$(document).off('input', '.validar input, .validar select');
 $(document).on('input', '.validar input, .validar select', function () {
-  validarEnTiempoReal(this, 'categoriasProductos');
-})
+  inputValidarTiempoReal.call(this);
+});
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

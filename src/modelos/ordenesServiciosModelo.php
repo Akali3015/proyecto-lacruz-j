@@ -60,14 +60,14 @@ class ordenesServiciosModelo extends conexion {
   }
   public function listarOrdenesServicios(array $info) {
     if (($info['id_servicio_factura'] ?? '') != "") {
-      $resultado = $this->validarOrdenesServicios('ver',$info, ['id_servicio_factura']);
+      $resultado = $this->validarOrdenesServicios('ver', $info, ['id_servicio_factura']);
       if ($resultado) return $resultado;
       $this->idOrdenServicio = $info['id_servicio_factura'];
     }
     return $this->listarOrdenesServiciosP($info);
   }
   public function actualizarOrdenesServicio(array $info) {
-    $resultado = $this->validarOrdenesServicios('actualizar',$info, ['id_servicio_factura', 'status']);
+    $resultado = $this->validarOrdenesServicios('actualizar', $info, ['id_servicio_factura', 'status']);
     if ($resultado) return $resultado;
 
     $this->idOrdenServicio = $info['id_servicio_factura'];
@@ -249,7 +249,7 @@ class ordenesServiciosModelo extends conexion {
       $this->rollback();
       $objBitacora->registrarBitacora([
         'modulo' => 'ordenesServicios',
-        'accion' => 'Actualizar con id '.$this->idOrdenServicio,
+        'accion' => 'Actualizar con id ' . $this->idOrdenServicio,
         'resultado' => 'Fallido',
         'commit' => true,
       ]);
@@ -385,7 +385,7 @@ class ordenesServiciosModelo extends conexion {
 
     $objBitacora->registrarBitacora([
       'modulo' => 'ordenesServicios',
-      'accion' => 'Actualizar con id '.$this->idOrdenServicio,
+      'accion' => 'Actualizar con id ' . $this->idOrdenServicio,
       'resultado' => 'Éxito',
       'viejo' => $ordenAntes,
       'nuevo' => $ordenDespues

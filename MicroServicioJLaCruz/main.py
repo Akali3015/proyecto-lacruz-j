@@ -1,21 +1,46 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.controllers.chat_controller import router as chat_router
+import os
+from dotenv import load_dotenv
 
-app = FastAPI(title="MicroServicio J. LACRUZ C.A.", version="1.0")
+load_dotenv()
 
-# Configurar CORS para permitir peticiones desde el localhost de PHP
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Leer el origen permitido del .env — sin valores quemados en el código
+ORIGEN_PHP = os.getenv("URL_ORIGEN_PHP")
+if not ORIGEN_PHP:
+    raise RuntimeError("URL_ORIGEN_PHP no está configurada en el archivo .env")
+
+# Rate Limiter: máximo 20 peticiones por minuto por IP del cliente
+limitador = Limiter(key_func=get_remote_address)
+
+app = FastAPI(
+    title="MicroServicio J. LACRUZ C.A.",
+    version="1.0",
+    # Documentación pública desactivada para no exponer la API al exterior
+    docs_url=None,
+    redoc_url=None
 )
 
-# Incluir las rutas
+# Registrar el manejador del Rate Limiter en la app
+app.state.limiter = limitador
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS restrictivo: solo acepta peticiones del servidor PHP configurado en .env
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[ORIGEN_PHP],
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["Content-Type", "X-Internal-Token"],
+)
+
+# Incluir las rutas del controlador
 app.include_router(chat_router, prefix="/api")
 
 @app.get("/")
-def read_root():
+def senal_de_vida():
     return {"mensaje": "Microservicio de ChatBot J. LACRUZ C.A. está en línea"}

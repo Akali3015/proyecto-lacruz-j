@@ -538,6 +538,7 @@ async function verDetallesCompra(idCompra) {
 
 // Eventos de la vista
 $(async function () {
+  sessionStorage.removeItem("cachingModulos");
   const permisos = await pedirDatosAjax({
     modulo: 'accesos',
     noGuardarLocal: true,

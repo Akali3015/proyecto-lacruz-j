@@ -112,7 +112,7 @@ class inventarioModelo extends conexion {
     $this->tipoItem = $info['tipo_item'] ?? '';
 
     if ($this->tipoItem === 'materia_prima') {
-      $resultado = $this->validarInventario('registrar cargas o descargas de materias primas',[
+      $resultado = $this->validarInventario('registrar cargas o descargas de materias primas', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_materia_prima',
@@ -122,7 +122,7 @@ class inventarioModelo extends conexion {
         ]
       ]);
     } else {
-      $resultado = $this->validarInventario('registrar cargas o descargas de productos',[
+      $resultado = $this->validarInventario('registrar cargas o descargas de productos', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_presentacion_producto',
@@ -158,46 +158,45 @@ class inventarioModelo extends conexion {
     $this->tipo = $info['tipo'] ?? '';
 
     if ($this->tipo === 'productos') {
-        $resultado = $this->validarInventario('ver historial de e/s de los productos', [
-            'infoVal' => &$info,
-            'camposVal' => [
-                'id_producto',
-            ]
-        ]);
-        if ($resultado) return $resultado;
-        $this->idProducto = $info['id_producto'];
-        return $this->verMovimientosProductosP();
-        
+      $resultado = $this->validarInventario('ver historial de e/s de los productos', [
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_producto',
+        ]
+      ]);
+      if ($resultado) return $resultado;
+      $this->idProducto = $info['id_producto'];
+      return $this->verMovimientosProductosP();
     } else if ($this->tipo === 'materiasPrimas') {
-        $resultado = $this->validarInventario('ver historial de e/s de las materias primas', [
-            'infoVal' => &$info,
-            'camposVal' => [
-                'id_materia_prima',
-            ]
-        ]);
-        if ($resultado) return $resultado;
-        $this->idMateriaPrima = $info['id_materia_prima'];
-        return $this->verMovimientosMateriasPrimasP();
+      $resultado = $this->validarInventario('ver historial de e/s de las materias primas', [
+        'infoVal' => &$info,
+        'camposVal' => [
+          'id_materia_prima',
+        ]
+      ]);
+      if ($resultado) return $resultado;
+      $this->idMateriaPrima = $info['id_materia_prima'];
+      return $this->verMovimientosMateriasPrimasP();
     }
 
     return [
-        "tipo" => "simple",
-        "titulo" => "Error",
-        "texto" => "Tipo no reconocido. Debe ser 'productos' o 'materiasPrimas'",
-        "icono" => "error"
+      "tipo" => "simple",
+      "titulo" => "Error",
+      "texto" => "Tipo no reconocido. Debe ser 'productos' o 'materiasPrimas'",
+      "icono" => "error"
     ];
-}
+  }
   public function reporteProductos(array $info) {
     $resultado = $this->validarInventario('imprimir reportes de anomalias de productos', [
-        'infoVal' => &$info,
-        'camposVal' => [
-            'id_producto',
-            'fecha_desde',
-            'fecha_hasta'
-        ]
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_producto',
+        'fecha_desde',
+        'fecha_hasta'
+      ]
     ]);
     if ($resultado) return $resultado;
-    
+
     $this->info = $info;
     $this->info['id_producto'] = $info['id_producto'] ?? null;
 
@@ -217,12 +216,12 @@ class inventarioModelo extends conexion {
   }
   public function reporteMateriasPrimas(array $info) {
     $resultado = $this->validarInventario('imprimir reportes de anomalias de materias primas', [
-        'infoVal' => &$info,
-        'camposVal' => [
-            'id_materia_prima',
-            'fecha_desde',
-            'fecha_hasta'
-        ]
+      'infoVal' => &$info,
+      'camposVal' => [
+        'id_materia_prima',
+        'fecha_desde',
+        'fecha_hasta'
+      ]
     ]);
     if ($resultado) return $resultado;
 
@@ -295,13 +294,13 @@ class inventarioModelo extends conexion {
 
     foreach ($materiasPrimas as $mp) {
       $cantidadNecesaria = $this->cantidadMovimiento * ($mp['cantidad_materia_prima'] * $cantidadPMP);
-      
+
       if ($mp['stock_materia_prima'] < $cantidadNecesaria) {
         return [
           "tipo" => "simple",
           "titulo" => "Stock de materia prima insuficiente",
-          "texto" => "No hay suficiente stock de la materia prima: " . $mp['nombre_materia_prima'] . 
-                    " (Stock: " . $mp['stock_materia_prima'] . ", Necesario: " . $cantidadNecesaria . ")",
+          "texto" => "No hay suficiente stock de la materia prima: " . $mp['nombre_materia_prima'] .
+            " (Stock: " . $mp['stock_materia_prima'] . ", Necesario: " . $cantidadNecesaria . ")",
           "icono" => "error"
         ];
       }
@@ -310,7 +309,7 @@ class inventarioModelo extends conexion {
   }
   private function registrarMovimientosProductosP() {
     $objBitacora = new bitacoraModelo();
-    
+
     $resultado = $this->seleccionarDatos2([
       'campos' => '
         pp.id_producto, pp.id_presentacion_producto, pr.id_categoria_producto, 
@@ -402,10 +401,10 @@ class inventarioModelo extends conexion {
         "mpp.status" => 1
       ]
     ])->fetchAll();
-    
+
     foreach ($materiasPrimas as $mp) {
       $cantidadAjuste = $this->cantidadMovimiento * ($mp['cantidad_materia_prima'] * $cantidadPMP);
-      
+
       $stockMP = $this->seleccionarDatos2([
         'campos' => 'stock_materia_prima',
         'tabla' => 'materias_primas',
@@ -413,11 +412,11 @@ class inventarioModelo extends conexion {
           'id_materia_prima' => $mp['id_materia_prima']
         ]
       ])->fetch(PDO::FETCH_COLUMN);
-      
-      $nuevoStockMP = ($this->tipoMovimiento == 1) 
-        ? $stockMP - $cantidadAjuste 
+
+      $nuevoStockMP = ($this->tipoMovimiento == 1)
+        ? $stockMP - $cantidadAjuste
         : $stockMP + $cantidadAjuste;
-      
+
       $this->actualizarDatos2([
         'tabla' => 'materias_primas',
         'datos' => [
@@ -447,12 +446,12 @@ class inventarioModelo extends conexion {
         ',
       'tabla' => 'movimientos_anomalos_productos as map',
       'datosJoins' => [
-          "presentaciones_productos as pp" => "map.id_presentacion_producto = pp.id_presentacion_producto",
-          "presentaciones as p" => "pp.id_presentacion = p.id_presentacion",
-          "productos as pr" => "pp.id_producto = pr.id_producto"
+        "presentaciones_productos as pp" => "map.id_presentacion_producto = pp.id_presentacion_producto",
+        "presentaciones as p" => "pp.id_presentacion = p.id_presentacion",
+        "productos as pr" => "pp.id_producto = pr.id_producto"
       ],
       'WHERE' => [
-          "map.id_movimiento_anomalo_producto" => $ultimoId
+        "map.id_movimiento_anomalo_producto" => $ultimoId
       ]
     ])->fetch();
 
@@ -491,7 +490,7 @@ class inventarioModelo extends conexion {
       ],
       'noCommit' => true
     ]);
-    
+
     $this->commit();
 
     return [
@@ -503,7 +502,7 @@ class inventarioModelo extends conexion {
   }
   private function registrarMovimientosMateriasPrimasP() {
     $objBitacora = new bitacoraModelo();
-    
+
     $resultado = $this->seleccionarDatos2([
       'campos' => 'stock_materia_prima, stock_minimo_materia_prima, nombre_materia_prima',
       'tabla' => 'materias_primas',
@@ -594,10 +593,10 @@ class inventarioModelo extends conexion {
         ',
       'tabla' => 'movimientos_anomalos_materias_primas as mamp',
       'datosJoins' => [
-          "materias_primas as mp" => "mamp.id_materia_prima = mp.id_materia_prima"
+        "materias_primas as mp" => "mamp.id_materia_prima = mp.id_materia_prima"
       ],
       'WHERE' => [
-          "mamp.id_movimiento_anomalo_materia_prima" => $ultimoId
+        "mamp.id_movimiento_anomalo_materia_prima" => $ultimoId
       ]
     ])->fetch();
 

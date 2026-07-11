@@ -59,7 +59,7 @@ class permisosModelo extends conexion {
   }
   public function seleccionarPermisos(array $info) {
     if (($info['id_permiso'] ?? '') != '') {
-      $resultado = $this->validarPermisos('ver',[
+      $resultado = $this->validarPermisos('ver', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_permiso',
@@ -71,7 +71,7 @@ class permisosModelo extends conexion {
     return $this->seleccionarPermisosP();
   }
   public function registrarPermisos(array $info) {
-    $resultado = $this->validarPermisos('registrar',[
+    $resultado = $this->validarPermisos('registrar', [
       'infoVal' => &$info,
       'camposVal' => [
         'nombre_permiso',
@@ -84,7 +84,7 @@ class permisosModelo extends conexion {
     return $this->registrarPermisosP();
   }
   public function actualizarPermisos(array $info) {
-    $resultado = $this->validarPermisos('actualizar',[
+    $resultado = $this->validarPermisos('actualizar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_permiso',
@@ -98,7 +98,7 @@ class permisosModelo extends conexion {
     return $this->actualizarPermisosP();
   }
   public function eliminarPermisos(array $info) {
-    $resultado = $this->validarPermisos('eliminar',[
+    $resultado = $this->validarPermisos('eliminar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_permiso',
@@ -108,7 +108,7 @@ class permisosModelo extends conexion {
     $this->idPermiso = $info['id_permiso'];
     return $this->eliminarPermisosP();
   }
-  
+
   // ─── PRIVADOS ─────────────────────────────────────────────────────────
   private function seleccionarPermisosP() {
     if ($this->idPermiso == null || $this->idPermiso == "") {
@@ -151,13 +151,13 @@ class permisosModelo extends conexion {
         "nombre_permiso" => $this->nombrePermiso,
       ]
     ]);
-    
+
     if ($ultimoId !== false && $ultimoId > 0) {
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
         'accion' => 'registrar',
-        'resultado' => 'Éxito', 
-        'nuevo' => $this->seleccionarPermisos(['id_permiso' => $ultimoId]) 
+        'resultado' => 'Éxito',
+        'nuevo' => $this->seleccionarPermisos(['id_permiso' => $ultimoId])
       ]);
       $alerta = [
         "tipo" => "limpiarYcerrar",
@@ -167,31 +167,32 @@ class permisosModelo extends conexion {
       ];
       $objMensajesWS = new mensajesWSModelo();
       $objMensajesWS->enviarMensajesWS([
-            "receptor" => [
-                'tipo' => 'rol',
-                'rol' => 'ADMINISTRADOR'
-            ],
-            'cuerpo' => [
-                [
-                    'accion' => "borrarDataModuloSS", 
-                    'modulo' => 'permisos'
-                ],
-                [
-                    'accion' => 'alertar', 
-                    'alerta' => [
-                    'tipo' => 'simple',
-                    'titulo' => 'Permisos ',
-                    'texto' => 'Un permiso ha sido registrado en el sistema.',
-                    'icono' => 'info',
-                    'notifier' => true,
-                ]],
-                [
-                    'accion' => "actDT", 
-                    'modulo' => 'permisos'
-                ],
-            ],
-            'noCommit' => true
-        ]);
+        "receptor" => [
+          'tipo' => 'rol',
+          'rol' => 'ADMINISTRADOR'
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'permisos'
+          ],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Permisos ',
+              'texto' => 'Un permiso ha sido registrado en el sistema.',
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'permisos'
+          ],
+        ],
+        'noCommit' => true
+      ]);
       $this->commit();
     } else {
       $objBitacora->registrarBitacora([
@@ -223,11 +224,11 @@ class permisosModelo extends conexion {
         "id_permiso" => $this->idPermiso,
       ]
     ]);
-    
+
     if ($resultado == false || $resultado <= 0) {
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
-        'accion' => 'Actualizar con id'.$this->idPermiso,
+        'accion' => 'Actualizar con id' . $this->idPermiso,
         'resultado' => 'Sin cambios',
         'commit' => true
       ]);
@@ -241,7 +242,7 @@ class permisosModelo extends conexion {
       $nuevo = $this->seleccionarPermisos(['id_permiso' => $this->idPermiso]);
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
-        'accion' => 'Actualizar con id '.$this->idPermiso,
+        'accion' => 'Actualizar con id ' . $this->idPermiso,
         'resultado' => 'Éxito',
         'viejo' => $viejo,
         'nuevo' => $nuevo
@@ -252,39 +253,40 @@ class permisosModelo extends conexion {
         "texto" => "El permiso ha sido actualizado exitosamente",
         "icono" => "success",
       ];
-       $objMensajesWS = new mensajesWSModelo();
-       $objMensajesWS->enviarMensajesWS([
-            "receptor" => [
-                'tipo' => 'rol',
-                'rol' => 'ADMINISTRADOR'
-            ],
-            'cuerpo' => [
-                [
-                    'accion' => "borrarDataModuloSS", 
-                    'modulo' => 'permisos'
-                ],
-                [
-                    'accion' => 'alertar', 
-                    'alerta' => [
-                    'tipo' => 'simple',
-                    'titulo' => 'Permisos ',
-                    'texto' => 'Un permiso ha sido actualizado.',
-                    'icono' => 'info',
-                    'notifier' => true,
-                ]],
-                [
-                    'accion' => "actDT", 
-                    'modulo' => 'permisos'
-                ],
-            ],
-            'noCommit' => true
-        ]); 
+      $objMensajesWS = new mensajesWSModelo();
+      $objMensajesWS->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'rol',
+          'rol' => 'ADMINISTRADOR'
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'permisos'
+          ],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Permisos ',
+              'texto' => 'Un permiso ha sido actualizado.',
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'permisos'
+          ],
+        ],
+        'noCommit' => true
+      ]);
       $this->commit();
-    }  
+    }
     return $alerta;
   }
   private function eliminarPermisosP() {
-    $objBitacora = new bitacoraModelo();  
+    $objBitacora = new bitacoraModelo();
     $eliminarPermisos = $this->eliminarDatos2([
       "tabla" => "permisos",
       'BD' => 'seguridad',
@@ -292,11 +294,11 @@ class permisosModelo extends conexion {
         "id_permiso" => $this->idPermiso
       ]
     ]);
-    
+
     if ($eliminarPermisos == 1) {
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
-        'accion' => 'Eliminar con id '.$this->idPermiso,
+        'accion' => 'Eliminar con id ' . $this->idPermiso,
         'resultado' => 'Éxito',
       ]);
       $alerta = [
@@ -307,37 +309,38 @@ class permisosModelo extends conexion {
       ];
 
       $objMensajesWS = new mensajesWSModelo();
-        $objMensajesWS->enviarMensajesWS([
-            "receptor" => [
-                'tipo' => 'rol',
-                'rol' => 'ADMINISTRADOR'
-            ],
-            'cuerpo' => [
-                [
-                    'accion' => "borrarDataModuloSS", 
-                    'modulo' => 'permisos'
-                ],
-                [
-                    'accion' => 'alertar', 
-                    'alerta' => [
-                    'tipo' => 'simple',
-                    'titulo' => 'Permisos ',
-                    'texto' => 'Un permiso ha sido eliminado del sistema.',
-                    'icono' => 'info',
-                    'notifier' => true,
-                ]],
-                [
-                    'accion' => "actDT", 
-                    'modulo' => 'permisos'
-                ],
-            ],
-            'noCommit' => true
-        ]);
+      $objMensajesWS->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'rol',
+          'rol' => 'ADMINISTRADOR'
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'permisos'
+          ],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Permisos ',
+              'texto' => 'Un permiso ha sido eliminado del sistema.',
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'permisos'
+          ],
+        ],
+        'noCommit' => true
+      ]);
       $this->commit();
     } else {
       $objBitacora->registrarBitacora([
         'modulo' => 'permisos',
-        'accion' => 'Eliminar con id '.$this->idPermiso,
+        'accion' => 'Eliminar con id ' . $this->idPermiso,
         'resultado' => 'Fallido',
         'commit' => true
       ]);

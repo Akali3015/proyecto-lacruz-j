@@ -247,7 +247,7 @@ class usuariosModelo extends conexion {
   public function iniciarSesionUsuarios(array $info) {
 
     // Enviar verificacion interna al servidor de Google
-    /* if (empty($info['g-recaptcha-response'])) {
+    if (empty($info['g-recaptcha-response'])) {
       return [
         "tipo" => "simple",
         "titulo" => "Seguridad",
@@ -270,7 +270,7 @@ class usuariosModelo extends conexion {
         "texto" => "La verificación del captcha falló. Inténtelo nuevamente.",
         "icono" => "error"
       ];
-    } */
+    }
 
     $r = $this->validarUsuarios(null, $info, ['usuario_usuario', 'contrasena1_usuario']);
     if ($r) return $r;

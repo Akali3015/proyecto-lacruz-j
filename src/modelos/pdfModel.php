@@ -475,7 +475,7 @@ class pdfModel extends FPDF {
     $this->Ln();
     $fnBolivares = function ($valor) {
       $d = (float)$this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'];
-      $bs= round((((float) $valor) * $d), 2);
+      $bs = round((((float) $valor) * $d), 2);
       return $this->formatearStrings($bs, 'dinero');
     };
 
@@ -511,9 +511,9 @@ class pdfModel extends FPDF {
 
     $this->SetXY(10, 240);
     $this->SetFont('Arial', 'B', 7);
-    $this->cell2(80, 5,'   ORDEN PEDIDO NÚMERO ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
-    $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES ' . $this->dataNotaEntrega['calculos']['total_IVA'].'$', 0, 1);
-    $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL ' . $fecha.'     '. $this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'].' Bs', 0, 1);
+    $this->cell2(80, 5, '   ORDEN PEDIDO NÚMERO ' . $this->dataNotaEntrega['id_orden_entrega_presupuesto'], 0, 1);
+    $this->cell2(80, 4, '   MONTO EQUIVALENTE EN DÓLARES ' . $this->dataNotaEntrega['calculos']['total_IVA'] . '$', 0, 1);
+    $this->cell2(80, 4, '   TASA REFERENCIAL BCV AL ' . $fecha . '     ' . $this->dataNotaEntrega['calculos']['dolar']['valor_fecha_moneda'] . ' Bs', 0, 1);
 
     $this->SetXY(110, 240);
     $this->SetFont('Arial', '', 8);

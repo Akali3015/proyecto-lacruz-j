@@ -99,7 +99,7 @@ class monedasModelo extends conexion {
   }
   public function seleccionarMonedas(array $info) {
     if (($info['id_moneda'] ?? '') != '') {
-      $resultado = $this->validarMonedas('ver',[
+      $resultado = $this->validarMonedas('ver', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_moneda',
@@ -115,7 +115,7 @@ class monedasModelo extends conexion {
   }
   public function registrarMonedas(array $info) {
 
-    $resultado = $this->validarMonedas('registrar',[
+    $resultado = $this->validarMonedas('registrar', [
       'infoVal' => &$info,
       'camposVal' => [
         'valor_moneda',
@@ -136,7 +136,7 @@ class monedasModelo extends conexion {
     if (($info['tipoAct'] ?? '') == 'completa') {
       array_push($campos, 'nombre_moneda', 'simbolo_moneda');
     }
-    $resultado = $this->validarMonedas('actualizar',[
+    $resultado = $this->validarMonedas('actualizar', [
       'infoVal' => &$info,
       'camposVal' => $campos,
     ]);
@@ -150,7 +150,7 @@ class monedasModelo extends conexion {
     return $this->actualizarMonedasP($info['tipoAct'] ?? NULL);
   }
   public function eliminarMonedas(array &$info) {
-    $resultado = $this->validarMonedas('eliminar',[
+    $resultado = $this->validarMonedas('eliminar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_moneda',
@@ -230,10 +230,11 @@ class monedasModelo extends conexion {
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
       $objBitacora->registrarBitacora([
-        'modulo' => 'monedas', 
-        'accion' => 'registrar', 
-        'resultado' => 'Fallido', 
-        'commit' => true]);
+        'modulo' => 'monedas',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Moneda no registrada",
@@ -243,8 +244,8 @@ class monedasModelo extends conexion {
     }
 
     $objBitacora->registrarBitacora([
-      'modulo' => 'monedas', 
-      'accion' => 'registrar', 
+      'modulo' => 'monedas',
+      'accion' => 'registrar',
       'resultado' => 'Éxito',
       'nuevo' => $this->seleccionarMonedas(['id_moneda' => $ultimoId])
     ]);
@@ -284,11 +285,11 @@ class monedasModelo extends conexion {
     if ($resultado == false || $resultado <= 0) {
       $this->rollback();
       $objBitacora->registrarBitacora([
-        'modulo' => 'monedas', 
-        'accion' => 'Acualizar con id: '.$this->idMoneda,
+        'modulo' => 'monedas',
+        'accion' => 'Acualizar con id: ' . $this->idMoneda,
         'resultado' => 'Fallido',
         'commit' => true
-        ]);
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Sin cambios realizados",
@@ -300,13 +301,13 @@ class monedasModelo extends conexion {
     $datosDespues = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
 
     $objBitacora->registrarBitacora([
-      'modulo' => 'monedas', 
-      'accion' => 'Actualizar con id:'.$this->idMoneda, 
-      'resultado' => 'Éxito', 
+      'modulo' => 'monedas',
+      'accion' => 'Actualizar con id:' . $this->idMoneda,
+      'resultado' => 'Éxito',
       'viejo' => $datosAntes,
-      'nuevo' => $datosDespues    
+      'nuevo' => $datosDespues
     ]);
- 
+
     $mensajeNotificacion = 'La moneda "' . $datosAntes['nombre_moneda'] . '" ha sido actualizada';
     if ($datosAntes['valor_moneda'] != $this->valorMoneda) {
       $mensajeNotificacion .= ' (valor: ' . $datosAntes['valor_moneda'] . ' → ' . $this->valorMoneda . ')';
@@ -359,9 +360,9 @@ class monedasModelo extends conexion {
 
     if ($resultado == 1) {
       $objBitacora->registrarBitacora([
-        'modulo' => 'monedas', 
-        'accion' => 'Eliminar con id:'.$this->idMoneda, 
-        'resultado' => 'Éxito', 
+        'modulo' => 'monedas',
+        'accion' => 'Eliminar con id:' . $this->idMoneda,
+        'resultado' => 'Éxito',
       ]);
 
       $objetoNot = new mensajesWSModelo();
@@ -401,9 +402,9 @@ class monedasModelo extends conexion {
       $this->commit();
     } else {
       $objBitacora->registrarBitacora([
-        'modulo' => 'monedas', 
-        'accion' => 'Eliminar con id:'.$this->idMoneda, 
-        'resultado' => 'Fallido', 
+        'modulo' => 'monedas',
+        'accion' => 'Eliminar con id:' . $this->idMoneda,
+        'resultado' => 'Fallido',
       ]);
       $alerta = [
         "tipo" => "simple",

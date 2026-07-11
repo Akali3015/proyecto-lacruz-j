@@ -31,7 +31,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" name="accion" value="registrar">
             <div class="col-md-12 mb-3">
               <label for="cedula" class="form-label">Nombre del Módulo</label>
-              <input type="text" class="form-control noRepetir" name="nombre_modulo" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required>
+              <input type="text" class="form-control noRepetir" name="nombre_modulo" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required>
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@ echo $componente->listaDataTable($instruccionesLista);
             <input type="hidden" name="id_modulo" class="formularioActualizar">
             <div class="col-md-12 mb-3">
               <label for="cedula" class="form-label">Nombre del Módulo</label>
-              <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_modulo" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: JANGELY">
+              <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_modulo" pattern="<?php echo regexNombreObj ?>" minlength="<?php echo minRegexNombreObj ?>" maxlength="<?php echo maxRegexNombreObj ?>" required placeholder="Ej: JANGELY">
             </div>
           </div>
         </div>

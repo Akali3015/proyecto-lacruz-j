@@ -18,7 +18,7 @@ const DashboardApp = (function() {
   const loadPDFDependencies = () => {
     if (typeof window.jspdf === 'undefined') {
       const script = document.createElement('script');
-      script.src = window.location.origin + '/proyecto-lacruz-j/src/assets/js/jspdf.umd.min.js';
+      script.src = window.location.origin + '/proyecto-lacruz-j/src/assets/js/plugins/jspdf.umd.min.js';
       document.head.appendChild(script);
     }
   };
@@ -379,23 +379,17 @@ const DashboardApp = (function() {
   return { init, cargarDatos, exportarAPDF, redimensionarGraficas };
 
 })();
-//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
-
-//#region [DELEGACIÓN DE EVENTOS] COMIENZO
-$(document).on('DOMContentLoaded', () => {
+// Funciones de eventos (Delegadas)
+function inicializarDashboard() {
   DashboardApp.init();
-});
+}
 
-// Evento para el botón de recargar datos (Delegación al document - Regla 3)
-$(document).off('click', '#btnRecargarDashboard');
-$(document).on('click', '#btnRecargarDashboard', function(e) {
+function recargarDashboard(e) {
   e.preventDefault();
   DashboardApp.cargarDatos.call(this);
-});
+}
 
-// Evento para los cambios en el filtro de tiempo
-$(document).off('change', '#filtroTiempoDashboard');
-$(document).on('change', '#filtroTiempoDashboard', function () {
+function cambiarFiltroTiempo() {
   if ($(this).val() === 'personalizado') {
     $('#contenedorFechasPersonalizadas').removeClass('d-none');
     if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) DashboardApp.cargarDatos.call(this);
@@ -403,30 +397,61 @@ $(document).on('change', '#filtroTiempoDashboard', function () {
     $('#contenedorFechasPersonalizadas').addClass('d-none');
     DashboardApp.cargarDatos.call(this);
   }
+}
+
+function cambiarFechasPersonalizadas() {
+  if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) DashboardApp.cargarDatos.call(this);
+}
+
+function exportarGrafica(e) {
+  e.preventDefault();
+  const canvasId = $(this).data('chart');
+  const filename = $(this).closest('.card').find('.card-title').text().trim() || 'Reporte';
+  DashboardApp.exportarAPDF.call(this, canvasId, filename);
+}
+
+let resizeTimer;
+function shownBsTab() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    DashboardApp.redimensionarGraficas.call(this);
+  }, 150);
+}
+// Fin de funciones de eventos
+//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
+
+//#region [DELEGACIÓN DE EVENTOS] COMIENZO
+$(document).on('DOMContentLoaded', () => {
+  inicializarDashboard();
+});
+
+// Evento para el botón de recargar datos (Delegación al document - Regla 3)
+$(document).off('click', '#btnRecargarDashboard');
+$(document).on('click', '#btnRecargarDashboard', function(e) {
+  recargarDashboard.call(this, e);
+});
+
+// Evento para los cambios en el filtro de tiempo
+$(document).off('change', '#filtroTiempoDashboard');
+$(document).on('change', '#filtroTiempoDashboard', function () {
+  cambiarFiltroTiempo.call(this);
 });
 
 // Eventos para fechas personalizadas
 $(document).off('change', '#fechaInicioDash, #fechaFinDash');
 $(document).on('change', '#fechaInicioDash, #fechaFinDash', function() {
-  if ($('#fechaInicioDash').val() && $('#fechaFinDash').val()) DashboardApp.cargarDatos.call(this);
+  cambiarFechasPersonalizadas.call(this);
 });
 
 // Evento para los botones de exportar (Delegación al document - Regla 3)
 $(document).off('click', '.btn-export');
 $(document).on('click', '.btn-export', function(e) {
-  e.preventDefault();
-  const canvasId = $(this).data('chart');
-  const filename = $(this).closest('.card').find('.card-title').text().trim() || 'Reporte';
-  DashboardApp.exportarAPDF.call(this, canvasId, filename);
+  exportarGrafica.call(this, e);
 });
 
 // Evento para redimensionar cuando cambian las pestañas de Bootstrap
-let resizeTimer;
 $(document).off('shown.bs.tab', 'button[data-bs-toggle="tab"]');
 $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function () {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    DashboardApp.redimensionarGraficas.call(this);
-  }, 150);
+  shownBsTab.call(this);
 });
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

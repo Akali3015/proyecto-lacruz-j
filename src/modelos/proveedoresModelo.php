@@ -11,9 +11,9 @@ class proveedoresModelo extends conexion {
   private string $correoProveedor = '';
   private string $direccionProveedor = '';
 
-  public function validarProveedores(string $permiso, array &$info, $requerido = []) {  
-  $objAcceso = new accesosModelo();
-    $v = $objAcceso -> validarPermisos('proveedores', $permiso);
+  public function validarProveedores(string $permiso, array &$info, $requerido = []) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('proveedores', $permiso);
     if ($v) return $v;
 
     $esquemaProveedores = [
@@ -55,11 +55,11 @@ class proveedoresModelo extends conexion {
           "nombreAlerta" => "dirección del proveedor",
           "nombreBD" => "direccion_proveedor",
           "tablaBD" => "proveedores",
-        ],  
+        ],
       ],
       'requerido' => $requerido
     ];
-      
+
     if (isset($info['prefijo_telefono_proveedor'])) {
       $info['telefono_proveedor'] = $info['prefijo_telefono_proveedor'] . $info['telefono_proveedor'];
     }
@@ -75,28 +75,26 @@ class proveedoresModelo extends conexion {
 
     return false;
   }
-
   public function seleccionarProveedores(array $info) {
-     if (($info['rif_proveedor'] ?? '') != "") {
+    if (($info['rif_proveedor'] ?? '') != "") {
       $v = $this->validarProveedores('ver detalles de los proveedores', $info);
     } else {
       $v = $this->validarProveedores('listar', $info);
-      }
-      if ($v) return $v;
-      $this->rifProveedor = $info['rif_proveedor'] ?? '';
-    
+    }
+    if ($v) return $v;
+    $this->rifProveedor = $info['rif_proveedor'] ?? '';
+
     return $this->seleccionarProveedoresP();
   }
-
   public function registrarProveedores(array $info) {
-     $info['esR'] = true;
+    $info['esR'] = true;
 
-    $v = $this->validarProveedores('registrar', $info,[
-        'rif_proveedor',
-        'razon_social_proveedor',
-        'telefono_proveedor',
-        'correo_proveedor',
-        'direccion_proveedor',
+    $v = $this->validarProveedores('registrar', $info, [
+      'rif_proveedor',
+      'razon_social_proveedor',
+      'telefono_proveedor',
+      'correo_proveedor',
+      'direccion_proveedor',
     ]);
     if ($v) return $v;
 
@@ -108,15 +106,14 @@ class proveedoresModelo extends conexion {
 
     return $this->registrarProveedoresP();
   }
-
   public function actualizarProveedores(array $info) {
-    $v = $this->validarProveedores('actualizar', $info,[
-      
-        'rif_proveedor' => 'rif_proveedor_act',
-        'razon_social_proveedor',
-        'telefono_proveedor',
-        'correo_proveedor',
-        'direccion_proveedor',
+    $v = $this->validarProveedores('actualizar', $info, [
+
+      'rif_proveedor' => 'rif_proveedor_act',
+      'razon_social_proveedor',
+      'telefono_proveedor',
+      'correo_proveedor',
+      'direccion_proveedor',
     ]);
 
     if ($v) return $v;
@@ -129,7 +126,7 @@ class proveedoresModelo extends conexion {
     return $this->actualizarProveedoresP();
   }
   public function eliminarProveedores(array $info) {
-   $v = $this->validarProveedores('eliminar',$info, [
+    $v = $this->validarProveedores('eliminar', $info, [
       'rif_proveedor',
     ]);
     if ($v) return $v;

@@ -5,6 +5,8 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use PDO;
+use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 
 class serviciosModelo extends conexion {
   private string $idServicio = '';
@@ -15,115 +17,93 @@ class serviciosModelo extends conexion {
   private array $fotoServicio = [];
   private array  $productosServicio = [];
 
-  public function validarServicios(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarServicios(string $permiso, array &$info = [], array $requerido = []) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('servicios', $permiso);
+    if ($v) return $v;
+
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
+        'foto_servicio' => [
+          ...molFotoInd,
+          'nombreAlerta' => 'foto del servicio'
+        ],
         'id_servicio' => [
-          "campo_nombre" => "id_servicio",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del servicio",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "servicios",
-          "debeSerUnico" => true,
-          "debeExistir" => true,
+          ...molIdSeguro,
+          "nombreAlerta" => "id del servicio",
+          "nombreBD" => "id_servicio",
+          "tablaBD" => "servicios",
+          "debeSerUnicoBD" => true,
+          "debeExistirBD" => true,
         ],
         'id_unidad_medida' => [
-          "campo_nombre" => "id_unidad_medida",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "unidad de medida",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "unidades_medidas",
-          "debeExistir" => true,
+          ...molId,
+          "nombreAlerta" => "unidad de medida",
+          "nombreBD" => "id_unidad_medida",
+          "tablaBD" => "unidades_medidas",
+          "debeExistirBD" => true,
         ],
         'nombre_servicio' => [
-          "campo_nombre" => "nombre_servicio",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre del servicio",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "servicios",
-          "debeSerUnico" => true,
+          ...molNombreObj,
+          "nombreAlerta" => "nombre del servicio",
+          "nombreBD" => "nombre_servicio",
+          "tablaBD" => "servicios",
+          "debeSerUnicoBD" => true,
         ],
         'precio_servicio' => [
-          "campo_nombre" => "precio_servicio",
-          "campo_valor" => &$valor,
-          'comaPunto' => true,
-          "formulario_nombre" => "precio del servicio",
-          "requerido" => true,
-          "minimo" => minRegexPrecio,
-          "maximo" => maxRegexPrecio,
-          "expresion_re" => regexPrecio,
+          ...molPrecioFormateado,
+          "nombreAlerta" => "precio del servicio",
         ],
         'mostrar_ecommerce' => [
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "mostrar en el ecommerce",
-          "requerido" => true,
-          "minimo" => minRegexValorBoleano,
-          "maximo" => maxRegexValorBoleano,
-          "expresion_re" => regexValorBoleano,
+          ...molBooleano,
+          "nombreAlerta" => "mostrar en el ecommerce",
         ],
-        'id_producto' => [
-          "campo_nombre" => "id_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del producto",
-          "requerido" => true,
-          "minimo" => minRegexIdSeguro,
-          "maximo" => maxRegexIdSeguro,
-          "expresion_re" => regexIdSeguro,
-          "tabla" => "productos",
-          "debeExistir" => true,
-        ],
-        'cantidad_producto' => [
-          "campo_valor" => &$valor,
-          "comaPunto" => true,
-          "formulario_nombre" => "cantidad del producto",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-        ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      switch ($campo) {
-        case 'productos_servicio':
-          if (($infoVal['productos_servicio'] ?? []) != []) {
-            foreach ($infoVal['productos_servicio'] as &$prod) {
-              $campos[] = $funcionAsignadora('id_producto', $prod['id_producto']);
-              $campos[] = $funcionAsignadora('cantidad_producto', $prod['cantidad_producto']);
-            }
-            unset($prod);
-          }
-          break;
-        default:
-          $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-          break;
-      }
+        'productos_servicio' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_producto' => [
+                ...molIdSeguro,
+                "nombreAlerta" => "id del producto",
+                "nombreBD" => "id_producto",
+                "tablaBD" => "productos",
+                "debeExistirBD" => true,
+              ],
+              'cantidad_producto' => [
+                ...molCantidadItem,
+                "nombreAlerta" => "cantidad del producto",
+              ],
+            ],
+            'requerido' => ['id_producto', 'cantidad_producto']
+          ],
+          'nombreAlerta' => 'productos del servicio'
+        ]
+      ],
+      'requerido' => $requerido,
+    ];
+
+    if (isset($info['productos_servicio']) && is_string($info['productos_servicio'])) {
+      $info['productos_servicio'] = json_decode($info['productos_servicio'], true) ?: [];
     }
-    return $this->limpiar_Verificar($campos);
+    if (isset($info['productos_servicio']) && is_array($info['productos_servicio'])) {
+      $info['productos_servicio'] = array_values($info['productos_servicio']);
+    }
+
+    $v = $this->limpiarValidar($info, $esquema);
+    if ($v) return $v;
+
+    return false;
   }
   public function seleccionarServicios(array $info) {
     if (($info['id_servicio'] ?? '') != '') {
-      $respuesta = $this->validarServicios([
-        'infoVal' => &$info,
-        'camposVal' => ['id_servicio'],
-      ]);
+      $respuesta = $this->validarServicios('listar', $info, ['id_servicio']);
       if ($respuesta !== false) return $respuesta;
       $this->idServicio = $info['id_servicio'];
+    } else {
+      $respuesta = $this->validarServicios('listar', $info, []);
+      if ($respuesta !== false) return $respuesta;
     }
     return $this->seleccionarServiciosP($info);
   }
@@ -131,15 +111,10 @@ class serviciosModelo extends conexion {
     return $this->obtenerParaChatbotP();
   }
   public function registrarServicio(array $info) {
-    $respuesta = $this->validarServicios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_unidad_medida',
-        'nombre_servicio',
-        'precio_servicio',
-        'mostrar_ecommerce',
-        'productos_servicio',
-      ]
+    $respuesta = $this->validarServicios('registrar', $info, [
+      'id_unidad_medida',
+      'nombre_servicio',
+      'precio_servicio'
     ]);
     if ($respuesta !== false) return $respuesta;
 
@@ -156,16 +131,11 @@ class serviciosModelo extends conexion {
     return $this->registrarServicioP();
   }
   public function actualizarServicio(array $info) {
-    $respuesta = $this->validarServicios([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_servicio',
-        'id_unidad_medida',
-        'nombre_servicio',
-        'precio_servicio',
-        'mostrar_ecommerce',
-        'productos_servicio',
-      ]
+    $respuesta = $this->validarServicios('actualizar', $info, [
+      'id_servicio',
+      'id_unidad_medida',
+      'nombre_servicio',
+      'precio_servicio'
     ]);
     if ($respuesta !== false) return $respuesta;
 
@@ -183,20 +153,14 @@ class serviciosModelo extends conexion {
     return $this->actualizarServicioP();
   }
   public function eliminarServicio(array $info) {
-    $respuesta = $this->validarServicios([
-      'infoVal' => &$info,
-      'camposVal' => ['id_servicio'],
-    ]);
+    $respuesta = $this->validarServicios('eliminar', $info, ['id_servicio']);
     if ($respuesta !== false) return $respuesta;
 
     $this->idServicio = $info['id_servicio'];
     return $this->eliminarServicioP();
   }
   public function actualizarFotoServicio(array $info) {
-    $respuesta = $this->validarServicios([
-      'infoVal' => &$info,
-      'camposVal' => ['id_servicio'],
-    ]);
+    $respuesta = $this->validarServicios('actualizar', $info, ['id_servicio', 'foto_servicio']);
     if ($respuesta !== false) return $respuesta;
     $this->idServicio = $info['id_servicio'];
     $this->fotoServicio = $info['foto_servicio'];
@@ -212,10 +176,7 @@ class serviciosModelo extends conexion {
     return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
   }
   public function eliminarFotoServicio(array $info) {
-    $respuesta = $this->validarServicios([
-      'infoVal' => &$info,
-      'camposVal' => ['id_servicio'],
-    ]);
+    $respuesta = $this->validarServicios('actualizar', $info, ['id_servicio']);
     if ($respuesta !== false) return $respuesta;
     $this->idServicio = $info['id_servicio'];
     return $this->eliminarFotoServicioP();
@@ -270,7 +231,12 @@ class serviciosModelo extends conexion {
   private function registrarServicioP() {
     $funcionError = function ($objBi) {
       $this->rollback();
-      $objBi->registrarBitacora("servicios", "registrar", "fallido", true);
+      $objBi->registrarBitacora([
+        'modulo' => 'servicios',
+        'accion' => 'Registrar',
+        'resultado' => 'fallido',
+        'commit' => true
+      ]);
     };
 
     $idServicio = $this->generarCodSeg([
@@ -340,8 +306,51 @@ class serviciosModelo extends conexion {
       }
     }
 
-    $objBit->registrarBitacora("servicios", "registrar", "éxito");
+    $datosNuevos = [
+      'id_servicio' => $idServicio,
+      'id_unidad_medida' => $this->idUnidadMedida,
+      'nombre_servicio' => $this->nombreServicio,
+      'precio_servicio' => $this->precioServicio,
+      'mostrar_ecommerce' => $this->mostrarEcommerce,
+      'productos_servicio' => $this->productosServicio,
+    ];
+
+    $objBit->registrarBitacora([
+      'modulo' => 'servicios',
+      'accion' => 'Registrar servicio: ' . $this->nombreServicio,
+      'resultado' => 'exitoso',
+      'nuevo' => $datosNuevos,
+    ]);
     $this->commit();
+
+    $objNot = new mensajesWSModelo();
+    $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'rol',
+        'rol' => 'ADMINISTRADOR'
+      ],
+      'cuerpo' => [
+        [
+          'accion' => "borrarDataModuloSS",
+          'modulo' => 'servicios'
+        ],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Nuevo Servicio',
+            'texto' => "Se ha registrado el servicio {$this->nombreServicio}",
+            'icono' => 'info',
+            'notifier' => true,
+            'tiempo' => 3000
+          ]
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'servicios'
+        ],
+      ]
+    ]);
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Servicio registrado",
@@ -356,7 +365,12 @@ class serviciosModelo extends conexion {
     $funcionError = function () {
       $bitacoraModelo = new bitacoraModelo();
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("servicios", "actualizar", "fallido", true);
+      $bitacoraModelo->registrarBitacora([
+        'modulo' => 'servicios',
+        'accion' => 'Actualizar',
+        'resultado' => 'fallido',
+        'commit' => true
+      ]);
     };
 
     $servicioActual = $this->seleccionarServicios(['id_servicio' => $this->idServicio]);
@@ -418,14 +432,77 @@ class serviciosModelo extends conexion {
       ];
     }
 
+    $datosNuevos = [
+      'id_unidad_medida' => $this->idUnidadMedida,
+      'nombre_servicio' => $this->nombreServicio,
+      'precio_servicio' => $this->precioServicio,
+      'mostrar_ecommerce' => $this->mostrarEcommerce,
+      'productos_servicio' => $this->productosServicio,
+    ];
+
+    $datosViejos = [
+      'id_unidad_medida' => $servicioActual['id_unidad_medida'] ?? '',
+      'nombre_servicio' => $servicioActual['nombre_servicio'] ?? '',
+      'precio_servicio' => $servicioActual['precio_servicio'] ?? 0,
+      'mostrar_ecommerce' => $servicioActual['mostrar_ecommerce'] ?? 0,
+      'productos_servicio' => $servicioActual['detallesExtra']['productos_servicio'] ?? [],
+    ];
+
     $bitacoraModelo = new bitacoraModelo();
-    $resultado = $bitacoraModelo->registrarBitacora("servicios", "actualizar", "éxito");
+    $resultado = $bitacoraModelo->registrarBitacora([
+      'modulo' => 'servicios',
+      'accion' => 'Actualizar servicio: ' . $this->nombreServicio,
+      'resultado' => 'exitoso',
+      'viejo' => $datosViejos,
+      'nuevo' => $datosNuevos,
+    ]);
     if ($resultado) {
       $funcionError();
       return $resultado;
     }
 
     $this->commit();
+
+    if ($PRS > 0) {
+      $objNot = new mensajesWSModelo();
+      $objNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'rol',
+          'rol' => 'ADMINISTRADOR'
+        ],
+        'cuerpo' => [
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Servicio Actualizado',
+              'texto' => "Se han actualizado las materias primas de un servicio.",
+              'icono' => 'info',
+              'notifier' => true,
+              'tiempo' => 3000
+            ]
+          ],
+          [
+            'accion' => "actDT",
+            'modulo' => 'servicios'
+          ],
+        ]
+      ]);
+    } else {
+      $objNot = new mensajesWSModelo();
+      $objNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'rol',
+          'rol' => 'ADMINISTRADOR'
+        ],
+        'cuerpo' => [
+          [
+            'accion' => "actDT",
+            'modulo' => 'servicios'
+          ],
+        ]
+      ]);
+    }
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Servicio actualizado",
@@ -436,7 +513,12 @@ class serviciosModelo extends conexion {
   private function eliminarServicioP() {
     $funcionError = function ($objBi) {
       $this->rollback();
-      $objBi->registrarBitacora("servicios", "Eliminar", "Fallido", true);
+      $objBi->registrarBitacora([
+        'modulo' => 'servicios',
+        'accion' => 'Eliminar',
+        'resultado' => 'fallido',
+        'commit' => true
+      ]);
     };
     $objBi = new bitacoraModelo();
 
@@ -480,7 +562,20 @@ class serviciosModelo extends conexion {
       ];
     }
 
-    if ($objBi->registrarBitacora("servicios", "Eliminar", "Éxito")) {
+    $datosViejos = [
+      'id_servicio' => $this->idServicio,
+      'nombre_servicio' => $servicioActual['nombre_servicio'] ?? '',
+      'precio_servicio' => $servicioActual['precio_servicio'] ?? 0,
+      'productos_servicio' => $servicioActual['detallesExtra']['productos_servicio'] ?? [],
+    ];
+
+    $resBit = $objBi->registrarBitacora([
+      'modulo' => 'servicios',
+      'accion' => 'Eliminar servicio: ' . ($servicioActual['nombre_servicio'] ?? $this->idServicio),
+      'resultado' => 'exitoso',
+      'viejo' => $datosViejos,
+    ]);
+    if ($resBit) {
       $funcionError($objBi);
       return [
         'tipo' => 'simple',
@@ -496,6 +591,31 @@ class serviciosModelo extends conexion {
     }
 
     $this->commit();
+
+    $objNot = new mensajesWSModelo();
+    $objNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'rol',
+        'rol' => 'ADMINISTRADOR'
+      ],
+      'cuerpo' => [
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Servicio Eliminado',
+            'texto' => "Se ha eliminado un servicio.",
+            'icono' => 'warning',
+            'notifier' => true,
+            'tiempo' => 3000
+          ]
+        ],
+        [
+          'accion' => "actDT",
+          'modulo' => 'servicios'
+        ],
+      ]
+    ]);
     return [
       "tipo" => "simple",
       "titulo" => "Servicio eliminado",

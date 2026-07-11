@@ -74,7 +74,6 @@ class clientesModelo extends conexion {
 
     return false;
   }
-
   public function seleccionarClientes(array $info) {
     if (($info['rif_cedula_cliente'] ?? '') != '') {
       $info['cedula_exis'] = true;

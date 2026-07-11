@@ -95,7 +95,7 @@ class produccionesModelo extends conexion {
     return $this->seleccionarProduccionesP();
   }
   public function registrarProducciones(array $info) {
-    $resultado = $this->validarProducciones('registrar',[
+    $resultado = $this->validarProducciones('registrar', [
       'infoVal' => &$info,
       'camposVal' => [
         'productos',

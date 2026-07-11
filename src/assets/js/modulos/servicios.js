@@ -27,7 +27,7 @@ function agregarFilaProductoServicio(modal, idProducto, nombreProducto, cantidad
   let cuerpo = modal.find('.cuerpoTablaProductosServicio');
   let codigoFila = obtenerSiguienteIndice(modal, "input", "productos_servicio");
 
-  let cantidadFormateada = cantidad !== '' ? parseFloat(cantidad).toFixed(2) : '';
+  let cantidadFormateada = cantidad !== '' ? parseFloat(cantidad).toString() : '';
 
   let html = `<tr data-id-producto="${idProducto}">
     <td>
@@ -38,8 +38,8 @@ function agregarFilaProductoServicio(modal, idProducto, nombreProducto, cantidad
       </div>
     </td>
     <td>
-      <input type="text" name="productos_servicio-${codigoFila}-cantidad_producto"
-             class="form-control input-cantidad-producto dinero"
+      <input type="number" step="any" min="0" name="productos_servicio-${codigoFila}-cantidad_producto"
+             class="form-control input-cantidad-producto"
              placeholder="0.00" value="${cantidadFormateada}">
     </td>
     <td class="text-center">

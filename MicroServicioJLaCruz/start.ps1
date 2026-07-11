@@ -7,5 +7,5 @@ if (-not (Test-Path $PythonExe)) {
     exit 1
 }
 Push-Location $ScriptDir
-& $PythonExe -m uvicorn app.main:app --reload --port 8000
+& $PythonExe -m uvicorn main:app --reload --port 8000
 Pop-Location

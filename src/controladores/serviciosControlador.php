@@ -2,6 +2,7 @@
 
 use src\modelos\serviciosModelo;
 use src\config\inc\componentesModelo;
+use src\modelos\accesosModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_SESSION['cedula'])) {
 
@@ -15,42 +16,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && isset($_S
   switch ($accion) {
     case 'listar':
       $resultado = $objeto->seleccionarServicios($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'seleccionarUno':
       $resultado = $objeto->seleccionarServicios($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'registrar':
       $resultado = $objeto->registrarServicio($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'actualizar':
       $resultado = $objeto->actualizarServicio($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'eliminar':
       $resultado = $objeto->eliminarServicio($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'actualizarFoto':
       $resultado = $objeto->actualizarFotoServicio($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     case 'eliminarFoto':
       $resultado = $objeto->eliminarFotoServicio($_POST);
-      echo json_encode($resultado);
-      exit();
+      break;
     default:
-      $objeto->DECORE([
+      $resultado = [
         'icono' => 'error',
         'titulo' => 'Acción no reconocida'
-      ]);
-      exit();
+      ];
+      break;
   }
+
+  $objeto->DECORE($resultado);
+  exit();
+
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
+  $objAcceso = new accesosModelo();
+  $v = $objAcceso->validarPermisos('servicios', 'ver');
+  if($v) $objAcceso->DECORE($v);
+
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();
   require_once "src/vistas/servicios/servicios.php";
+} else {
+  http_response_code(405);
+  echo json_encode([
+    'tipo'   => 'simple',
+    'titulo' => 'Método no permitido',
+    'texto'  => 'Solo se permiten peticiones GET y POST',
+    'icono'  => 'error',
+  ]);
 }

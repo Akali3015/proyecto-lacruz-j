@@ -5,6 +5,7 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class comprasModelo extends conexion {
@@ -14,7 +15,13 @@ class comprasModelo extends conexion {
   private array $detalles = [];
 
   // Metodos publicos
-  public function validarCompras(array $instruccionesVal) {
+  public function validarCompras(string $permiso, ?array $instruccionesVal = null) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('compras', $permiso);
+    if ($v) return $v;
+
+    if ($instruccionesVal === null) return false;
+
     [
       'infoVal'   => &$infoVal,
       'camposVal' => &$camposVal,
@@ -89,13 +96,16 @@ class comprasModelo extends conexion {
   public function seleccionarCompra(array $info = []) {
     $this->id_compra = $info['id_compra'] ?? null;
 
-    // Si hay ID validamos que exista
+    // Si hay ID validamos que exista y validamos permisos de ver
     if (!empty($this->id_compra)) {
       $infoVal = ['id_compra' => &$this->id_compra];
-      $alerta = $this->validarCompras([
+      $alerta = $this->validarCompras('ver', [
         'infoVal'   => &$infoVal,
         'camposVal' => ['id_compra']
       ]);
+      if ($alerta !== false) return $alerta;
+    } else {
+      $alerta = $this->validarCompras('ver');
       if ($alerta !== false) return $alerta;
     }
 
@@ -130,12 +140,12 @@ class comprasModelo extends conexion {
       $rif_proveedor = $detalles[0]['proveedorId'] ?? '';
     }
 
-    // Validar cabecera
+    // Validar cabecera y permisos de registrar
     $infoVal = [
       'rif_proveedor' => &$rif_proveedor,
       'fecha_compra'  => &$fecha_compra,
     ];
-    $alerta = $this->validarCompras([
+    $alerta = $this->validarCompras('registrar', [
       'infoVal'   => &$infoVal,
       'camposVal' => ['rif_proveedor', 'fecha_compra']
     ]);
@@ -162,7 +172,7 @@ class comprasModelo extends conexion {
         ];
       }
       $infoVal = ['cantidad' => &$det['cantidad']];
-      $alerta = $this->validarCompras([
+      $alerta = $this->validarCompras('registrar', [
         'infoVal'   => &$infoVal,
         'camposVal' => ['cantidad_item' => 'cantidad']
       ]);
@@ -201,13 +211,13 @@ class comprasModelo extends conexion {
     $fecha_compra = str_replace('T', ' ', $fecha_compra);
     if (strlen($fecha_compra) === 16) $fecha_compra .= ':00';
 
-    // Validar cabecera
+    // Validar cabecera y permisos de actualizar
     $infoVal = [
       'id_compra'     => &$id_compra,
       'rif_proveedor' => &$rif_proveedor,
       'fecha_compra'  => &$fecha_compra,
     ];
-    $alerta = $this->validarCompras([
+    $alerta = $this->validarCompras('actualizar', [
       'infoVal'   => &$infoVal,
       'camposVal' => [
         'id_compra',
@@ -237,7 +247,7 @@ class comprasModelo extends conexion {
         ];
       }
       $infoVal = ['cantidad' => &$det['cantidad']];
-      $alerta = $this->validarCompras([
+      $alerta = $this->validarCompras('actualizar', [
         'infoVal'   => &$infoVal,
         'camposVal' => ['cantidad_item' => 'cantidad']
       ]);
@@ -254,9 +264,9 @@ class comprasModelo extends conexion {
   public function eliminarCompra(array $info) {
     $id_compra = $info['id_compra'] ?? '';
 
-    // Validar que el ID existe
+    // Validar que el ID existe y permisos de eliminar
     $infoVal = ['id_compra' => &$id_compra];
-    $alerta = $this->validarCompras([
+    $alerta = $this->validarCompras('eliminar', [
       'infoVal'   => &$infoVal,
       'camposVal' => ['id_compra']
     ]);
@@ -266,6 +276,8 @@ class comprasModelo extends conexion {
     return $this->eliminarCompraP();
   }
   public function listarProductosParaCompra(): array {
+    $v = $this->validarCompras('ver');
+    if ($v) return $v;
     $sql = "
       SELECT
         pp.id_presentacion_producto,
@@ -439,7 +451,18 @@ class comprasModelo extends conexion {
         }
       }
 
-      $bitacora->registrarBitacora('compras', 'Registrar', 'Registro de nueva compra exitoso (' . $id_compra . ')');
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'registrar',
+        'resultado' => 'Éxito',
+        'viejo' => [],
+        'nuevo' => [
+          'id_compra' => $id_compra,
+          'rif_proveedor' => $this->rif_proveedor,
+          'fecha_compra' => $this->fecha_compra,
+          'detalles' => $this->detalles
+        ]
+      ]);
       $this->commit();
 
       $objetoNot = new mensajesWSModelo();
@@ -473,6 +496,17 @@ class comprasModelo extends conexion {
       ];
     } catch (\Throwable $th) {
       $this->rollback();
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'viejo' => [],
+        'nuevo' => [
+          'rif_proveedor' => $this->rif_proveedor,
+          'fecha_compra' => $this->fecha_compra,
+          'detalles' => $this->detalles
+        ]
+      ]);
       return [
         'tipo'   => 'simple',
         'titulo' => 'Error de base de datos',
@@ -491,6 +525,19 @@ class comprasModelo extends conexion {
 
       // 1. Revertir stock de ítems anteriores
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      $viejo = [
+        'id_compra' => $this->id_compra,
+        'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
+        'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
+        'detalles' => is_array($anteriores) ? array_map(function($item) {
+          return [
+            'tipo' => $item['TIPO'] ?? '',
+            'id' => $item['id_item'] ?? '',
+            'cantidad' => $item['cantidad_raw'] ?? 0
+          ];
+        }, $anteriores) : []
+      ];
+
       foreach ($anteriores as $item) {
         if ($item['TIPO'] === 'producto') {
           $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
@@ -549,7 +596,18 @@ class comprasModelo extends conexion {
         }
       }
 
-      $bitacora->registrarBitacora('compras', 'Actualizar', 'Actualización de compra exitosa (' . $this->id_compra . ')');
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'actualizar',
+        'resultado' => 'Éxito',
+        'viejo' => $viejo,
+        'nuevo' => [
+          'id_compra' => $this->id_compra,
+          'rif_proveedor' => $this->rif_proveedor,
+          'fecha_compra' => $this->fecha_compra,
+          'detalles' => $this->detalles
+        ]
+      ]);
       $this->commit();
 
       $objetoNot = new mensajesWSModelo();
@@ -583,7 +641,18 @@ class comprasModelo extends conexion {
       ];
     } catch (\Throwable $e) {
       $this->rollback();
-      $bitacora->registrarBitacora('compras', 'Actualizar', 'Fallido');
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'actualizar',
+        'resultado' => 'Fallido',
+        'viejo' => isset($viejo) ? $viejo : [],
+        'nuevo' => [
+          'id_compra' => $this->id_compra,
+          'rif_proveedor' => $this->rif_proveedor,
+          'fecha_compra' => $this->fecha_compra,
+          'detalles' => $this->detalles
+        ]
+      ]);
       return [
         "tipo"   => "simple",
         "titulo" => "Error",
@@ -602,6 +671,19 @@ class comprasModelo extends conexion {
 
       // 1. Revertir stock de PRODUCTOS y MATERIAS PRIMAS (usando los modelos POO)
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      $viejo = [
+        'id_compra' => $this->id_compra,
+        'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
+        'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
+        'detalles' => is_array($anteriores) ? array_map(function($item) {
+          return [
+            'tipo' => $item['TIPO'] ?? '',
+            'id' => $item['id_item'] ?? '',
+            'cantidad' => $item['cantidad_raw'] ?? 0
+          ];
+        }, $anteriores) : []
+      ];
+
       foreach ($anteriores as $item) {
         if ($item['TIPO'] === 'producto') {
           $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
@@ -624,7 +706,13 @@ class comprasModelo extends conexion {
       $cn->prepare('UPDATE materias_primas_compras SET status = 0 WHERE id_compra = :id')
         ->execute([':id' => $this->id_compra]);
 
-      $bitacora->registrarBitacora('compras', 'Eliminar', 'Eliminación de compra exitosa (' . $this->id_compra . ')');
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'eliminar',
+        'resultado' => 'Éxito',
+        'viejo' => $viejo,
+        'nuevo' => []
+      ]);
       $this->commit();
 
       $objetoNot = new mensajesWSModelo();
@@ -658,7 +746,13 @@ class comprasModelo extends conexion {
       ];
     } catch (\Throwable $e) {
       $this->rollback();
-      $bitacora->registrarBitacora('compras', 'Eliminar', 'Fallido');
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'eliminar',
+        'resultado' => 'Fallido',
+        'viejo' => isset($viejo) ? $viejo : ['id_compra' => $this->id_compra],
+        'nuevo' => []
+      ]);
       return [
         "tipo"   => "simple",
         "titulo" => "Error",

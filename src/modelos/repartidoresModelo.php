@@ -10,9 +10,9 @@ class repartidoresModelo extends conexion {
   private string $apellidoRepartidor = '';
   private string $telefonoRepartidor = '';
 
-  public function validarRepartidores(string $permiso, array &$info, $requerido = []) {  
-  $objAcceso = new accesosModelo();
-    $v = $objAcceso -> validarPermisos('repartidores', $permiso);
+  public function validarRepartidores(string $permiso, array &$info, $requerido = []) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('repartidores', $permiso);
     if ($v) return $v;
 
     $esquemaRepartidores = [
@@ -69,27 +69,25 @@ class repartidoresModelo extends conexion {
 
     return false;
   }
-
   public function seleccionarRepartidores(array $info) {
     if (($info['cedula_repartidor'] ?? '') != "") {
       $v = $this->validarRepartidores('ver detalles de los repartidores', $info);
     } else {
       $v = $this->validarRepartidores('listar', $info);
-      }
-      if ($v) return $v;
-      $this->cedulaRepartidor = $info['cedula_repartidor'] ?? '';
-    
+    }
+    if ($v) return $v;
+    $this->cedulaRepartidor = $info['cedula_repartidor'] ?? '';
+
     return $this->seleccionarRepartidoresP();
   }
-
   public function registrarRepartidores(array $info) {
-      $info['esR'] = true;
+    $info['esR'] = true;
 
     $v = $this->validarRepartidores('registrar', $info, [
-        'cedula_repartidor',
-        'nombre_repartidor',
-        'apellido_repartidor',
-        'telefono_repartidor',
+      'cedula_repartidor',
+      'nombre_repartidor',
+      'apellido_repartidor',
+      'telefono_repartidor',
     ]);
     if ($v) return $v;
 
@@ -101,11 +99,11 @@ class repartidoresModelo extends conexion {
     return $this->registrarRepartidoresP();
   }
   public function actualizarRepartidores(array $info) {
-    $v = $this->validarRepartidores('actualizar', $info,[
-        'cedula_repartidor' => 'cedula_repartidor_act',
-        'nombre_repartidor',
-        'apellido_repartidor',
-        'telefono_repartidor',
+    $v = $this->validarRepartidores('actualizar', $info, [
+      'cedula_repartidor' => 'cedula_repartidor_act',
+      'nombre_repartidor',
+      'apellido_repartidor',
+      'telefono_repartidor',
     ]);
     if ($v) return $v;
 
@@ -117,7 +115,7 @@ class repartidoresModelo extends conexion {
     return $this->actualizarRepartidoresP();
   }
   public function eliminarRepartidores(array $info) {
-    $v = $this->validarRepartidores('eliminar',$info, [
+    $v = $this->validarRepartidores('eliminar', $info, [
       'cedula_repartidor',
     ]);
     if ($v) return $v;
@@ -125,7 +123,6 @@ class repartidoresModelo extends conexion {
     return $this->eliminarRepartidoresP($info);
   }
 
-  // PRIVADOS
   private function seleccionarRepartidoresP() {
     if ($this->cedulaRepartidor == null || $this->cedulaRepartidor == "") {
       return $this->seleccionarDatos2([

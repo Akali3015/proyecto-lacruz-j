@@ -5,109 +5,106 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
+use src\modelos\traitModelo;
+use PDO;
 
 class categoriasProductosModelo extends conexion {
+  use traitModelo;
+
   private int|string $idCategoria = 0;
   private string $nombreCategoria = '';
   private int $necesitanMateriasPrimas = 0;
 
-  public function validarCategorias(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => &$camposVal,
-    ] = $instruccionesVal;
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarCategorias(string $permiso, ?array &$info = null, ?array $requerido = null) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('categoriasProductos', $permiso);
+    if ($v) return $v;
+
+    if ($info === null) return false;
+
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
         'id_categoria_producto' => [
-          "campo_nombre" => "id_categoria_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "categorias_productos",
-          "debeExistir" => true
+          ...molId,
+          "nombreAlerta" => "id de la categoría",
+          "nombreBD" => "id_categoria_producto",
+          "tablaBD" => "categorias_productos",
+          "debeExistirBD" => true
         ],
         'nombre_categoria_producto' => [
-          "campo_nombre" => "nombre_categoria_producto",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "categorias_productos",
-          "debeSerUnico" => true,
+          ...molNombreObj,
+          "nombreAlerta" => "nombre de la categoría",
+          "nombreBD" => "nombre_categoria_producto",
+          "tablaBD" => "categorias_productos",
+          "debeSerUnicoBD" => true
         ],
         'necesitan_materias_primas' => [
-          "campo_nombre" => "necesitan_materias_primas",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "requiere materias primas",
-          "requerido" => true,
-          "minimo" => minRegexCantidadItem,
-          "maximo" => maxRegexCantidadItem,
-          "expresion_re" => regexCantidadItem,
-          "tabla" => "categorias_productos"
+          ...molBooleano,
+          "nombreAlerta" => "requiere materias primas"
         ]
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-    }
-    return $this->limpiar_Verificar($campos);
+      ],
+      'requerido' => $requerido ?? []
+    ];
+
+    $v = $this->limpiarValidar($info, $esquema);
+    if ($v) return $v;
+    return false;
   }
+
   public function seleccionarCategorias(array $info) {
-    if (($info['id_categoria_producto'] ?? '') != '') {
-      $resultado = $this->validarCategorias([
-        'infoVal' => &$info,
-        'camposVal' => ['id_categoria_producto'],
-      ]);
-      if ($resultado) return $resultado;
-      $this->idCategoria = $info['id_categoria_producto'];
-    }
+    $requerido = [];
+    if (($info['id_categoria_producto'] ?? '') != "") $requerido[] = 'id_categoria_producto';
+    $r = $this->validarCategorias('ver', $info, $requerido);
+    if (($info['id_categoria_producto'] ?? '') != "") $this->idCategoria = $info['id_categoria_producto'];
+    if ($r) return $r;
     return $this->seleccionarCategoriasP();
   }
+
   public function registrarCategorias(array $info) {
-    $resultado = $this->validarCategorias([
-      'infoVal' => &$info,
-      'camposVal' => ['nombre_categoria_producto'],
+    $resultado = $this->validarCategorias('registrar', $info, [
+      'nombre_categoria_producto',
+      'necesitan_materias_primas'
     ]);
     if ($resultado) return $resultado;
-    $this->nombreCategoria = $info['nombre_categoria_producto'];
+
+    [
+      'nombre_categoria_producto' => $this->nombreCategoria,
+      'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+    ] = $info;
+
     return $this->registrarCategoriasP();
   }
+
   public function actualizarCategorias(array $info) {
-    $resultado = $this->validarCategorias([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_categoria_producto',
-        'nombre_categoria_producto',
-        'necesitan_materias_primas'
-      ],
+    $resultado = $this->validarCategorias('actualizar', $info, [
+      'id_categoria_producto',
+      'nombre_categoria_producto',
+      'necesitan_materias_primas'
     ]);
     if ($resultado) return $resultado;
-    $this->idCategoria = $info['id_categoria_producto'];
-    $this->nombreCategoria = $info['nombre_categoria_producto'];
-    $this->necesitanMateriasPrimas = $info['necesitan_materias_primas'];
+
+    [
+      'id_categoria_producto' => $this->idCategoria,
+      'nombre_categoria_producto' => $this->nombreCategoria,
+      'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+    ] = $info;
+
     return $this->actualizarCategoriasP();
   }
+
   public function eliminarCategorias(array $info) {
-    $resultado = $this->validarCategorias([
-      'infoVal' => &$info,
-      'camposVal' => [
-        'id_categoria_producto'
-      ]
+    $resultado = $this->validarCategorias('eliminar', $info, [
+      'id_categoria_producto'
     ]);
     if ($resultado) return $resultado;
+
     $this->idCategoria = $info['id_categoria_producto'];
     return $this->eliminarCategoriasP();
   }
 
   private function seleccionarCategoriasP() {
-    if ($this->idCategoria == null || $this->idCategoria == "") {
+    if ($this->idCategoria == 0) {
       return $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'v_categorias_productos_todas',
@@ -122,6 +119,7 @@ class categoriasProductosModelo extends conexion {
       ])->fetch();
     }
   }
+
   private function registrarCategoriasP() {
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'categorias_productos',
@@ -134,16 +132,35 @@ class categoriasProductosModelo extends conexion {
 
     if ($ultimoId == false || $ultimoId <= 0) {
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("categoriasProductos", "Registrar", "Fallido", true);
+      $bitacoraModelo->registrarBitacora([
+        'modulo' => 'categoriasProductos',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'viejo' => [],
+        'nuevo' => [
+          'nombre_categoria_producto' => $this->nombreCategoria,
+          'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+        ]
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Error",
-        "texto" => "No se pudo registrar.",
+        "texto" => "No se pudo registrar la categoría.",
         "icono" => "error"
       ];
     }
 
-    $bitacoraModelo->registrarBitacora("Categorias de Productos", "Registrar", "Exito");
+    $bitacoraModelo->registrarBitacora([
+      'modulo' => 'categoriasProductos',
+      'accion' => 'registrar',
+      'resultado' => 'Éxito',
+      'viejo' => [],
+      'nuevo' => [
+        'id_categoria_producto' => $ultimoId,
+        'nombre_categoria_producto' => $this->nombreCategoria,
+        'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+      ]
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS([
@@ -159,7 +176,7 @@ class categoriasProductosModelo extends conexion {
           'alerta' => [
             'tipo' => 'simple',
             'titulo' => 'Categorías',
-            'texto' => "Se ha registrado una nueva categoría de producto",
+            'texto' => "Se ha registrado una nueva categoría de producto: {$this->nombreCategoria}",
             'icono' => 'info',
             'notifier' => true,
           ]
@@ -176,8 +193,14 @@ class categoriasProductosModelo extends conexion {
       "icono" => "success"
     ];
   }
+
   private function actualizarCategoriasP() {
-    // Actualizamos enviando ambos campos
+    $viejo = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'categorias_productos',
+      'WHERE' => ['id_categoria_producto' => $this->idCategoria]
+    ])->fetch(PDO::FETCH_ASSOC);
+
     $resultado = $this->actualizarDatos2([
       "tabla" => "categorias_productos",
       "datos" => [
@@ -192,15 +215,36 @@ class categoriasProductosModelo extends conexion {
 
     if ($resultado == false || $resultado <= 0) {
       $this->rollback();
-      $bitacoraModelo->registrarBitacora("Categorias de Productos", "Actualizar", "Fallido");
+      $bitacoraModelo->registrarBitacora([
+        'modulo' => 'categoriasProductos',
+        'accion' => 'actualizar',
+        'resultado' => 'Fallido',
+        'viejo' => $viejo,
+        'nuevo' => [
+          'id_categoria_producto' => $this->idCategoria,
+          'nombre_categoria_producto' => $this->nombreCategoria,
+          'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+        ]
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Sin cambios",
         "texto" => "No hubo modificaciones.",
         "icono" => "warning"
       ];
-    };
-    $bitacoraModelo->registrarBitacora("Categorias de Productos", "Actualizar", "Exito");
+    }
+
+    $bitacoraModelo->registrarBitacora([
+      'modulo' => 'categoriasProductos',
+      'accion' => 'actualizar',
+      'resultado' => 'Éxito',
+      'viejo' => $viejo,
+      'nuevo' => [
+        'id_categoria_producto' => $this->idCategoria,
+        'nombre_categoria_producto' => $this->nombreCategoria,
+        'necesitan_materias_primas' => $this->necesitanMateriasPrimas
+      ]
+    ]);
 
     $objetoNot = new mensajesWSModelo();
     $objetoNot->enviarMensajesWS([
@@ -229,11 +273,18 @@ class categoriasProductosModelo extends conexion {
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Actualizada",
-      "texto" => "Moficada exitosamente.",
+      "texto" => "Modificada exitosamente.",
       "icono" => "success"
     ];
   }
+
   private function eliminarCategoriasP() {
+    $viejo = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'categorias_productos',
+      'WHERE' => ['id_categoria_producto' => $this->idCategoria]
+    ])->fetch(PDO::FETCH_ASSOC);
+
     $resultado = $this->eliminarDatos2([
       'tabla' => "categorias_productos",
       'WHERE' => [
@@ -243,7 +294,13 @@ class categoriasProductosModelo extends conexion {
     $modeloBitacora = new bitacoraModelo();
 
     if ($resultado == 1) {
-      $modeloBitacora->registrarBitacora("Categorias de Productos", "Eliminar", "Exito");
+      $modeloBitacora->registrarBitacora([
+        'modulo' => 'categoriasProductos',
+        'accion' => 'eliminar',
+        'resultado' => 'Éxito',
+        'viejo' => $viejo,
+        'nuevo' => []
+      ]);
 
       $objetoNot = new mensajesWSModelo();
       $objetoNot->enviarMensajesWS([
@@ -277,7 +334,13 @@ class categoriasProductosModelo extends conexion {
       ];
     } else {
       $this->rollback();
-      $modeloBitacora->registrarBitacora("Categorias de Productos", "Eliminar", "Fallido", true);
+      $modeloBitacora->registrarBitacora([
+        'modulo' => 'categoriasProductos',
+        'accion' => 'eliminar',
+        'resultado' => 'Fallido',
+        'viejo' => ['id_categoria_producto' => $this->idCategoria],
+        'nuevo' => []
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Error",

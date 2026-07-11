@@ -3,103 +3,86 @@
 namespace src\modelos;
 
 use src\modelos\accesosModelo;
+use src\modelos\bitacoraModelo;
+use src\modelos\traitModelo;
 use src\config\connect\conexion;
+use src\modelos\mensajesWSModelo;
 use PDO;
 
 class bancosModelo extends conexion {
+  use traitModelo;
+
   private int $idBanco = 0;
   private string $nombreBanco = '';
 
-  public function validarBancos(array $instruccionesVal) {
-    [
-      'infoVal' => &$infoVal,
-      'camposVal' => $camposVal,
-      'permiso' => $permiso,
-    ] = $instruccionesVal;
-
-    $objAccesos = new accesosModelo();
-    $resultado = $objAccesos->validarPermisos('bancos', $permiso);
-    if ($resultado) return $resultado;
-
-    $funcionAsignadora = function ($nombreCampo, &$valor) {
-      $claveVal = [
+  public function validarBancos(string $permiso, ?array &$info = null, ?array $requerido = null) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('bancos', $permiso);
+    if ($v) return $v;
+    if ($info === null) return false;
+    $esquema = [
+      'tipo' => 'arrayA',
+      'propiedades' => [
         'id_banco' => [
-          "campo_nombre" => "id_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "id del banco",
-          "requerido" => true,
-          "minimo" => minRegexId,
-          "maximo" => maxRegexId,
-          "expresion_re" => regexId,
-          "tabla" => "bancos",
-          "debeSerUnico" => true,
-          "debeExistir" => true,
+          ...molId,
+          "nombreAlerta" => "id del banco",
+          "nombreBD" => "id_banco",
+          "tablaBD" => "bancos",
+          "debeExistirBD" => true
         ],
         'nombre_banco' => [
-          "campo_nombre" => "nombre_banco",
-          "campo_valor" => &$valor,
-          "formulario_nombre" => "nombre del banco",
-          "requerido" => true,
-          "minimo" => minRegexNombreObj,
-          "maximo" => maxRegexNombreObj,
-          "expresion_re" => regexNombreObj,
-          "tabla" => "bancos",
-          "debeSerUnico" => true,
+          ...molNombreObj,
+          "nombreAlerta" => "nombre del banco",
+          "nombreBD" => "nombre_banco",
+          "tablaBD" => "bancos",
+          "debeSerUnicoBD" => true
         ],
-      ];
-      return $claveVal[$nombreCampo];
-    };
-    $campos = [];
-    foreach ($camposVal as $campo) {
-      $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
-    }
-    return $this->limpiar_Verificar($campos);
+      ],
+      'requerido' => $requerido ?? []
+    ];
+    $v = $this->limpiarValidar($info, $esquema);
+    if ($v) return $v;
+    return false;
   }
   public function seleccionarBancos(array $info) {
-    if (($info['id_banco'] ?? '') != "") {
-      $resultado = $this->validarBancos([
-        'infoVal' => &$info,
-        'camposVal' => ['id_banco'],
-        'permiso' => 'listar'
-      ]);
-      if ($resultado) return $resultado;
-      $this->idBanco = $info['id_banco'];
-    }
+    $requerido = [];
+    if (($info['id_banco'] ?? '') != "") $requerido[] = 'id_banco';
+    $r = $this->validarBancos('ver', $info, $requerido);
+    if (($info['id_banco'] ?? '') != "") $this->idBanco = $info['id_banco'];
+    if ($r) return $r;
     return $this->seleccionarBancosP($info);
   }
   public function registrarBancos(array $info) {
-    $resultado = $this->validarBancos([
-      'infoVal' => &$info,
-      'camposVal' => ['nombre_banco'],
-    ]);
+    $resultado = $this->validarBancos('registrar', $info, ['nombre_banco']);
     if ($resultado) return $resultado;
 
-    $this->nombreBanco = $info['nombre_banco'];
+    [
+      'nombre_banco' => $this->nombreBanco
+    ] = $info;
+
     return $this->registrarBancosP();
   }
   public function actualizarBancos(array $info) {
-    $resultado = $this->validarBancos([
-      'infoVal' => &$info,
-      'camposVal' => ['id_banco', 'nombre_banco'],
-    ]);
-
+    $resultado = $this->validarBancos('actualizar', $info, ['id_banco', 'nombre_banco']);
     if ($resultado) return $resultado;
-    $this->idBanco = $info['id_banco'];
-    $this->nombreBanco = $info['nombre_banco'];
+
+    [
+      'id_banco' => $this->idBanco,
+      'nombre_banco' => $this->nombreBanco
+    ] = $info;
+
     return $this->actualizarBancosP();
   }
   public function eliminarBancos(array $info) {
-    $resultado = $this->validarBancos([
-      'infoVal' => &$info,
-      'camposVal' => ['id_banco'],
-    ]);
+    $resultado = $this->validarBancos('eliminar', $info, ['id_banco']);
     if ($resultado) return $resultado;
+
     $this->idBanco = $info['id_banco'];
     return $this->eliminarBancosP();
   }
 
   private function seleccionarBancosP(array $info) {
-    if ($this->idBanco != '' && $this->idBanco != 0) {
+    if ($this->idBanco != 0) {
       return $this->seleccionarDatos2([
         'campos' => '*',
         'tabla' => 'bancos',
@@ -123,14 +106,25 @@ class bancosModelo extends conexion {
     }
   }
   private function registrarBancosP() {
-    $resultado = $this->guardarDatos2([
+    $ultimoId = $this->guardarDatos2([
       'tabla' => 'bancos',
       'datos' =>  [
         "nombre_banco" => $this->nombreBanco
       ]
     ]);
-    if ($resultado <= 0) {
+    $objBitacora = new bitacoraModelo();
+
+    if ($ultimoId <= 0) {
       $this->rollback();
+      $objBitacora->registrarBitacora([
+        'modulo' => 'bancos',
+        'accion' => 'registrar',
+        'resultado' => 'Fallido',
+        'viejo' => [],
+        'nuevo' => [
+          'nombre_banco' => $this->nombreBanco
+        ]
+      ]);
       return [
         "tipo" => "simple",
         "titulo" => "Error",
@@ -138,6 +132,41 @@ class bancosModelo extends conexion {
         "icono" => "error"
       ];
     }
+
+    $objBitacora->registrarBitacora([
+      'modulo' => 'bancos',
+      'accion' => 'registrar',
+      'resultado' => 'Éxito',
+      'viejo' => [],
+      'nuevo' => [
+        'id_banco' => $ultimoId,
+        'nombre_banco' => $this->nombreBanco
+      ]
+    ]);
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['bancos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'bancos'],
+        ['accion' => "actDT", 'modulo' => 'bancos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Bancos',
+            'texto' => "Se ha registrado el banco: {$this->nombreBanco}",
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
@@ -147,6 +176,13 @@ class bancosModelo extends conexion {
     ];
   }
   private function actualizarBancosP() {
+    $objBitacora = new bitacoraModelo();
+    $viejo = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'bancos',
+      'WHERE' => ['id_banco' => $this->idBanco]
+    ])->fetch(PDO::FETCH_ASSOC);
+
     $resultado = $this->actualizarDatos2([
       'tabla' => 'bancos',
       'datos' => [
@@ -156,7 +192,42 @@ class bancosModelo extends conexion {
         "id_banco" => $this->idBanco
       ]
     ]);
+
     if ($resultado > 0) {
+      $objBitacora->registrarBitacora([
+        'modulo' => 'bancos',
+        'accion' => 'actualizar',
+        'resultado' => 'Éxito',
+        'viejo' => $viejo,
+        'nuevo' => [
+          'id_banco' => $this->idBanco,
+          'nombre_banco' => $this->nombreBanco
+        ]
+      ]);
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['bancos' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'bancos'],
+          ['accion' => "actDT", 'modulo' => 'bancos'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Bancos',
+              'texto' => "Se ha actualizado el banco: {$this->nombreBanco}",
+              'icono' => 'info',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
+
       $this->commit();
       return [
         "tipo" => "limpiarYcerrar",
@@ -165,6 +236,17 @@ class bancosModelo extends conexion {
         "icono" => "success"
       ];
     }
+
+    $objBitacora->registrarBitacora([
+      'modulo' => 'bancos',
+      'accion' => 'actualizar',
+      'resultado' => 'Fallido',
+      'viejo' => $viejo,
+      'nuevo' => [
+        'id_banco' => $this->idBanco,
+        'nombre_banco' => $this->nombreBanco
+      ]
+    ]);
     $this->rollback();
     return [
       "tipo" => "simple",
@@ -174,13 +256,28 @@ class bancosModelo extends conexion {
     ];
   }
   private function eliminarBancosP() {
+    $objBitacora = new bitacoraModelo();
+    $viejo = $this->seleccionarDatos2([
+      'campos' => '*',
+      'tabla' => 'bancos',
+      'WHERE' => ['id_banco' => $this->idBanco]
+    ])->fetch(PDO::FETCH_ASSOC);
+
     $resultado = $this->eliminarDatos2([
       'tabla' => 'bancos',
       'WHERE' => [
         "id_banco" => $this->idBanco
       ]
     ]);
+
     if ($resultado <= 0) {
+      $objBitacora->registrarBitacora([
+        'modulo' => 'bancos',
+        'accion' => 'eliminar',
+        'resultado' => 'Fallido',
+        'viejo' => ['id_banco' => $this->idBanco],
+        'nuevo' => []
+      ]);
       $this->rollback();
       return [
         "tipo" => "simple",
@@ -189,6 +286,38 @@ class bancosModelo extends conexion {
         "icono" => "error"
       ];
     }
+
+    $objBitacora->registrarBitacora([
+      'modulo' => 'bancos',
+      'accion' => 'eliminar',
+      'resultado' => 'Éxito',
+      'viejo' => $viejo,
+      'nuevo' => []
+    ]);
+
+    $objetoNot = new mensajesWSModelo();
+    $objetoNot->enviarMensajesWS([
+      "receptor" => [
+        'tipo' => 'permisos',
+        'permisos' => ['bancos' => ['ver']]
+      ],
+      'cuerpo' => [
+        ['accion' => "borrarDataModuloSS", 'modulo' => 'bancos'],
+        ['accion' => "actDT", 'modulo' => 'bancos'],
+        [
+          'accion' => 'alertar',
+          'alerta' => [
+            'tipo' => 'simple',
+            'titulo' => 'Bancos',
+            'texto' => "Se ha eliminado el banco: " . ($viejo['nombre_banco'] ?? ''),
+            'icono' => 'info',
+            'notifier' => true,
+          ]
+        ]
+      ],
+      'noCommit' => true
+    ]);
+
     $this->commit();
     return [
       "tipo" => "simple",

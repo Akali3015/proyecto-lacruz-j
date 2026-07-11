@@ -82,7 +82,6 @@ class cambiosIvaModelo extends conexion {
     return $this->registrarCambiosIvaP();
   }
 
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
   private function seleccionarCambiosIvaP(array $info) {
     if ($this->idCambio == null || $this->idCambio == "") {
       if (($info['tipoConsulta'] ?? '') == 'ivaActual') {

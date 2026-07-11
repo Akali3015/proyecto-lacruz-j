@@ -14,6 +14,7 @@
 <script nonce="<?php echo $_SESSION['nonce']; ?>" src="/proyecto-lacruz-j/node_modules/leaflet/dist/leaflet.js"></script>
 <script nonce="<?php echo $_SESSION['nonce']; ?>" src="/proyecto-lacruz-j/src/assets/js/plugins/driver.min.js"></script><!--Driverjs -->
 <script nonce="<?php echo $_SESSION['nonce']; ?>" src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script nonce="<?php echo $_SESSION['nonce']; ?>" src="/proyecto-lacruz-j/src/assets/js/plugins/jspdf.umd.min.js"></script>
 
 <?php
 $directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';

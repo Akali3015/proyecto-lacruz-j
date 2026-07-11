@@ -14,20 +14,7 @@ class materiasPrimasModelo extends conexion {
   private int $stockMinimoMateriaPrima = 0;
   private array $presentaciones = [];
 
-  public function modificarStock(string $id_materia_prima, float $cantidad, $conexionTransaction = null) {
-    try {
-      $cn = $conexionTransaction ?? $this->conectar();
-      $stmt = $cn->prepare("UPDATE materias_primas SET stock_materia_prima = stock_materia_prima + :cant WHERE id_materia_prima = :id");
-      $stmt->execute([
-        ':cant' => $cantidad,
-        ':id' => $id_materia_prima
-      ]);
-      return true;
-    } catch (\Throwable $th) {
-      return $th->getMessage();
-    }
-  }
-
+  
   public function validarMateriasPrimas(array $instruccionesVal) {
     [
       'infoVal' => &$infoVal,
@@ -134,6 +121,19 @@ class materiasPrimasModelo extends conexion {
       }
     }
     return $this->limpiar_Verificar($campos);
+  }
+  public function modificarStock(string $id_materia_prima, float $cantidad, $conexionTransaction = null) {
+    try {
+      $cn = $conexionTransaction ?? $this->conectar();
+      $stmt = $cn->prepare("UPDATE materias_primas SET stock_materia_prima = stock_materia_prima + :cant WHERE id_materia_prima = :id");
+      $stmt->execute([
+        ':cant' => $cantidad,
+        ':id' => $id_materia_prima
+      ]);
+      return true;
+    } catch (\Throwable $th) {
+      return $th->getMessage();
+    }
   }
   public function seleccionarMateriasPrimas($info = null) {
     if (isset($info['id_materia_prima'])) {

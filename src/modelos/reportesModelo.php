@@ -6,9 +6,8 @@ use src\config\connect\conexion;
 use src\modelos\pdfModel;
 
 class reportesModelo extends conexion {
-  
-  private array $filtros = [];
 
+  private array $filtros = [];
   public function reporteVentas(array $filtros) {
     if ($filtros['fecha_desde'] == '' || $filtros['fecha_hasta'] == '') {
       return [

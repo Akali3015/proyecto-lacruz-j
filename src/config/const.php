@@ -54,7 +54,7 @@ const regexCedulaRifLetra = '^[a-zA-Z]?\d{7,11}$';
 const minRegexCedulaRifLetra = '7';
 const maxRegexCedulaRifLetra = '11';
 
-const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% \_]{3,50}$';
+const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% \_\#]{3,50}$';
 const minRegexNombreObj = '3';
 const maxRegexNombreObj = '50';
 
@@ -62,7 +62,7 @@ const regexNombrePer = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]{3,30}$';
 const minRegexNombrePer = '3';
 const maxRegexNombrePer = '50';
 
-const regexDescripcion = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\$\(\)\,\.\/\-\!\¡\?\¿\:\-\= ]{3,255}$';
+const regexDescripcion = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\$\(\)\,\.\/\-\!\¡\?\¿\:\-\=\# ]{3,255}$';
 const minRegexDescripcion = '3';
 const maxRegexDescripcion = '255';
 
@@ -129,6 +129,13 @@ define('molId', [
   "minL" => minRegexId,
   "maxL" => maxRegexId,
   "regex" => regexId
+]);
+define('molCantidadItem', [
+  'tipo' => 'string',
+  "minL" => minRegexCantidadItem,
+  "maxL" => maxRegexCantidadItem,
+  "regex" => regexCantidadItem,
+  "cFloat" => true
 ]);
 define('molIdSeguro', [
   'tipo' => 'string',
