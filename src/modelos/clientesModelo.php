@@ -12,10 +12,12 @@ class clientesModelo extends conexion {
   private string $correoCliente = '';
   private string $direccionCliente = '';
 
-  public function validarClientes(string $permiso,array &$info, $requerido = []) {
-   $objAcceso = new accesosModelo();
-    $v = $objAcceso -> validarPermisos('clientes', $permiso);
-    if ($v) return $v;
+  public function validarClientes(string|null $permiso, array &$info, $requerido = []) {
+    if ($permiso) {
+      $objAcceso = new accesosModelo();
+      $v = $objAcceso->validarPermisos('clientes', $permiso);
+      if ($v) return $v;
+    }
 
     $esquemaClientes = [
       'tipo' => 'arrayA',
@@ -27,17 +29,17 @@ class clientesModelo extends conexion {
           "tablaBD" => "clientes",
           "debeSerUnicoBD" => true,
           "debeExistirBD" => true,
-          ],
+        ],
         'telefono_cliente' => [
           ...molTelefono,
           "nombreAlerta" => "teléfono del cliente",
           "nombreBD" => "telefono_cliente",
           "tablaBD" => "clientes",
-          "requerido" => true,        
+          "requerido" => true,
           "debeSerUnicoBD" => true,
         ],
         'razon_social_cliente' => [
-          ...molDescripcion,  
+          ...molDescripcion,
           "nombreAlerta" => "razón social del cliente",
           "nombreBD" => "razon_social_cliente",
           "tablaBD" => "clientes",
@@ -75,22 +77,24 @@ class clientesModelo extends conexion {
     return false;
   }
   public function seleccionarClientes(array $info) {
-    if (($info['rif_cedula_cliente'] ?? '') != '') {
+    if (isset($info['vieneDelModuloUsuarios'])) {
+      $v = $this->validarClientes(null, $info);
+    } elseif (($info['rif_cedula_cliente'] ?? '') != '') {
       $info['cedula_exis'] = true;
       $v = $this->validarClientes('ver detalles de los clientes', $info);
-      } else {
+    } else {
       $v = $this->validarClientes('listar', $info);
-      }
-      
-      if ($v) return $v;
-      $this->rifCedulaCliente = $info['rif_cedula_cliente'] ?? '';
-    
+    }
+
+    if ($v) return $v;
+    $this->rifCedulaCliente = $info['rif_cedula_cliente'] ?? '';
+
     return $this->seleccionarClientesP();
   }
   public function registrarClientes(array $info) {
     $info['esR'] = true;
-
-    $v = $this->validarClientes('registrar', $info, [
+    $permiso = isset($info['vieneDelModuloUsuarios']) ? '' : 'registrar';
+    $v = $this->validarClientes($permiso, $info, [
       'rif_cedula_cliente',
       'razon_social_cliente',
       'direccion_cliente'
@@ -122,7 +126,7 @@ class clientesModelo extends conexion {
     return $this->actualizarClientesP($info);
   }
   public function eliminarClientes(array $info) {
-    $v = $this->validarClientes('eliminar',$info, [
+    $v = $this->validarClientes('eliminar', $info, [
       'rif_cedula_cliente',
     ]);
     if ($v) return $v;

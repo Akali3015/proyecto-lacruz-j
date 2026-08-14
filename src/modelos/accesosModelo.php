@@ -18,7 +18,6 @@ class accesosModelo extends conexion {
       $v = $this->validarPermisos('accesos', $permiso);
       if ($v) return $v;
     }
-
     $esquema = [
       'tipo' => 'arrayA',
       'propiedades' => [
@@ -113,11 +112,6 @@ class accesosModelo extends conexion {
       'nombre_modulo' => $modulo,
       'nombre_permiso' => $permiso,
     ];
-    // $v = $this->validarAccesos('', $info, [
-    //   'nombre_modulo',
-    //   'nombre_permiso',
-    // ]);
-    // if ($v) return $v;
     $this->moduloVal = $info['nombre_modulo'];
     $this->permisoVal = $info['nombre_permiso'];
     return $this->validarPermisosP();

@@ -1,4 +1,4 @@
-import { 
+import {
   mostrarOcultarSpinnerCarga, pedirDatosAjax, vista, rutaAbsoluta
 } from "/proyecto-lacruz-j/src/assets/js/modulos/global.js";
 
@@ -52,7 +52,7 @@ const driverLib = window.driver.js.driver;
 
 function mostrarSpinnerAyuda() {
   if (spinnerAyuda) return;
-  
+
   spinnerAyuda = $(`
     <div id="spinnerAyudaDriver" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99999; display: flex; justify-content: center; align-items: center;">
       <div class="bg-white rounded-3 p-4 shadow-lg" style="text-align: center; min-width: 250px;">
@@ -66,16 +66,14 @@ function mostrarSpinnerAyuda() {
   `);
   $('body').append(spinnerAyuda);
 }
-
 function ocultarSpinnerAyuda() {
   if (spinnerAyuda) {
-    spinnerAyuda.fadeOut(300, function() {
+    spinnerAyuda.fadeOut(300, function () {
       $(this).remove();
       spinnerAyuda = null;
     });
   }
 }
-
 export async function cargarPermisosUsuario() {
   if (permisosUsuario) return permisosUsuario;
 
@@ -92,23 +90,22 @@ export async function cargarPermisosUsuario() {
     return permisosUsuario;
   }
 }
-
 export function tienePermisoModulo(moduloId) {
   if (!permisosUsuario) return false;
-  
+
   if (moduloId === 'home') {
     return permisosUsuario['dashboard'] && permisosUsuario['dashboard'].includes('ver dashboard');
   }
-  
+
   const modulo = listaCompletaModulos.find(m => m.id === moduloId);
   if (!modulo) return false;
-  
+
   const nombrePermiso = modulo.permiso;
 
   if (permisosUsuario[nombrePermiso]) {
     return true;
   }
-  
+
   if (nombrePermiso.includes('ver ')) {
     const permisoExacto = permisosUsuario[nombrePermiso];
     if (permisoExacto && permisoExacto.includes(nombrePermiso)) {
@@ -124,10 +121,9 @@ export function tienePermisoModulo(moduloId) {
       return true;
     }
   }
-  
+
   return false;
 }
-
 export async function obtenerModulosConPermisos() {
   await cargarPermisosUsuario();
   const modulosFiltrados = [];
@@ -139,7 +135,6 @@ export async function obtenerModulosConPermisos() {
   modulosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
   return modulosFiltrados;
 }
-
 export function driverAyuda(id, config) {
   if (!id || !config || !config.pasos || config.pasos.length === 0) {
     return false;
@@ -160,7 +155,6 @@ export function driverAyuda(id, config) {
   };
   return true;
 }
-
 export function iniciarDriverModulo(id, forceShow = false) {
   const driver = driversConfigurados[id];
 
@@ -215,7 +209,6 @@ export function iniciarDriverModulo(id, forceShow = false) {
     return false;
   }
 }
-
 export function mostrarAyuda() {
   const moduloActual = vista || obtenerModuloActualURL();
   if (driversConfigurados[moduloActual]) {
@@ -230,20 +223,17 @@ export function mostrarAyuda() {
   }
   return false;
 }
-
 export function marcarTutorialesRegistrados() {
   tutorialesRegistrados = true;
 }
-
 export function tieneTutorial(modulo) {
   return !!driversConfigurados[modulo];
 }
-
 export async function esperarDOMListo() {
   if (document.readyState === 'complete') {
     return;
   }
-  
+
   return new Promise((resolve) => {
     const checkReadyState = () => {
       if (document.readyState === 'complete') {
@@ -252,15 +242,14 @@ export async function esperarDOMListo() {
         requestAnimationFrame(checkReadyState);
       }
     };
-  
+
     window.addEventListener('load', resolve, { once: true });
     requestAnimationFrame(checkReadyState);
   });
 }
-
 export async function esperarDataTableLista(selector, maxIntentos = 30) {
   let intentos = 0;
-  
+
   while (intentos < maxIntentos) {
     if ($.fn.DataTable.isDataTable(selector)) {
       const tabla = $(selector).DataTable();
@@ -278,23 +267,20 @@ export async function esperarDataTableLista(selector, maxIntentos = 30) {
   }
   return false;
 }
-
 function esElementoVisible(elemento) {
   if (!elemento) return false;
   const rect = elemento.getBoundingClientRect();
   return rect.width > 0 && rect.height > 0;
 }
-
 function existeElemento(selector) {
   if (typeof selector === 'string') {
     return $(selector).length > 0;
   }
   return !!selector;
 }
-
 export async function esperarElementoVisible(selector, maxIntentos = 50) {
   let intentos = 0;
-  
+
   while (intentos < maxIntentos) {
     let elemento;
     if (typeof selector === 'string') {
@@ -302,15 +288,15 @@ export async function esperarElementoVisible(selector, maxIntentos = 50) {
     } else {
       elemento = selector;
     }
-    
+
     if (elemento && esElementoVisible(elemento)) {
       return elemento;
     }
-    
+
     await new Promise(resolve => setTimeout(resolve, 100));
     intentos++;
   }
-  
+
   if (typeof selector === 'string') {
     const $elemento = $(selector);
     if ($elemento.length > 0) {
@@ -318,23 +304,22 @@ export async function esperarElementoVisible(selector, maxIntentos = 50) {
       return null;
     }
   }
-  
+
   return null;
 }
-
 export async function iniciarAyudaModulo(modulo, pasos, opciones = {}) {
   mostrarSpinnerAyuda();
-  
+
   driverAyuda(modulo, { pasos, ...opciones });
-  
+
   await esperarDOMListo();
-  
+
   const pasosValidos = [];
   for (const paso of pasos) {
     if (paso.element) {
       let elementoValido = null;
       let elementoExiste = false;
-      
+
       if (typeof paso.element === 'string') {
         elementoExiste = existeElemento(paso.element);
         if (elementoExiste) {
@@ -347,7 +332,7 @@ export async function iniciarAyudaModulo(modulo, pasos, opciones = {}) {
         elementoValido = paso.element[0];
         elementoExiste = true;
       }
-      
+
       if (elementoValido) {
         pasosValidos.push({
           ...paso,
@@ -380,21 +365,21 @@ export async function iniciarAyudaModulo(modulo, pasos, opciones = {}) {
       pasosValidos.push(paso);
     }
   }
-  
+
   if (pasosValidos.length === 0) {
     console.warn('No hay pasos válidos para mostrar');
     ocultarSpinnerAyuda();
     return false;
   }
-  
+
   if (driversConfigurados[modulo]) {
     driversConfigurados[modulo].pasos = pasosValidos;
   }
-  
+
   await new Promise(resolve => setTimeout(resolve, 300));
 
   mostrarAyuda();
-  
+
   return true;
 }
 
@@ -559,5 +544,7 @@ if (document.readyState === 'loading') {
 }
 
 esperarDOMListo().then(() => {
-  initAyudaInteractiva();
+  if ($('.nombreVista').val() != 'login') {
+    initAyudaInteractiva();
+  }
 });

@@ -468,7 +468,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
       </div>
 
       <div class="modal-footer border-0 pago-modal-footer d-flex justify-content-between">
-        <button 
+        <button
           type="button"
           class="btnAtrasOffCanvasPedido btn pago-btn-secondary">
           <i class="fi fi-rr-crosshairs me-2"></i>
@@ -876,3 +876,21 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
   </div>
 </div>
 <!-- MODAL EXPORTAR BASES DE DATOS [ FIN ] -->
+
+<!-- ALERTA CIERRE DE SESIÓN [ COMIENZO ] -->
+<div class="alertaCierreSesion d-none position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 2050; width: 100%; max-width: 420px; opacity: 0;">
+  <div class="card shadow border-primary border-2">
+    <div class="card-body p-3 bg-white">
+      <div class="d-flex align-items-start justify-content-between gap-3">
+        <div>
+          <h6 class="card-title mb-1 fw-bold text-dark">Advertencia de sesión</h6>
+          <p class="card-text mb-2 small text-secondary">Tu sesión está a punto de expirar por inactividad. Presiona el botón de "Extender" para mantenerla activa.</p>
+        </div>
+      </div>
+      <div class="text-end">
+        <button type="button" class="btnExtenderSesion btn btn-sm btn-primary">Extender</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ALERTA CIERRE DE SESIÓN [ COMIENZO ] -->

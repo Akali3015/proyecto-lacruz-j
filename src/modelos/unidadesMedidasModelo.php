@@ -60,7 +60,6 @@ class unidadesMedidasModelo extends conexion {
     if ($v) return $v;
     return false;
   }
-
   public function seleccionarUnidadesMedidas(array $info) {
     $requerido = [];
     if (($info['id_unidad_medida'] ?? '') != "") $requerido[] = 'id_unidad_medida';
@@ -69,7 +68,6 @@ class unidadesMedidasModelo extends conexion {
     if ($r) return $r;
     return $this->seleccionarUnidadesMedidasP();
   }
-
   public function registrarUnidadesMedidas(array $info) {
     $resultado = $this->validarUnidadesMedidas('registrar', $info, [
       'nombre_unidad_medida',
@@ -86,7 +84,6 @@ class unidadesMedidasModelo extends conexion {
 
     return $this->registrarUnidadesMedidasP();
   }
-
   public function actualizarUnidadesMedidas(array $info) {
     $resultado = $this->validarUnidadesMedidas('actualizar', $info, [
       'id_unidad_medida',
@@ -105,7 +102,6 @@ class unidadesMedidasModelo extends conexion {
 
     return $this->actualizarUnidadesMedidasP();
   }
-
   public function eliminarUnidadesMedidas(array $info) {
     $resultado = $this->validarUnidadesMedidas('eliminar', $info, [
       'id_unidad_medida',
@@ -132,7 +128,6 @@ class unidadesMedidasModelo extends conexion {
       ])->fetch(PDO::FETCH_ASSOC);
     }
   }
-
   private function registrarUnidadesMedidasP() {
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'unidades_medidas',
@@ -209,7 +204,6 @@ class unidadesMedidasModelo extends conexion {
       "icono" => "success",
     ];
   }
-
   private function actualizarUnidadesMedidasP() {
     // Para ver los datos antes de actualizar
     $viejo = $this->seleccionarDatos2([
@@ -297,7 +291,6 @@ class unidadesMedidasModelo extends conexion {
     }
     return $alerta;
   }
-
   private function eliminarUnidadesMedidasP() {
     $viejo = $this->seleccionarDatos2([
       'campos' => '*',

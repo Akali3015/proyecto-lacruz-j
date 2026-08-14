@@ -87,7 +87,7 @@ class productosModelo extends conexion {
                 "debeExistirBD" => true,
               ],
               'mostrar_ecommerce' => [
-                ...molBooleano,
+                ...molBooleanoInt,
                 "nombreAlerta" => "si se debe o no mostrar en el ecommerce",
               ],
             ],
@@ -191,7 +191,7 @@ class productosModelo extends conexion {
     $this->materiasPrimas = $info['materias_primas'] ?? [];
 
     foreach ($this->presentaciones as &$pre) {
-      if (isset($datos['foto_presentacion_' . $pre['id_presentacion']])) {
+      if (isset($info['foto_presentacion_' . $pre['id_presentacion']])) {
         $pre['foto_presentacion'] = $info['foto_presentacion_' . $pre['id_presentacion']];
       }
     }
@@ -239,7 +239,7 @@ class productosModelo extends conexion {
   public function actualizarFotPreProd(array $info) {
     $v = $this->validarProductos('actualizar', $info, [
       'id_presentacion_producto',
-      'foto_presentacion'
+      'foto_presentacion',
     ]);
     if ($v !== false) return $v;
     $this->idPresentacionProd = $info['id_presentacion_producto'];
@@ -406,8 +406,10 @@ class productosModelo extends conexion {
             ]
           ]);
           $presentaciones = $resultado->fetchAll();
+
+          //Materias primas
           $resultado = $this->seleccionarDatos2([
-            'campos' => 'id_materia_prima, cantidad_materia_prima',
+            'campos' => 'id_materia_prima_producto, id_materia_prima, cantidad_materia_prima',
             'tabla' => 'materias_primas_productos',
             'WHERE' => [
               "id_producto" => $this->idProducto
@@ -488,6 +490,7 @@ class productosModelo extends conexion {
     //Presentaciones
     foreach ($this->presentaciones as $pre) {
       //Imagen
+      $nombreImagen= false;
       if (isset($pre['foto_presentacion']) && $pre['foto_presentacion'] != '') {
         $arrayImg[] = $nombreImagen = $this->Imagenes_Reg(
           'presentaciones_productos',
@@ -922,7 +925,6 @@ class productosModelo extends conexion {
         'id_presentacion_producto' => $this->idPresentacionProd
       ]
     ])->fetch(PDO::FETCH_COLUMN);
-
     $resultado = $this->Imagenes_Act([
       'subCarpeta' => 'presentaciones_productos',
       'imagen' => $this->fotoPresentacion,

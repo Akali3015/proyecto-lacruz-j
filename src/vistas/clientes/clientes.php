@@ -94,8 +94,7 @@ echo $componente->listaDataTable($instruccionesLista);
                   minlength="<?php echo minRegexCuerpoTelefono ?>"
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
-                  maxlengthC="<?php echo maxRegexTelefono ?>"
-                  >
+                  maxlengthC="<?php echo maxRegexTelefono ?>">
               </div>
             </div>
             <div class="col-md-6 mb-3">
@@ -148,8 +147,7 @@ echo $componente->listaDataTable($instruccionesLista);
                   data-prefijo=".selectPrefijoTelefono"
                   data-cuerpo=".telefonoCliente"
                   class="input-group-text selectPrefijoTelefono"
-                  name="prefijo_telefono_cliente"
-                  >
+                  name="prefijo_telefono_cliente">
                   <option value="">S/N</option>
                   <option value="0416">0416</option>
                   <option value="0426">0426</option>
@@ -173,8 +171,7 @@ echo $componente->listaDataTable($instruccionesLista);
                   minlength="<?php echo minRegexCuerpoTelefono ?>"
                   maxlength="<?php echo maxRegexCuerpoTelefono ?>"
                   minlengthC="<?php echo minRegexTelefono ?>"
-                  maxlengthC="<?php echo maxRegexTelefono ?>"
-                >
+                  maxlengthC="<?php echo maxRegexTelefono ?>">
               </div>
             </div>
             <div class="col-md-12 mb-3">

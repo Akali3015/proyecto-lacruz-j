@@ -76,7 +76,7 @@ echo $componente->listaDataTable($instruccionesLista);
           <input type="hidden" name="accion" value="actualizar">
           <input type="hidden" class="form-control formularioActualizar" name="id_metodo_pago" required pattern="<?php echo regexId ?>">
 
-          <div class="mb-4">
+          <div class="col-md-12 mb-4">
             <label class="form-label fw-bold">Nombre del Método</label>
             <input type="text" class="form-control formularioActualizar noRepetir" name="nombre_metodo_pago" required pattern="<?php echo regexNombreObj ?>" minlength="3" maxlength="50">
           </div>

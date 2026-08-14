@@ -56,7 +56,7 @@ class serviciosModelo extends conexion {
           "nombreAlerta" => "precio del servicio",
         ],
         'mostrar_ecommerce' => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "mostrar en el ecommerce",
         ],
         'productos_servicio' => [
@@ -166,21 +166,13 @@ class serviciosModelo extends conexion {
     $this->fotoServicio = $info['foto_servicio'];
     return $this->actualizarFotoServicioP();
   }
-
-  private function obtenerParaChatbotP() {
-    $resultado = $this->seleccionarDatos2([
-      'campos' => 'nombre_servicio, precio_servicio',
-      'tabla' => 'servicios',
-      'WHERE' => ['status' => 1]
-    ]);
-    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
-  }
   public function eliminarFotoServicio(array $info) {
     $respuesta = $this->validarServicios('actualizar', $info, ['id_servicio']);
     if ($respuesta !== false) return $respuesta;
     $this->idServicio = $info['id_servicio'];
     return $this->eliminarFotoServicioP();
   }
+
   private function seleccionarServiciosP(array $info) {
     if ($this->idServicio == null || $this->idServicio == "") {
       $resultado = $this->seleccionarDatos2([
@@ -227,6 +219,14 @@ class serviciosModelo extends conexion {
       ];
       return $servicio;
     }
+  }
+  private function obtenerParaChatbotP() {
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'nombre_servicio, precio_servicio',
+      'tabla' => 'servicios',
+      'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
   }
   private function registrarServicioP() {
     $funcionError = function ($objBi) {

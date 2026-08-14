@@ -22,6 +22,7 @@ class ComposerStaticInit46b5bf6509e2820999b53820d11f97fc
             'Psr\\Cache\\' => 10,
             'Phpfastcache\\' => 13,
             'PhpParser\\' => 10,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'E' => 
         array (
@@ -58,6 +59,10 @@ class ComposerStaticInit46b5bf6509e2820999b53820d11f97fc
         'PhpParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Endroid\\QrCode\\' => 
         array (

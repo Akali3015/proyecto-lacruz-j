@@ -21,7 +21,7 @@ if (
   $PROTOCOLO = 'https://';
 }
 define('APP_URL', $PROTOCOLO . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/proyecto-lacruz-j/");
-define('modoDev',true);
+const modoDev = true;
 const coorJLACRUZ = ['latitud' => 10.063276, 'longitud' => -69.31708];
 const APP_NAME = "MULTISERVICIOS JLACRUZ C.A.";
 const APP_SESSION_NAME = "JLACRUZ";
@@ -54,7 +54,7 @@ const regexCedulaRifLetra = '^[a-zA-Z]?\d{7,11}$';
 const minRegexCedulaRifLetra = '7';
 const maxRegexCedulaRifLetra = '11';
 
-const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9$(),.\/\-!¡?¿% \_\#]{3,50}$';
+const regexNombreObj = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\\$\\(\\)\\,\\.\\/\\!¡\\?%:=#<>\\s\\n\\r\\-\\_]{3,50}$';
 const minRegexNombreObj = '3';
 const maxRegexNombreObj = '50';
 
@@ -62,9 +62,13 @@ const regexNombrePer = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]{3,30}$';
 const minRegexNombrePer = '3';
 const maxRegexNombrePer = '50';
 
-const regexDescripcion = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\$\(\)\,\.\/\-\!\¡\?\¿\:\-\=\# ]{3,255}$';
+const regexDescripcion = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\\$\\(\\)\\,\\.\\/\\!¡\\?%:=#<>\\s\\n\\r\\-\\_]{3,255}$';
 const minRegexDescripcion = '3';
 const maxRegexDescripcion = '255';
+
+const regexCuerpoCorreo = '^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ0-9\\$\\(\\)\\,\\.\\/\\!¡\\?%:=#<>\\s\\n\\r\\-\\_]{3,3000}$';
+const minRegexCuerpoCorreo = '3';
+const maxRegexCuerpoCorreo = '3000';
 
 const regexTelefono = '^\d{11}$';
 const minRegexTelefono = '11';
@@ -94,7 +98,7 @@ const regexSimboloMoneda = '^[a-zA-Z0-9À-ÿ€¥$]{1,3}$';
 const minRegexSimboloMoneda = '1';
 const maxRegexSimboloMoneda = '3';
 
-const regexCorreo = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+const regexCorreo = '^[a-zA-Z0-9._%\+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,10}$';
 const minRegexCorreo = '10';
 const maxRegexCorreo = '255';
 
@@ -192,7 +196,7 @@ define('molUsuario', [
   "regex" => regexUsuario
 ]);
 define('molPrecio', [
-  'tipo' => 'string',
+  'tipo' => ['string', 'int', 'float'],
   "minL" => minRegexPrecio,
   "maxL" => maxRegexPrecio,
   "regex" => regexPrecio,
@@ -205,10 +209,20 @@ define('molPrecioFormateado', [
   "cFloat" => true
 ]);
 define('molBooleano', [
+  'tipo' => 'boolean',
+]);
+define('molBooleanoInt', [
   'tipo' => 'int',
   "minL" => minRegexValorBoleano,
   "maxL" => maxRegexValorBoleano,
   "regex" => regexValorBoleano,
+]);
+
+define('molCuerpoCorreo', [
+  'tipo' => 'string',
+  "minL" => minRegexCuerpoCorreo,
+  "maxL" => maxRegexCuerpoCorreo,
+  "regex" => regexCuerpoCorreo,
 ]);
 define('molFoto', [
   'tipo' => 'archivo',
@@ -224,6 +238,3 @@ define('molFotoInd', [
   'maxItems' => 1
 ]);
 // #endregion [ MOLÉCULAS - VALIDACIONES ]
-
-
-

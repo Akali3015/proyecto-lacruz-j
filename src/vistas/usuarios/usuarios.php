@@ -16,16 +16,16 @@ echo $componente->listaDataTable($instruccionesLista);
 ?>
 
 <!-- [ FORMULARIO REGISTRAR ] COMIENZO -->
-<div class="modal fade modalRegistrar" tabindex="-1">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content border-0">
-      <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
-        <h5 class="modal-title" id="registrarUsuarioModalLabel">
-          <i class="fas fa-user-plus me-2"></i> Registro de Nuevo Usuario
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form class="formularioAjax validar" method="POST" action="" novalidate>
+<form class="formularioAjax validar" novalidate>
+  <div class="modalDatosUsuarios modal fade modalRegistrar" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content border-0">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+          <h5 class="modal-title" id="registrarUsuarioModalLabel">
+            <i class="fas fa-user-plus me-2"></i> Registro de Nuevo Usuario
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
         <div class="modal-body">
           <div class="row">
             <input type="hidden" name="accion" value="registrar">
@@ -146,14 +146,72 @@ echo $componente->listaDataTable($instruccionesLista);
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             <i class="fas fa-times me-2"></i> Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
-            <i class="fas fa-save me-2"></i> Guardar Usuario
+          <button
+            type="button"
+            class="btn btn-primary"
+            style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
+            data-bs-toggle="modal" data-bs-target=".modalPreguntasSeguridad">
+            <i class="fas fa-save me-2"></i> Siguiente
           </button>
         </div>
-      </form>
+
+      </div>
     </div>
   </div>
-</div>
+
+  <div class="modalPreguntasSeguridad modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content border-0">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+          <h5 class="modal-title" id="registrarUsuarioModalLabel">
+            <i class="fas fa-user-plus me-2"></i> Preguntas de seguridad
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="containerPreguntas"></div>
+        </div>
+        <div class="modal-footer justify-content-center" style="background-color: #f8f9fa;">
+          <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target=".modalDatosUsuarios">
+            <i class="fas fa-times me-2"></i> Atrás
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
+            >
+            <i class="fas fa-save me-2"></i> Registrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preguntas de seguridad  -->
+  <!-- <div class="modal fade modalPreguntasSeguridad" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="registroModalLabel">Preguntas de seguridad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="containerPreguntas"></div>
+        </div>
+        <div class="modal-footer">
+          <div class="d-flex mt-3">
+            <button class="btn btn-secundary btn-lg" type="button" data-bs-toggle="modal" data-bs-target=".modalDatosUsuarios">
+              <span id="btnRegistroText">Atrás</span>
+            </button>
+            <button class="btn btn-primary btn-lg btnSiguiente" type="submit" disabled>
+              <span id="btnRegistroText">Registrar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</form>
 <!-- [ FORMULARIO REGISTRAR ] FIN -->
 
 <!-- [ FORMULARIO EDITAR ] COMIENZO -->

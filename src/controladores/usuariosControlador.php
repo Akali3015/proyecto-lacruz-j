@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     'titulo' => 'accion no reconocida'
   ];
   ob_clean();
-  if (!empty($_SESSION['cedula'])) {
+  if (!empty($_SESSION['cedula'] ?? '')) {
     switch ($accion) {
       case "listar":
         $resultado = $objetoUsuarios->seleccionarUsuarios($_POST);
@@ -39,18 +39,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       case "eliminarFoto":
         $resultado = $objetoUsuarios->eliminarFotosUsuarios($_POST);
         break;
+      case "refrescarSesion":
+        $resultado = $objetoUsuarios->programarCierreSesionUsuario($_POST);
+        break;
     }
   } elseif (isset($accion)) {
     switch ($accion) {
+      case "listar":
+        $resultado = $objetoUsuarios->seleccionarUsuarios($_POST);
+        break;
       case 'iniciarSesion':
         $resultado = $objetoUsuarios->iniciarSesionUsuarios($_POST);
         break;
       case 'registrar':
         $resultado = $objetoUsuarios->registrarUsuarios($_POST);
-        if (($resultado['icono']) == 'success') {
+        if (($resultado['icono'] ?? '') == 'success') {
           $resultado['tipo'] = 'alertarYredireccionar';
           $resultado['url'] = APP_URL;
         }
+        break;
+      case 'validarMetodoRecContrasena':
+        $resultado = $objetoUsuarios->validarTipoMetodoRecContrasenaUsuarios($_POST);
+        break;
+      case 'solicitarCodigoRecContrasena':
+        $resultado = $objetoUsuarios->solicitarCodigoRecContrasena($_POST);
+        break;
+      case 'cambiarContrasena':
+        $resultado = $objetoUsuarios->restablecerContrasenaUsuario($_POST);
         break;
     }
   }
@@ -58,10 +73,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
   if (isset($url2) && $url2 != "") {
-    if($url2=='login' && isset($_SESSION['cedula'])){
-      $this->redireccionarUsuario();
-      exit();
-    }elseif (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
+    if ($url2 == 'login' && isset($_SESSION['cedula'])) {
+      echo $url = $this->redireccionarUsuario();
+      exit(); //Aqui debo revisar
+    } elseif (is_file("src/vistas/usuarios/" . $url2 . ".php")) {
       if ($url2 == "dashboard" && isset($_SESSION['cedula'])) {
         $objComponentes = new componentesModelo();
         require_once "src/config/inc/header.php";

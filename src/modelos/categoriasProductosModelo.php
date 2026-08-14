@@ -40,7 +40,7 @@ class categoriasProductosModelo extends conexion {
           "debeSerUnicoBD" => true
         ],
         'necesitan_materias_primas' => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "requiere materias primas"
         ]
       ],
@@ -51,7 +51,6 @@ class categoriasProductosModelo extends conexion {
     if ($v) return $v;
     return false;
   }
-
   public function seleccionarCategorias(array $info) {
     $requerido = [];
     if (($info['id_categoria_producto'] ?? '') != "") $requerido[] = 'id_categoria_producto';
@@ -60,7 +59,6 @@ class categoriasProductosModelo extends conexion {
     if ($r) return $r;
     return $this->seleccionarCategoriasP();
   }
-
   public function registrarCategorias(array $info) {
     $resultado = $this->validarCategorias('registrar', $info, [
       'nombre_categoria_producto',
@@ -75,7 +73,6 @@ class categoriasProductosModelo extends conexion {
 
     return $this->registrarCategoriasP();
   }
-
   public function actualizarCategorias(array $info) {
     $resultado = $this->validarCategorias('actualizar', $info, [
       'id_categoria_producto',
@@ -92,7 +89,6 @@ class categoriasProductosModelo extends conexion {
 
     return $this->actualizarCategoriasP();
   }
-
   public function eliminarCategorias(array $info) {
     $resultado = $this->validarCategorias('eliminar', $info, [
       'id_categoria_producto'
@@ -119,7 +115,6 @@ class categoriasProductosModelo extends conexion {
       ])->fetch();
     }
   }
-
   private function registrarCategoriasP() {
     $ultimoId = $this->guardarDatos2([
       'tabla' => 'categorias_productos',
@@ -193,7 +188,6 @@ class categoriasProductosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function actualizarCategoriasP() {
     $viejo = $this->seleccionarDatos2([
       'campos' => '*',
@@ -277,7 +271,6 @@ class categoriasProductosModelo extends conexion {
       "icono" => "success"
     ];
   }
-
   private function eliminarCategoriasP() {
     $viejo = $this->seleccionarDatos2([
       'campos' => '*',

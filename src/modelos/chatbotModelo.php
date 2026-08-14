@@ -10,7 +10,6 @@ use src\modelos\serviciosModelo;
 
 class chatbotModelo extends conexion {
 
-  // Propiedades privadas de la clase
   private string $urlMicroservicio = '';
   private string $tokenSecreto     = '';
 
@@ -21,8 +20,6 @@ class chatbotModelo extends conexion {
     $this->tokenSecreto    = $variablesEnv['TOKEN_MICROSERVICIO'] ?? '';
     $this->urlMicroservicio = $variablesEnv['URL_MICROSERVICIO']  ?? '';
   }
-
-  // Método público: maneja excepciones y delega al privado
   public function procesarMensajeChatbot($postData) {
     try {
       $cedula  = $_SESSION['cedula'] ?? '00000000';
@@ -78,8 +75,6 @@ class chatbotModelo extends conexion {
       ];
     }
   }
-
-  // Método público: guarda el presupuesto validado e iniciado manualmente por el usuario
   public function guardarPresupuesto($postData) {
     try {
       $cedula    = $_SESSION['cedula'] ?? '00000000';
@@ -153,7 +148,6 @@ class chatbotModelo extends conexion {
     }
   }
 
-  // Método privado: contiene la lógica de negocio
   private function procesarMensajeChatbotP($cedula, $mensaje) {
     // Obtener historial (BD + sesión temporal)
     $historial = $this->obtenerHistorialP($cedula);
@@ -217,8 +211,6 @@ class chatbotModelo extends conexion {
 
     return $datosPython;
   }
-
-  // Obtiene presupuestos guardados en BD + memoria de sesión
   private function obtenerHistorialP($cedula) {
     $instrucciones = [
       'campos' => 'prompt, respuesta_bot, fecha_prompt',
@@ -253,8 +245,6 @@ class chatbotModelo extends conexion {
 
     return $historialMixto;
   }
-
-  // Construye el catálogo usando Autoloading de Composer (cero require_once)
   private function obtenerCatalogoP() {
     $catalogo = ['productos' => [], 'servicios' => []];
 
@@ -266,8 +256,6 @@ class chatbotModelo extends conexion {
 
     return $catalogo;
   }
-
-  // Guarda en BD, registra Bitácora y hace Commit (solo si la BD se alteró)
   private function guardarInteraccionP($cedula, $mensaje, $respuesta) {
     $instrucciones = [
       'tabla' => 'proyecto_lacruz_seguridad.prompts_usuarios',

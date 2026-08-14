@@ -4,10 +4,11 @@ use src\config\inc\componentesModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
   $archivo = "src/vistas/others/";
-  if (isset($url1) && $url1 != "") {
-    if (is_file($archivo . $url1 . ".php")) {
-      $archivo .= $url1 . ".php";
-      $_SESSION['vistaActual'] = $url1;
+  if (isset($url2) && $url2 != "") {
+    
+    if (is_file($archivo . $url2 . ".php")) {
+      $archivo .= $url2 . ".php";
+      $_SESSION['vistaActual'] = $url2;
     }
   }
   $objComponentes = new componentesModelo();

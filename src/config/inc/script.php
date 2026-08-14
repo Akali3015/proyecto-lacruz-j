@@ -17,23 +17,22 @@
 <script nonce="<?php echo $_SESSION['nonce']; ?>" src="/proyecto-lacruz-j/src/assets/js/plugins/jspdf.umd.min.js"></script>
 
 <?php
-$directorioJs = '/proyecto-lacruz-j/src/assets/js/modulos/';
+$directorioJs = APP_URL.'src/assets/js/modulos/';
 if ($_SESSION['vistaActual'] == 'login') {
   $archivoModulo = $directorioJs . 'usuarios.js';
 } else {
   $archivoModulo = $directorioJs . $_SESSION['vistaActual'] . '.js';
 }
 ?>
+
 <script type="module" nonce="<?php echo $_SESSION['nonce']; ?>" src="<?php echo $archivoModulo ?>"></script>
 
 <!-- CHAT BOT -->
 <?php if ($_SESSION['vistaActual'] != 'login'): ?>
-  <!-- Chatbot Toggle Button -->
   <button id="chatbot-toggle-btn" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; z-index: 1050; font-size: 24px; background-color: #0d6efd; border: none;">
     <i class="fi fi-rr-headset"></i>
   </button>
 
-  <!-- Chatbot Window -->
   <div id="chatbot-window" class="d-none shadow-lg border bg-white" style="position: fixed; bottom: 85px; right: 20px; width: 360px; max-width: calc(100vw - 40px); height: 450px; max-height: calc(100vh - 160px); z-index: 1050; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px;">
     <!-- Header -->
     <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white flex-shrink-0">

@@ -11,6 +11,7 @@ return array(
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
     'Phpfastcache\\' => array($vendorDir . '/phpfastcache/phpfastcache/lib/Phpfastcache'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
+    'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qr-code/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
     'DASPRiD\\Enum\\' => array($vendorDir . '/dasprid/enum/src'),

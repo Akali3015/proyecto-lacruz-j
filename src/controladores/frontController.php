@@ -12,7 +12,14 @@ class frontController extends conexion {
   private string $archivo;
 
   public function __construct() {
-    $salidasFueraDeSesion = ['productos', 'servicios', 'rutas', 'monedas'];
+    $salidasFueraDeSesion = [
+      'productos',
+      'servicios',
+      'rutas',
+      'monedas',
+      'usuarios',
+      'preguntas-seguridad'
+    ];
     $this->controladores = [
       'accesos',
       'bancos',
@@ -34,8 +41,10 @@ class frontController extends conexion {
       'monedas',
       'ordenesEntregasPresupuestos',
       'ordenesServicios',
+      'others',
       'pedidos',
       'permisos',
+      'preguntas-seguridad',
       'presentaciones',
       'presupuestos',
       'productos',
@@ -74,7 +83,7 @@ class frontController extends conexion {
       } elseif (in_array($this->url, $this->vistasEstaticas)) {
         $this->archivo = "src\controladores\othersControlador.php";
         $_SESSION['vistaActual'] = $this->url;
-      } elseif (in_array($this->url, $salidasFueraDeSesion) && $accion == 'listar') {
+      } elseif (in_array($this->url, $salidasFueraDeSesion)) {
         $this->archivo = "src/controladores/" . $this->url . "Controlador.php";
       } elseif (isset($_SESSION['cedula'])) {
         $this->redireccionarUsuario();
@@ -99,6 +108,7 @@ class frontController extends conexion {
     $this->llamarArchivo();
   }
   private function llamarArchivo() {
+    
     if (file_exists($this->archivo)) {
       $urlActual = explode("/", ($_GET['views'] ?? ''));
       $url1 = $urlActual[0] ?? "";
@@ -131,6 +141,11 @@ class frontController extends conexion {
   private function validarTokens() {
     $tokenCSRFRecibido = $_SERVER['HTTP_X_TOKEN_CSRF'] ?? '';
     $tokenCSRFSesion = $_SESSION['TOKEN_CSRF'] ?? '';
+    /* echo json_encode([
+      'recibido'=>$tokenCSRFRecibido,
+      'sesion'=>$tokenCSRFSesion
+    ]);
+    exit(); */
     if (empty($tokenCSRFSesion) || !hash_equals($tokenCSRFSesion, $tokenCSRFRecibido)) {
       $this->redireccionarUsuario();
       exit;

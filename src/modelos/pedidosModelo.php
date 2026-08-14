@@ -285,6 +285,7 @@ class pedidosModelo extends conexion {
 
   private function listarPedidosP(array $info) {
     if ($this->idPedido != '') {
+
       //Generales
       $datosGenerales = $this->seleccionarDatos2([
         'campos' => '*, fa.status as status_pedido,fa.cedula_usuario,fa.fecha_orden_entrega_presupuesto as fecha_orden',
@@ -306,7 +307,9 @@ class pedidosModelo extends conexion {
       if ($datosGenerales['cedula_usuario'] != '') {
         $objUsuario = new usuariosModelo();
         $vendedor = $objUsuario->seleccionarUsuarios(['cedula_usuario' => $datosGenerales['cedula_usuario']]);
+        unset($objUsuario);
       }
+
 
       // Las divisas de esa fecha
       $objMonedas = new monedasModelo();
@@ -314,6 +317,7 @@ class pedidosModelo extends conexion {
         'tipoConsulta' => 'divisasPorFecha',
         'fecha' => $datosGenerales['fecha_orden_entrega_presupuesto']
       ]);
+      unset($objMonedas);
 
       // Si es delivery
       $medioEnvio = $this->seleccionarDatos2([
@@ -368,6 +372,7 @@ class pedidosModelo extends conexion {
           'id_ruta' => $medioEnvio['id_ruta'],
           'fecha' => $datosGenerales['fecha_orden_entrega_presupuesto']
         ]);
+        unset($objRutas);
         if (isset($rutaFecha['icono'])) return $rutaFecha;
 
         $medioEnvio['precio_ruta_factura'] = $rutaFecha['precio_ruta_fecha'];
@@ -396,6 +401,7 @@ class pedidosModelo extends conexion {
         'tipoConsulta' => 'productosFactura',
         'id_factura' => $this->idPedido,
       ]);
+      unset($objProductos); 
 
       $totalProductos = 0;
       $totalDescuento = 0;
@@ -443,10 +449,13 @@ class pedidosModelo extends conexion {
       $metodosPagos = $objMetodosPagos->seleccionarMetodosPagos([
         'tipoConsulta' => 'indexadosPorId',
       ]);
+      unset($objMetodosPagos);
+      
       $objBancos = new bancosModelo();
       $bancos = $objBancos->seleccionarBancos([
         'tipoConsulta' => 'indexadosPorId'
       ]);
+      unset($objBancos);
 
       $totalPagos = 0;
       foreach ($detallesPagos as &$detalle) {
@@ -621,6 +630,8 @@ class pedidosModelo extends conexion {
       'tipoConsulta' => 'indexadosPorId'
     ]);
     unset($objProd);
+
+    //Presentaciones
     $objPresentacion = new presentacionesModelo();
     $presentacionesBD = $objPresentacion->seleccionarPresentaciones([
       'tipoConsulta' => 'indexadosPorId'
@@ -683,7 +694,7 @@ class pedidosModelo extends conexion {
     unset($objRutas);
     if (isset($rutaBD['icono'])) return $rutaBD;
     $totalPagar += ($rutaBD['precio_ruta'] * $infoRuta['km_recorrido']) * $dolar['valor_moneda'];
- 
+
     //Validamos que haya pagado completo
     if ($totalPagado < $totalPagar) {
       $error();

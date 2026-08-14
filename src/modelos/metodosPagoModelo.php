@@ -52,23 +52,23 @@ class metodosPagoModelo extends conexion {
           "debeSerUnicoBD" => true
         ],
         "necesita_moneda" => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "si necesita moneda",
         ],
         "necesita_banco_emisor" => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "si necesita banco emisor",
         ],
         "necesita_banco_receptor" => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "si necesita banco receptor",
         ],
         "necesita_referencia" => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "si necesita referencia",
         ],
         "mostrar_ecommerce" => [
-          ...molBooleano,
+          ...molBooleanoInt,
           "nombreAlerta" => "si necesita referencia",
         ]
       ],

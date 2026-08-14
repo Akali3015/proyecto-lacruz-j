@@ -22,7 +22,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
   private array $pagos = [];
 
   // PUBLICOS
-
   public function validarOrdenes(string $permiso, array &$info = [], array $requerido = []) {
     $objAcceso = new accesosModelo();
     $v = $objAcceso->validarPermisos('ordenesEntregasPresupuestos', $permiso);
@@ -61,13 +60,11 @@ class ordenesEntregasPresupuestosModelo extends conexion {
 
     return false;
   }
-
   public function ListarOrdenes(array $info = []) {
     $v = $this->validarOrdenes('listar', $info);
     if ($v) return $v;
     return $this->ListarOrdenesP();
   }
-
   public function ObtenerOrden(array $info) {
     $v = $this->validarOrdenes('listar', $info, ['id_orden_entrega_presupuesto']);
     if ($v) return $v;
@@ -75,7 +72,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
     $this->idOrden = $info['id_orden_entrega_presupuesto'];
     return $this->ObtenerOrdenP();
   }
-
   public function ObtenerDetalleOrden(array $info) {
     $v = $this->validarOrdenes('listar', $info, ['id_orden_entrega_presupuesto']);
     if ($v) return $v;
@@ -83,7 +79,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
     $this->idOrden = $info['id_orden_entrega_presupuesto'];
     return $this->ObtenerDetalleOrdenP();
   }
-
   public function RegistrarOrden(array $info) {
     $v = $this->validarOrdenes('registrar', $info, ['rif_cedula_cliente']);
     if ($v) return $v;
@@ -117,7 +112,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
 
     return $this->RegistrarOrdenP();
   }
-  
   public function DespacharOrden(array $info) {
     $v = $this->validarOrdenes('despachar orden', $info, ['id_orden_entrega_presupuesto']);
     if ($v) return $v;
@@ -125,7 +119,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
     $this->idOrden = $info['id_orden_entrega_presupuesto'];
     return $this->DespacharOrdenP();
   }
-
   public function AnularOrden(array $info) {
     $v = $this->validarOrdenes('anular', $info, ['id_orden_entrega_presupuesto']);
     if ($v) return $v;
@@ -133,13 +126,11 @@ class ordenesEntregasPresupuestosModelo extends conexion {
     $this->idOrden = $info['id_orden_entrega_presupuesto'];
     return $this->AnularOrdenP();
   }
-
   public function ListarMetodosPago(array $info = []) {
     $v = $this->validarOrdenes('listar', $info);
     if ($v) return $v;
     return $this->ListarMetodosPagoP();
   }
-
   public function RegistrarPago(array $info) {
     $v = $this->validarOrdenes('agregar pago', $info, ['id_orden_entrega_presupuesto']);
     if ($v) return $v;
@@ -152,7 +143,6 @@ class ordenesEntregasPresupuestosModelo extends conexion {
   }
 
   // PRIVADOS
-
   private function ListarOrdenesP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => "
@@ -569,7 +559,7 @@ class ordenesEntregasPresupuestosModelo extends conexion {
         if ($idRuta > 0 && $latitud !== '' && $longitud !== '') {
           $idLat = $this->guardarDatos2(['tabla' => 'latitudes_direcciones', 'datos' => ['coordenada_latitud' => $latitud, 'status' => 1]]);
           $idLng = $this->guardarDatos2(['tabla' => 'longitudes_direcciones', 'datos' => ['coordenada_longitud' => $longitud, 'status' => 1]]);
-          
+
           $idDireccion = $this->guardarDatos2([
             'tabla' => 'direcciones',
             'datos' => [
@@ -1241,4 +1231,3 @@ class ordenesEntregasPresupuestosModelo extends conexion {
     }
   }
 }
-

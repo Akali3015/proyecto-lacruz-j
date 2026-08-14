@@ -49,7 +49,7 @@ class mensajesWSModelo extends conexion {
           'tabla' => 'usuarios as us',
           "BD" => "seguridad",
           'WHERE' => [
-            'cedula_usuario' => '!= ' . $_SESSION['cedula']
+            'cedula_usuario' => '!= ' . ($_SESSION['cedula']  ?? '')
           ],
         ])->fetchAll(PDO::FETCH_COLUMN);
         break;
@@ -109,7 +109,7 @@ class mensajesWSModelo extends conexion {
   }
   public function seleccionarNotificaciones($id = 0) {
     $this->idNotificacion = $id;
-    $this->cedulaUsuario = $_SESSION['cedula'];
+    $this->cedulaUsuario = $_SESSION['cedula'] ?? '';
 
     $campos = [[
       "campo_nombre" => "cedula_usuario",
@@ -371,7 +371,6 @@ class mensajesWSModelo extends conexion {
   public function enviarMensajesWS(array $instruccionesMsj) {
 
     #region [REGISTRO DE LA ACCION O LA NOTIFICACIÓN EN LA BD]
-
     $procesarInstrucciones = function ($instruccion) {
       $registrarBD = function ($cuerpo, $receptor) {
         $cedulasReceptores = $this->buscarUsuariosReceptores($receptor);
@@ -403,6 +402,7 @@ class mensajesWSModelo extends conexion {
         if ($resultado != false) return $resultado;
       }
     };
+    
     if (isset($instruccionesMsj['receptor'])) {
       $resultado = $procesarInstrucciones($instruccionesMsj);
       if ($resultado != false) return $resultado;
@@ -417,8 +417,8 @@ class mensajesWSModelo extends conexion {
     #region [DIFUSIÓN POR EL WEBSOCKET]
     $emisor = [
       "emisor" => [
-        "cedula" => $_SESSION['cedula'],
-        "rol" => $_SESSION['nombreRol']
+        "cedula" => $_SESSION['cedula'] ?? '',
+        "rol" => $_SESSION['nombreRol'] ?? ''
       ]
     ];
     $estructuraEnvio = [];
@@ -440,8 +440,8 @@ class mensajesWSModelo extends conexion {
 
     $resultado = $this->hacerPeticionesAPIs([
       "url" =>
-      "https://apithevinanode-production.up.railway.app/api/enviar-mensajes-ws",
-      // "https://api-the-vina-node.onrender.com/api/enviar-mensajes-ws",
+      // "https://apithevinanode-production.up.railway.app/api/enviar-mensajes-ws",
+      "https://api-the-vina-node.onrender.com/api/enviar-mensajes-ws",
       // "http://localhost:1235/api/enviar-mensajes-ws",
       "metodo" => "POST",
       "datosPe" => $estructuraEnvio,
@@ -453,7 +453,6 @@ class mensajesWSModelo extends conexion {
       if (!isset($instruccionesMsj['noCommit'])) $this->commit();
       return ['resultado' => $resultado];
     } else {
-      $this->rollback();
       return ['error' => $resultado];
     }
   }
@@ -623,7 +622,6 @@ class mensajesWSModelo extends conexion {
         ]
       ]);
       if ($resultado == false || $resultado <= 0) {
-        $this->rollback();
         return [
           "tipo" => "simple",
           "titulo" => "Error al marcar como leídas",
@@ -756,7 +754,6 @@ class mensajesWSModelo extends conexion {
       ]
     ]);
     if ($resultado <= 0) {
-      $this->rollback();
       return 'Ocurrió un error';
     }
     $this->commit();

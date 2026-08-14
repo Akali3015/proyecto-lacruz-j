@@ -114,7 +114,6 @@ class monedasModelo extends conexion {
     return $this->seleccionarCambiosMonedasP();
   }
   public function registrarMonedas(array $info) {
-
     $resultado = $this->validarMonedas('registrar', [
       'infoVal' => &$info,
       'camposVal' => [

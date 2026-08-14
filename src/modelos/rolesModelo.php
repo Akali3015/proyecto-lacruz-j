@@ -49,7 +49,6 @@ class rolesModelo extends conexion {
     if ($v) return $v;
     return false;
   }
-
   public function seleccionarRoles(array $info = []) {
     $requerido = [];
     if (($info['id_rol'] ?? '') != "") $requerido[] = 'id_rol';
@@ -58,7 +57,6 @@ class rolesModelo extends conexion {
     if ($r) return $r;
     return $this->seleccionarRolesP();
   }
-
   public function registrarRoles(array $info) {
     $resultado = $this->validarRoles('registrar', $info, [
       'nombre_rol',
@@ -71,7 +69,6 @@ class rolesModelo extends conexion {
 
     return $this->registrarRolesP();
   }
-
   public function actualizarRoles(array $info) {
     $resultado = $this->validarRoles('actualizar', $info, [
       'id_rol',
@@ -86,7 +83,6 @@ class rolesModelo extends conexion {
 
     return $this->actualizarRolesP();
   }
-
   public function eliminarRoles(array $info) {
     $resultado = $this->validarRoles('eliminar', $info, [
       'id_rol',
@@ -126,7 +122,6 @@ class rolesModelo extends conexion {
       return $resultado->fetch(PDO::FETCH_ASSOC);
     }
   }
-
   private function registrarRolesP() {
     $objBitacora = new bitacoraModelo();
     $ultimoId = $this->guardarDatos2([
@@ -204,7 +199,6 @@ class rolesModelo extends conexion {
     }
     return $alerta;
   }
-
   private function actualizarRolesP() {
     $objBitacora = new bitacoraModelo();
     $viejo = $this->seleccionarDatos2([
@@ -292,7 +286,6 @@ class rolesModelo extends conexion {
     }
     return $alerta;
   }
-
   private function eliminarRolesP() {
     $objBitacora = new bitacoraModelo();
     $viejo = $this->seleccionarDatos2([

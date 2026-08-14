@@ -5,7 +5,9 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\clientesModelo;
 use src\modelos\accesosModelo;
+use src\modelos\correosModelo;
 use PDO;
+use Datetime;
 
 class usuariosModelo extends conexion {
   private string $cedulaUsuario = '';
@@ -18,6 +20,8 @@ class usuariosModelo extends conexion {
   private string $correoUsuario = '';
   private string $direccionUsuario = '';
   private array $fotoUsuario = [];
+  private array $preguntasSeguridadUsuario = [];
+  private string $codigoRecContrasenaUsuario = '';
 
   public function validarUsuarios(string|null $permiso, null|array  &$info = null, null|array $requerido = null) {
     if (isset($permiso)) {
@@ -49,6 +53,10 @@ class usuariosModelo extends conexion {
           "debeExistirBD" => true,
           "BD" => 'seguridad',
         ],
+        'codigo_recuperacion' => [
+          ...molDescripcion,
+          'nombreAlerta' => 'codigo de recuperación'
+        ],
         "contrasena1_usuario" => [
           ...molContrasena,
           "nombreAlerta" => "contraseña",
@@ -73,6 +81,10 @@ class usuariosModelo extends conexion {
           ...molFotoInd,
           "nombreAlerta" => "foto de pérfil",
         ],
+        "hashContrasena" => [
+          ...molDescripcion,
+          'nombreAlerta' => 'Token de seguridad'
+        ],
         "id_rol" => [
           ...molId,
           "nombreAlerta" => "rol",
@@ -84,6 +96,36 @@ class usuariosModelo extends conexion {
         "nombre_usuario" => [
           ...molNombrePer,
           "nombreAlerta" => "nombre",
+        ],
+        'preguntas_respuestas' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'id_pregunta' => [
+                ...molIdSeguro,
+                "nombreAlerta" => "id de la pregunta",
+                "nombreBD" => "id_pregunta",
+                "tabla" => "preguntas_seguridad",
+                "BD" => 'seguridad',
+                "debeExistir" => true
+              ],
+              'respuesta' => [
+                ...molDescripcion,
+                'nombreAlerta' => 'respuesta de la pregunta'
+              ]
+            ],
+            'requerido' => [
+              'id_pregunta',
+              'respuesta'
+            ]
+          ],
+          'nroItems' => 6,
+          'nombreAlerta' => 'preguntas de seguridad'
+        ],
+        "tipo_metodo" => [
+          ...molId,
+          "nombreAlerta" => "método de recuperación",
         ],
         "telefono_usuario" => [
           ...molTelefono,
@@ -101,18 +143,13 @@ class usuariosModelo extends conexion {
           "BD" => 'seguridad',
           "debeSerUnico" => true,
         ],
+
       ],
       'requerido' => $requerido
     ];
+
     if (isset($info) && isset($requerido)) {
-      if (!isset($info['accion'])) {
-        return [
-          'icono' => 'error',
-          'tipo' => 'simple',
-          'titulo' => 'Sin acción',
-          'texto' => 'Ha ocurrido un error con la acción en el método del módulo de usuarios'
-        ];
-      }
+      if (!isset($info['accion'])) $info['accion'] = 'cualquiera';
       if ($info['accion'] == 'eliminar') {
         $esquema['propiedades']['cedula_usuario']['diferenteA'] = $this->seleccionarDatos2([
           'campos' => 'u.cedula_usuario',
@@ -145,24 +182,36 @@ class usuariosModelo extends conexion {
         $esquema['propiedades']['contrasena2_usuario']['deberSerIgual'] = $info['contrasena1_usuario'] ?? '';
       }
 
+      //Para asegurarnos que el metodo de verificacion exista
+      if (($info['accion'] ?? '') == 'validarMetodoRecContrasena') {
+        if (($info['tipo_metodo'] ?? '') == 'preguntasSeguridad') {
+          array_push($esquema['requerido'], 'preguntas_respuestas');
+        }
+        if (($info['tipo_metodo'] ?? '') == 'codigo') {
+          array_push($esquema['requerido'], 'codigo_recuperacion');
+        }
+        $esquema['propiedades']['preguntas_respuestas']['nroItems'] = '2';
+      }
+
       $v = $this->limpiarValidar($info, $esquema);
       if ($v) return $v;
     }
+
     return false;
   }
   public function seleccionarUsuarios(array $info) {
     if (($info['cedula_usuario'] ?? '') != '') {
-      $r = $this->validarUsuarios('listar', $info, ['cedula_usuario']);
+      $r = $this->validarUsuarios(null, $info, ['cedula_usuario']);
       if ($r) return $r;
       $this->cedulaUsuario = $info['cedula_usuario'];
     } else {
-      $r = $this->validarUsuarios('listar');
+      $r = $this->validarUsuarios(null);
       if ($r) return $r;
     }
-    return $this->seleccionarUsuariosP();
+    return $this->seleccionarUsuariosP($info);
   }
   public function registrarUsuarios(array $info) {
-    $r = $this->validarUsuarios('registrar', $info, [
+    $r = $this->validarUsuarios(null, $info, [
       'apellido_usuario',
       'cedula_usuario',
       'contrasena1_usuario',
@@ -172,6 +221,7 @@ class usuariosModelo extends conexion {
       'nombre_usuario',
       'telefono_usuario',
       'usuario_usuario',
+      'preguntas_respuestas'
     ]);
     if ($r) return $r;
     [
@@ -184,6 +234,7 @@ class usuariosModelo extends conexion {
       'correo_usuario' => $this->correoUsuario,
       'usuario_usuario' => $this->usuarioUsuario,
       'direccion_usuario' => $this->direccionUsuario,
+      'preguntas_respuestas' => $this->preguntasSeguridadUsuario,
     ] = $info;
     $this->fotoUsuario = $info['foto_usuario'] ?? [];
     $this->contrasena1Usuario = password_hash($this->contrasena1Usuario, PASSWORD_BCRYPT, ["cost" => 10]);
@@ -247,7 +298,7 @@ class usuariosModelo extends conexion {
   public function iniciarSesionUsuarios(array $info) {
 
     // Enviar verificacion interna al servidor de Google
-    if (empty($info['g-recaptcha-response'])) {
+    if (empty($info['g-recaptcha-response']) && !modoDev) {
       return [
         "tipo" => "simple",
         "titulo" => "Seguridad",
@@ -263,7 +314,7 @@ class usuariosModelo extends conexion {
         'remoteip' => $_SERVER['REMOTE_ADDR']
       ]
     ]);
-    if (($resultadoCaptcha['success'] ?? false) != true) {
+    if (($resultadoCaptcha['success'] ?? false) != true && !modoDev) {
       return [
         "tipo" => "simple",
         "titulo" => "Fallo de Seguridad",
@@ -281,9 +332,53 @@ class usuariosModelo extends conexion {
   public function cerrarSesionUsuarios() {
     return $this->cerrarSesionUsuariosP();
   }
+  public function validarTipoMetodoRecContrasenaUsuarios(array $info) {
+    $r = $this->validarUsuarios(null, $info, ['cedula_usuario', 'tipo_metodo']);
+    if ($r) return $r;
+    $this->preguntasSeguridadUsuario = $info['preguntas_respuestas'] ?? [];
+    $this->codigoRecContrasenaUsuario = $info['codigo_recuperacion'] ?? '';
+    $this->cedulaUsuario = $info['cedula_usuario'] ?? '';
+    return $this->validarTipoMetodoRecContrasenaUsuariosP($info);
+  }
+  public function restablecerContrasenaUsuario(array $info) {
+    $r = $this->validarUsuarios(null, $info, [
+      'cedula_usuario',
+      'contrasena1_usuario',
+      'contrasena2_usuario',
+      'hashContrasena'
+    ]);
+    if ($r) return $r;
+    $this->contrasena1Usuario = $info['contrasena1_usuario'] ?? [];
+    $this->cedulaUsuario = $info['cedula_usuario'] ?? '';
+    return $this->restablecerContrasenaUsuarioP($info);
+  }
+  public function solicitarCodigoRecContrasena(array $info) {
+    $r = $this->validarUsuarios(null, $info, ['cedula_usuario', 'tipo_metodo']);
+    if ($r) return $r;
+    $this->cedulaUsuario = $info['cedula_usuario'] ?? [];
+    return $this->solicitarCodigoRecContrasenaP($info);
+  }
+  public function programarCierreSesionUsuario(array $info) {
+    $info['cedula_usuario'] = $_SESSION['cedula'];
+    $v = $this->validarUsuarios(null, $info, ['cedula_usuario']);
+    if ($v) return $v;
+
+    $this->cedulaUsuario = $info['cedula_usuario'];
+
+    return $this->programarCierreSesionUsuarioP();
+  }
+  public function validarVigenciaSesionUsuario() {
+    $info = ['cedula_usuario' => $_SESSION['cedula']];
+    $v = $this->validarUsuarios(null, $info, ['cedula_usuario']);
+    if ($v) return $v;
+
+    $this->cedulaUsuario = $info['cedula_usuario'];
+
+    return $this->validarVigenciaSesionUsuarioP();
+  }
 
   //-- PRIVADOS [ ENCAPSULAMIENTO ] --//
-  private function seleccionarUsuariosP() {
+  private function seleccionarUsuariosP(array $info) {
     if ($this->cedulaUsuario == null || $this->cedulaUsuario == "") {
       return  $this->seleccionarDatos2([
         'campos' => '*',
@@ -291,24 +386,48 @@ class usuariosModelo extends conexion {
         "BD" => 'seguridad',
         'WHERE' => [
           "cedula_usuario" => [
-            "!=" => [30485684, $_SESSION['cedula']]
+            "!=" => [30485684, $_SESSION['cedula'] ?? '']
           ]
         ],
       ])->fetchAll();
     } else {
-      return $this->seleccionarDatos2([
-        'campos' => '
-          cedula_usuario, nombre_usuario,
-          apellido_usuario, telefono_usuario, correo_usuario,
-          usuario_usuario, id_rol,contrasena_usuario,direccion_usuario,
-          foto_usuario
-        ',
-        'tabla' => 'usuarios',
-        'BD' => 'seguridad',
-        'WHERE' => [
-          "cedula_usuario" => $this->cedulaUsuario,
-        ]
-      ])->fetch();
+      switch ($info['tipoConsulta'] ?? '') {
+        case 'verificarExistencia':
+          return $this->seleccionarDatos2([
+            'campos' => 'cedula_usuario',
+            'tabla' => 'usuarios',
+            'BD' => 'seguridad',
+            'WHERE' => [
+              "cedula_usuario" => $this->cedulaUsuario,
+            ]
+          ])->fetch();
+        case 'solicitarPreguntasSeguridad':
+          return $this->seleccionarDatos2([
+            'campos' => 'ps.id_pregunta, ps.texto_pregunta',
+            'tabla' => 'preguntas_seguridad_usuarios as psu',
+            'BD' => 'seguridad',
+            'datosJoins' => [
+              'preguntas_seguridad as ps' => 'psu.id_pregunta = ps.id_pregunta'
+            ],
+            'WHERE' => [
+              "psu.cedula_usuario" => $this->cedulaUsuario,
+            ]
+          ])->fetchAll();
+        default:
+          return $this->seleccionarDatos2([
+            'campos' => '
+              cedula_usuario, nombre_usuario,
+              apellido_usuario, telefono_usuario, correo_usuario,
+              usuario_usuario, id_rol,contrasena_usuario,direccion_usuario,
+              foto_usuario
+            ',
+            'tabla' => 'usuarios',
+            'BD' => 'seguridad',
+            'WHERE' => [
+              "cedula_usuario" => $this->cedulaUsuario,
+            ]
+          ])->fetch();
+      }
     }
   }
   private function registrarUsuariosP() {
@@ -350,7 +469,7 @@ class usuariosModelo extends conexion {
         "cedula_usuario" => $this->cedulaUsuario
       ]
     ]);
-    if ($resultado <= 0) {
+    if ($resultado <= 0 || $resultado == false) {
       $error();
       return [
         "tipo" => "simple",
@@ -361,7 +480,38 @@ class usuariosModelo extends conexion {
     }
 
     $clienteObj = new clientesModelo();
-    $cliente = $clienteObj->seleccionarClientes(['rif_cedula_cliente' => $this->cedulaUsuario]);
+    $cliente = $clienteObj->seleccionarClientes([
+      'rif_cedula_cliente' => $this->cedulaUsuario,
+      "vieneDelModuloUsuarios" => true
+    ]);
+
+    // Preguntas
+    foreach ($this->preguntasSeguridadUsuario as $pregunta) {
+      $idPreguntasUsuario = $this->generarCodSeg([
+        'tablaBD' => 'preguntas_seguridad_usuarios',
+        'prefijo' => 'PRUS',
+        'campoID' => 'id_pregunta_usuario',
+        'BD' => 'seguridad',
+      ]);
+      $resultado = $this->guardarDatos2([
+        'tabla' => 'preguntas_seguridad_usuarios',
+        'datos' => [
+          'id_pregunta_usuario' => $idPreguntasUsuario,
+          'id_pregunta' => $pregunta['id_pregunta'],
+          'cedula_usuario' => $this->cedulaUsuario,
+          'respuesta_pregunta' => password_hash($pregunta['respuesta'], PASSWORD_BCRYPT, ["cost" => 10])
+        ],
+        'BD' => 'seguridad'
+      ]);
+      if ($resultado <= 0 || $resultado == false) {
+        return [
+          'tipo' => 'simple',
+          'titulo' => "Pregunta no registrada",
+          'texto' => 'Las preguntas de seguridad no pudieron ser registradas correctamente',
+          'icono' => 'error',
+        ];
+      }
+    }
 
     if (!isset($cliente['rif_cedula_cliente'])) {
       $resultado = $clienteObj->registrarClientes([
@@ -371,12 +521,13 @@ class usuariosModelo extends conexion {
         "correo_cliente" => $this->correoUsuario,
         "direccion_cliente" => $this->direccionUsuario,
         "sinCommit" => true,
+        "vieneDelModuloUsuarios" => true
       ]);
       if (($resultado['icono'] ?? '') != 'success') return $resultado;
     }
 
     $objNot = new mensajesWSModelo();
-    $r = $objNot->enviarMensajesWS([
+    $objNot->enviarMensajesWS([
       "receptor" => ['tipo' => 'todos'],
       'cuerpo' => [
         [
@@ -390,19 +541,18 @@ class usuariosModelo extends conexion {
       ],
       'noCommit' => true,
     ]);
-    if (isset($r['error'])) return $r['error'];
 
     if (isset($_SESSION['cedula'])) {
       $rb = $objBitacora->registrarBitacora([
         'modulo' => 'usuarios',
-        'accion' => 'registrar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+        'accion' => 'registrar usuario con la cédula/rif: ' . $this->cedulaUsuario,
         'resultado' => 'Éxito',
         'nuevo' => $datoNuevos,
       ]);
       if ($rb) return $rb;
     }
-    $this->commit();
 
+    $this->commit();
     return [
       "tipo" => "limpiarYcerrar",
       "titulo" => "Usuario registrado",
@@ -503,34 +653,48 @@ class usuariosModelo extends conexion {
   }
   private function eliminarUsuariosP() {
     $objBitacora = new bitacoraModelo();
-    $eliminarUsuario = $this->eliminarDatos2([
+    $error = function ($numeroFallo) use ($objBitacora) {
+      $this->rollback();
+      $objBitacora->registrarBitacora([
+        'modulo' => 'usuarios',
+        'accion' => 'Eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario,
+        'resultado' => 'Fallido',
+        'commit' => true
+      ]);
+      return [
+        "tipo" => "simple",
+        "titulo" => "Usuario no eliminado",
+        "texto" => "El usuario no pudo ser eliminado de la Base de Datos. Error: #000".$numeroFallo,
+        "icono" => "error"
+      ];
+    };
+
+    //Usuario
+    $resultado = $this->eliminarDatos2([
       'tabla' => "usuarios",
       'BD' => 'seguridad',
       'WHERE' => [
         "cedula_usuario" => $this->cedulaUsuario
       ]
     ]);
-    if ($eliminarUsuario <= 0) {
-      $rb = $objBitacora->registrarBitacora([
-        'modulo' => 'usuarios',
-        'accion' => 'Eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario,
-        'resultado' => 'Éxito',
-        'commit' => true
-      ]);
-      if ($rb) return $rb;
-      return [
-        "tipo" => "simple",
-        "titulo" => "Usuario no encontrado",
-        "texto" => "El usuario no existe en la Base de Datos",
-        "icono" => "error"
-      ];
-    }
+    if ($resultado <= 0) return $error(1);
+
+    //Preguntas
+    $resultado = $this->eliminarDatos2([
+      'tabla' => "preguntas_seguridad_usuarios",
+      'BD' => 'seguridad',
+      'WHERE' => [
+        "cedula_usuario" => $this->cedulaUsuario
+      ]
+    ]);
+    if ($resultado <= 0) return $error(2);
+
     $rb = $objBitacora->registrarBitacora([
       'modulo' => 'usuarios',
       'accion' => 'Eliminar usuario con la cedula/rif: ' . $this->cedulaUsuario,
       'resultado' => 'Éxito',
     ]);
-    if ($rb) return $rb;
+    if ($rb) return $error(3);
 
     $objNot = new mensajesWSModelo();
     $r = $objNot->enviarMensajesWS([
@@ -547,7 +711,7 @@ class usuariosModelo extends conexion {
       ],
       'noCommit' => true,
     ]);
-    if (isset($r['error'])) return $r['error'];
+    if (isset($r['error'])) return $error(4);
 
     $this->commit();
     return [
@@ -660,6 +824,21 @@ class usuariosModelo extends conexion {
       ],
     ];
     $datosUsAtuales = $this->seleccionarDatos2($instruccionesConsultaCom)->fetch();
+    
+    if($datosUsAtuales['intentos_inicio_sesion_fallidos_usuario'] >=3){
+      return [
+        'tipo'=>'simple',
+        'icono'=>'error',
+        'titulo'=>'Usuario Bloqueado',
+        'texto'=>"
+          Actualmente su usuario se encuentra bloqueado, por favor 
+          desbloqueelo en la opción de [ ¿Olvidaste tu contraseña? ] 
+          que se encuntre en la parte inferior
+        "
+      ];
+    }
+    
+
     if (!isset($datosUsAtuales['cedula_usuario'])) {
       return [
         "tipo" => "simple",
@@ -704,11 +883,15 @@ class usuariosModelo extends conexion {
         "icono" => "error",
       ];
     }
+
+    $ahora = new DateTime();
+    $ahora->modify('+5 minutes'); //Al ahora le sumamos 5 minutos de validez de la sesion
+    $ahoraBD = $ahora->format('Y-m-d H:i:s');
     $resultado = $this->actualizarDatos2([
       'tabla' => 'usuarios',
       'BD' => 'seguridad',
       'datos' => [
-        'ultimo_acceso_usuario' => $this->FechaHora_Sel('fecha_hora_BD'),
+        'ultimo_acceso_usuario' => $ahoraBD,
         'intentos_inicio_sesion_fallidos_usuario' => 0,
       ],
       'WHERE' => [
@@ -724,7 +907,6 @@ class usuariosModelo extends conexion {
       ];
     }
 
-    /*Creamos las variables de sesión */
     $_SESSION['cedula'] = $datosUsAtuales['cedula_usuario'];
     $_SESSION['nombre'] = $datosUsAtuales['nombre_usuario'];
     $_SESSION['apellido'] = $datosUsAtuales['apellido_usuario'];
@@ -733,7 +915,7 @@ class usuariosModelo extends conexion {
     $_SESSION['nombreRol'] = $datosUsAtuales['nombre_rol'];
     $_SESSION['foto'] = $datosUsAtuales['foto_usuario'];
     $_SESSION['TOKEN_CSRF'] = bin2hex(random_bytes(32));
-    $_SESSION['ultimo_inicio_sesion'] = $datosUsAtuales['ultimo_acceso_usuario'];
+    $_SESSION['ultimo_inicio_sesion'] = $ahoraBD;
 
     $datosUsuarioDespues = $this->seleccionarDatos2($instruccionesConsultaCom)->fetch();
     $objBitacora = new bitacoraModelo();
@@ -748,24 +930,6 @@ class usuariosModelo extends conexion {
       'nuevo' => $datosUsuarioDespues
     ]);
     if ($rb) return $rb;
-
-    $objNot = new mensajesWSModelo();
-    $r = $objNot->enviarMensajesWS([
-      "receptor" => ['tipo' => 'todos'],
-      'cuerpo' => [
-        [
-          'accion' => "borrarDataModuloSS",
-          'modulo' => 'usuarios'
-        ],
-        [
-          'accion' => "actDT",
-          'modulo' => 'usuarios'
-        ],
-      ],
-      'noCommit' => true,
-    ]);
-    if (isset($r['error'])) return $r['error'];
-
     $this->commit();
     return [
       "tipo" => "redireccionar",
@@ -776,7 +940,481 @@ class usuariosModelo extends conexion {
     session_destroy();
     return [
       "tipo" => "redireccionar",
-      "url" => APP_URL . "usuarios/login"
+      "url" => APP_URL . "usuarios/login",
+      'icono' => 'error',
+    ];
+  }
+  private function validarTipoMetodoRecContrasenaUsuariosP(array $info) {
+    switch ($info['tipo_metodo'] ?? '') {
+      case 3:
+        foreach ($this->preguntasSeguridadUsuario as $pregunta) {
+          $respuestaBD = $this->seleccionarDatos2([
+            'BD' => 'seguridad',
+            'tabla' => 'preguntas_seguridad_usuarios',
+            'campos' => 'respuesta_pregunta',
+            'WHERE' => [
+              'id_pregunta' => $pregunta['id_pregunta']
+            ]
+          ])->fetch(PDO::FETCH_COLUMN);
+
+          if (!password_verify($pregunta['respuesta'], $respuestaBD)) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Respuesta erroneas',
+              'texto' => 'Las respuestas a las preguntas de seguridad no coinciden',
+              'icono' => 'error',
+            ];
+          }
+        }
+
+        $codigo = $_SESSION['hashRecContrasena'] = base64_encode(random_bytes(16));
+
+        $tokenActual = $this->seleccionarDatos2([
+          'BD' => 'seguridad',
+          'tabla' => 'tokens_usuarios',
+          'campos' => 'id_token_usuario,token,vencimiento_token',
+          'WHERE' => [
+            'cedula_usuario' => $this->cedulaUsuario,
+            'tipo_token' => 1,
+          ]
+        ])->fetch();
+
+        $ahora = new DateTime();
+        $vencimiento = new DateTime($tokenActual['vencimiento_token'] ?? null);
+        $diferenciaMin = ($vencimiento->getTimestamp() - $ahora->getTimestamp()) / 60;
+
+        if (empty($tokenActual) || $diferenciaMin <= 0) {
+          if ($tokenActual != []) {
+            $resultado = $this->eliminarDatos2([
+              'fisico' => true,
+              'BD' => 'seguridad',
+              'tabla' => 'tokens_usuarios',
+              'WHERE' => [
+                'id_token_usuario' => $tokenActual['id_token_usuario'],
+              ]
+            ]);
+            if ($resultado == false || $resultado <= 0) {
+              return [
+                'tipo' => 'simple',
+                'titulo' => 'Token antiguo no eliminado',
+                'texto' => 'El antiguo token no pudo ser eliminado correctamente',
+                'icono' => 'error',
+              ];
+            }
+          }
+          $ahora->modify('+15 minutes'); //Al ahora le sumamos 15 minutos
+          $idTokenUsuario = $this->generarCodSeg([
+            'BD' => 'seguridad',
+            'tablaBD' => 'tokens_usuarios',
+            'prefijo' => 'TOKU',
+            'campoID' => 'id_token_usuario',
+          ]);
+          $resultado = $this->guardarDatos2([
+            'BD' => 'seguridad',
+            'tabla' => 'tokens_usuarios',
+            'datos' => [
+              'id_token_usuario' => $idTokenUsuario,
+              'cedula_usuario' => $this->cedulaUsuario,
+              'tipo_token' => 1, //1 es para recuperar clave
+              'token' => $codigo,
+              'vencimiento_token' => $ahora->format('Y-m-d H:i:s')
+            ],
+            'WHERE' => [
+              'cedula_usuario' => $this->cedulaUsuario
+            ]
+          ]);
+          if ($resultado == false || $resultado <= 0) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Token no generado',
+              'texto' => 'El token no pudo ser generado correctamente',
+              'icono' => 'error',
+            ];
+          }
+        } else {
+          $codigo = $tokenActual['token'];
+        }
+        $this->commit();
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Validado',
+          'texto' => 'Confirmado',
+          'icono' => 'success',
+          'codigoRestauracion' => $codigo
+        ];
+
+      case 2:
+      case 1:
+
+        $codigoRecContrasena = $_SESSION['hashRecContrasena'] = base64_encode(random_bytes(16));
+        $tokenActual = $this->seleccionarDatos2([
+          'BD' => 'seguridad',
+          'tabla' => 'tokens_usuarios',
+          'campos' => 'id_token_usuario,token,vencimiento_token',
+          'WHERE' => [
+            'cedula_usuario' => $this->cedulaUsuario,
+            'tipo_token' => 2,
+          ]
+        ])->fetch();
+
+        $ahora = new DateTime();
+        $vencimiento = new DateTime($tokenActual['vencimiento_token'] ?? null);
+        $diferenciaMin = ($vencimiento->getTimestamp() - $ahora->getTimestamp()) / 60;
+
+        if (empty($tokenActual) || $diferenciaMin <= 0) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Token vencido',
+            'texto' => 'El código suministrado ha expirado, por favor solicita uno nuevo',
+            'icono' => 'error',
+          ];
+        }
+
+        if ($this->codigoRecContrasenaUsuario != $tokenActual['token']) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Código erroneo',
+            'texto' => 'El código que ha introducido es incorrecto',
+            'icono' => 'error',
+          ];
+        }
+
+        //Se borra porque ya se usó
+        $resultado = $this->eliminarDatos2([
+          'BD' => 'seguridad',
+          'tabla' => 'tokens_usuarios',
+          'WHERE' => [
+            'id_token_usuario' => $tokenActual['id_token_usuario'],
+          ]
+        ]);
+        if ($resultado == false || $resultado <= 0) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Token no eliminado',
+            'texto' => 'El token a usar no pudo ser eliminado',
+            'icono' => 'error',
+          ];
+        }
+
+        //Creamos el token de recuperacion de contraseña
+        $ahora->modify('+15 minutes');
+        $idTokenUsuario = $this->generarCodSeg([
+          'BD' => 'seguridad',
+          'tablaBD' => 'tokens_usuarios',
+          'prefijo' => 'TOKU',
+          'campoID' => 'id_token_usuario',
+        ]);
+        $resultado = $this->guardarDatos2([
+          'BD' => 'seguridad',
+          'tabla' => 'tokens_usuarios',
+          'datos' => [
+            'id_token_usuario' => $idTokenUsuario,
+            'cedula_usuario' => $this->cedulaUsuario,
+            'tipo_token' => 1, //1 es para recuperar clave
+            'token' => $codigoRecContrasena,
+            'vencimiento_token' => $ahora->format('Y-m-d H:i:s')
+          ],
+          'WHERE' => [
+            'cedula_usuario' => $this->cedulaUsuario
+          ]
+        ]);
+        if ($resultado == false || $resultado <= 0) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Token no generado',
+            'texto' => 'El token no pudo ser generado correctamente',
+            'icono' => 'error',
+          ];
+        }
+
+        $this->commit();
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Validado',
+          'texto' => 'Confirmado',
+          'icono' => 'success',
+          'codigoRestauracion' => $codigoRecContrasena
+        ];
+      default:
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Sin método de verificación',
+          'texto' => 'No has seleccionado ningún método de verificación',
+          'icono' => 'error',
+        ];
+        break;
+    }
+  }
+  private function solicitarCodigoRecContrasenaP(array $info) {
+    switch ($info['tipo_metodo'] ?? '') {
+      case '1': //mensaje normal
+
+        break;
+      case '2': //mensaje por correo
+        $datosUsuario = $this->seleccionarDatos2([
+          'BD' => 'seguridad',
+          'campos' => 'nombre_usuario, apellido_usuario, correo_usuario',
+          'tabla' => 'usuarios',
+          'WHERE' => [
+            'cedula_usuario' => $this->cedulaUsuario
+          ]
+        ])->fetch();
+        if ($datosUsuario == []) {
+          return [
+            'tipo' => 'simple',
+            'titulo' => 'Sin correo de destino',
+            'texto' => 'No posee un correo para el envío del código para la recuperación del acceso',
+            'icono' => 'error'
+          ];
+        }
+
+        $tokenDeEnvio = '';
+        $caracteres = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $nroTotalCaracteres = strlen($caracteres);
+        for ($i = 0; $i < 6; $i++) {
+          $tokenDeEnvio .= $caracteres[rand(0, $nroTotalCaracteres - 1)];
+        }
+
+        $tokenActual = $this->seleccionarDatos2([
+          'BD' => 'seguridad',
+          'tabla' => 'tokens_usuarios',
+          'campos' => 'id_token_usuario,token,vencimiento_token',
+          'WHERE' => [
+            'cedula_usuario' => $this->cedulaUsuario,
+            'tipo_token' => 2, //Token que se envia
+          ]
+        ])->fetch();
+
+        $ahora = new DateTime();
+        $vencimiento = new DateTime($tokenActual['vencimiento_token'] ?? null);
+        $diferenciaMin = ($vencimiento->getTimestamp() - $ahora->getTimestamp()) / 60;
+
+        if (empty($tokenActual) || $diferenciaMin <= 0) {
+          if ($tokenActual != []) {
+            $resultado = $this->eliminarDatos2([
+              'fisico' => true,
+              'BD' => 'seguridad',
+              'tabla' => 'tokens_usuarios',
+              'WHERE' => [
+                'id_token_usuario' => $tokenActual['id_token_usuario'],
+              ]
+            ]);
+            if ($resultado == false || $resultado <= 0) {
+              return [
+                'tipo' => 'simple',
+                'titulo' => 'Token antiguo no eliminado',
+                'texto' => 'El antiguo token no pudo ser eliminado correctamente',
+                'icono' => 'error',
+              ];
+            }
+          }
+          $ahora->modify('+5 minutes'); //Al ahora le sumamos 5 minutos
+          $idTokenUsuario = $this->generarCodSeg([
+            'BD' => 'seguridad',
+            'tablaBD' => 'tokens_usuarios',
+            'prefijo' => 'TOKU',
+            'campoID' => 'id_token_usuario',
+          ]);
+          $resultado = $this->guardarDatos2([
+            'BD' => 'seguridad',
+            'tabla' => 'tokens_usuarios',
+            'datos' => [
+              'id_token_usuario' => $idTokenUsuario,
+              'cedula_usuario' => $this->cedulaUsuario,
+              'tipo_token' => 2, //2 es para el que se envia al usuario
+              'token' => $tokenDeEnvio,
+              'vencimiento_token' => $ahora->format('Y-m-d H:i:s')
+            ],
+            'WHERE' => [
+              'cedula_usuario' => $this->cedulaUsuario
+            ]
+          ]);
+          if ($resultado == false || $resultado <= 0) {
+            return [
+              'tipo' => 'simple',
+              'titulo' => 'Token no generado',
+              'texto' => 'El token no pudo ser generado correctamente',
+              'icono' => 'error',
+            ];
+          }
+        } else {
+          $tokenDeEnvio = $tokenActual['token'];
+        }
+
+        $objCorreo = new correosModelo();
+        $resultado = $objCorreo->enviarCorreos([
+          'asunto_correo' => 'Correo de recuperación',
+          'cuerpo_correo' => "
+            Hola, <b>" . $datosUsuario['nombre_usuario'] . "</b> 
+            nos da mucho gusto saludarte.  Tu código para la recuperación de tu 
+            clave de inicio de sesión al sistema JLACRUZ es: " . $tokenDeEnvio . ". 
+            No compartas este código con nadie.
+          ",
+          'destinatarios_correo' => [
+            'nombre' => $datosUsuario['nombre_usuario'] . ' ' . $datosUsuario['apellido_usuario'],
+            'correo' => $datosUsuario['correo_usuario']
+          ],
+          'esHTML' => true,
+        ]);
+        if (($resultado['icono'] ?? '') == 'error') return $resultado;
+        $correoRecortado = substr($datosUsuario['correo_usuario'], 0, 4) . "******" . strstr($datosUsuario['correo_usuario'], '@');
+        $this->commit();
+        return [
+          'tipo' => 'simple',
+          'titulo' => 'Codigo enviado',
+          'texto' => 'Si introdujo el correo y/o teléfono correctamente recibirá el código y deberá introducirlo a continuación',
+          'icono' => 'success',
+          'correo' => $correoRecortado,
+        ];
+    }
+  }
+  private function restablecerContrasenaUsuarioP($info) {
+    $tokenActual = $this->seleccionarDatos2([
+      'BD' => 'seguridad',
+      'tabla' => 'tokens_usuarios',
+      'campos' => 'token, vencimiento_token',
+      'WHERE' => [
+        'tipo_token' => 1, //Para recuperar la contraseña
+        'cedula_usuario' => $this->cedulaUsuario,
+      ]
+    ])->fetch();
+    if (empty($tokenActual)) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => "Token expirado",
+        'texto' => 'El token de seguridad ha expirado',
+        'icono' => 'error'
+      ];
+    }
+
+    $datetime = new Datetime($tokenActual['vencimiento_token']);
+    $segundosVencimientoToken = $datetime->getTimestamp();
+    $fechaActual = new Datetime();
+    $segundosFechaActual = $fechaActual->getTimestamp();
+
+    if (($segundosVencimientoToken - $segundosFechaActual) <= 0) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Token Vencido',
+        'texto' => 'Tu token ha caducado, por favor, reanuda el proceso desde el principio',
+        'icono' => 'error',
+      ];
+    }
+    if ($this->codigoRecContrasenaUsuario == $tokenActual['token']) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Token erróneo',
+        'texto' => 'El token que ha enviado no es válido',
+        'icono' => 'error',
+      ];
+    }
+
+    $resultado = $this->actualizarDatos2([
+      'BD' => 'seguridad',
+      'tabla' => 'usuarios',
+      'datos' => [
+        'contrasena_usuario' => password_hash($this->contrasena1Usuario, PASSWORD_BCRYPT, ["cost" => 10]),
+        'intentos_inicio_sesion_fallidos_usuario' => 0,
+      ],
+      'WHERE' => [
+        'cedula_usuario' => $this->cedulaUsuario
+      ]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Contraseña no actualizada',
+        'texto' => 'La contraseña no ha sido actualizada',
+        'icono' => 'error',
+      ];
+    }
+    $resultado = $this->eliminarDatos2([
+      'fisico' => true,
+      'BD' => 'seguridad',
+      'tabla' => 'tokens_usuarios',
+      'WHERE' => [
+        'tipo_token' => [
+          '=' => [1, 2]
+        ],
+        'cedula_usuario' => $this->cedulaUsuario,
+      ]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Token no eliminado',
+        'texto' => 'El token no ha podido ser eliminado',
+        'icono' => 'error',
+      ];
+    }
+
+    $this->commit();
+    return [
+      'tipo' => 'simple',
+      'titulo' => 'Contraseña actualizada',
+      'texto' => 'La contraseña ha sido actualizada correctamente',
+      'icono' => 'success'
+    ];
+  }
+  private function programarCierreSesionUsuarioP() {
+    $laSesionEstaActiva = $this->validarVigenciaSesionUsuario();
+    if ($laSesionEstaActiva['icono'] != 'success') return $this->cerrarSesionUsuarios();
+
+    $ahora = new DateTime();
+    $ahora->modify('+5 minutes'); //Al ahora le sumamos 5 minutos
+    $resultado = $this->actualizarDatos2([
+      'BD' => 'seguridad',
+      'tabla' => 'usuarios',
+      'datos' => [
+        'ultimo_acceso_usuario' => $ahora->format('Y-m-d H:i:s')
+      ],
+      'WHERE' => [
+        'cedula_usuario' => $this->cedulaUsuario
+      ]
+    ]);
+    if ($resultado == false || $resultado <= 0) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => 'Última hora de actividad no actualizada',
+        'texto' => 'La última hora de actividad no fue actualizada correctamente',
+        'icono' => 'error',
+      ];
+    }
+    $this->commit();
+    return [
+      'tipo' => 'simple',
+      'titulo' => 'Última hora de actividad actualizada',
+      'texto' => 'La última hora de actividad fue actualizada correctamente',
+      'icono' => 'success',
+    ];
+  }
+  private function validarVigenciaSesionUsuarioP() {
+    $fechaExpiracionSesion = $this->seleccionarDatos2([
+      'BD' => 'seguridad',
+      'tabla' => 'usuarios',
+      'campos' => 'ultimo_acceso_usuario',
+      'WHERE' => [
+        'cedula_usuario' => $this->cedulaUsuario
+      ]
+    ])->fetch(PDO::FETCH_COLUMN);
+
+    $ahora = new DateTime();
+    $expiracion = new DateTime($fechaExpiracionSesion);
+    $diferenciaMin = ($expiracion->getTimestamp() - $ahora->getTimestamp()) / 60;
+
+    if ($diferenciaMin <= 0) {
+      return [
+        'tipo' => 'simple',
+        'titulo' => "Sesión expirada",
+        'texto' => 'El tiempo de inicio de sesión ha expirado, por favor vuelva a entrar con sus credenciales',
+        'icono' => 'error',
+      ];
+    }
+    return [
+      'tipo' => 'simple',
+      'titulo' => "Sesión activa",
+      'texto' => 'La sesión se encuentra vigente',
+      'icono' => 'success',
     ];
   }
 }

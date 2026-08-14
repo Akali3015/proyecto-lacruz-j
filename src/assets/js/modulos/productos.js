@@ -152,7 +152,6 @@ async function inicializarModalProducto(modal) {
       },
     });
     if (productoBD?.icono == 'error') {
-      console.log(productoBD)
       await alertasAjax(productoBD);
       return;
     }
@@ -197,8 +196,8 @@ async function inicializarModalProducto(modal) {
     modal.find(".contenedor-presentaciones").html(`
       <div class="col-12">
         <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Error al cargar datos: ${error.message}
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Error al cargar datos: ${error.message}
         </div>
       </div>
     `);
@@ -608,7 +607,6 @@ $(document).on("click", ".botonEditar", async function (e) {
     campoId: 'id_producto',
     modulo: 'productos',
   });
-
   await cargarInputsActualizarQNR.call(modal.find("form"));
   modal.attr("id_producto", idProducto);
   await inicializarModalProducto(modal);
@@ -620,8 +618,7 @@ $(document).off("submit", ".formularioAjax");
 $(document).on("submit", ".formularioAjax", async function (e) {
   e.preventDefault();
   let resultado = await enviarFormulario({
-    convertirJSON: true,
-    camposFoto: ['foto_presentacion'],
+    tipoCuerpo: 'JSON',
     formulario: this,
     modulo: 'productos'
   })

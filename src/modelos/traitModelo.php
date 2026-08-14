@@ -78,11 +78,10 @@ trait traitModelo {
 
     $cadena = trim($cadena);
     $cadena = stripslashes($cadena);
-
     foreach ($palabras as $palabra) {
-      $cadena = str_ireplace($palabra, "", $cadena);
+      $palabraEscapada = preg_quote($palabra, '/');
+      $cadena = preg_replace('/\b' . $palabraEscapada . '\b/i', '', $cadena);
     }
-
     $cadena = trim($cadena);
     $cadena = stripslashes($cadena);
 
@@ -212,15 +211,13 @@ trait traitModelo {
         //Para validar el formato del campo con expresiones regulares
         if (isset($campo['expresion_re']) && ($campo['campo_valor'] ?? '') != "") {
           if ($campo['campo_valor'] != "") {
-            if (!preg_match("/" . $campo['expresion_re'] . "/", $campo['campo_valor'])) {
-              $alerta = [
+            if (!preg_match("~" . $campo['expresion_re'] . "~", $campo['campo_valor'])) {
+              return ([
                 "tipo" => "simple",
                 "titulo" => "Formato de " . $campo['formulario_nombre'] . " inválido",
                 "texto" => "El formato del campo " . $campo['formulario_nombre'] . " no es correcto, por favor verifique e intente de nuevo.",
                 "icono" => "error",
-              ];
-              return ($alerta);
-              exit();
+              ]);
             }
           }
         }
@@ -403,6 +400,10 @@ trait traitModelo {
           $titulo = 'Demasiados elementos';
           $texto = 'La cantidad de ' . $esquema['nombreAlerta'] . ' enviados debe ser menor a ' . $esquema['maxItems'];
           break;
+        case 'nroItemsArray':
+          $titulo = 'Número incorrecto de elementos';
+          $texto = 'La cantidad de ' . $esquema['nombreAlerta'] . ' debe ser exactamente ' . $esquema['nroItems'];
+          break;
         case 'maxL':
           $titulo = 'Valor muy largo';
           $texto = 'El valor introducido en el campo de ' . $esquema['nombreAlerta'] . ' debe tener máximo ' . $esquema['maxL'] . ' carácteres de longitud';
@@ -445,7 +446,7 @@ trait traitModelo {
           $titulo = "Error de esquema";
           $texto = "Ha ocurrido un error debido a la falta de una configuracion en las validaciones del campo " . $esquema['nombreAlerta'] . " que se viculan a los archivos " . $reglaIncumplida;
           break;
-        case 'fataTipoDato':
+        case 'faltaTipoDato':
           $titulo = "Error de esquema";
           $texto = "Ha ocurrido un error debido a la falta de una configuracion en las validaciones del campo " . $esquema['nombreAlerta'] . " " . $reglaIncumplida;
           break;
@@ -477,7 +478,7 @@ trait traitModelo {
     };
 
     // Tipo de dato
-    if (!isset($esquema['tipo'])) return $fAlerta($esquema, 'fataTipoDato', $direccion, $valor, $contexto);
+    if (!isset($esquema['tipo'])) return $fAlerta($esquema, 'faltaTipoDato', $direccion, $valor, $contexto);
     $validarTipo = function ($tipo, &$valor, $contexto, $fAlerta, $esquema, $direccion) {
       switch ($tipo) {
         case 'boolean':
@@ -497,6 +498,9 @@ trait traitModelo {
           if (!is_array($valor)) return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
           if (!array_is_list($valor)) return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
 
+          if (isset($esquema['nroItems']) && count($valor) < $esquema['nroItems']) {
+            return $fAlerta($esquema, 'nroItemsArray', $direccion, $valor, $contexto);
+          }
           if (isset($esquema['minItems']) && count($valor) < $esquema['minItems']) {
             return $fAlerta($esquema, 'minItemsArray', $direccion, $valor, $contexto);
           }
@@ -515,9 +519,9 @@ trait traitModelo {
           unset($item);
           return false;
         case 'arrayA':
+
           if (!is_array($valor)) return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
           if (array_is_list($valor)) return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
-
           foreach ($esquema['propiedades'] as $propiedad => &$esquemaInd) {
             $direccionNu = [...$direccion, $propiedad];
             if (
@@ -702,14 +706,18 @@ trait traitModelo {
       }
       return false;
     };
+
     if (is_array($esquema['tipo'])) {
       $coincideConUno = false;
+      $erroresValidacion = [];
       foreach ($esquema['tipo'] as $tipoInd) {
         $v = $validarTipo($tipoInd, $valor, $contexto, $fAlerta, $esquema, $direccion);
         if (!$v) $coincideConUno = true;
+        else $erroresValidacion[] = [...$v, 'tipoQueFallo' => $tipoInd];
       }
       if (!$coincideConUno) {
-        return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
+        if (modoDev) return $erroresValidacion;
+        else return $fAlerta($esquema, 'tipo', $direccion, $valor, $contexto);
       }
     } else {
       $v = $validarTipo($esquema['tipo'], $valor, $contexto, $fAlerta, $esquema, $direccion);
@@ -744,7 +752,8 @@ trait traitModelo {
     }
 
     // Formato
-    if (isset($esquema['regex']) && $valor != "" && !preg_match("/" . $esquema['regex'] . "/", $valor)) {
+    
+    if (isset($esquema['regex']) && $valor != "" && !preg_match("~" . $esquema['regex'] . "~", $valor)) {
       return $fAlerta($esquema, 'regex', $direccion, $valor, $contexto);
     }
 
@@ -878,6 +887,8 @@ trait traitModelo {
     $urlRedireccion = 'usuarios/login';
     $_SESSION['vistaActual'] = 'usuarios';
     if (isset($_SESSION['cedula']) && isset($_GET['views']) && $_GET['views'] != []) {
+
+      $coincidioConUna = false;
       $permisosRedi = [
         'reportes' => 'ver reportes',
         'ventas' => 'ver',
@@ -887,13 +898,19 @@ trait traitModelo {
         if (!isset($objPermisos->validarPermisos($modulo, $permiso)['icono'])) {
           $urlRedireccion = $modulo . '/';
           $_SESSION['vistaActual'] = $modulo;
+          $coincidioConUna = true;
           break;
         }
+      }
+      if (!$coincidioConUna) {
+        $urlRedireccion = 'others/home';
+        $_SESSION['vistaActual'] = 'home';
       }
     }
     http_response_code(403);
     ob_end_clean();
     if ($sinRedireccion) return APP_URL . $urlRedireccion;
+
     if ($_SERVER['HTTP_X_ES_AJAX'] ?? false) {
       echo json_encode([
         'tipo' => 'simple',

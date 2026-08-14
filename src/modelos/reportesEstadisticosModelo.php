@@ -42,7 +42,6 @@ class reportesEstadisticosModelo extends conexion {
     if ($v) return $v;
     return false;
   }
-
   public function obtenerDatosDashboard(array $datos) {
     $v = $this->validarReportesEstadisticos('ver reportes estadísticos', $datos);
     if ($v) return $v;
@@ -70,7 +69,7 @@ class reportesEstadisticosModelo extends conexion {
 
     return $this->obtenerDatosDashboardP($filtros);
   }
-
+  
   private function obtenerDatosDashboardP(array $filtros) {
     $this->conectar();
 

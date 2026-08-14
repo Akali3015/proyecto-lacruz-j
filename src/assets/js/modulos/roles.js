@@ -69,7 +69,6 @@ async function inicializarModulo() {
       ]
   });
 }
-
 function submitFormularioAjax(e) {
   e.preventDefault();
   enviarFormulario({
@@ -77,7 +76,6 @@ function submitFormularioAjax(e) {
     'modulo': 'roles'
   });
 }
-
 function clickBotonEliminar(e) {
   e.preventDefault();
   eliminarRegistro({
@@ -86,7 +84,6 @@ function clickBotonEliminar(e) {
     modulo: 'roles',
   });
 }
-
 async function clickBotonEditar(e) {
   e.preventDefault();
   await obtenerDatosRegistro({
@@ -96,7 +93,6 @@ async function clickBotonEditar(e) {
   });
   cargarInputsActualizarQNR.call($($(this).attr('data-bs-target')).find('form'));
 }
-
 function inputValidarTiempoReal() {
   validarEnTiempoReal(this, 'roles');
 }

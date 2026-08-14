@@ -138,7 +138,7 @@ class conexion {
     }
   }
   private function seleccionarDatosP2(array $instrucciones) {
-    $objCache = new cacheModelo();
+    // $objCache = new cacheModelo();
     try {
       $tabla = trim($instrucciones['tabla']);
       /* $cacheTabla = $objCache->getItem($tabla) ?? [];
@@ -372,7 +372,7 @@ class conexion {
       return $consulta;
     } catch (\Throwable $th) {
       $this->rollback();
-      $objCache->removeItem($instrucciones['tabla']);
+      // $objCache->removeItem($instrucciones['tabla']);
       if ($this->imgTrans != []) {
         $this->Imagenes_Eli2($this->imgTrans['subCarpeta'], $this->imgTrans['imagenes']);
       }
@@ -660,7 +660,14 @@ class conexion {
               $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
               $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
             } else {
-              foreach ($valoresW1 as $v) {
+              // $operadoresQueUsanORPorElMedio=['='];
+              $operadoresQueUsanANDPorElMedio = ['!='];
+
+              foreach ($valoresW1 as $cv => $v) {
+                if ($cv > 0) {
+                  $opMedio = in_array($operadorW1, $operadoresQueUsanANDPorElMedio) ? 'AND' : 'OR';
+                  $consulta .= $opMedio . ' ';
+                }
                 $marcador = $guardarMarcador($marcadoresWHERE, $claveW1);
                 $consulta .= $claveW1 . ' ' . $operadorW1 . ' ' . $marcador . ' ';
               }
@@ -705,6 +712,7 @@ class conexion {
         $this->Imagenes_Eli2($this->imgTrans['subCarpeta'], $this->imgTrans['imagenes']);
       }
       $error = [
+        'consulta' => $consulta ?? 'Sin consulta',
         'titulo' => 'Error en la eliminación',
         'linea' => $th->getLine(),
         'código de error' => $th->getCode(),

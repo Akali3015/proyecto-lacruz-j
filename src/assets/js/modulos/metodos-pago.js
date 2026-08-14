@@ -17,6 +17,7 @@ $(document).on('DOMContentLoaded', async function (e) {
       "necesita_banco_emisor": "B. EMISOR",
       "necesita_banco_receptor": "B. RECEPTOR",
       "necesita_referencia": "REFERENCIA",
+      "mostrar_ecommerce": "ECOMMERCE",
     },
     informacionPe: {
       'modulo': 'metodos-pago',
@@ -29,6 +30,7 @@ $(document).on('DOMContentLoaded', async function (e) {
       necesita_banco_emisor: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
       necesita_banco_receptor: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
       necesita_referencia: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
+      mostrar_ecommerce: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
     },
   });
   driverAyuda('metodos-pago', {
@@ -84,7 +86,7 @@ $(document).on('submit', '.formularioAjax', function (e) {
   enviarFormulario({
     'formulario': this,
     'modulo': 'metodos-pago'
-  })
+  });
 });
 
 //Evento para el envío de formularios

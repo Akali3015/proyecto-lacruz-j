@@ -529,7 +529,7 @@ class comprasModelo extends conexion {
         'id_compra' => $this->id_compra,
         'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
         'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
-        'detalles' => is_array($anteriores) ? array_map(function($item) {
+        'detalles' => is_array($anteriores) ? array_map(function ($item) {
           return [
             'tipo' => $item['TIPO'] ?? '',
             'id' => $item['id_item'] ?? '',
@@ -675,7 +675,7 @@ class comprasModelo extends conexion {
         'id_compra' => $this->id_compra,
         'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
         'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
-        'detalles' => is_array($anteriores) ? array_map(function($item) {
+        'detalles' => is_array($anteriores) ? array_map(function ($item) {
           return [
             'tipo' => $item['TIPO'] ?? '',
             'id' => $item['id_item'] ?? '',

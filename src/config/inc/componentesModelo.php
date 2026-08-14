@@ -6,7 +6,9 @@ use src\config\connect\conexion;
 use src\modelos\accesosModelo;
 
 class componentesModelo extends conexion {
+
   private accesosModelo $objPermisos;
+
   public function __construct() {
     $this->objPermisos = new accesosModelo();
   }
@@ -243,6 +245,13 @@ class componentesModelo extends conexion {
         'url' => 'bitacora',
         'icono' => 'file-spreadsheet',
         'texto' => 'Bitácora',
+      ],
+      [
+        'modulo' => 'preguntas-seguridad',
+        'permiso' => 'ver',
+        'url' => 'preguntas-seguridad',
+        'icono' => 'interrogation',
+        'texto' => 'Preguntas de Seguridad',
       ],
     ];
     $lisConfig = '';
