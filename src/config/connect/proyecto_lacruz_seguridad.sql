@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-07-2026 a las 18:52:09
+-- Tiempo de generación: 15-08-2026 a las 16:48:23
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -299,14 +299,14 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1005, 1, 248, 651, 1),
 (1006, 1, 248, 652, 1),
 (1007, 2, 18, 618, 1),
-(1008, 3, 18, 618, 0),
-(1009, 3, 9, 618, 0),
-(1010, 3, 8, 618, 0),
-(1011, 3, 1, 618, 0),
-(1012, 3, 249, 618, 0),
-(1013, 3, 264, 618, 0),
-(1014, 3, 251, 618, 0),
-(1015, 3, 261, 618, 0),
+(1008, 3, 18, 618, 1),
+(1009, 3, 9, 618, 1),
+(1010, 3, 8, 618, 1),
+(1011, 3, 1, 618, 1),
+(1012, 3, 249, 618, 1),
+(1013, 3, 264, 618, 1),
+(1014, 3, 251, 618, 1),
+(1015, 3, 261, 618, 1),
 (1016, 3, 261, 619, 1),
 (1017, 3, 251, 619, 1),
 (1018, 3, 18, 619, 1),
@@ -314,16 +314,16 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1020, 3, 249, 619, 1),
 (1021, 3, 1, 619, 1),
 (1022, 3, 8, 619, 1),
-(1023, 3, 29, 618, 0),
-(1024, 3, 250, 618, 0),
+(1023, 3, 29, 618, 1),
+(1024, 3, 250, 618, 1),
 (1025, 3, 250, 619, 1),
 (1026, 1, 248, 653, 1),
-(1027, 3, 9, 622, 0),
+(1027, 3, 9, 622, 1),
 (1028, 1, 267, 618, 1),
 (1029, 1, 267, 619, 1),
 (1030, 1, 267, 620, 1),
 (1031, 1, 267, 621, 1),
-(1032, 1, 303, 618, 0),
+(1032, 1, 303, 618, 1),
 (1033, 1, 266, 619, 1),
 (1034, 1, 266, 618, 1),
 (1035, 1, 266, 620, 1),
@@ -338,7 +338,21 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1047, 1, 248, 662, 1),
 (1048, 1, 4, 663, 1),
 (1049, 1, 23, 664, 1),
-(1050, 1, 261, 665, 1);
+(1050, 1, 261, 665, 1),
+(1051, 1, 308, 618, 1),
+(1052, 1, 308, 620, 1),
+(1053, 1, 308, 619, 1),
+(1054, 1, 308, 621, 1),
+(1055, 1, 308, 622, 1),
+(1061, 1, 307, 618, 1),
+(1062, 1, 307, 619, 1),
+(1063, 1, 307, 620, 1),
+(1064, 1, 307, 621, 1),
+(1065, 1, 307, 622, 1),
+(1066, 1, 303, 619, 1),
+(1067, 1, 303, 620, 1),
+(1068, 1, 303, 621, 1),
+(1069, 1, 303, 622, 1);
 
 -- --------------------------------------------------------
 
@@ -359,47 +373,20 @@ CREATE TABLE `acciones_resagadas_usuarios` (
 --
 
 INSERT INTO `acciones_resagadas_usuarios` (`id_accion_resagada_usuario`, `id_modulo`, `cedula_usuario`, `accion_resagada`, `status`) VALUES
-(501, 18, 'V30485684', 'actDT', 1),
-(658, 248, 'V30485680', 'borrarDataModuloSS', 1),
-(660, 248, 'V30485680', 'actDT', 1),
-(693, 248, 'V30485694', 'borrarDataModuloSS', 1),
-(695, 248, 'V30485694', 'actDT', 1),
-(708, 18, 'V12345666', 'borrarDataModuloSS', 1),
-(709, 18, 'V30485680', 'borrarDataModuloSS', 1),
-(710, 18, 'V30485683', 'borrarDataModuloSS', 1),
-(712, 18, 'V30485686', 'borrarDataModuloSS', 1),
-(713, 18, 'V30485694', 'borrarDataModuloSS', 1),
-(714, 18, 'V12345666', 'actDT', 1),
-(715, 18, 'V30485680', 'actDT', 1),
-(716, 18, 'V30485683', 'actDT', 1),
-(717, 18, 'V30485686', 'actDT', 1),
-(718, 18, 'V30485694', 'actDT', 1),
-(757, 23, 'V30485683', 'borrarDataModuloSS', 1),
-(759, 23, 'V30485683', 'actDT', 1),
-(762, 9, 'V30485681', 'borrarDataModuloSS', 1),
-(763, 9, 'V30485683', 'borrarDataModuloSS', 1),
-(765, 248, 'V30485681', 'actDT', 1),
-(766, 248, 'V30485683', 'actDT', 1),
-(772, 9, 'V30485683', 'actDT', 1),
-(818, 248, 'V30485683', 'borrarDataModuloSS', 1),
-(851, 247, 'V30485683', 'borrarDataModuloSS', 1),
-(854, 247, 'V30485683', 'actDT', 1),
-(869, 250, 'V30485683', 'borrarDataModuloSS', 1),
-(872, 250, 'V30485683', 'actDT', 1),
-(891, 19, 'V30485683', 'borrarDataModuloSS', 1),
-(894, 19, 'V30485683', 'actDT', 1),
-(929, 4, 'V30485683', 'borrarDataModuloSS', 1),
-(932, 4, 'V30485683', 'actDT', 1),
-(1004, 4, 'V30485688', 'borrarDataModuloSS', 1),
-(1006, 4, 'V30485688', 'actDT', 1),
-(1008, 9, 'V30485688', 'borrarDataModuloSS', 1),
-(1009, 9, 'V30485684', 'actDT', 1),
-(1010, 9, 'V30485688', 'actDT', 1),
-(1012, 262, 'V30485683', 'borrarDataModuloSS', 1),
-(1014, 262, 'V30485688', 'borrarDataModuloSS', 1),
-(1015, 262, 'V30485683', 'actDT', 1),
-(1017, 262, 'V30485688', 'actDT', 1),
-(1019, 9, 'V30485684', 'borrarDataModuloSS', 1);
+(1139, 9, 'V30485688', 'borrarDataModuloSS', 1),
+(1140, 9, 'V30485688', 'actDT', 1),
+(1141, 9, 'V30485681', 'borrarDataModuloSS', 1),
+(1143, 9, 'V30485681', 'actDT', 1),
+(1151, 248, 'V30485681', 'borrarDataModuloSS', 1),
+(1153, 248, 'V30485681', 'actDT', 1),
+(1159, 247, 'V30485681', 'borrarDataModuloSS', 1),
+(1161, 247, 'V30485681', 'actDT', 1),
+(1167, 250, 'V30485681', 'borrarDataModuloSS', 1),
+(1169, 250, 'V30485681', 'actDT', 1),
+(1191, 19, 'V30485681', 'borrarDataModuloSS', 1),
+(1193, 19, 'V30485681', 'actDT', 1),
+(1227, 4, 'V30485681', 'borrarDataModuloSS', 1),
+(1229, 4, 'V30485681', 'actDT', 1);
 
 -- --------------------------------------------------------
 
@@ -424,304 +411,167 @@ CREATE TABLE `bitacora` (
 --
 
 INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_modulo`, `resultado_bitacora`, `accion`, `ip_dispositivo`, `cambios_efectuados`, `fecha_bitacora`, `status`) VALUES
-(1645, 'V30485684', 18, 'éxito', 'registrarIva', '', NULL, '2026-06-13 16:47:54', 1),
-(1646, 'V30485684', 18, 'éxito', 'registrarIva', '', NULL, '2026-06-13 16:48:00', 1),
-(1647, 'V30485684', 18, 'éxito', 'registrarIva', '', NULL, '2026-06-13 16:48:18', 1),
-(1648, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-13 18:40:36', 1),
-(1651, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-13 19:14:15', 1),
-(1652, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '', NULL, '2026-06-13 19:26:40', 1),
-(1653, 'V30485684', 18, 'éxito', 'registrarIva', '', NULL, '2026-06-13 19:30:38', 1),
-(1654, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-13 19:31:54', 1),
-(1655, 'V30485684', 248, 'Éxito', 'actualizar', '', NULL, '2026-06-14 14:02:03', 1),
-(1656, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 14:05:47', 1),
-(1657, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 14:06:59', 1),
-(1658, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 14:07:16', 1),
-(1659, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '', NULL, '2026-06-14 14:35:40', 1),
-(1660, 'V30485684', 248, 'Éxito', 'actualizar', '', NULL, '2026-06-14 14:36:19', 1),
-(1661, 'V30485684', 247, 'éxito', 'registrar', '', NULL, '2026-06-14 14:38:18', 1),
-(1662, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:38:26', 1),
-(1663, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:38:33', 1),
-(1664, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:39:44', 1),
-(1665, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:39:59', 1),
-(1666, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:41:56', 1),
-(1667, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:47:51', 1),
-(1668, 'V30485684', 247, 'fallido', 'actualizar', '', NULL, '2026-06-14 14:50:38', 1),
-(1669, 'V30485684', 247, 'fallido', 'actualizar', '', NULL, '2026-06-14 14:50:53', 1),
-(1670, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:51:00', 1),
-(1671, 'V30485684', 247, 'éxito', 'actualizar', '', NULL, '2026-06-14 14:52:57', 1),
-(1672, 'V30485684', 247, 'éxito', 'registrar', '', NULL, '2026-06-14 14:54:22', 1),
-(1673, 'V30485684', 247, 'éxito', 'eliminar', '', NULL, '2026-06-14 14:54:26', 1),
-(1674, 'V30485684', 247, 'éxito', 'eliminar', '', NULL, '2026-06-14 14:54:29', 1),
-(1675, 'V30485684', 17, 'Error', 'actualizar Empresa de envíos con id: 6', '', NULL, '2026-06-14 14:55:53', 1),
-(1676, 'V30485684', 17, 'Éxito', 'actualizar Empresa de envíos con id: 6', '', NULL, '2026-06-14 14:55:57', 1),
-(1677, 'V30485684', 250, 'Éxito', 'eliminar Empresa de envíos con id: 7', '', NULL, '2026-06-14 14:56:02', 1),
-(1678, 'V30485684', 17, 'Éxito', 'actualizar Empresa de envíos con id: 6', '', NULL, '2026-06-14 14:56:07', 1),
-(1679, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '', NULL, '2026-06-14 17:39:25', 1),
-(1680, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '', NULL, '2026-06-14 17:39:36', 1),
-(1681, 'V30485684', 248, 'Éxito', 'actualizar', '', NULL, '2026-06-14 17:39:40', 1),
-(1682, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 17:47:00', 1),
-(1683, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '', NULL, '2026-06-14 17:57:14', 1),
-(1684, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 17:57:24', 1),
-(1685, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 17:57:33', 1),
-(1686, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 17:57:47', 1),
-(1687, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 18:00:36', 1),
-(1688, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 18:01:00', 1),
-(1689, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-14 18:01:24', 1),
-(1690, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 18:04:01', 1),
-(1691, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 18:04:40', 1),
-(1692, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 18:06:39', 1),
-(1693, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-14 19:10:02', 1),
-(1694, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-19 21:13:35', 1),
-(1695, 'V30485684', 248, 'Éxito', 'registrar', '', NULL, '2026-06-19 21:16:54', 1),
-(1696, 'V30485684', 248, 'Fallido', 'registrar', '', NULL, '2026-06-19 21:17:26', 1),
-(1697, 'V30485684', 9, 'éxito', 'registrar', '190.97.229.53', '{\"cedula_usuario\":{\"registrado\":\"V1234567\"},\"nombre_usuario\":{\"registrado\":\"Anderson\"},\"apellido_usuario\":{\"registrado\":\"Freitez\"},\"correo_usuario\":{\"registrado\":\"andersonfreitez96@gmail.com\"},\"telefono_usuario\":{\"registrado\":\"04161234567\"},\"id_rol\":{\"registrado\":2},\"usuario_usuario\":{\"registrado\":\"Ander1239\"},\"contrasena_usuario\":{\"registrado\":\"$2y$10$o4NZdHyA8DC48693PT\\/xcuiYLZEp944yhZUenpn2nFvU2DI4UZ.o.\"},\"foto_usuario\":{\"registrado\":\"usuarios_2026_06_21_13_32_34_11.png\"},\"direccion_usuario\":{\"registrado\":\"SANARE\"}}', '2026-06-21 13:32:34', 1),
-(1698, 'V30485684', 9, 'éxito', 'iniciar sesión', '190.97.229.53', NULL, '2026-06-21 17:17:54', 1),
-(1699, 'V30485684', 9, 'éxito', 'iniciar sesión', '181.208.252.213', NULL, '2026-06-21 17:18:20', 1),
-(1700, 'V30485684', 9, 'éxito', 'actualizar', '190.97.229.53', '{\"telefono_usuario\":{\"modificado\":\"04169484648\"}}', '2026-06-21 18:12:36', 1),
-(1701, 'V30485684', 248, 'Fallido', 'registrar', '190.97.229.53', NULL, '2026-06-21 18:24:11', 1),
-(1702, 'V30485684', 4, 'éxito', 'actualizar', '190.97.229.53', NULL, '2026-06-21 18:26:52', 1),
-(1703, 'V30485684', 4, 'éxito', 'actualizar', '190.97.229.53', NULL, '2026-06-21 18:27:09', 1),
-(1704, 'V30485684', 248, 'Fallido', 'registrar', '190.97.229.53', NULL, '2026-06-22 11:05:02', 1),
-(1705, 'V30485684', 248, 'Éxito', 'Asignar Repartidor', '190.97.229.53', NULL, '2026-06-22 11:35:11', 1),
-(1706, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26169-00001-13', '190.97.229.53', '{\"cedula_repartidor\":{\"registrado\":\"V12344567\"},\"status_pedido\":{\"modificado\":7},\"cedula_usuario\":{\"registrado\":\"V30485684\"}}', '2026-06-22 12:14:10', 1),
-(1707, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26164-00006-74', '190.97.229.53', '{\"cedula_repartidor\":{\"registrado\":\"V12344567\"},\"status_pedido\":{\"modificado\":7},\"cedula_usuario\":{\"registrado\":\"V30485684\"}}', '2026-06-22 12:16:43', 1),
-(1708, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26164-00005-85', '190.97.229.53', '{\"cedula_repartidor\":{\"registrado\":\"V12344567\"},\"status_pedido\":{\"modificado\":7},\"cedula_usuario\":{\"registrado\":\"V30485684\"}}', '2026-06-22 13:17:56', 1),
-(1710, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26172-00001-48', '190.97.229.53', '{\"productos\":[{\"id_producto\":{\"registrado\":\"PROD-26150-00001-39\"},\"id_unidad_medida\":{\"registrado\":2},\"id_categoria_producto\":{\"registrado\":1},\"nombre_producto\":{\"registrado\":\"CLORO\"},\"precio_producto\":{\"registrado\":\"1.00\"},\"stock_producto\":{\"registrado\":\"1000.00\"},\"stock_minimo_producto\":{\"registrado\":\"2.00\"},\"status\":{\"registrado\":1},\"nombre_unidad_medida\":{\"registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"registrado\":\"L\"},\"equivalencia_ub\":{\"registrado\":\"1000.00\"},\"nombre_categoria_producto\":{\"registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"registrado\":1},\"id_presentacion_producto\":{\"registrado\":\"PRPR-26160-00001-60\"},\"id_presentacion\":{\"registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"registrado\":1},\"foto_presentacion\":{\"registrado\":\"presentaciones_productos_2026-06-10_11_15_34.jpg?v=2026-06-10_17_54_04\"},\"nombre_presentacion\":{\"registrado\":\"POR LITRO\"},\"cantidad_pmp\":{\"registrado\":\"1.00\"},\"precio_bs\":{\"registrado\":\"567.00\"},\"precio_dolar\":{\"registrado\":\"1.00\"},\"tipo_item\":{\"registrado\":\"productos\"},\"cantidad\":{\"registrado\":20}}],\"pagos\":[{\"id_metodo_pago\":{\"registrado\":\"1\"},\"id_moneda\":{\"registrado\":\"2\"},\"id_banco_emisor\":{\"registrado\":\"1\"},\"id_banco_receptor\":{\"registrado\":\"1\"},\"referencia_pago\":{\"registrado\":\"123456\"},\"monto_pago\":{\"registrado\":115060}}],\"delivery\":{\"latitud\":{\"registrado\":9.85951786980876},\"longitud\":{\"registrado\":-69.61194737227689}},\"comprobantes_pago\":[{\"eliminado\":[\"comprobantes_pagos_2026_06_22_13_18_56_36.png\"]}]}', '2026-06-22 13:18:56', 1),
-(1711, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26164-00004-76', '190.97.229.53', '{\"cedula_repartidor\":{\"registrado\":\"V12344567\"},\"status_pedido\":{\"modificado\":7},\"cedula_usuario\":{\"registrado\":\"V30485684\"}}', '2026-06-22 13:19:42', 1),
-(1712, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26164-00003-63', '190.97.229.53', '{\"cedula_repartidor\":{\"registrado\":\"V12344567\"},\"status_pedido\":{\"modificado\":7},\"cedula_usuario\":{\"registrado\":\"V30485684\"}}', '2026-06-22 14:57:45', 1),
-(1718, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26172-00001-26', '190.97.229.53', NULL, '2026-06-22 16:38:01', 1),
-(1719, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26172-00002-88', '190.97.229.53', NULL, '2026-06-22 16:39:43', 1),
-(1722, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26172-00003-47', '190.97.229.53', NULL, '2026-06-22 16:59:08', 1),
-(1723, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26172-00001-98', '190.97.229.53', NULL, '2026-06-22 18:23:27', 1),
-(1724, 'V30485684', 9, 'éxito', 'registrar', '190.97.229.53', NULL, '2026-06-22 18:27:06', 1),
-(1725, 'V30485684', 9, 'éxito', 'actualizar', '190.97.229.53', NULL, '2026-06-22 18:27:18', 1),
-(1726, 'V30485684', 9, 'éxito', 'eliminar', '190.97.229.53', NULL, '2026-06-22 18:27:24', 1),
-(1727, 'V30485684', 9, 'éxito', 'iniciar sesión', '190.97.229.53', NULL, '2026-06-24 14:05:13', 1),
-(1728, 'V30485684', 9, 'éxito', 'registrar usuario con la cedula/rif: V30485694', '0.0.0.0', NULL, '2026-06-24 18:34:59', 1),
-(1729, 'V30485684', 9, 'éxito', 'actualizar usuario con la cedula/rif: V1234567', '0.0.0.0', NULL, '2026-06-24 18:35:20', 1),
-(1730, 'V30485684', 9, 'éxito', 'actualizar usuario con la cedula/rif: V1234567', '0.0.0.0', NULL, '2026-06-24 18:35:27', 1),
-(1731, 'V30485684', 9, 'éxito', 'eliminar usuario con la cedula/rif: V1234567', '0.0.0.0', NULL, '2026-06-24 18:35:31', 1),
-(1732, 'V30485684', 247, 'fallido', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:36:54', 1),
-(1733, 'V30485684', 247, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:36:58', 1),
-(1734, 'V30485684', 247, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:03', 1),
-(1735, 'V30485684', 247, 'éxito', 'registrar', '0.0.0.0', NULL, '2026-06-24 18:37:18', 1),
-(1736, 'V30485684', 247, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:26', 1),
-(1737, 'V30485684', 247, 'fallido', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:32', 1),
-(1738, 'V30485684', 247, 'fallido', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:34', 1),
-(1739, 'V30485684', 247, 'fallido', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:45', 1),
-(1740, 'V30485684', 247, 'fallido', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:52', 1),
-(1741, 'V30485684', 247, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:37:56', 1),
-(1742, 'V30485684', 247, 'éxito', 'eliminar', '0.0.0.0', NULL, '2026-06-24 18:38:00', 1),
-(1743, 'V30485684', 17, 'Éxito', 'actualizar Empresa de envíos con id: 6', '0.0.0.0', NULL, '2026-06-24 18:43:01', 1),
-(1744, 'V30485684', 250, 'Éxito', 'Registrar', '0.0.0.0', NULL, '2026-06-24 18:43:13', 1),
-(1745, 'V30485684', 250, 'Éxito', 'eliminar Empresa de envíos con id: 34', '0.0.0.0', NULL, '2026-06-24 18:43:16', 1),
-(1746, 'V30485684', 17, 'Éxito', 'actualizar Empresa de envíos con id: 6', '0.0.0.0', NULL, '2026-06-24 18:43:21', 1),
-(1747, 'V30485684', 303, 'éxito', 'registrar', '0.0.0.0', NULL, '2026-06-24 18:43:33', 1),
-(1748, 'V30485684', 303, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:43:39', 1),
-(1749, 'V30485684', 303, 'éxito', 'actualizar', '0.0.0.0', NULL, '2026-06-24 18:43:44', 1),
-(1750, 'V30485684', 303, 'éxito', 'eliminar', '0.0.0.0', NULL, '2026-06-24 18:43:49', 1),
-(1751, 'V30485684', 9, 'éxito', 'registrar usuario con la cedula/rif: V12345666', '190.97.229.53', NULL, '2026-06-24 23:38:15', 1),
-(1752, 'V30485684', 9, 'éxito', 'iniciar sesión', '190.97.229.53', NULL, '2026-06-25 13:27:32', 1),
-(1753, 'V30485684', 9, 'éxito', 'iniciar sesión', '181.208.252.213', NULL, '2026-06-25 21:18:50', 1),
-(1754, 'V30485684', 9, 'éxito', 'iniciar sesión', '190.97.229.53', NULL, '2026-06-26 11:58:28', 1),
-(1755, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26172-00001-98', '190.97.229.53', NULL, '2026-06-26 12:06:21', 1),
-(1756, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26172-00001-98', '190.97.229.53', NULL, '2026-06-26 12:14:16', 1),
-(1759, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00001-02', '190.97.229.53', NULL, '2026-06-26 12:52:24', 1),
-(1760, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26176-00001-02', '190.97.229.53', NULL, '2026-06-26 12:54:28', 1),
-(1761, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26176-00001-02', '190.97.229.53', NULL, '2026-06-26 12:54:34', 1),
-(1763, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00002-51', '181.208.252.213', NULL, '2026-06-26 12:57:12', 1),
-(1764, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26176-00002-51', '181.208.252.213', NULL, '2026-06-26 12:57:55', 1),
-(1765, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26176-00002-51', '181.208.252.213', NULL, '2026-06-26 12:58:14', 1),
-(1766, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00003-44', '181.208.252.213', NULL, '2026-06-26 13:00:46', 1),
-(1767, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26176-00003-44', '181.208.252.213', NULL, '2026-06-26 13:01:24', 1),
-(1768, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26176-00003-44', '181.208.252.213', NULL, '2026-06-26 13:02:24', 1),
-(1774, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00004-03', '181.208.252.213', NULL, '2026-06-26 19:59:20', 1),
-(1776, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00005-46', '190.97.229.53', NULL, '2026-06-26 20:22:00', 1),
-(1777, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26176-00006-46', '190.97.229.53', NULL, '2026-06-26 20:24:45', 1),
-(1778, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26177-00001-87', '37.203.35.5', NULL, '2026-06-27 13:10:08', 1),
-(1779, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26177-00001-87', 'false', NULL, '2026-06-27 13:40:34', 1),
-(1780, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26177-00001-87', 'false', NULL, '2026-06-27 13:40:44', 1),
-(1782, 'V30485684', 18, 'Éxito', 'registrar Cambios de IVA', 'false', '{\"id_cambio_iva\":{\"anterior\":254,\"nuevo\":256},\"monto_cambio_iva\":{\"anterior\":\"78.00\",\"nuevo\":\"16.00\"},\"fecha_cambio_iva\":{\"anterior\":\"2026-06-20 22:10:21\",\"nuevo\":\"2026-06-27 13:41:17\"}}', '2026-06-27 13:41:17', 1),
-(1783, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26176-00004-03', 'false', NULL, '2026-06-27 14:16:07', 1),
-(1791, 'V30485684', 9, 'éxito', 'iniciar sesión', 'false', NULL, '2026-06-27 17:23:30', 1),
-(1792, 'V30485684', 23, 'Éxito', 'actualizar', '37.203.35.5', '{\"valor_moneda\":{\"anterior\":\"567.00\",\"nuevo\":\"623.02\"}}', '2026-06-27 18:38:28', 1),
-(1798, 'V30485684', 9, 'éxito', 'iniciar sesión', 'false', NULL, '2026-06-28 13:56:44', 1),
-(1799, 'V30485684', 246, 'Fallido', 'Registrar produccion', 'false', NULL, '2026-06-28 14:25:12', 1),
-(1986, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26178-00001-25', 'false', NULL, '2026-06-28 20:40:43', 1),
-(1987, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26178-00001-25', 'false', NULL, '2026-06-28 20:42:51', 1),
-(1988, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26178-00001-25', 'false', NULL, '2026-06-28 20:49:53', 1),
-(1989, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26178-00002-82', 'false', NULL, '2026-06-28 21:08:15', 1),
-(1990, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26178-00002-82', 'false', NULL, '2026-06-28 21:08:27', 1),
-(1991, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26178-00003-62', 'false', NULL, '2026-06-28 21:49:27', 1),
-(1993, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26178-00003-62', 'false', '{\"status_pedido\":{\"modificado\":6},\"productos\":[{\"id_orden_entrega_presupuesto\":{\"eliminado\":\"FACT-26178-00003-62\"},\"cedula_usuario\":{\"eliminado\":\"\"},\"id_cambio_iva\":{\"eliminado\":256},\"rif_cedula_cliente\":{\"eliminado\":\"V30485684\"},\"fecha_orden_entrega_presupuesto\":{\"eliminado\":\"2026-06-28 21:49:25\"},\"status\":{\"eliminado\":1},\"id_producto_factura\":{\"eliminado\":316},\"id_presentacion_producto\":{\"eliminado\":\"PRPR-26159-00002-84\"},\"cantidad_producto\":{\"eliminado\":\"1.00\"},\"id_producto\":{\"eliminado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"eliminado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"eliminado\":1},\"foto_presentacion\":{\"eliminado\":\"presentaciones_productos_2026-06-10_18_06_25.png?v=2026-06-14_17_46_10\"},\"id_unidad_medida\":{\"eliminado\":2},\"id_categoria_producto\":{\"eliminado\":1},\"nombre_producto\":{\"eliminado\":\"CLORO\"},\"precio_producto\":{\"eliminado\":\"1.00\"},\"stock_producto\":{\"eliminado\":\"193.00\"},\"stock_minimo_producto\":{\"eliminado\":\"2.00\"},\"nombre_presentacion\":{\"eliminado\":\"PIPA\"},\"cantidad_pmp\":{\"eliminado\":\"200.00\"},\"precio_producto_factura\":{\"eliminado\":\"1.00\"},\"cantidad_bruta\":{\"eliminado\":\"200.00\"},\"precio_presentacion_factura\":{\"eliminado\":\"200.00\"},\"descuento\":{\"eliminado\":18},\"precioSinDescuento\":{\"eliminado\":180},\"subtotal_factura\":{\"eliminado\":180}}]}', '2026-06-28 22:06:22', 1),
-(1996, 'V30485684', 248, 'Éxito', 'registrar pedido con id: FACT-26179-00001-18', '181.208.252.213', NULL, '2026-06-29 00:43:15', 1),
-(1997, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido con id: FACT-26179-00001-18', '181.208.252.213', NULL, '2026-06-29 00:45:26', 1),
-(1998, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26179-00001-18', '181.208.252.213', '{\"status_pedido\":{\"modificado\":8}}', '2026-06-29 00:45:33', 1),
-(1999, 'V30485684', 248, 'Éxito', 'Actualizar pedido con id: FACT-26178-00002-82', '181.208.252.213', '{\"status_pedido\":{\"modificado\":8}}', '2026-06-29 00:45:41', 1),
-(2021, 'V30485684', 248, 'Fallido', 'registrar', '181.208.252.213', NULL, '2026-06-29 01:55:57', 1),
-(2022, 'V30485684', 248, 'Éxito', 'registrar', '190.97.229.53', NULL, '2026-06-29 01:58:21', 1),
-(2023, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26179-00002-79)', '190.97.229.53', NULL, '2026-06-29 01:58:52', 1),
-(2024, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26179-00002-79)', '190.97.229.53', NULL, '2026-06-29 01:59:38', 1),
-(2025, 'V30485684', 248, 'Fallido', 'registrar', '190.97.229.53', NULL, '2026-06-29 02:01:29', 1),
-(2026, 'V30485684', 248, 'Éxito', 'registrar', '190.97.229.53', NULL, '2026-06-29 02:02:05', 1),
-(2027, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26179-00003-87)', '190.97.229.53', NULL, '2026-06-29 02:02:40', 1),
-(2028, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26179-00003-87)', '190.97.229.53', NULL, '2026-06-29 02:02:50', 1),
-(2034, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"modificado\":\"2026-06-28 13:56:44\"}}', '2026-06-29 16:16:10', 1),
-(2035, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"modificado\":\"2026-06-29 16:16:10\"}}', '2026-06-29 16:17:49', 1),
-(2037, 'V30485684', 305, 'Éxito', 'Actualizar', '181.208.252.213', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_15_21.jpg?v=2026-06-14_17_46_24\"}}', '2026-06-29 16:22:00', 1),
-(2038, 'V30485684', 305, 'Éxito', 'Actualizar', '181.208.252.213', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_15_34.jpg?v=2026-06-10_17_54_04\"}}', '2026-06-29 16:22:08', 1),
-(2039, 'V30485684', 305, 'Éxito', 'Actualizar', '181.208.252.213', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_18_06_25.png?v=2026-06-14_17_46_10\"}}', '2026-06-29 16:22:15', 1),
-(2040, 'V30485684', 305, 'Éxito', 'Actualizar', '181.208.252.213', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_27_45.jpg?v=2026-06-14_17_46_16\"}}', '2026-06-29 16:22:25', 1),
-(2041, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485694', '181.208.252.213', NULL, '2026-06-29 16:32:48', 1),
-(2042, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485686', '181.208.252.213', NULL, '2026-06-29 16:32:50', 1),
-(2043, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485683', '181.208.252.213', NULL, '2026-06-29 16:32:53', 1),
-(2044, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485680', '181.208.252.213', NULL, '2026-06-29 16:33:14', 1),
-(2045, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V12345666', '181.208.252.213', NULL, '2026-06-29 16:33:16', 1),
-(2046, 'V30485684', 9, 'Éxito', 'registrar usuario con la cedula/rif: V30485683', '181.208.252.213', '{\"cedula_usuario\":{\"eliminado\":\"V30485683\"},\"nombre_usuario\":{\"eliminado\":\"Anderson\"},\"apellido_usuario\":{\"eliminado\":\"Freitez\"},\"correo_usuario\":{\"eliminado\":\"andersonfreitez68@gmail.com\"},\"telefono_usuario\":{\"eliminado\":\"04169484648\"},\"id_rol\":{\"eliminado\":2},\"usuario_usuario\":{\"eliminado\":\"Ander1234\"},\"contrasena_usuario\":{\"eliminado\":\"$2y$10$z8qg8.gX1U9xp2H2ePDdMerM47eYJQGiroHZdlHZglGHt2Z4ryp9W\"},\"foto_usuario\":{\"eliminado\":\"usuarios_2026_06_29_16_36_54_58.jpg\"},\"direccion_usuario\":{\"eliminado\":\"BARQUISIMETO\"}}', '2026-06-29 16:36:54', 1),
-(2047, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '181.208.252.213', '{\"fofo_usuario\":{\"registrado\":\"usuarios_2026_06_29_16_36_54_58.jpg\"},\"foto_usuario\":{\"eliminado\":{\"name\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\",\"full_path\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\",\"type\":\"image\\/jpeg\",\"tmp_name\":\"C:\\\\xampp\\\\tmp\\\\php5D2B.tmp\",\"error\":0,\"size\":118154}}}', '2026-06-29 16:37:06', 1),
-(2049, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00002-49)', '190.97.229.53', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_15_21.jpg?v=2026-06-29_17_00_26\"}}', '2026-06-29 17:06:36', 1),
-(2050, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00002-49)', '190.97.229.53', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_15_21.png?v=2026-06-29_17_06_36\"}}', '2026-06-29 17:07:30', 1),
-(2051, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00001-60)', '190.97.229.53', '{\"foto_presentacion\":{\"modificado\":\"presentaciones_productos_2026-06-10_11_15_34.jpg?v=2026-06-29_17_01_57\"}}', '2026-06-29 17:08:16', 1),
-(2052, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00002-49)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-10_11_15_21.png?v=2026-06-29_17_07_30\"}}', '2026-06-29 17:28:06', 1),
-(2053, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00002-49)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-10_11_15_21.jpg?v=2026-06-29_17_28_06\"}}', '2026-06-29 17:45:36', 1),
-(2054, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26160-00002-49)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"\"}}', '2026-06-29 17:52:34', 1),
-(2055, 'V30485684', 9, 'Éxito', 'Eliminar foto del usuario con la cedula/rif: V30485683', '181.208.252.213', NULL, '2026-06-29 17:52:54', 1),
-(2056, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '181.208.252.213', '{\"fofo_usuario\":{\"Registrado\":\"\"},\"foto_usuario\":{\"Eliminado\":{\"name\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\",\"full_path\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\",\"type\":\"image\\/jpeg\",\"tmp_name\":\"C:\\\\xampp\\\\tmp\\\\phpD6F9.tmp\",\"error\":0,\"size\":118154}}}', '2026-06-29 17:52:59', 1),
-(2057, 'V30485684', 248, 'Éxito', 'registrar', '181.208.252.213', '{\"productos\":{\"Eliminado\":[{\"id_producto\":\"PROD-26150-00001-39\",\"id_presentacion\":\"PRES-26123-00001-28\",\"id_presentacion_producto\":\"PRPR-26160-00001-60\",\"cantidad\":1}]},\"pagos\":{\"Eliminado\":[{\"id_metodo_pago\":\"3\",\"id_moneda\":\"1\",\"referencia_pago\":\"123456\",\"monto_pago\":113}]},\"delivery\":{\"Eliminado\":{\"latitud\":9.85978348198813,\"longitud\":-69.61196464762112}},\"comprobantes_pago\":{\"Eliminado\":[\"comprobantes_pagos_2026_06_29_18_09_11_18.jpg\"]}}', '2026-06-29 18:09:12', 1),
-(2058, 'V30485684', 248, 'Éxito', 'registrar', '181.208.252.213', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26160-00001-60\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":113}}],\"delivery\":{\"latitud\":{\"Registrado\":9.860149631106573},\"longitud\":{\"Registrado\":-69.6119865232164}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_06_29_18_13_42_10.jpg\"]}]}', '2026-06-29 18:13:43', 1),
-(2059, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26179-00002-67)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-06-29 18:16:04', 1),
-(2060, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26179-00002-67)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":8}}', '2026-06-29 18:17:26', 1),
-(2066, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26179-00001-24)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-06-29 18:41:58', 1),
-(2067, 'V30485684', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"precio_producto\":{\"Modificado\":\"100.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00001-42\"},\"id_presentacion\":{\"Modificado\":\"PRES-26123-00001-28\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00002-77\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00001-42\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00003-41\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00002-78\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00004-94\"},\"foto_presentacion\":{\"Modificado\":\"\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"20000000.00\"}}]}}', '2026-06-29 18:43:02', 1),
-(2068, 'V30485684', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"precio_producto\":{\"Modificado\":\"10000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00001-99\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00002-05\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00003-20\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26179-00004-41\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"2000000000.00\"}}]}}', '2026-06-29 18:43:11', 1),
-(2069, 'V30485684', 9, 'Éxito', 'Iniciar sesión', 'false', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-06-30 14:21:21\"}}', '2026-06-30 14:21:21', 1),
-(2070, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"precio_producto\":{\"Modificado\":\"1.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00001-59\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00002-16\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00003-51\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00004-16\"}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00005-63\"},\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00006-98\"},\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"0.10\"}}]}}', '2026-06-30 15:53:05', 1),
-(2071, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00001-33\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00002-37\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00003-79\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00004-33\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00005-68\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00006-46\"},\"mostrar_ecommerce\":{\"Modificado\":1}}],\"materias_primas\":[[]]}}', '2026-06-30 16:04:15', 1),
-(2072, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00006-46)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_04_29.jpg?v=2026-06-30_16_04_29\"}}', '2026-06-30 16:04:29', 1),
-(2073, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00005-68)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_04_36.png?v=2026-06-30_16_04_36\"}}', '2026-06-30 16:04:36', 1),
-(2074, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00003-79)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_10_35.jpg?v=2026-06-30_16_10_35\"}}', '2026-06-30 16:10:35', 1),
-(2075, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00006-46)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_04_29.jpg?v=2026-06-30_16_21_03\"}}', '2026-06-30 16:21:03', 1),
-(2076, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00005-68)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_04_36.jpg?v=2026-06-30_16_24_00\"}}', '2026-06-30 16:24:00', 1),
-(2077, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26180-00004-33)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-06-30_16_24_07.jpg?v=2026-06-30_16_24_07\"}}', '2026-06-30 16:24:07', 1),
-(2078, 'V30485684', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"minimo_km_ruta\":{\"Modificado\":\"110.00\"}}', '2026-06-30 16:27:49', 1),
-(2079, 'V30485684', 247, 'Éxito', 'Registrar', '190.97.229.53', '{\"nombre_ruta\":{\"Registrado\":\"UNO\"},\"precio_ruta\":{\"Registrado\":1},\"minimo_km_ruta\":{\"Registrado\":10},\"maximo_km_ruta\":{\"Registrado\":10}}', '2026-06-30 16:28:05', 1),
-(2080, 'V30485684', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"maximo_km_ruta\":{\"Modificado\":\"1.00\"}}', '2026-06-30 16:28:30', 1),
-(2081, 'V30485684', 247, 'Éxito', 'Eliminar', '190.97.229.53', NULL, '2026-06-30 16:28:33', 1),
-(2082, 'V30485684', 250, 'Éxito', 'Registrar', '190.97.229.53', '{\"nombre_empresa\":{\"Registrado\":\"ZOOMM\"}}', '2026-06-30 16:29:15', 1),
-(2083, 'V30485684', 250, 'Éxito', 'actualizar Empresa de envíos con id: 35', '190.97.229.53', '{\"nombre_empresa\":{\"Modificado\":\"ZOOMMM\"}}', '2026-06-30 16:29:21', 1),
-(2084, 'V30485684', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 35', '190.97.229.53', NULL, '2026-06-30 16:29:23', 1),
-(2085, 'V30485684', 303, 'Éxito', 'registtrar', '190.97.229.53', '{\"id_metodo_pago\":{\"Registrado\":0},\"nombre_metodo_pago\":{\"Registrado\":\"ZINLI\"},\"necesita_moneda\":{\"Registrado\":1},\"necesita_banco_emisor\":{\"Registrado\":0},\"necesita_banco_receptor\":{\"Registrado\":0},\"necesita_referencia\":{\"Registrado\":0},\"mostrar_ecommerce\":{\"Registrado\":0}}', '2026-06-30 16:29:50', 1),
-(2086, 'V30485684', 303, 'Éxito', 'Eliminar', '190.97.229.53', NULL, '2026-06-30 16:29:57', 1),
-(2087, 'V30485684', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"stock_producto\":{\"Modificado\":\"2000.00\"},\"stock_minimo_producto\":{\"Modificado\":\"20.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00001-41\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00002-67\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00003-08\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00005-71\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26180-00006-67\"},\"foto_presentacion\":{\"Modificado\":\"\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"10.00\"}}]}}', '2026-06-30 16:31:59', 1),
-(2088, 'V30485684', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"minimo_km_ruta\":{\"Modificado\":\"11.00\"}}', '2026-06-30 16:34:48', 1),
-(2089, 'V30485684', 248, 'Éxito', 'registrar', '190.97.229.53', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00003-08\"},\"cantidad\":{\"Registrado\":2}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":529}}],\"delivery\":{\"latitud\":{\"Registrado\":9.861755},\"longitud\":{\"Registrado\":-69.612045}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_06_30_16_36_36_81.jpg\"]}]}', '2026-06-30 16:36:37', 1),
-(2090, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26180-00001-62)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-06-30 16:37:11', 1),
-(2092, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.53', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-06-30 18:11:22\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-06-30 18:11:22', 1),
-(2093, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-06-30 19:27:30\"}}', '2026-06-30 19:27:30', 1),
-(2094, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26180-00001-62)', 'false', '{\"status_pedido\":{\"Modificado\":8}}', '2026-06-30 19:28:43', 1),
-(2095, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.53', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-01 01:09:12\"}}', '2026-07-01 01:09:12', 1),
-(2097, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.53', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-01 09:37:43\"}}', '2026-07-01 09:37:43', 1),
-(2098, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-01 09:55:37\"}}', '2026-07-01 09:55:37', 1),
-(2099, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-01 10:39:23\"}}', '2026-07-01 10:39:23', 1),
-(2100, 'V30485684', 248, 'Éxito', 'registrar', '190.97.229.53', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00003-08\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":321}}],\"delivery\":{\"latitud\":{\"Registrado\":9.85974319944866},\"longitud\":{\"Registrado\":-69.61196240863526}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_07_01_11_24_44_33.jpg\"]}]}', '2026-07-01 11:24:45', 1),
-(2101, 'V30485684', 9, 'Éxito', 'registrar usuario con la cedula/rif: V304856848', 'false', '{\"cedula_usuario\":{\"Registrado\":\"V304856848\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"\"},\"telefono_usuario\":{\"Registrado\":\"04169484649\"},\"id_rol\":{\"Registrado\":1},\"usuario_usuario\":{\"Registrado\":\"Ander1239\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$WumtFm78KjNUD8ohDvlxQOQFzDwuiCjiFASonuooKCPzwTSdHdZTW\"},\"foto_usuario\":{\"Registrado\":\"\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-07-02 16:46:11', 1),
-(2102, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.53', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-02 17:38:10\"}}', '2026-07-02 17:38:10', 1),
-(2103, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-02 21:03:24\"}}', '2026-07-02 21:03:24', 1),
-(2104, 'V30485684', 23, 'Éxito', 'registrar', '181.208.252.213', NULL, '2026-07-02 21:03:54', 1),
-(2105, 'V30485684', 23, 'Éxito', 'Actualizar con id:37', '181.208.252.213', '{\"simbolo_moneda\":{\"Modificado\":\"YN\"},\"valor_moneda\":{\"Modificado\":\"1.20\"}}', '2026-07-02 21:17:36', 1),
-(2106, 'V30485684', 23, 'Éxito', 'Eliminar con id:37', '181.208.252.213', NULL, '2026-07-02 21:18:00', 1),
-(2107, 'V30485684', 18, 'Éxito', 'registrar', '190.97.229.53', '{\"id_cambio_iva\":{\"Modificado\":257},\"monto_cambio_iva\":{\"Modificado\":\"22.00\"},\"fecha_cambio_iva\":{\"Modificado\":\"2026-07-02 22:10:39\"}}', '2026-07-02 22:10:39', 1),
-(2108, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-03 02:45:49\"}}', '2026-07-03 02:45:49', 1),
-(2109, 'V30485684', 9, 'Éxito', 'registrar usuario con la cedula/rif: V30485681', '181.208.252.213', '{\"cedula_usuario\":{\"Registrado\":\"V30485681\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"\"},\"telefono_usuario\":{\"Registrado\":\"04169484688\"},\"id_rol\":{\"Registrado\":1},\"usuario_usuario\":{\"Registrado\":\"Ander1230\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$Qlb7sK807TxABPDhuXGWAuO5mxKdr97ypoZuZUbWIoyZVz9n4moMC\"},\"foto_usuario\":{\"Registrado\":\"usuarios_2026_07_03_02_48_31_84.jpg\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-07-03 02:48:33', 1),
-(2110, 'V30485684', 9, 'Éxito', 'registrar usuario con la cedula/rif: V30485688', '181.208.252.213', '{\"cedula_usuario\":{\"Registrado\":\"V30485688\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"andersonfreitej6@gmail.com\"},\"telefono_usuario\":{\"Registrado\":\"04169484649\"},\"id_rol\":{\"Registrado\":1},\"usuario_usuario\":{\"Registrado\":\"Ander12300\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$zJ.0XB4RK3l\\/rDkde12SouZKIcNhvMa94pmQxp7btnMCImazvXKSK\"},\"foto_usuario\":{\"Registrado\":\"usuarios_2026_07_03_02_52_41_97.jpg\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-07-03 02:52:43', 1),
-(2111, 'V30485684', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485681', '181.208.252.213', '{\"correo_usuario\":{\"Modificado\":\"cesar15rangel@gmail.com\"},\"cedula_usuario\":{\"Eliminado\":\"V30485681\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026_07_03_02_48_31_84.jpg\"}}', '2026-07-03 03:04:04', 1),
-(2112, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485681', '181.208.252.213', NULL, '2026-07-03 03:07:02', 1),
-(2113, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '181.208.252.213', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen2.jpg\"},\"full_path\":{\"Registrado\":\"Imagen2.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php4CE8.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":134384}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026-06-29_17_53_00.jpg?v=2026-06-29_17_53_00\"}}', '2026-07-03 03:10:30', 1),
-(2114, 'V30485684', 9, 'Éxito', 'Eliminar foto del usuario con la cedula/rif: V30485683', '181.208.252.213', NULL, '2026-07-03 03:10:34', 1),
-(2115, 'V30485684', 247, 'Éxito', 'Registrar', '190.97.229.53', '{\"nombre_ruta\":{\"Registrado\":\"otra\"},\"precio_ruta\":{\"Registrado\":\"2,00\"},\"minimo_km_ruta\":{\"Registrado\":\"100,00\"},\"maximo_km_ruta\":{\"Registrado\":\"100,00\"}}', '2026-07-03 03:30:38', 1),
-(2116, 'V30485684', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"direccion\":[]}', '2026-07-03 03:30:44', 1),
-(2117, 'V30485684', 247, 'Fallido', 'Actualizar', '190.97.229.53', NULL, '2026-07-03 03:30:52', 1),
-(2118, 'V30485684', 247, 'Fallido', 'Actualizar', '190.97.229.53', NULL, '2026-07-03 03:30:55', 1),
-(2119, 'V30485684', 247, 'Éxito', 'Eliminar', '190.97.229.53', NULL, '2026-07-03 03:31:02', 1),
-(2120, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-03 05:53:44\"}}', '2026-07-03 05:53:44', 1),
-(2121, 'V30485684', 9, 'Éxito', 'Eliminar foto del usuario con la cedula/rif: V30485688', '190.97.229.53', NULL, '2026-07-03 05:55:00', 1),
-(2123, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485688', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"full_path\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php2A3F.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":118154}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-07-03 05:55:18', 1),
-(2124, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485688', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"poster-de-moon-knight_1220x2160_xtrafondos.com.jpg\"},\"full_path\":{\"Registrado\":\"poster-de-moon-knight_1220x2160_xtrafondos.com.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\phpBF04.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":488454}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_05_55_18.jpg?v=2026-07-03_05_55_18\"}}', '2026-07-03 05:58:07', 1),
-(2125, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"full_path\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php110.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":118154}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-07-03 05:58:24', 1),
-(2126, 'V30485684', 9, 'Éxito', 'Eliminar foto del usuario con la cedula/rif: V30485688', '190.97.229.53', NULL, '2026-07-03 05:58:37', 1),
-(2127, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485688', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"moon-knight-mcu_1220x2160_xtrafondos.com.jpg\"},\"full_path\":{\"Registrado\":\"moon-knight-mcu_1220x2160_xtrafondos.com.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php6B4.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":873371}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-07-03 06:00:36', 1),
-(2128, 'V30485684', 9, 'Éxito', 'Eliminar foto del usuario con la cedula/rif: V30485683', '190.97.229.53', NULL, '2026-07-03 06:00:46', 1),
-(2129, 'V30485688', 9, 'Éxito', 'Iniciar sesión', '190.97.229.53', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-03 06:04:16\"}}', '2026-07-03 06:04:16', 1),
-(2130, 'V30485688', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485684', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen2.jpg\"},\"full_path\":{\"Registrado\":\"Imagen2.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\phpFC52.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":134384}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-07-03 06:04:56', 1),
-(2131, 'V30485688', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"moon-knight-mcu_1220x2160_xtrafondos.com.jpg\"},\"full_path\":{\"Registrado\":\"moon-knight-mcu_1220x2160_xtrafondos.com.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php536B.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":873371}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-07-03 06:05:18', 1),
-(2132, 'V30485688', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"doctor-strange-marvel-fanart_3840x2160_xtrafondos.com.jpg\"},\"full_path\":{\"Registrado\":\"doctor-strange-marvel-fanart_3840x2160_xtrafondos.com.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php7ADA.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":1883203}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_18\"}}', '2026-07-03 06:05:28', 1),
-(2133, 'V30485688', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"full_path\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\phpD4F2.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":118154}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_28\"}}', '2026-07-03 06:05:51', 1),
-(2134, 'V30485688', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"apellido_usuario\":{\"Modificado\":\"Freitezm\"},\"cedula_usuario\":{\"Eliminado\":\"V30485683\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_51\"}}', '2026-07-03 06:09:38', 1),
-(2135, 'V30485688', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"id_rol\":{\"Modificado\":1},\"cedula_usuario\":{\"Eliminado\":\"V30485683\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_51\"}}', '2026-07-03 06:10:38', 1),
-(2136, 'V30485688', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485683', '190.97.229.53', '{\"id_rol\":{\"Modificado\":2},\"cedula_usuario\":{\"Eliminado\":\"V30485683\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_51\"}}', '2026-07-03 06:11:23', 1),
-(2137, 'V30485688', 248, 'Éxito', 'registrar', '181.208.252.213', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00003-08\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":337}}],\"delivery\":{\"latitud\":{\"Registrado\":9.86004915379111},\"longitud\":{\"Registrado\":-69.61198043011814}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_07_03_06_44_09_24.jpg\"]}]}', '2026-07-03 06:44:11', 1),
-(2138, 'V30485688', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26183-00001-30)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485688\"}}', '2026-07-03 06:48:28', 1),
-(2139, 'V30485688', 248, 'Éxito', 'Actualizar pedido (FACT-26183-00001-30)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":8}}', '2026-07-03 06:48:38', 1),
-(2140, 'V30485688', 248, 'Éxito', 'Actualizar pedido (FACT-26179-00001-24)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":8}}', '2026-07-03 06:49:52', 1);
+(2247, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-02 19:16:47\"}}', '2026-08-02 19:16:47', 1),
+(2248, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-03 15:20:56\"}}', '2026-08-03 15:20:56', 1),
+(2249, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-03 15:37:44\"}}', '2026-08-03 15:37:44', 1),
+(2250, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-03 16:26:26\"}}', '2026-08-03 16:26:26', 1),
+(2251, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-03 16:34:09\"}}', '2026-08-03 16:34:09', 1),
+(2252, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-03 16:44:58\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-03 16:44:58', 1),
+(2253, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-06 14:34:11\"}}', '2026-08-06 14:34:11', 1),
+(2254, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:27:54\"}}', '2026-08-07 11:27:54', 1),
+(2255, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:45:45\"}}', '2026-08-07 11:45:45', 1),
+(2256, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:48:07\"}}', '2026-08-07 11:48:07', 1),
+(2257, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:50:21\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-07 11:50:21', 1),
+(2258, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:52:24\"}}', '2026-08-07 11:52:24', 1),
+(2259, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 11:59:48\"}}', '2026-08-07 11:59:48', 1),
+(2260, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 12:02:20\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-07 12:02:20', 1),
+(2261, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 12:04:32\"}}', '2026-08-07 12:04:32', 1),
+(2262, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 12:11:47\"}}', '2026-08-07 12:11:47', 1),
+(2263, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 12:29:25\"}}', '2026-08-07 12:29:25', 1),
+(2264, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 12:57:18\"}}', '2026-08-07 12:57:19', 1),
+(2265, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 13:17:54\"}}', '2026-08-07 13:17:54', 1),
+(2266, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 13:20:00\"}}', '2026-08-07 13:20:00', 1),
+(2267, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:24:42\"}}', '2026-08-07 14:24:42', 1),
+(2268, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:31:05\"}}', '2026-08-07 14:31:05', 1),
+(2269, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:34:53\"}}', '2026-08-07 14:34:53', 1),
+(2270, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:36:19\"}}', '2026-08-07 14:36:19', 1),
+(2271, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:39:01\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-07 14:39:01', 1),
+(2272, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:40:56\"}}', '2026-08-07 14:40:56', 1),
+(2273, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:44:05\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-07 14:44:05', 1),
+(2274, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:53:46\"}}', '2026-08-07 14:48:46', 1),
+(2275, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 14:57:49\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-07 14:52:49', 1),
+(2276, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 15:01:59\"}}', '2026-08-07 14:56:59', 1),
+(2277, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 15:07:59\"}}', '2026-08-07 15:02:59', 1),
+(2278, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 15:24:04\"}}', '2026-08-07 15:19:04', 1),
+(2279, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-07 15:29:35\"}}', '2026-08-07 15:24:35', 1),
+(2280, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 11:44:29\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-08 11:39:29', 1),
+(2281, 'V30485684', 28, 'Sin cambios', 'Actualizar con id672', '190.97.229.57', NULL, '2026-08-08 11:40:13', 1),
+(2282, 'V30485684', 28, 'Sin cambios', 'Actualizar con id672', '190.97.229.57', NULL, '2026-08-08 11:40:55', 1),
+(2283, 'V30485684', 28, 'Sin cambios', 'Actualizar con id672', '190.97.229.57', NULL, '2026-08-08 11:40:59', 1),
+(2284, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 12:13:55\"}}', '2026-08-08 12:08:55', 1),
+(2285, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 12:30:09\"}}', '2026-08-08 12:25:09', 1),
+(2286, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 13:31:23\"}}', '2026-08-08 13:26:23', 1),
+(2287, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 13:42:01\"}}', '2026-08-08 13:37:01', 1),
+(2288, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 13:53:41\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-08 13:48:41', 1),
+(2289, 'V30485684', 28, 'Éxito', 'Actualizar con id 672', '190.97.229.57', '{\"nombre_permiso\":{\"Modificado\":\"agregar pagos\"}}', '2026-08-08 13:49:57', 1),
+(2290, 'V30485684', 28, 'Éxito', 'Actualizar con id 672', '190.97.229.57', '{\"nombre_permiso\":{\"Modificado\":\"agregar pago\"}}', '2026-08-08 13:50:09', 1),
+(2291, 'V30485684', 28, 'Éxito', 'registrar', '190.97.229.57', '{\"id_permiso\":{\"Registrado\":673},\"nombre_permiso\":{\"Registrado\":\"permisox\"},\"status\":{\"Registrado\":1}}', '2026-08-08 13:50:22', 1),
+(2292, 'V30485684', 28, 'Éxito', 'Eliminar con id 673', '190.97.229.57', NULL, '2026-08-08 13:50:26', 1),
+(2294, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 16:41:32\"}}', '2026-08-08 16:36:32', 1),
+(2295, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-08 17:30:34\"}}', '2026-08-08 17:25:34', 1),
+(2296, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 14:25:37\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-10 14:20:37', 1),
+(2297, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 14:34:26\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-10 14:29:26', 1),
+(2298, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 14:35:09\"}}', '2026-08-10 14:30:09', 1),
+(2299, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 14:47:03\"}}', '2026-08-10 14:42:03', 1),
+(2300, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 15:04:51\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-10 14:59:51', 1),
+(2301, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 16:17:40\"}}', '2026-08-10 16:12:40', 1),
+(2302, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 16:29:33\"}}', '2026-08-10 16:24:33', 1),
+(2303, 'V30485684', 9, 'Éxito', 'registrar usuario con la cédula/rif: V30485688', '190.97.229.57', '{\"cedula_usuario\":{\"Registrado\":\"V30485688\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"andersonfremitez6@gmail.com\"},\"telefono_usuario\":{\"Registrado\":\"04169484640\"},\"id_rol\":{\"Registrado\":1},\"usuario_usuario\":{\"Registrado\":\"Ander1239\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$petVY5x\\/7OGMh1gk\\/PuBt.R2SxsI20QXItsUrfqIG.XrEk4aScQ5m\"},\"foto_usuario\":{\"Registrado\":\"usuarios_2026_08_10_16_45_15_60.jpg\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-08-10 16:45:17', 1),
+(2304, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 17:01:59\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-10 16:56:59', 1),
+(2305, 'V30485684', 9, 'Éxito', 'registrar usuario con la cédula/rif: V30485681', '181.208.252.213', '{\"cedula_usuario\":{\"Registrado\":\"V30485681\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"andersonfreitez66@gmail.com\"},\"telefono_usuario\":{\"Registrado\":\"04169484643\"},\"id_rol\":{\"Registrado\":1},\"usuario_usuario\":{\"Registrado\":\"Ander1236\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$6ljN.VrGlB6mn4wLkHfDaOXke8z9135c.OYp5R.mHKk\\/y0bWnjNde\"},\"foto_usuario\":{\"Registrado\":\"usuarios_2026_08_10_16_58_55_14.jpg\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-08-10 16:58:57', 1),
+(2306, 'V30485684', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485688', '181.208.252.213', '{\"nombre_usuario\":{\"Modificado\":\"Andersoa\"},\"cedula_usuario\":{\"Eliminado\":\"V30485688\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026_08_10_16_45_15_60.jpg\"}}', '2026-08-10 17:00:16', 1),
+(2307, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485688', '181.208.252.213', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen2.jpg\"},\"full_path\":{\"Registrado\":\"Imagen2.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\phpCA63.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":134384}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026_08_10_16_45_15_60.jpg\"}}', '2026-08-10 17:00:26', 1),
+(2308, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485688', '181.208.252.213', NULL, '2026-08-10 17:00:36', 1),
+(2309, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 17:21:15\"}}', '2026-08-10 17:16:15', 1),
+(2310, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 17:27:17\"}}', '2026-08-10 17:22:17', 1),
+(2311, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 17:36:12\"}}', '2026-08-10 17:31:12', 1),
+(2312, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 17:45:38\"}}', '2026-08-10 17:40:38', 1),
+(2313, 'V30485684', 248, 'Éxito', 'registrar', '181.208.252.213', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00015-86\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":304}}],\"delivery\":{\"latitud\":{\"Registrado\":9.93103},\"longitud\":{\"Registrado\":-69.621948}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_08_10_17_44_30_56.jpg\"]}]}', '2026-08-10 17:44:32', 1),
+(2314, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26221-00001-60)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-08-10 17:47:34', 1),
+(2315, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26221-00001-60)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":8}}', '2026-08-10 17:48:13', 1),
+(2317, 'V30485684', 247, 'Éxito', 'Registrar', '190.97.229.57', '{\"nombre_ruta\":{\"Registrado\":\"OTRA MAS\"},\"precio_ruta\":{\"Registrado\":\"2\"},\"minimo_km_ruta\":{\"Registrado\":\"100\"},\"maximo_km_ruta\":{\"Registrado\":\"100\"}}', '2026-08-10 17:55:28', 1),
+(2318, 'V30485684', 247, 'Éxito', 'Actualizar', '190.97.229.57', '{\"precio_ruta\":{\"Modificado\":\"0.20\"}}', '2026-08-10 17:55:38', 1),
+(2319, 'V30485684', 247, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-10 17:55:45', 1),
+(2320, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 18:09:37\"}}', '2026-08-10 18:04:37', 1),
+(2321, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 18:22:58\"}}', '2026-08-10 18:17:58', 1),
+(2322, 'V30485684', 250, 'Éxito', 'Registrar', '181.208.252.213', '{\"nombre_empresa\":{\"Registrado\":\"ZOOMM\"}}', '2026-08-10 18:25:23', 1),
+(2323, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-10 18:30:58\"}}', '2026-08-10 18:25:58', 1),
+(2324, 'V30485684', 250, 'Éxito', 'Registrar', '190.97.229.57', '{\"nombre_empresa\":{\"Registrado\":\"ZOOMmm\"}}', '2026-08-10 18:26:39', 1),
+(2325, 'V30485684', 250, 'Éxito', 'actualizar Empresa de envíos con id: 38', '190.97.229.57', '{\"nombre_empresa\":{\"Modificado\":\"ZOOMmm.\"}}', '2026-08-10 18:27:01', 1),
+(2326, 'V30485684', 250, 'Éxito', 'Registrar', '190.97.229.57', '{\"nombre_empresa\":{\"Registrado\":\"ZOOMmm\"}}', '2026-08-10 18:31:06', 1),
+(2327, 'V30485684', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 39', '190.97.229.57', NULL, '2026-08-10 18:31:10', 1),
+(2328, 'V30485684', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 38', '190.97.229.57', NULL, '2026-08-10 18:31:13', 1),
+(2329, 'V30485684', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 37', '190.97.229.57', NULL, '2026-08-10 18:31:17', 1),
+(2330, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 11:19:22\"}}', '2026-08-11 11:14:22', 1),
+(2331, 'V30485684', 247, 'Éxito', 'Registrar', '190.97.229.57', '{\"nombre_ruta\":{\"Registrado\":\"OTRA MAS\"},\"precio_ruta\":{\"Registrado\":\"2\"},\"minimo_km_ruta\":{\"Registrado\":\"11\"},\"maximo_km_ruta\":{\"Registrado\":\"100\"}}', '2026-08-11 11:15:25', 1),
+(2332, 'V30485684', 247, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-11 11:15:41', 1),
+(2333, 'V30485684', 250, 'Éxito', 'Registrar', '190.97.229.57', '{\"nombre_empresa\":{\"Registrado\":\"ZOOMs\"}}', '2026-08-11 11:15:59', 1),
+(2334, 'V30485684', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 40', '190.97.229.57', NULL, '2026-08-11 11:16:03', 1),
+(2335, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 11:45:30\"}}', '2026-08-11 11:40:30', 1),
+(2336, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 11:53:02\"}}', '2026-08-11 11:48:02', 1),
+(2337, 'V30485684', 19, 'Éxito', 'registtrar', '190.97.229.57', '{\"id_metodo_pago\":{\"Registrado\":0},\"nombre_metodo_pago\":{\"Registrado\":\"EFECTIVOm\"},\"necesita_moneda\":{\"Registrado\":1},\"necesita_banco_emisor\":{\"Registrado\":1},\"necesita_banco_receptor\":{\"Registrado\":1},\"necesita_referencia\":{\"Registrado\":1},\"mostrar_ecommerce\":{\"Registrado\":1}}', '2026-08-11 11:50:12', 1),
+(2338, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_metodo_pago\":{\"Modificado\":\"EFECTIVOmm\"}}', '2026-08-11 11:54:44', 1),
+(2339, 'V30485684', 19, 'Fallido', 'Actualizar', '181.208.252.213', NULL, '2026-08-11 11:54:59', 1),
+(2340, 'V30485684', 19, 'Fallido', 'Actualizar', '181.208.252.213', NULL, '2026-08-11 11:55:45', 1),
+(2341, 'V30485684', 19, 'Fallido', 'Actualizar', '181.208.252.213', NULL, '2026-08-11 11:55:57', 1),
+(2342, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 12:09:33\"}}', '2026-08-11 12:04:33', 1),
+(2343, 'V30485684', 19, 'Fallido', 'Actualizar', '181.208.252.213', NULL, '2026-08-11 12:04:51', 1),
+(2344, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_moneda\":{\"Modificado\":0},\"necesita_banco_emisor\":{\"Modificado\":0}}', '2026-08-11 12:07:35', 1),
+(2345, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_banco_receptor\":{\"Modificado\":0}}', '2026-08-11 12:07:43', 1),
+(2346, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_referencia\":{\"Modificado\":0},\"mostrar_ecommerce\":{\"Modificado\":0}}', '2026-08-11 12:07:49', 1),
+(2347, 'V30485684', 19, 'Éxito', 'registtrar', '181.208.252.213', '{\"id_metodo_pago\":{\"Registrado\":0},\"nombre_metodo_pago\":{\"Registrado\":\"EFECTIVOs\"},\"necesita_moneda\":{\"Registrado\":1},\"necesita_banco_emisor\":{\"Registrado\":1},\"necesita_banco_receptor\":{\"Registrado\":1},\"necesita_referencia\":{\"Registrado\":0},\"mostrar_ecommerce\":{\"Registrado\":1}}', '2026-08-11 12:08:10', 1),
+(2348, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_referencia\":{\"Modificado\":1}}', '2026-08-11 12:09:39', 1),
+(2349, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_banco_emisor\":{\"Modificado\":0}}', '2026-08-11 12:09:52', 1),
+(2350, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 12:18:14\"}}', '2026-08-11 12:13:14', 1),
+(2351, 'V30485684', 19, 'Éxito', 'registtrar', '190.97.229.57', '{\"id_metodo_pago\":{\"Registrado\":0},\"nombre_metodo_pago\":{\"Registrado\":\"EFECTIVOb\"},\"necesita_moneda\":{\"Registrado\":1},\"necesita_banco_emisor\":{\"Registrado\":0},\"necesita_banco_receptor\":{\"Registrado\":0},\"necesita_referencia\":{\"Registrado\":0},\"mostrar_ecommerce\":{\"Registrado\":0}}', '2026-08-11 12:13:43', 1),
+(2352, 'V30485684', 19, 'Éxito', 'Actualizar', '190.97.229.57', '{\"necesita_banco_emisor\":{\"Modificado\":1},\"necesita_banco_receptor\":{\"Modificado\":1},\"necesita_referencia\":{\"Modificado\":1}}', '2026-08-11 12:15:24', 1),
+(2353, 'V30485684', 19, 'Éxito', 'Actualizar', '190.97.229.57', '{\"mostrar_ecommerce\":{\"Modificado\":1}}', '2026-08-11 12:15:46', 1),
+(2354, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_banco_emisor\":{\"Modificado\":1}}', '2026-08-11 12:17:52', 1),
+(2355, 'V30485684', 19, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-08-11 12:17:56', 1),
+(2356, 'V30485684', 19, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-08-11 12:18:02', 1),
+(2357, 'V30485684', 19, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-08-11 12:18:06', 1),
+(2358, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_banco_receptor\":{\"Modificado\":0},\"mostrar_ecommerce\":{\"Modificado\":0}}', '2026-08-11 12:18:27', 1),
+(2359, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"necesita_referencia\":{\"Modificado\":0}}', '2026-08-11 12:18:54', 1),
+(2360, 'V30485684', 4, 'Éxito', 'Registrar', '181.208.252.213', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLORO2\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"100.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00001-86\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00002-79\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00003-67\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00004-38\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00005-00\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00006-27\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00001-83\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"1.00\"}}]}}', '2026-08-11 12:22:42', 1),
+(2361, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 12:32:46\"}}', '2026-08-11 12:27:46', 1),
+(2362, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00006-27)', '190.97.229.57', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_12_33_26.jpg?v=2026-08-11_12_33_26\"}}', '2026-08-11 12:33:26', 1),
+(2363, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00005-00)', '190.97.229.57', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_12_33_44.jpg?v=2026-08-11_12_33_44\"}}', '2026-08-11 12:33:44', 1),
+(2364, 'V30485684', 4, 'Éxito', 'Actualizar', '190.97.229.57', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00001-40\"}},[],{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00003-78\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00004-81\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00005-06\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00006-01\"},\"foto_presentacion\":{\"Modificado\":\"\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"2.00\"}}]}}', '2026-08-11 12:34:12', 1),
+(2365, 'V30485684', 4, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-11 12:34:38', 1),
+(2366, 'V30485684', 4, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-11 12:36:17', 1),
+(2367, 'V30485684', 4, 'Éxito', 'Registrar', '190.97.229.57', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLORO\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"100.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00007-32\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00008-22\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00009-69\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00010-25\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00011-11\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00012-62\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"10.00\"}}]}}', '2026-08-11 12:37:05', 1),
+(2368, 'V30485684', 4, 'Éxito', 'Registrar', '190.97.229.57', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLORO2\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"1.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00013-45\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00014-75\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00015-48\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00016-38\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00017-82\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00018-55\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00003-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"10.00\"}}]}}', '2026-08-11 12:37:59', 1),
+(2369, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 12:44:05\"}}', '2026-08-11 12:39:05', 1),
+(2370, 'V30485684', 4, 'Éxito', 'Registrar', '181.208.252.213', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLOROf\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"1.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00019-24\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00020-14\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00021-24\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00022-79\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00023-38\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00024-75\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_20_25.png\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"1.00\"}}]}}', '2026-08-11 12:48:20', 1),
+(2371, 'V30485684', 4, 'Éxito', 'Registrar', '181.208.252.213', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":2},\"nombre_producto\":{\"Registrado\":\"CLOROm\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"1.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"NO FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":0},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00025-15\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00026-98\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00027-61\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00028-84\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00029-56\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00030-45\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00005-98\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_48_53_82.png\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[]}}', '2026-08-11 12:48:53', 1),
+(2372, 'V30485684', 4, 'Éxito', 'Registrar', '181.208.252.213', '{\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLOROs\"},\"precio_producto\":{\"Registrado\":\"10.00\"},\"stock_producto\":{\"Registrado\":\"1.00\"},\"stock_minimo_producto\":{\"Registrado\":\"5.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00031-33\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"presentaciones_productos_2026_08_11_12_50_58_55.jpg\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00032-91\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00033-85\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00034-70\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00035-71\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00036-95\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00006-10\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"0.01\"}}]}}', '2026-08-11 12:50:58', 1),
+(2373, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00032-91)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_12_51_14.png?v=2026-08-11_12_51_14\"}}', '2026-08-11 12:51:14', 1),
+(2374, 'V30485684', 4, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-11 12:52:04', 1),
+(2375, 'V30485684', 4, 'Éxito', 'Eliminar', '190.97.229.57', NULL, '2026-08-11 12:53:54', 1),
+(2376, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 13:10:17\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-11 13:05:17', 1),
+(2377, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-23\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-74\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-91\"},\"mostrar_ecommerce\":{\"Modificado\":1},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-84\"},\"mostrar_ecommerce\":{\"Modificado\":1},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-30\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-33\"},\"foto_presentacion\":{\"Modificado\":\"\"}}],\"materias_primas\":[[]]}}', '2026-08-11 13:05:38', 1),
+(2378, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00042-33)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_13_05_54.png?v=2026-08-11_13_05_54\"}}', '2026-08-11 13:05:54', 1),
+(2379, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-98\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-09\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-77\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-19\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-44\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-60\"},\"foto_presentacion\":{\"Modificado\":\"\"}}],\"materias_primas\":[[]]}}', '2026-08-11 13:06:02', 1),
+(2380, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-85\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-61\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-26\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-64\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-74\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-30\"}}],\"materias_primas\":[[]]}}', '2026-08-11 13:11:43', 1),
+(2381, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-27\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-10\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-14\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-16\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-48\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-85\"}}],\"materias_primas\":[[]]}}', '2026-08-11 13:11:58', 1),
+(2382, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 13:18:52\"}}', '2026-08-11 13:13:52', 1),
+(2383, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 13:30:45\"}}', '2026-08-11 13:25:46', 1),
+(2384, 'V30485684', 4, 'Éxito', 'Actualizar', '190.97.229.57', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-67\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-54\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-27\"}},[],{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-30\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-32\"}}],\"materias_primas\":[[]]}}', '2026-08-11 13:26:08', 1),
+(2385, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 13:45:19\"}}', '2026-08-11 13:40:19', 1),
+(2386, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 13:55:26\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-11 13:50:26', 1),
+(2387, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-12\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-22\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-89\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-98\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00041-07\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00042-17\"}}],\"materias_primas\":[{\"id_materia_prima_producto\":{\"Modificado\":212}}]}}', '2026-08-11 13:56:49', 1),
+(2388, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-68\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-34\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00003-24\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-45\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00001-19\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-23\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Modificado\":0}},{\"id_presentacion_producto\":{\"Eliminado\":\"PRPR-26222-00041-07\"},\"id_producto\":{\"Eliminado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Eliminado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Eliminado\":1},\"foto_presentacion\":{\"Eliminado\":\"\"},\"status\":{\"Eliminado\":1}},{\"id_presentacion_producto\":{\"Eliminado\":\"PRPR-26222-00042-17\"},\"id_producto\":{\"Eliminado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Eliminado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Eliminado\":0},\"foto_presentacion\":{\"Eliminado\":\"\"},\"status\":{\"Eliminado\":1}}],\"materias_primas\":[{\"id_materia_prima_producto\":{\"Modificado\":213}}]}}', '2026-08-11 13:56:57', 1),
+(2389, 'V30485684', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00037-00\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00038-12\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Modificado\":0}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00039-70\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00003-24\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26222-00040-06\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00041-20\"},\"id_producto\":{\"Registrado\":\"PROD-26222-00004-43\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima_producto\":{\"Modificado\":214}}]}}', '2026-08-11 13:57:05', 1),
+(2390, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00041-20)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_13_57_32.png?v=2026-08-11_13_57_32\"}}', '2026-08-11 13:57:32', 1),
+(2391, 'V30485684', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26222-00039-70)', '181.208.252.213', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-08-11_13_57_40.png?v=2026-08-11_13_57_40\"}}', '2026-08-11 13:57:40', 1),
+(2392, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 14:14:01\"}}', '2026-08-11 14:09:01', 1),
+(2393, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 14:15:35\"}}', '2026-08-11 14:10:35', 1),
+(2394, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-11 15:28:51\"}}', '2026-08-11 15:23:51', 1),
+(2395, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-12 11:05:48\"}}', '2026-08-12 11:00:48', 1),
+(2396, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 11:03:33\"}}', '2026-08-14 10:58:33', 1),
+(2397, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 11:04:40\"}}', '2026-08-14 10:59:40', 1),
+(2398, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 11:07:14\"}}', '2026-08-14 11:02:14', 1),
+(2399, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 11:18:46\"}}', '2026-08-14 11:13:47', 1),
+(2400, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 11:25:05\"}}', '2026-08-14 11:20:05', 1),
+(2401, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 12:08:33\"}}', '2026-08-14 12:03:33', 1);
 INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_modulo`, `resultado_bitacora`, `accion`, `ip_dispositivo`, `cambios_efectuados`, `fecha_bitacora`, `status`) VALUES
-(2141, 'V30485688', 248, 'Éxito', 'registrar', '190.97.229.53', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26150-00001-39\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26180-00003-08\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":337}}],\"delivery\":{\"latitud\":{\"Registrado\":9.85989819906692},\"longitud\":{\"Registrado\":-69.61197124921608}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_07_03_06_55_02_9.jpg\"]}]}', '2026-07-03 06:55:03', 1),
-(2142, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26181-00001-30)', '181.208.252.213', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-07-03 06:55:22', 1),
-(2143, 'V30485688', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26183-00002-26)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V12344567\"},\"cedula_usuario\":{\"Registrado\":\"V30485688\"}}', '2026-07-03 06:55:33', 1),
-(2144, 'V30485688', 248, 'Éxito', 'Actualizar pedido (FACT-26183-00002-26)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":8}}', '2026-07-03 06:55:51', 1),
-(2145, 'V30485688', 248, 'Éxito', 'Actualizar pedido (FACT-26181-00001-30)', '190.97.229.53', '{\"status_pedido\":{\"Modificado\":8}}', '2026-07-03 06:56:04', 1),
-(2146, 'V30485688', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"precio_ruta\":{\"Modificado\":\"20.00\"}}', '2026-07-03 06:59:53', 1),
-(2147, 'V30485688', 247, 'Éxito', 'Actualizar', '190.97.229.53', '{\"precio_ruta\":{\"Modificado\":\"2.00\"}}', '2026-07-03 07:00:13', 1),
-(2148, 'V30485688', 247, 'Éxito', 'Registrar', '190.97.229.53', '{\"nombre_ruta\":{\"Registrado\":\"ANDER RUTA\"},\"precio_ruta\":{\"Registrado\":\"100\"},\"minimo_km_ruta\":{\"Registrado\":\"100\"},\"maximo_km_ruta\":{\"Registrado\":\"1000\"}}', '2026-07-03 07:00:37', 1),
-(2149, 'V30485688', 247, 'Éxito', 'Eliminar', '190.97.229.53', NULL, '2026-07-03 07:00:44', 1),
-(2150, 'V30485688', 250, 'Éxito', 'Registrar', '190.97.229.53', '{\"nombre_empresa\":{\"Registrado\":\"mmm\"}}', '2026-07-03 07:02:37', 1),
-(2151, 'V30485688', 250, 'Éxito', 'actualizar Empresa de envíos con id: 36', '190.97.229.53', '{\"nombre_empresa\":{\"Modificado\":\"mmm9\"}}', '2026-07-03 07:02:45', 1),
-(2152, 'V30485688', 250, 'Éxito', 'Eliminar Empresa de envíos con id: 36', '190.97.229.53', NULL, '2026-07-03 07:02:53', 1),
-(2153, 'V30485688', 250, 'Éxito', 'actualizar Empresa de envíos con id: 6', '190.97.229.53', '{\"nombre_empresa\":{\"Modificado\":\"ZOOMm\"}}', '2026-07-03 07:03:52', 1),
-(2154, 'V30485688', 250, 'Éxito', 'actualizar Empresa de envíos con id: 6', '190.97.229.53', '{\"nombre_empresa\":{\"Modificado\":\"ZOOM\"}}', '2026-07-03 07:03:59', 1),
-(2155, 'V30485688', 19, 'Éxito', 'Actualizar', '190.97.229.53', '{\"necesita_banco_emisor\":{\"Modificado\":1},\"necesita_banco_receptor\":{\"Modificado\":1},\"necesita_referencia\":{\"Modificado\":1},\"mostrar_ecommerce\":{\"Modificado\":1}}', '2026-07-03 07:12:09', 1),
-(2156, 'V30485688', 19, 'Éxito', 'Actualizar', '190.97.229.53', '{\"necesita_moneda\":{\"Modificado\":0}}', '2026-07-03 07:16:33', 1),
-(2157, 'V30485688', 19, 'Éxito', 'Actualizar', '190.97.229.53', '{\"necesita_moneda\":{\"Modificado\":1}}', '2026-07-03 07:16:47', 1),
-(2158, 'V30485688', 19, 'Fallido', 'Actualizar', '190.97.229.53', NULL, '2026-07-03 07:17:54', 1),
-(2159, 'V30485688', 19, 'Fallido', 'Actualizar', '190.97.229.53', NULL, '2026-07-03 07:19:17', 1),
-(2160, 'V30485688', 19, 'Fallido', 'Actualizar', '190.97.229.53', NULL, '2026-07-03 07:19:27', 1),
-(2161, 'V30485688', 19, 'Éxito', 'Actualizar', '190.97.229.53', '{\"necesita_moneda\":{\"Modificado\":0},\"necesita_banco_emisor\":{\"Modificado\":0}}', '2026-07-03 07:35:47', 1),
-(2162, 'V30485688', 19, 'Éxito', 'Actualizar', '190.97.229.53', '{\"necesita_moneda\":{\"Modificado\":1}}', '2026-07-03 07:36:02', 1),
-(2163, 'V30485688', 19, 'Éxito', 'registtrar', '190.97.229.53', '{\"id_metodo_pago\":{\"Registrado\":0},\"nombre_metodo_pago\":{\"Registrado\":\"EFECTIVOm\"},\"necesita_moneda\":{\"Registrado\":0},\"necesita_banco_emisor\":{\"Registrado\":0},\"necesita_banco_receptor\":{\"Registrado\":0},\"necesita_referencia\":{\"Registrado\":0},\"mostrar_ecommerce\":{\"Registrado\":0}}', '2026-07-03 07:38:32', 1),
-(2164, 'V30485684', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_metodo_pago\":{\"Modificado\":\"EFECTIVOmm\"}}', '2026-07-03 07:38:50', 1),
-(2165, 'V30485688', 19, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-07-03 07:38:57', 1),
-(2166, 'V30485688', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_metodo_pago\":{\"Modificado\":\"BINANCEm\"}}', '2026-07-03 07:39:58', 1),
-(2167, 'V30485688', 19, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_metodo_pago\":{\"Modificado\":\"BINANCE\"},\"necesita_banco_emisor\":{\"Modificado\":1},\"necesita_banco_receptor\":{\"Modificado\":1}}', '2026-07-03 07:40:08', 1),
-(2168, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"precio_producto\":{\"Modificado\":\"10.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00001-42\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00002-60\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00003-46\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00004-81\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00005-31\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00006-22\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"1000.00\"}}]}}', '2026-07-03 07:47:04', 1),
-(2169, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"precio_producto\":{\"Modificado\":\"100.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00001-70\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00002-90\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00003-11\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00004-78\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00005-96\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00006-15\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"100000.00\"}}]}}', '2026-07-03 07:47:27', 1),
-(2170, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_producto\":{\"Modificado\":\"CLOROS\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00001-29\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00002-48\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00003-54\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00004-58\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00005-47\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00006-53\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"10000000.00\"}}]}}', '2026-07-03 07:47:52', 1),
-(2171, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"nombre_producto\":{\"Modificado\":\"CLORO\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00001-40\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00002-70\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00003-73\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00004-68\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00005-82\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00006-22\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"1000000000.00\"}}]}}', '2026-07-03 07:48:00', 1),
-(2172, 'V30485688', 4, 'Éxito', 'Registrar', '181.208.252.213', '{\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_unidad_medida\":{\"Registrado\":2},\"id_categoria_producto\":{\"Registrado\":1},\"nombre_producto\":{\"Registrado\":\"CLORO2\"},\"precio_producto\":{\"Registrado\":\"1.00\"},\"stock_producto\":{\"Registrado\":\"100.00\"},\"stock_minimo_producto\":{\"Registrado\":\"10.00\"},\"status\":{\"Registrado\":1},\"nombre_categoria_producto\":{\"Registrado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Registrado\":1},\"nombre_unidad_medida\":{\"Registrado\":\"LITRO(S)\"},\"simbolo_unidad_medida\":{\"Registrado\":\"L\"},\"equivalencia_ub\":{\"Registrado\":\"1000.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00007-69\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00008-37\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00009-94\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00010-17\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Registrado\":1},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00011-57\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00012-26\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"110.00\"}}]}}', '2026-07-03 07:49:40', 1),
-(2173, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00007-50\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00008-12\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00002-78\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00009-34\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00010-14\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Modificado\":0}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00011-72\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00002-40\"}},{\"id_presentacion_producto\":{\"Eliminado\":\"PRPR-26183-00012-26\"},\"id_producto\":{\"Eliminado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Eliminado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Eliminado\":0},\"foto_presentacion\":{\"Eliminado\":\"\"},\"status\":{\"Eliminado\":1}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"11000.00\"}}]}}', '2026-07-03 08:03:03', 1),
-(2174, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"id_categoria_producto\":{\"Modificado\":2},\"nombre_categoria_producto\":{\"Modificado\":\"NO FABRICADOS\"},\"necesitan_materias_primas\":{\"Modificado\":0},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00007-13\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00008-91\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00009-56\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00010-34\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00011-10\"}}],\"materias_primas\":[{\"id_materia_prima\":{\"Eliminado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Eliminado\":\"11000.00\"}}]}}', '2026-07-03 09:45:00', 1),
-(2175, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"id_categoria_producto\":{\"Modificado\":1},\"nombre_categoria_producto\":{\"Modificado\":\"FABRICADOS\"},\"necesitan_materias_primas\":{\"Modificado\":1},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00007-00\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00008-20\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00009-49\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00010-76\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00011-83\"}}],\"materias_primas\":[]}}', '2026-07-03 09:46:23', 1),
-(2176, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00007-52\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00008-90\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00001-42\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00009-19\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00002-78\"},\"mostrar_ecommerce\":{\"Modificado\":0}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00010-79\"},\"id_presentacion\":{\"Modificado\":\"PRES-26159-00003-24\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00011-56\"},\"id_presentacion\":{\"Modificado\":\"PRES-26177-00001-19\"},\"mostrar_ecommerce\":{\"Modificado\":1}},{\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26183-00012-43\"},\"id_producto\":{\"Registrado\":\"PROD-26183-00001-56\"},\"id_presentacion\":{\"Registrado\":\"PRES-26177-00002-40\"},\"mostrar_ecommerce\":{\"Registrado\":0},\"foto_presentacion\":{\"Registrado\":\"\"},\"status\":{\"Registrado\":1}}],\"materias_primas\":[{\"id_materia_prima\":{\"Registrado\":\"MATE-26123-00001-66\"},\"cantidad_materia_prima\":{\"Registrado\":\"10.00\"}}]}}', '2026-07-03 09:47:56', 1),
-(2177, 'V30485688', 305, 'Éxito', 'Actualizar foto de la presentacion (PRPR-26183-00011-56)', '190.97.229.53', '{\"foto_presentacion\":{\"Modificado\":\"presentaciones_productos_2026-07-03_10_36_56.jpg?v=2026-07-03_10_36_56\"}}', '2026-07-03 10:36:56', 1),
-(2178, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00007-41\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00008-04\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00009-24\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00010-84\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00011-58\"},\"foto_presentacion\":{\"Modificado\":\"\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00012-24\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:02:58', 1),
-(2179, 'V30485684', 4, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-07-03 11:03:17', 1),
-(2180, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-09\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-95\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-23\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-12\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-40\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-80\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:06:56', 1),
-(2181, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-91\"}},[],{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-58\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-01\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-44\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-26\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:09:39', 1),
-(2182, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-03\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-60\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-93\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-65\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-74\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-76\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:11:21', 1),
-(2183, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-12\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-14\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-61\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-28\"}},[],{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-18\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"1.00\"}}]}}', '2026-07-03 11:11:32', 1),
-(2184, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-18\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-21\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-93\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-54\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-48\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-57\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:11:41', 1),
-(2185, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-51\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-09\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-76\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-72\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-87\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-47\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:11:50', 1),
-(2186, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-82\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-43\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-01\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-70\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-24\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-09\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:12:15', 1),
-(2187, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-36\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-75\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-15\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-92\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-40\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-95\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:12:32', 1),
-(2188, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"precio_producto\":{\"Modificado\":\"1.00\"},\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-62\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-73\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-21\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-04\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-22\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-29\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:12:43', 1),
-(2189, 'V30485688', 4, 'Éxito', 'Actualizar', '190.97.229.53', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-76\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-22\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-12\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-91\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-85\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-10\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:12:51', 1),
-(2190, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-31\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-97\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-10\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-17\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-55\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-72\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:16:12', 1),
-(2191, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-22\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-39\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-34\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-98\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-48\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-29\"}}],\"materias_primas\":[{\"cantidad_materia_prima\":{\"Modificado\":\"0.10\"}}]}}', '2026-07-03 11:16:27', 1),
-(2192, 'V30485688', 4, 'Éxito', 'Actualizar', '181.208.252.213', '{\"detallesExtra\":{\"presentaciones\":[{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00013-65\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00014-72\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00015-86\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00016-39\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00017-07\"}},{\"id_presentacion_producto\":{\"Modificado\":\"PRPR-26183-00018-91\"}}],\"materias_primas\":[[]]}}', '2026-07-03 11:32:40', 1),
-(2193, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-03 16:24:33\"}}', '2026-07-03 16:24:33', 1),
-(2194, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485684', '181.208.252.213', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"full_path\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\php8260.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":118154}},\"fofo_usuario\":{\"Eliminado\":\"usuarios_2026-07-03_06_04_56.jpg?v=2026-07-03_06_04_56\"}}', '2026-07-03 16:24:48', 1),
-(2195, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-08 13:51:07\"}}', '2026-07-08 13:51:07', 1),
-(2196, 'V30485684', 262, 'Éxito', 'Registrar', '190.97.229.57', NULL, '2026-07-08 13:52:42', 1),
-(2197, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-09 10:26:42\"}}', '2026-07-09 10:26:42', 1),
-(2198, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-07-09 12:44:27\"}}', '2026-07-09 12:44:27', 1);
+(2402, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 12:23:58\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-14 12:18:58', 1),
+(2403, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 12:42:03\"}}', '2026-08-14 12:37:03', 1),
+(2404, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 12:59:48\"}}', '2026-08-14 12:54:48', 1),
+(2405, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:15:12\"}}', '2026-08-14 13:10:12', 1),
+(2406, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:40:53\"}}', '2026-08-14 13:35:53', 1),
+(2407, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:56:25\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-14 13:51:25', 1),
+(2408, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 14:04:41\"}}', '2026-08-14 13:59:41', 1);
 
 -- --------------------------------------------------------
 
@@ -802,7 +652,10 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (267, 'mensajesWS', 1),
 (303, 'metodos-pagos', 1),
 (305, 'presentaciones_productos', 1),
-(306, 'mam', 1);
+(306, 'mamm', 0),
+(307, 'chatbot', 1),
+(308, 'preguntas-seguridad', 1),
+(309, 'ordenesEntregasPresupuestos', 1);
 
 -- --------------------------------------------------------
 
@@ -827,74 +680,12 @@ CREATE TABLE `notificaciones` (
 --
 
 INSERT INTO `notificaciones` (`id_notificacion`, `cedula_usuario`, `id_icono_notificacion`, `id_tipo_notificacion`, `tiempo_notificacion`, `titulo_notificacion`, `texto_notificacion`, `fecha_creacion_notificacion`, `status`) VALUES
-(230, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-13 19:14:14', 0),
-(231, 'V30485684', 1, 2, 0, 'IVA actualizado', 'El precio del IVA acaba de ser actualizado', '2026-06-13 19:30:36', 0),
-(232, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-13 19:31:53', 0),
-(233, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 14:07:15', 0),
-(234, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 17:46:59', 0),
-(235, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 18:04:00', 0),
-(236, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 18:04:38', 0),
-(237, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 18:06:38', 0),
-(238, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-14 19:10:01', 0),
-(239, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-19 21:13:34', 0),
-(240, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-19 21:16:50', 0),
-(319, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:37:59', 1),
-(320, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:37:59', 0),
-(321, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:39:42', 1),
-(322, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:39:42', 0),
-(333, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:59:07', 1),
-(334, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 16:59:07', 0),
-(339, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 18:23:26', 1),
-(340, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-22 18:23:26', 0),
-(347, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:52:23', 1),
-(348, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:52:23', 0),
-(349, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:52:23', 1),
-(350, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:57:10', 1),
-(351, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:57:10', 0),
-(352, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 12:57:10', 1),
-(353, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 13:00:44', 1),
-(354, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 13:00:44', 0),
-(355, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 13:00:44', 1),
-(356, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 19:59:18', 1),
-(357, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 19:59:18', 0),
-(358, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 19:59:18', 1),
-(359, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:21:59', 1),
-(360, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:21:59', 0),
-(361, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:21:59', 1),
-(362, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:24:44', 1),
-(363, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:24:44', 0),
-(364, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-26 20:24:44', 1),
-(365, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-27 13:10:07', 1),
-(366, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-27 13:10:07', 0),
-(367, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-27 13:10:07', 1),
-(368, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 20:40:41', 1),
-(369, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 20:40:41', 0),
-(370, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 20:40:41', 1),
-(371, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:08:13', 1),
-(372, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:08:13', 0),
-(373, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:08:13', 1),
-(374, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:49:26', 1),
-(375, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:49:26', 0),
-(376, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-28 21:49:26', 1),
-(377, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 00:43:14', 1),
-(378, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 00:43:14', 0),
-(379, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 00:43:14', 1),
-(380, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 01:58:20', 1),
-(381, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 01:58:20', 0),
-(382, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 01:58:20', 1),
-(383, 'V30485680', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 02:02:04', 1),
-(384, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 02:02:04', 0),
-(385, 'V30485694', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 02:02:04', 1),
-(386, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 18:09:11', 0),
-(387, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-29 18:13:42', 0),
-(388, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-06-30 16:36:36', 1),
-(389, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-07-01 11:24:44', 1),
-(390, 'V30485683', 1, 2, 0, 'Moneda eliminada', 'La moneda ha sido eliminada del sistema', '2026-07-02 21:18:00', 1),
-(391, 'V30485684', 1, 2, 0, 'Moneda eliminada', 'La moneda ha sido eliminada del sistema', '2026-07-02 21:18:00', 1),
-(392, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-07-03 06:44:09', 1),
-(393, 'V30485688', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-07-03 06:44:09', 1),
-(394, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-07-03 06:55:02', 1),
-(395, 'V30485688', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-07-03 06:55:02', 1);
+(398, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido actualizado.', '2026-08-08 13:49:57', 0),
+(399, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido actualizado.', '2026-08-08 13:50:09', 0),
+(400, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido registrado en el sistema.', '2026-08-08 13:50:22', 0),
+(401, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido eliminado del sistema.', '2026-08-08 13:50:26', 0),
+(402, 'V30485681', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-10 17:44:31', 1),
+(403, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-10 17:44:31', 0);
 
 -- --------------------------------------------------------
 
@@ -959,7 +750,87 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (662, 'asignar repartidores a pedidos', 1),
 (663, 'ver detalles de los productos', 1),
 (664, 'ver historial de cambio de las divisas', 1),
-(665, 'listar permisos', 1);
+(665, 'listar permisos', 1),
+(666, 'ver chatbot', 1),
+(667, 'enviar mensaje chatbot', 1),
+(668, 'imprimir reportes de anomalias de productos', 1),
+(669, 'imprimir reportes de anomalias de materias primas', 1),
+(670, 'anular', 1),
+(671, 'despachar orden', 1),
+(672, 'agregar pago', 1),
+(673, 'permisox', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `preguntas_seguridad`
+--
+
+CREATE TABLE `preguntas_seguridad` (
+  `id_pregunta` varchar(20) NOT NULL,
+  `texto_pregunta` varchar(100) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `preguntas_seguridad`
+--
+
+INSERT INTO `preguntas_seguridad` (`id_pregunta`, `texto_pregunta`, `status`) VALUES
+('PREG-26210-00001-26', '¿Cuál es tu comida favorita?', 1),
+('PREG-26210-00002-21', '¿En qué calle vivías cuando tenías diez años?', 1),
+('PREG-26210-00003-77', '¿Cómo se llamaba tu primera mascota?', 1),
+('PREG-26210-00004-61', '¿Cuál es el segundo nombre de tu abuelo materno?', 1),
+('PREG-26210-00005-63', '¿Cómo se llamaba tu primer maestro de escuela?', 1),
+('PREG-26210-00006-60', '¿Cuál era tu apodo favorito durante la infancia?', 1),
+('PREG-26210-00007-27', '¿Cuál fue el primer modelo de auto que tuviste?', 1),
+('PREG-26210-00008-61', '¿A qué ciudad viajaste en tu primer vuelo en avión?', 1),
+('PREG-26210-00009-75', '¿Cuál es el título de tu libro favorito de la infancia?', 1),
+('PREG-26210-00010-46', '¿Cuál fue el primer concierto de música al que asististe?', 1),
+('PREG-26210-00011-43', '¿En qué hotel te hospedaste durante tus vacaciones favoritas?', 1),
+('PREG-26210-00012-08', '¿Cómo se llamaba la primera empresa donde trabajaste?', 1),
+('PREG-26210-00013-26', '¿Cuál era el nombre de la mascota de tu universidad?', 1),
+('PREG-26210-00014-96', '¿En qué ciudad se conocieron tus padres?', 1),
+('PREG-26210-00015-02', '¿Cuál fue el primer país extranjero que visitaste?', 1),
+('PREG-26210-00016-12', '¿Cómo se llamaba el hospital donde naciste?', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `preguntas_seguridad_usuarios`
+--
+
+CREATE TABLE `preguntas_seguridad_usuarios` (
+  `id_pregunta_usuario` varchar(20) NOT NULL,
+  `id_pregunta` varchar(20) NOT NULL,
+  `cedula_usuario` varchar(20) NOT NULL,
+  `respuesta_pregunta` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `preguntas_seguridad_usuarios`
+--
+
+INSERT INTO `preguntas_seguridad_usuarios` (`id_pregunta_usuario`, `id_pregunta`, `cedula_usuario`, `respuesta_pregunta`, `status`) VALUES
+('PRUS-26213-00001-85', 'PREG-26210-00001-26', 'V30485684', '$2y$10$oSAFQLHBQ.f0yXrP2EHvYOWmXbFQEK6ddsUSES5kZuRfvHTGrvkLO', 1),
+('PRUS-26213-00002-33', 'PREG-26210-00003-77', 'V30485684', '$2y$10$ESrPpMPFFnpSTAKCOiAqVOApkQ7In.nwsj4H8oVj1nk5GTb96i7OW', 1),
+('PRUS-26213-00003-13', 'PREG-26210-00015-02', 'V30485684', '$2y$10$CJ4N3mC.78fqwCK4eOvaFOK5MqaS5cIeAldIZ4N8NHnnwOrZGunW6', 1),
+('PRUS-26213-00004-32', 'PREG-26210-00013-26', 'V30485684', '$2y$10$AAs.exVU1/hT.kK/2wYnRumBj0/81k6la0doYE7P81IEKCENLZ2Yi', 1),
+('PRUS-26213-00005-91', 'PREG-26210-00012-08', 'V30485684', '$2y$10$nEuTtqbC4VHg/Fq7MjHDJuo8pAjGVNj.MQ1/DvKaH5lVu6FeminVe', 1),
+('PRUS-26213-00006-15', 'PREG-26210-00010-46', 'V30485684', '$2y$10$.pudhcTVmpJqP56lu1guxOCQpi8czdVNALQv04oklr6X3byw/GHly', 1),
+('PRUS-26221-00001-41', 'PREG-26210-00001-26', 'V30485688', '$2y$10$kkIvKOeLqnsJjPepiPbPaObftz5zu.Utme0AAci7k9jqbCwNdxb7.', 1),
+('PRUS-26221-00002-20', 'PREG-26210-00002-21', 'V30485688', '$2y$10$WXVuBpVC/aD2eJjIjiGOzu5rMVQU9i.LDG77RAib4sAlNRE5hLgDG', 1),
+('PRUS-26221-00003-40', 'PREG-26210-00003-77', 'V30485688', '$2y$10$xplVAHINlxboKlbtghJQFOGG/93Wa0ZmgDSIXQe7ymr.mRtfNYl8i', 1),
+('PRUS-26221-00004-31', 'PREG-26210-00015-02', 'V30485688', '$2y$10$97U9ZxMj0mPK/rtsBgTM.e6A33jx6DFV./yd6R5aHTD9pVEpI4CEa', 1),
+('PRUS-26221-00005-05', 'PREG-26210-00014-96', 'V30485688', '$2y$10$.vWhvgbmkDn0wSvhLpu5p.YRkVpg.Qy1r5sEV4REGFFmhSaPvJJoe', 1),
+('PRUS-26221-00006-70', 'PREG-26210-00012-08', 'V30485688', '$2y$10$MSyyqq8/wDJedr3JCR/GeuXLtDX2fE4z/XR1LEAV4rWAdodyVmRYG', 1),
+('PRUS-26221-00007-22', 'PREG-26210-00001-26', 'V30485681', '$2y$10$wU8cYibX8NLN27pihZMW4Obl1MtwCq60TaylCpisI7k3graGFoaHu', 1),
+('PRUS-26221-00008-99', 'PREG-26210-00002-21', 'V30485681', '$2y$10$oCY9ov16IiozchUkb/jkhOZnuIwVC4HRPtkcjLoGoBQxkUDJW2auy', 1),
+('PRUS-26221-00009-61', 'PREG-26210-00003-77', 'V30485681', '$2y$10$EJGejQQ/q8/bHep25huPnO9AKIXVy9q0Pkt/WV/rah7C4rBlUwKoq', 1),
+('PRUS-26221-00010-42', 'PREG-26210-00014-96', 'V30485681', '$2y$10$F0WYELHGHtHBGMWGEJvE.ehIVVz5VMtDaa1x38KCl6Eh.Yx84sf1C', 1),
+('PRUS-26221-00011-68', 'PREG-26210-00012-08', 'V30485681', '$2y$10$b3u2pHbQ24nWvTq8Tg8DXep2j6CQYU1ICmfpfrMmJXVP80Z2u/r7i', 1),
+('PRUS-26221-00012-42', 'PREG-26210-00011-43', 'V30485681', '$2y$10$caw/tqyKBEMy7cZcRrMcMePBXzmAwEgzkbctT.h3Ax9ilGYtgfdv6', 1);
 
 -- --------------------------------------------------------
 
@@ -975,13 +846,6 @@ CREATE TABLE `prompts_usuarios` (
   `fecha_prompt` datetime NOT NULL DEFAULT current_timestamp(),
   `status` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `prompts_usuarios`
---
-
-INSERT INTO `prompts_usuarios` (`id_prompt_usuario`, `cedula_usuario`, `prompt`, `respuesta_bot`, `fecha_prompt`, `status`) VALUES
-(1, 'V30485684', 'Soporte técnico', '', '2026-06-27 14:16:42', 1);
 
 -- --------------------------------------------------------
 
@@ -1002,9 +866,7 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
 (1, 'ADMINISTRADOR', 1),
 (2, 'OFICINISTA', 1),
-(3, 'CLIENTES', 1),
-(4, 'DJJ', 0),
-(5, 'SONO', 0);
+(3, 'CLIENTES', 1);
 
 -- --------------------------------------------------------
 
@@ -1025,6 +887,21 @@ CREATE TABLE `tipos_notificaciones` (
 INSERT INTO `tipos_notificaciones` (`id_tipo_notificacion`, `nombre_tipo_notificacion`, `status`) VALUES
 (1, 'info', 1),
 (2, 'simple', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tokens_usuarios`
+--
+
+CREATE TABLE `tokens_usuarios` (
+  `id_token_usuario` varchar(20) NOT NULL,
+  `cedula_usuario` varchar(20) NOT NULL,
+  `tipo_token` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `vencimiento_token` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1053,16 +930,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `foto_usuario`, `direccion_usuario`, `ultimo_acceso_usuario`, `intentos_inicio_sesion_fallidos_usuario`, `status`) VALUES
-('V12345666', 2, 'Anderson', 'Freitez', 'Ander123499', '$2y$10$/Xy1pVC6e1kjmNJgdutBCeJCT2fUHBR3nCxyDZJCFWVFTcXJbDNm6', '04169484999', 'andersonfreitez776@gmail.com', 'usuarios_2026_06_24_23_38_15_25.jpg', 'BARQUISIMETO', '2026-06-24 23:38:15', 0, 0),
-('V1234567', 2, 'Anderson', 'Freitez', 'Ander1239', '$2y$10$o4NZdHyA8DC48693PT/xcuiYLZEp944yhZUenpn2nFvU2DI4UZ.o.', '04161234567', 'andersonfreitez96@gmail.com', 'usuarios_2026_06_21_13_32_34_11.jpg?v=2026-06-24_18_22_02', 'SANARE', '2026-06-21 13:32:34', 0, 0),
-('V304856111', 1, 'Anderson', 'Freitei', 'Ander1230', '$2y$10$EA7X1VnuaVraVhT.HX0/ouoP9nHpAWsrEYhhxjhm7y549N0KHcYTK', '04169484647', 'andersonfreitez68@gmail.com', 'usuarios_2026_06_22_18_27_06_43.jpg', 'BARQUISIMETO', '2026-06-22 18:27:06', 0, 0),
-('V30485680', 1, 'Anderson', 'Freitez', 'Ander12398', '$2y$10$2uO1vyvosR8NTOHpUbCHwuE0Tvpbg9YqE3bTHZRYe.VToDZMkfADe', '04169484655', 'andersonfreitez76@gmail.com', '', 'SANARE', '2026-06-21 13:16:46', 0, 0),
-('V30485681', 1, 'Anderson', 'Freitez', 'Ander1230', '$2y$10$Qlb7sK807TxABPDhuXGWAuO5mxKdr97ypoZuZUbWIoyZVz9n4moMC', '04169484688', 'cesar15rangel@gmail.com', 'usuarios_2026_07_03_02_48_31_84.jpg', 'BARQUISIMETO', '2026-07-03 02:48:31', 0, 0),
-('V30485683', 2, 'Anderson', 'Freitezm', 'Ander1234', '$2y$10$z8qg8.gX1U9xp2H2ePDdMerM47eYJQGiroHZdlHZglGHt2Z4ryp9W', '04169484648', 'andersonfreitez68@gmail.com', 'usuarios_2026-07-03_06_05_18.jpg?v=2026-07-03_06_05_51', 'BARQUISIMETO', '2026-06-13 17:37:36', 0, 1),
-('V30485684', 1, 'Anderson', 'Freitez', 'Ander123', '$2y$10$TQpxZt7LRgNR0ir01QuGMOhu1/1ptER5gKVNMOAl3SWZLOzVQtvy2', '04169484649', 'andersonfreitez6@gmail.com', 'usuarios_2026-07-03_06_04_56.jpg?v=2026-07-03_16_24_48', 'SANARE', '2026-07-09 12:44:27', 0, 1),
-('V30485686', 3, 'Anderson', 'Freitez', 'Ander123999', '$2y$10$MX64wBFxnxLXQgHyiUCtNe.ZzOcIUqyXXLoo5NiomfLaAx5d0DJ02', '04169999999', 'andersonfreitez6999@gmail.com', '', 'SANARE', '2026-06-25 00:32:28', 0, 0),
-('V30485688', 1, 'Anderson', 'Freitez', 'Ander12300', '$2y$10$zJ.0XB4RK3l/rDkde12SouZKIcNhvMa94pmQxp7btnMCImazvXKSK', '04169484649', 'andersonfreitej6@gmail.com', 'usuarios_2026-07-03_06_00_36.jpg?v=2026-07-03_06_00_36', 'BARQUISIMETO', '2026-07-03 06:04:16', 0, 1),
-('V30485694', 1, 'Anderson', 'Freitez', 'Ander1230', '$2y$10$FWE4RUlbWzDqd3CDTPfqXeRz9JpYRibZ.gQ4wxDgjuWJQctAkDZiC', '04169484699', 'andersonfreitez996@gmail.com', 'usuarios_2026_06_24_18_34_59_39.jpg', 'BARQUISIMETO', '2026-06-24 18:34:59', 0, 0);
+('V30485681', 1, 'Anderson', 'Freitez', 'Ander1236', '$2y$10$6ljN.VrGlB6mn4wLkHfDaOXke8z9135c.OYp5R.mHKk/y0bWnjNde', '04169484643', 'andersonfreitez66@gmail.com', 'usuarios_2026_08_10_16_58_55_14.jpg', 'BARQUISIMETO', '2026-08-11 04:58:55', 0, 1),
+('V30485684', 1, 'Anderson', 'Freitez', 'Ander123', '$2y$10$c6nJB8cfBNeptJq45jPrMOK.jPOGFOEq7rZAFHyHkg3k7WzQMQXC6', '04169484649', 'andersonfreitez6@gmail.com', '', 'SANARE', '2026-08-14 14:12:56', 0, 1),
+('V30485688', 1, 'Andersoa', 'Freitez', 'Ander1239', '$2y$10$petVY5x/7OGMh1gk/PuBt.R2SxsI20QXItsUrfqIG.XrEk4aScQ5m', '04169484640', 'andersonfremitez6@gmail.com', 'usuarios_2026_08_10_16_45_15_60.jpg?v=2026-08-10_17_00_26', 'BARQUISIMETO', '2026-08-11 04:45:15', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1152,6 +1022,20 @@ ALTER TABLE `permisos`
   ADD KEY `nombre_permiso_indice` (`nombre_permiso`);
 
 --
+-- Indices de la tabla `preguntas_seguridad`
+--
+ALTER TABLE `preguntas_seguridad`
+  ADD PRIMARY KEY (`id_pregunta`);
+
+--
+-- Indices de la tabla `preguntas_seguridad_usuarios`
+--
+ALTER TABLE `preguntas_seguridad_usuarios`
+  ADD PRIMARY KEY (`id_pregunta_usuario`),
+  ADD KEY `id_pregunta_preguntas_seguridad_usuarios_fk` (`id_pregunta`),
+  ADD KEY `cedula_usuario_preguntas_seguridad_usuarios_fk` (`cedula_usuario`);
+
+--
 -- Indices de la tabla `prompts_usuarios`
 --
 ALTER TABLE `prompts_usuarios`
@@ -1172,6 +1056,13 @@ ALTER TABLE `tipos_notificaciones`
   ADD PRIMARY KEY (`id_tipo_notificacion`);
 
 --
+-- Indices de la tabla `tokens_usuarios`
+--
+ALTER TABLE `tokens_usuarios`
+  ADD PRIMARY KEY (`id_token_usuario`),
+  ADD KEY `cedula_usuario_tokens_usuarios` (`cedula_usuario`);
+
+--
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -1186,19 +1077,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1051;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1070;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
 --
 ALTER TABLE `acciones_resagadas_usuarios`
-  MODIFY `id_accion_resagada_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1020;
+  MODIFY `id_accion_resagada_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1281;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2199;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2409;
 
 --
 -- AUTO_INCREMENT de la tabla `iconos_notificaciones`
@@ -1210,19 +1101,19 @@ ALTER TABLE `iconos_notificaciones`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=307;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=311;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=396;
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=404;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=666;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=674;
 
 --
 -- AUTO_INCREMENT de la tabla `prompts_usuarios`
@@ -1277,10 +1168,23 @@ ALTER TABLE `notificaciones`
   ADD CONSTRAINT `id_tipo_notificacion_notificaciones_fk` FOREIGN KEY (`id_tipo_notificacion`) REFERENCES `tipos_notificaciones` (`id_tipo_notificacion`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `preguntas_seguridad_usuarios`
+--
+ALTER TABLE `preguntas_seguridad_usuarios`
+  ADD CONSTRAINT `cedula_usuario_preguntas_seguridad_usuarios_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `id_pregunta_preguntas_seguridad_usuarios_fk` FOREIGN KEY (`id_pregunta`) REFERENCES `preguntas_seguridad` (`id_pregunta`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `prompts_usuarios`
 --
 ALTER TABLE `prompts_usuarios`
   ADD CONSTRAINT `cedula_usuario_prompts_usuarios_fk` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `tokens_usuarios`
+--
+ALTER TABLE `tokens_usuarios`
+  ADD CONSTRAINT `cedula_usuario_tokens_usuarios` FOREIGN KEY (`cedula_usuario`) REFERENCES `usuarios` (`cedula_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `usuarios`
