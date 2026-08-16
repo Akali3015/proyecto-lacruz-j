@@ -1,9 +1,9 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
   listarDataTable, pedirDatosAjax, enviarFormulario,
-  alertasAjax, reiniciarDataTables
+  alertasAjax, reiniciarDataTables, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [VARIABLES GLOBALES] COMIENZO
@@ -16,6 +16,89 @@ let bancosOptions = '<option value="">Seleccione...</option>';
 let tasaDolar = 1;
 let oepActual = null;
 //#endregion [VARIABLES GLOBALES] FIN
+
+//#region [FUNCIONES DEL MODULO] COMIENZO
+
+function registrarTutorial() {
+  driverAyuda('pagos', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Pago',
+          description: 'Haz clic aquí para registrar un nuevo pago asociado a una Orden de Entrega Presupuesto (OEP).',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Pagos',
+          description: 'Aquí puedes ver todos los pagos registrados, su monto total y los comprobantes asociados.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.btnVerDetalle',
+        popover: {
+          title: 'Ver Detalles del Pago',
+          description: 'Consulta todos los detalles de un pago, incluyendo el desglose por método y los comprobantes adjuntos.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.btnEditar',
+        popover: {
+          title: 'Editar Pago',
+          description: 'Modifica los detalles de un pago existente. Puedes agregar o eliminar comprobantes.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.btnEliminar',
+        popover: {
+          title: 'Eliminar Pago',
+          description: 'Anula el pago seleccionado. La OEP quedará con el saldo pendiente correspondiente.',
+          side: 'left'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de pagos. Recuerda que cada pago se asocia a una OEP y puede tener múltiples métodos de pago.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
+
+//#region [HELPERS DE MONTO] COMIENZO
+function parsearMonto(rawStr) {
+  let s = (rawStr || '').trim();
+  if (s === '' || s === '0') return 0;
+  // Formato con coma decimal "1.500,50" o "0,50"
+  if (s.includes(',')) {
+    // Quitar puntos de miles, reemplazar coma por punto
+    let clean = s.replace(/\./g, '').replace(',', '.');
+    return parseFloat(clean) || 0;
+  }
+  // Formato con punto decimal y sin coma
+  if (s.includes('.')) {
+    return parseFloat(s) || 0;
+  }
+  // Solo números
+  // tomamos el valor tal cual como entero y dividimos entre 100
+  return parseFloat(s.replace(/\D/g, '')) / 100 || 0;
+}
+
+//El backend espera formato europeo con coma decimal: "0,50", "1500,50"
+
+function formatearMontoEnvio(monto) {
+  return parseFloat(monto).toFixed(2).replace('.', ',');
+}
+//#endregion [HELPERS DE MONTO] FIN
 
 //#region [FUNCIONES DEL MODULO] COMIENZO
 
@@ -145,7 +228,11 @@ function agregarFilaPago(datos = null) {
     
     $nuevo.find(".nroDetalle").text(`#${numFilas}`);
     $nuevo.find(".sel-metodo-pago").html(metodosPagoOptions);
-    $nuevo.find(".sel-moneda-pago").html(monedasOptions);
+    
+    // Quitar "Seleccione..." para que por defecto agarre la primera moneda (Bolívares)
+    let mOptions = monedasOptions.replace('<option value="">Seleccione...</option>', '');
+    $nuevo.find(".sel-moneda-pago").html(mOptions);
+    
     $nuevo.find(".sel-banco-emisor").html(bancosOptions);
     $nuevo.find(".sel-banco-receptor").html(bancosOptions);
 
@@ -159,7 +246,9 @@ function agregarFilaPago(datos = null) {
       $nuevo.find(".sel-banco-emisor").val(datos.id_banco_emisor);
       $nuevo.find(".sel-banco-receptor").val(datos.id_banco_receptor);
       $nuevo.find(".input-referencia-pago").val(datos.referencia_pago);
-      $nuevo.find(".input-monto-pago").val(datos.monto_pago);
+      
+      let montoFormateado = datos.monto_pago ? datos.monto_pago.toString().replace('.', ',') : '';
+      $nuevo.find(".input-monto-pago").val(montoFormateado);
     }
 
     $("#contenedorDetallesPagoModulo").append($nuevo);
@@ -190,8 +279,6 @@ function vaciarFormulario() {
   }
 }
 
-
-
 function calcularRestante() {
   if (!oepActual) return;
   
@@ -201,7 +288,8 @@ function calcularRestante() {
   
   let sumPagadoEnModal = 0;
   $('#contenedorDetallesPagoModulo .fila-pago').each(function () {
-    let valInput = parseFloat($(this).find('.input-monto-pago').val() || 0);
+    let rawVal = $(this).find('.input-monto-pago').val() || '0';
+    let valInput = parsearMonto(rawVal);
     let optMetodo = $(this).find('.sel-metodo-pago option:selected');
     let reqMoneda = optMetodo.data('moneda') == 1;
 
@@ -227,7 +315,7 @@ function calcularRestante() {
   $('#pagadoOrdenSel').html(`$${nuevoPagado.toFixed(2)} <small class="text-white fw-normal fs-6"> / Bs ${(nuevoPagado * tasaDolar).toFixed(2)}</small>`);
   
   if (excede) {
-    $('#restanteOrdenSel').html(`<span class="text-warning">$${nuevoRestante.toFixed(2)}</span> <small class="text-warning fw-normal fs-6"> / Bs ${(nuevoRestante * tasaDolar).toFixed(2)} — ¡Excede el monto!</small>`);
+    $('#restanteOrdenSel').html(`<span class="text-danger">$${nuevoRestante.toFixed(2)}</span> <small class="text-danger fw-normal fs-6"> / Bs ${(nuevoRestante * tasaDolar).toFixed(2)} — ¡Excede el monto!</small>`);
     $('.btnEnviarFormulario').prop('disabled', true).addClass('btn-secondary').removeClass('btn-primary');
   } else {
     $('#restanteOrdenSel').html(`$${nuevoRestante.toFixed(2)} <small class="text-white fw-normal fs-6"> / Bs ${(nuevoRestante * tasaDolar).toFixed(2)}</small>`);
@@ -236,10 +324,23 @@ function calcularRestante() {
 }
 
 //#endregion [FUNCIONES DEL MODULO] FIN
+
 //#region [ EVENTOS DEL DOM Y EJECUCION ] COMIENZO
 document.addEventListener("DOMContentLoaded", async () => {
+  // ✅ Registrar el tutorial primero
+  registrarTutorial();
+  
   await cargarCatalogos();
   inicializarTablas();
+  
+  // ✅ Verificar si hay un driver pendiente para pagos
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'pagos') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
 });
 
 $(document).off('click', '[data-bs-target=".modalRegistrar"]').on('click', '[data-bs-target=".modalRegistrar"]', function () {
@@ -346,7 +447,8 @@ $(document).off("click", ".btnEnviarFormulario").on("click", ".btnEnviarFormular
     let bancoE = $(this).find(".sel-banco-emisor").val() || null;
     let bancoR = $(this).find(".sel-banco-receptor").val() || null;
     let ref = $(this).find(".input-referencia-pago").val() || null;
-    let monto = parseFloat($(this).find(".input-monto-pago").val());
+    let rawMonto = $(this).find(".input-monto-pago").val() || '0';
+    let monto = parsearMonto(rawMonto);
 
     let filaValida = true;
     if (!metodo || isNaN(monto) || monto <= 0) filaValida = false;
@@ -366,7 +468,7 @@ $(document).off("click", ".btnEnviarFormulario").on("click", ".btnEnviarFormular
         id_banco_emisor: bancoE,
         id_banco_receptor: bancoR,
         referencia_pago: ref,
-        monto_pago: monto
+        monto_pago: formatearMontoEnvio(monto)
       });
     }
   });
@@ -580,4 +682,11 @@ $(document).off("click", ".btnVerDetalle").on("click", ".btnVerDetalle", async f
     $(".modalDetallesPago").modal("show");
   }
 });
+
+//Evento para validar en tiempo real
+$(document).off('input', '.validar input, .validar select')
+$(document).on('input', '.validar input, .validar select', function () {
+  validarEnTiempoReal(this, 'pagos');
+})
+
 //#endregion [ EVENTOS DEL DOM Y EJECUCION ] FIN

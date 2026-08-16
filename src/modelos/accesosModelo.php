@@ -14,10 +14,11 @@ class accesosModelo extends conexion {
   private string $permisoVal = '';
 
   public function validarAccesos(string $permiso = '', array &$info = [], array $requerido = []) {
-    if ($permiso != '') {
+    if ($permiso!='') {
       $v = $this->validarPermisos('accesos', $permiso);
       if ($v) return $v;
     }
+
     $esquema = [
       'tipo' => 'arrayA',
       'propiedades' => [
@@ -112,6 +113,11 @@ class accesosModelo extends conexion {
       'nombre_modulo' => $modulo,
       'nombre_permiso' => $permiso,
     ];
+    // $v = $this->validarAccesos('', $info, [
+    //   'nombre_modulo',
+    //   'nombre_permiso',
+    // ]);
+    // if ($v) return $v;
     $this->moduloVal = $info['nombre_modulo'];
     $this->permisoVal = $info['nombre_permiso'];
     return $this->validarPermisosP();
@@ -200,6 +206,13 @@ class accesosModelo extends conexion {
         'listar permisos',
         'actualizar permisos',
       ],
+      'chatbot' => [
+        'ver chatbot',
+        'enviar mensaje chatbot'
+      ],
+      'reportesEstadisticos' => [
+        'ver reportes estadísticos'
+      ],
       'bitacora' => [
         'ver bitácora'
       ],
@@ -218,18 +231,11 @@ class accesosModelo extends conexion {
         'ver inventario',
         'registrar cargas o descargas de productos',
         'ver historial de e/s de los productos',
-        'imprimir reportes de anomalias de productos',
         'registrar cargas o descargas de materias primas',
         'ver historial de e/s de las materias primas',
-        'imprimir reportes de anomalias de materias primas'
       ],
       'monedas' => [
         'ver historial de cambio de las divisas'
-      ],
-      'ordenesEntregasPresupuestos' => [
-        'anular',
-        'despachar orden',
-        'agregar pago'
       ],
       'pedidos' => [
         'asignar repartidores a pedidos',
@@ -256,6 +262,12 @@ class accesosModelo extends conexion {
         'ver notificaciones',
         'ver modal de ayuda',
         'ver carrito de compra',
+      ],
+      'ordenesEntregasPresupuestos' => [
+        'anular',
+        'despachar orden',
+        'agregar pago',
+        'agregar cliente'
       ],
     ];
     $permisosTotales = [];

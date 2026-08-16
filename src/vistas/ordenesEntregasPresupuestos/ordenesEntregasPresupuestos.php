@@ -233,9 +233,14 @@ echo $componente->listaDataTable($instruccionesLista);
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label fw-semibold">Repartidor (opcional)</label>
-                    <input type="text" class="form-control form-control-sm text-uppercase" id="inputCedulaRepartidorOrden" placeholder="V12345678" maxlength="15">
-                    <div id="feedbackRepartidorOrden" class="small mt-2 text-center"></div>
+                    <label class="form-label fw-semibold text-muted small">REPARTIDOR (Opcional)</label>
+                    <div class="input-group input-group-sm mb-1 shadow-sm rounded">
+                      <span class="input-group-text bg-white text-muted border-end-0" id="iconRepartidorOrden">
+                        <i class="fi fi-rs-motorcycle"></i>
+                      </span>
+                      <input type="text" class="form-control text-uppercase border-start-0 ps-0" id="inputCedulaRepartidorOrden" placeholder="Ej: V12345678" maxlength="15" style="box-shadow: none;">
+                    </div>
+                    <div id="feedbackRepartidorOrden" class="text-center" style="min-height: 20px; font-size: 0.85em;"></div>
                     <input type="hidden" id="selectRepartidorOrden" value="">
                   </div>
                   <!-- Estos campos ocultos guardan las coordenadas para la base de datos -->
@@ -481,26 +486,28 @@ echo $componente->listaDataTable($instruccionesLista);
         <h5 class="modal-title"><i class="fi fi-rs-motorcycle me-2"></i>Registrar Nuevo Repartidor</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <form id="formRegistroRepartidorOrden">
+      <div class="modal-body bg-light">
+        <form id="formRegistroRepartidorOrden" class="px-2 py-1">
           <div class="mb-3">
-            <label class="form-label">Cédula</label>
-            <input type="text" class="form-control" name="cedula_repartidor" readonly>
+            <label class="form-label fw-bold text-muted small mb-1"><i class="fi fi-rs-id-badge me-1"></i>CÉDULA DEL REPARTIDOR</label>
+            <input type="text" class="form-control fw-bold text-primary shadow-sm" id="floatingCedula" name="cedula_repartidor" readonly style="background-color: #e9ecef; border: 1px solid #ced4da;">
             <input type="hidden" name="codigo_rif_cedula_repartidor" value="">
           </div>
-          <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" class="form-control text-uppercase" name="nombre_repartidor" id="inputNombreRepartidorReg" required>
+          <div class="row g-2">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small mb-1"><i class="fi fi-rs-user me-1"></i>NOMBRE</label>
+              <input type="text" class="form-control text-uppercase shadow-sm" id="inputNombreRepartidorReg" name="nombre_repartidor" required placeholder="Ej: Juan">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted small mb-1"><i class="fi fi-rs-user me-1"></i>APELLIDO</label>
+              <input type="text" class="form-control text-uppercase shadow-sm" id="inputApellidoRepartidorReg" name="apellido_repartidor" required placeholder="Ej: Pérez">
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Apellido</label>
-            <input type="text" class="form-control text-uppercase" name="apellido_repartidor" id="inputApellidoRepartidorReg" required>
+          <div class="mb-1">
+            <label class="form-label fw-bold text-muted small mb-1"><i class="fi fi-rs-smartphone me-1"></i>TELÉFONO <span class="fw-normal">(Ej: 04141234567)</span></label>
+            <input type="text" class="form-control shadow-sm" id="inputTelefonoRepartidorReg" name="telefono_repartidor" maxlength="11" required placeholder="11 dígitos">
           </div>
-          <div class="mb-3">
-            <label class="form-label">Teléfono <small class="text-muted">(11 dígitos)</small></label>
-            <input type="text" class="form-control" name="telefono_repartidor" id="inputTelefonoRepartidorReg" maxlength="11" required>
-            <div id="feedbackTelefonoRepartidorReg" class="mt-2 text-center"></div>
-          </div>
+          <div id="feedbackTelefonoRepartidorReg" class="text-center small" style="min-height: 20px;"></div>
         </form>
       </div>
       <div class="modal-footer">
@@ -519,7 +526,7 @@ echo $componente->listaDataTable($instruccionesLista);
         <h5 class="modal-title" id="tituloModalPagosOrden"><i class="fi fi-rs-credit-card me-2"></i>Detalles del Pago</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body bg-light">
+      <div class="modal-body bg-light validar">
         <!-- Totales -->
         <div class="d-flex justify-content-between text-white p-3 rounded mb-4 fact-pagos-grad">
           <div>
@@ -577,7 +584,7 @@ echo $componente->listaDataTable($instruccionesLista);
                   <label class="form-label text-muted small">MONTO PAGADO</label>
                   <div class="input-group input-group-sm">
                     <span class="input-group-text"><i class="fi fi-rs-money"></i></span>
-                    <input type="number" step="0.01" min="0" class="form-control input-monto-pago" value="0.00">
+                    <input type="text" class="form-control input-monto-pago dinero validado" pattern="<?php echo regexPrecioFront ?>" minlength="<?php echo minRegexPrecioFront ?>" maxlength="<?php echo maxRegexPrecioFront ?>" required placeholder="Ej: 12.00">
                   </div>
                 </div>
               </div>

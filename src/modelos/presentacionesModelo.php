@@ -3,6 +3,9 @@
 namespace src\modelos;
 
 use src\config\connect\conexion;
+use src\modelos\bitacoraModelo;
+use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 use PDO;
 
 class presentacionesModelo extends conexion {
@@ -11,7 +14,12 @@ class presentacionesModelo extends conexion {
   private string  $nombrePresentacion = '';
   private float $cantidadPMP = 0;
 
-  public function validarPresentaciones(array $instruccionesVal) {
+  // PÚBLICOS  
+public function validarPresentaciones(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('presentaciones', $permiso);
+    if ($v) return $v;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -67,10 +75,10 @@ class presentacionesModelo extends conexion {
       $campos[] = $funcionAsignadora($campo, $infoVal[$campo]);
     }
     return $this->limpiar_Verificar($campos);
-  }
-  public function seleccionarPresentaciones(array $info) {
+}
+public function seleccionarPresentaciones(array $info) {
     if (($info['id_presentacion'] ?? '') != '') {
-      $resultado = $this->validarPresentaciones([
+      $resultado = $this->validarPresentaciones('listar', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_presentacion',
@@ -80,9 +88,9 @@ class presentacionesModelo extends conexion {
       $this->idPresentacion = $info['id_presentacion'];
     }
     return $this->seleccionarPresentacionesP($info);
-  }
-  public function registrarPresentaciones(array $info) {
-    $resultado = $this->validarPresentaciones([
+}
+public function registrarPresentaciones(array $info) {
+    $resultado = $this->validarPresentaciones('registrar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_unidad_medida',
@@ -97,9 +105,9 @@ class presentacionesModelo extends conexion {
     $this->cantidadPMP = $info['cantidad_pmp'];
 
     return $this->registrarPresentacionesP();
-  }
-  public function actualizarPresentaciones(array $info) {
-    $resultado = $this->validarPresentaciones([
+}
+public function actualizarPresentaciones(array $info) {
+    $resultado = $this->validarPresentaciones('actualizar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_presentacion',
@@ -116,9 +124,9 @@ class presentacionesModelo extends conexion {
     $this->cantidadPMP = $info['cantidad_pmp'];
 
     return $this->actualizarPresentacionesP();
-  }
-  public function eliminarPresentaciones(array $info) {
-    $resultado = $this->validarPresentaciones([
+}
+public function eliminarPresentaciones(array $info) {
+    $resultado = $this->validarPresentaciones('eliminar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_presentacion',
@@ -127,10 +135,10 @@ class presentacionesModelo extends conexion {
     if ($resultado) return $resultado;
     $this->idPresentacion = $info['id_presentacion'];
     return $this->eliminarPresentacionesP();
-  }
+}
 
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarPresentacionesP(array $info) {
+  // PRIVADOS 
+private function seleccionarPresentacionesP(array $info) {
     if ($this->idPresentacion == null || $this->idPresentacion == "") {
       switch ($info['tipoConsulta'] ?? '') {
         case 'indexadosPorId':
@@ -174,95 +182,391 @@ class presentacionesModelo extends conexion {
       }
       return $resultado->fetch();
     }
-  }
-  private function registrarPresentacionesP() {
-    $ultimoId = $this->guardarDatos2([
-      'tabla' => 'presentaciones',
-      'datos' => [
-        "id_presentacion" => $this->generarCodSeg([
-          'tablaBD' => 'presentaciones',
-          'prefijo' => 'PRES',
-          'campoID' => 'id_presentacion'
-        ]),
-        "id_unidad_medida" => $this->idUnidadMedida,
-        "nombre_presentacion" => $this->nombrePresentacion,
-        "cantidad_pmp" => $this->cantidadPMP,
-      ],
-    ]);
-    if ($ultimoId !== false && $ultimoId > 0) {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Presentación registrada",
-        "texto" => "La presentación ha sido registrada exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
-    } else {
-      $this->rollback();
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Presentación no registrada",
-        "texto" => "La presentación no ha sido registrada exitosamente",
-        "icono" => "error",
-      ];
-    }
-    return $alerta;
-  }
-  private function actualizarPresentacionesP() {
-    $resultado = $this->actualizarDatos2([
-      "tabla" => "presentaciones",
-      "datos" => [
-        "id_unidad_medida" => $this->idUnidadMedida,
-        "nombre_presentacion" => $this->nombrePresentacion,
-        "cantidad_pmp" => $this->cantidadPMP,
-      ],
-      "WHERE" => [
-        "id_presentacion" => $this->idPresentacion,
-      ]
-    ]);
+}
+private function registrarPresentacionesP() {
+    $objBitacora = new bitacoraModelo();
+    $objWS = new mensajesWSModelo();
 
-    if ($resultado == false || $resultado <= 0) {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Sin cambios realizados",
-        "texto" => "No se realizó ningún cambio en la presentación",
-        "icono" => "warning",
-      ];
-      $this->rollback();
-    } else {
-      $alerta = [
-        "tipo" => "limpiarYcerrar",
-        "titulo" => "Presentación actualizada",
-        "texto" => "La presentación ha sido actualizada exitosamente",
-        "icono" => "success",
-      ];
-      $this->commit();
+    try {
+        $idGen = $this->generarCodSeg([
+            'tablaBD' => 'presentaciones',
+            'prefijo' => 'PRES',
+            'campoID' => 'id_presentacion'
+        ]);
+
+        $ultimoId = $this->guardarDatos2([
+            'tabla' => 'presentaciones',
+            'datos' => [
+                "id_presentacion"      => $idGen,
+                "id_unidad_medida"     => $this->idUnidadMedida,
+                "nombre_presentacion"  => $this->nombrePresentacion,
+                "cantidad_pmp"         => $this->cantidadPMP,
+            ],
+        ]);
+
+        // Validamos si no se pudo registrar la presentación
+        if ($ultimoId === false) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'presentaciones',
+                'accion'    => 'registrar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => [
+                    "id_unidad_medida"    => $this->idUnidadMedida,
+                    "nombre_presentacion" => $this->nombrePresentacion,
+                    "cantidad_pmp"        => $this->cantidadPMP,
+                ]
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Error al registrar",
+                "texto"  => "No se ha podido registrar la presentación",
+                "icono"  => "error",
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'registrar',
+            'resultado' => 'Éxito',
+            'viejo'     => [],
+            'nuevo'     => [
+                "id_presentacion"      => $idGen,
+                "id_unidad_medida"     => $this->idUnidadMedida,
+                "nombre_presentacion"  => $this->nombrePresentacion,
+                "cantidad_pmp"         => $this->cantidadPMP,
+            ]
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol' => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                ['accion' => 'borrarDataModuloSS', 'modulo' => 'presentaciones'],
+                ['accion' => 'actDT', 'modulo' => 'presentaciones'],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Presentación registrada',
+                        'texto'    => "Se ha registrado la presentación {$this->nombrePresentacion}",
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ]
+                ],
+            ],
+        ]);
+
+        return [
+            "tipo"   => "limpiarYcerrar",
+            "titulo" => "Presentación registrada",
+            "texto"  => "La presentación ha sido registrada exitosamente",
+            "icono"  => "success",
+        ];
+
+    } catch (\Throwable) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'registrar',
+            'resultado' => 'Fallido',
+            'viejo'     => [],
+            'nuevo'     => [
+                "id_unidad_medida"    => $this->idUnidadMedida,
+                "nombre_presentacion" => $this->nombrePresentacion,
+                "cantidad_pmp"        => $this->cantidadPMP,
+            ]
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Error al registrar",
+            "texto"  => "No se ha podido registrar la presentación",
+            "icono"  => "error",
+        ];
     }
-    return $alerta;
-  }
-  private function eliminarPresentacionesP() {
-    $resultado = $this->eliminarDatos2([
-      'tabla' => "presentaciones",
-      'WHERE' => [
-        "id_presentacion" => $this->idPresentacion
-      ]
-    ]);
-    if ($resultado == 1) { /*Para verificar si se hizo la eliminación o no */
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Presentación eliminada",
-        "texto" => "La presentación ha sido eliminada con éxito",
-        "icono" => "success"
-      ];
-      $this->commit();
-    } else {
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Presentación no encontrada",
-        "texto" => "La presentación no existe en la Base de Datos",
-        "icono" => "error"
-      ];
+}
+private function actualizarPresentacionesP() {
+    $objBitacora = new bitacoraModelo();
+    $objWS = new mensajesWSModelo();
+
+    try {
+        $estadoViejo = $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla'  => 'presentaciones',
+            'WHERE'  => [
+                "id_presentacion" => $this->idPresentacion,
+            ]
+        ])->fetch();
+
+        // Validamos si no existe la presentación
+        if (!$estadoViejo) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'presentaciones',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => [
+                    "id_unidad_medida"    => $this->idUnidadMedida,
+                    "nombre_presentacion" => $this->nombrePresentacion,
+                    "cantidad_pmp"        => $this->cantidadPMP,
+                ]
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Error al actualizar",
+                "texto"  => "No se ha podido actualizar la presentación",
+                "icono"  => "error",
+            ];
+        }
+
+        $resultado = $this->actualizarDatos2([
+            "tabla" => "presentaciones",
+            "datos" => [
+                "id_unidad_medida"    => $this->idUnidadMedida,
+                "nombre_presentacion" => $this->nombrePresentacion,
+                "cantidad_pmp"        => $this->cantidadPMP,
+            ],
+            "WHERE" => [
+                "id_presentacion" => $this->idPresentacion,
+            ]
+        ]);
+
+        // Validamos si no se realizó ningún cambio
+        if ($resultado === false || $resultado <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'presentaciones',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => (array)$estadoViejo,
+                'nuevo'     => [
+                    "id_unidad_medida"    => $this->idUnidadMedida,
+                    "nombre_presentacion" => $this->nombrePresentacion,
+                    "cantidad_pmp"        => $this->cantidadPMP,
+                ]
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Error al actualizar",
+                "texto"  => "No se ha podido actualizar la presentación",
+                "icono"  => "error",
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'actualizar',
+            'resultado' => 'Éxito',
+            'viejo'     => (array)$estadoViejo,
+            'nuevo'     => [
+                "id_unidad_medida"    => $this->idUnidadMedida,
+                "nombre_presentacion" => $this->nombrePresentacion,
+                "cantidad_pmp"        => $this->cantidadPMP,
+            ]
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol' => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                ['accion' => 'borrarDataModuloSS', 'modulo' => 'presentaciones'],
+                ['accion' => 'actDT', 'modulo' => 'presentaciones'],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Presentación actualizada',
+                        'texto'    => "Se ha actualizado la presentación {$this->nombrePresentacion}",
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ]
+                ],
+            ],
+        ]);
+
+        return [
+            "tipo"   => "limpiarYcerrar",
+            "titulo" => "Presentación actualizada",
+            "texto"  => "La presentación ha sido actualizada exitosamente",
+            "icono"  => "success",
+        ];
+
+    } catch (\Throwable) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'actualizar',
+            'resultado' => 'Fallido',
+            'viejo'     => isset($estadoViejo) && $estadoViejo ? (array)$estadoViejo : ['id_presentacion' => $this->idPresentacion],
+            'nuevo'     => [
+                "id_unidad_medida"    => $this->idUnidadMedida,
+                "nombre_presentacion" => $this->nombrePresentacion,
+                "cantidad_pmp"        => $this->cantidadPMP,
+            ]
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Error al actualizar",
+            "texto"  => 'No se ha podido actualizar la presentación',
+            "icono"  => "error",
+        ];
     }
-    return $alerta;
-  }
+}
+private function eliminarPresentacionesP(){
+    $objBitacora = new bitacoraModelo();
+    $objWS       = new mensajesWSModelo();
+    $estadoViejo = null;
+
+    try {
+        $estadoViejo = $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla'  => 'presentaciones',
+            'WHERE'  => [
+                'id_presentacion' => $this->idPresentacion,
+            ],
+        ])->fetch();
+
+        // Validamos si existe la presentación
+        if (!$estadoViejo) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'presentaciones',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => [
+                    'id_presentacion' => $this->idPresentacion,
+                ],
+                'nuevo'     => [],
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al eliminar',
+                'texto'  => 'La presentación no existe en la Base de Datos',
+                'icono'  => 'error',
+            ];
+        }
+
+        $resultado = $this->eliminarDatos2([
+            'tabla' => 'presentaciones',
+            'WHERE' => [
+                'id_presentacion' => $this->idPresentacion,
+            ],
+        ]);
+
+        // Validamos si se eliminó correctamente
+        if ($resultado === false || $resultado !== 1) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'presentaciones',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => (array) $estadoViejo,
+                'nuevo'     => [],
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al eliminar',
+                'texto'  => 'La presentación no ha sido eliminada con éxito',
+                'icono'  => 'error',
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'eliminar',
+            'resultado' => 'Éxito',
+            'viejo'     => (array) $estadoViejo,
+            'nuevo'     => [],
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol'  => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                [
+                    'accion' => 'borrarDataModuloSS',
+                    'modulo' => 'presentaciones',
+                ],
+                [
+                    'accion' => 'actDT',
+                    'modulo' => 'presentaciones',
+                ],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Presentación eliminada',
+                        'texto'    => 'La presentación ha sido eliminada del sistema',
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ],
+                ],
+            ],
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Presentación eliminada',
+            'texto'  => 'La presentación ha sido eliminada con éxito',
+            'icono'  => 'success',
+        ];
+    } catch (\Throwable) {
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'presentaciones',
+            'accion'    => 'eliminar',
+            'resultado' => 'Fallido',
+            'viejo'     => $estadoViejo
+                ? (array) $estadoViejo
+                : [
+                    'id_presentacion' => $this->idPresentacion,
+                ],
+            'nuevo'     => [],
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error al eliminar',
+            'texto'  => 'No se ha podido eliminar la presentación',
+            'icono'  => 'error',
+        ];
+    }
+}
 }

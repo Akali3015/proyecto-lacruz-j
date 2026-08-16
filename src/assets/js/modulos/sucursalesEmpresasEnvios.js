@@ -44,28 +44,44 @@ async function cargarMapaSucursal() {
 async function cambiarUbicacionSucursal() {
   if (!$(this).hasClass('error')) {
     try {
-      mostrarOcultarSpinnerCarga('mostrar')
-      let resultado = await pedirDatosAjax({
-        JSONstring: true,
-        url: 'https://api-the-vina-node.onrender.com/api/extraer-coordenadas-maps',
-        datosPe: {
-          url: $(this).val()
-        }
-      })
-      let { latitud = false, longitud = false } = resultado;
+      mostrarOcultarSpinnerCarga('mostrar');
+      let urlStr = $(this).val();
+      let latitud = false, longitud = false;
+
+      // 1. Intentar extraer con regex (para enlaces largos)
+      const match3d4d = urlStr.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+      const matchAt = urlStr.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+
+      if (match3d4d) {
+        latitud = match3d4d[1];
+        longitud = match3d4d[2];
+      } else if (matchAt) {
+        latitud = matchAt[1];
+        longitud = matchAt[2];
+      } else {
+        // 2. Intentar con la API si es un enlace corto o distinto
+        let resultado = await pedirDatosAjax({
+          JSONstring: true,
+          url: 'https://api-the-vina-node.onrender.com/api/extraer-coordenadas-maps',
+          datosPe: { url: urlStr }
+        });
+        latitud = resultado.latitud || false;
+        longitud = resultado.longitud || false;
+      }
+
       if (!latitud || !longitud) {
         return alertasAjax({
           'tipo': 'simple',
           'titulo': 'Ubicación no reconocida',
           'texto': 'No se pudieron deducir las coordenadas geografics de la ubicación',
           'icono': 'warning'
-        })
+        });
       }
       cambiarMarcadorUbicaSucursal.call(this, latitud, longitud);
     } catch (error) {
       console.error(error);
     } finally {
-      mostrarOcultarSpinnerCarga('ocultar')
+      mostrarOcultarSpinnerCarga('ocultar');
     }
   }
 }

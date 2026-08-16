@@ -5,6 +5,8 @@ namespace src\modelos;
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\rutasModelo;
+use src\modelos\mensajesWSModelo;
+use src\modelos\accesosModelo;
 
 class sucursalesEmpresasEnviosModelo extends conexion {
 
@@ -14,7 +16,13 @@ class sucursalesEmpresasEnviosModelo extends conexion {
   private string $longitudSucursal = '';
   private string $nombreSucursal = '';
 
-  public function validarSucursalesEmpresasEnvios(array $instruccionesVal) {
+// PÚBLICOS 
+
+public function validarSucursalesEmpresasEnvios(string $permiso, array $instruccionesVal) {
+    $objAcceso = new accesosModelo();
+    $r = $objAcceso->validarPermisos('sucursalesEmpresasEnvios', $permiso);
+    if ($r) return $r;
+
     [
       'infoVal' => &$infoVal,
       'camposVal' => &$camposVal,
@@ -80,10 +88,10 @@ class sucursalesEmpresasEnviosModelo extends conexion {
       $campos[] =  $funcionAsignadora($campo, $infoVal[$valorForm]);
     }
     return $this->limpiar_Verificar($campos);
-  }
-  public function seleccionarSucursalesEmpresasEnvios($info = NULL) {
+}
+public function seleccionarSucursalesEmpresasEnvios($info = NULL) {
     if (($info['id_sucursal_empresa_envios'] ?? '') != "") {
-      $resultado = $this->validarSucursalesEmpresasEnvios([
+      $resultado = $this->validarSucursalesEmpresasEnvios('listar', [
         'infoVal' => &$info,
         'camposVal' => [
           'id_sucursal_empresa_envios',
@@ -93,9 +101,9 @@ class sucursalesEmpresasEnviosModelo extends conexion {
       $this->idSucursal = $info['id_sucursal_empresa_envios'];
     }
     return $this->seleccionarSucursalesEmpresasEnviosP();
-  }
-  public function registrarSucursalesEmpresasEnvios(array $info) {
-    $resultado = $this->validarSucursalesEmpresasEnvios([
+}
+public function registrarSucursalesEmpresasEnvios(array $info) {
+    $resultado = $this->validarSucursalesEmpresasEnvios('registraRRR', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_empresa_envios',
@@ -111,9 +119,31 @@ class sucursalesEmpresasEnviosModelo extends conexion {
     $this->longitudSucursal = $info['longitud_sucursal'];
 
     return $this->registrarSucursalesEmpresasEnviosP();
-  }
-  public function actualizarSucursalesEmpresasEnvios(array $info) {
-    $resultado = $this->validarSucursalesEmpresasEnvios([
+}
+public function actualizarSucursalesEmpresasEnvios(array $info) {
+    
+    $latVacia = empty($info['latitud_sucursal'] ?? '');
+    $lonVacia = empty($info['longitud_sucursal'] ?? '');
+
+    if ($latVacia || $lonVacia) {
+      $datosActuales = $this->seleccionarDatos2([
+        'campos' => 'latd.coordenada_latitud, lond.coordenada_longitud',
+        'tabla' => 'sucursales_empresas_envios as seen',
+        'WHERE' => ['seen.id_sucursal_empresa_envios' => $info['id_sucursal_empresa_envios'] ?? ''],
+        'datosJoins' => [
+          'direcciones as di' => 'seen.id_direccion = di.id_direccion',
+          'latitudes_direcciones as latd' => 'di.id_latitud_direccion = latd.id_latitud_direccion',
+          'longitudes_direcciones as lond' => 'di.id_longitud_direccion = lond.id_longitud_direccion',
+        ]
+      ])->fetch(\PDO::FETCH_ASSOC);
+
+      if ($datosActuales) {
+        if ($latVacia) $info['latitud_sucursal'] = $datosActuales['coordenada_latitud'];
+        if ($lonVacia) $info['longitud_sucursal'] = $datosActuales['coordenada_longitud'];
+      }
+    }
+
+    $resultado = $this->validarSucursalesEmpresasEnvios('actualizar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_sucursal_empresa_envios',
@@ -131,9 +161,9 @@ class sucursalesEmpresasEnviosModelo extends conexion {
     $this->longitudSucursal = $info['longitud_sucursal'];
 
     return $this->actualizarSucursalesEmpresasEnviosP();
-  }
-  public function eliminarSucursalesEmpresasEnvios(array $info) {
-    $resultado = $this->validarSucursalesEmpresasEnvios([
+}
+public function eliminarSucursalesEmpresasEnvios(array $info) {
+    $resultado = $this->validarSucursalesEmpresasEnvios('eliminar', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_sucursal_empresa_envios',
@@ -142,10 +172,10 @@ class sucursalesEmpresasEnviosModelo extends conexion {
     if ($resultado) return $resultado;
     $this->idSucursal = $info['id_sucursal_empresa_envios'];
     return $this->eliminarSucursalesEmpresasEnviosP();
-  }
+}
 
-  //-- PRIVADOS [ ENCAPSULAMIENTO ]--//
-  private function seleccionarSucursalesEmpresasEnviosP() {
+  // PRIVADOS 
+private function seleccionarSucursalesEmpresasEnviosP() {
     if ($this->idSucursal == null || $this->idSucursal == "") {
       return $this->seleccionarDatos2([
         'campos' => '*',
@@ -172,188 +202,500 @@ class sucursalesEmpresasEnviosModelo extends conexion {
         ]
       ])->fetch();
     }
-  }
-  private function registrarSucursalesEmpresasEnviosP() {
+}
+private function registrarSucursalesEmpresasEnviosP(){
     $objBitacora = new bitacoraModelo();
-    $error = function () use ($objBitacora) {
-      $this->rollback();
-      $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'registrar', 'Fallido', true);
-    };
-    $idLatitud = $this->VEYSNEC([
-      'tabla' => 'latitudes_direcciones',
-      'campos' => 'id_latitud_direccion',
-      'WHERE' => [
-        'coordenada_latitud' => $this->latitudSucursal
-      ],
-    ]);
-    $idLongitud = $this->VEYSNEC([
-      'tabla' => 'longitudes_direcciones',
-      'campos' => 'id_longitud_direccion',
-      'WHERE' => [
-        'coordenada_longitud' => $this->longitudSucursal
-      ],
-    ]);
-    $nroKm = $this->calcularKmEntreCoordenadas([
-      'lat1' => $this->latitudSucursal,
-      'lon1' => $this->longitudSucursal,
-      'lat2' => coorJLACRUZ['latitud'],
-      'lon2' => coorJLACRUZ['longitud'],
-    ]);
-    $objRutas = new rutasModelo();
-    $rutaBD = $objRutas->seleccionarRutas([
-      'km_recorrido' => $nroKm,
-      'tipoConsulta' => 'porKm'
-    ]);
-    if (!$rutaBD) {
-      $error();
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Sin rutas estipuladas',
-        'texto' => 'No hay rutas estipuladas para esa distancia',
-        'icono' => 'error',
-      ];
-    }
-    $idDireccion = $this->VEYSNEC([
-      'tabla' => 'direcciones',
-      'WHERE' => [
-        'id_latitud_direccion' => $idLatitud,
-        'id_longitud_direccion' => $idLongitud,
-        'id_ruta' => $rutaBD['id_ruta']
-      ],
-      'campos' => 'id_direccion',
-    ]);
-    $ultimoId = $this->guardarDatos2([
-      'tabla' => 'sucursales_empresas_envios',
-      'datos' => [
-        "id_empresa_envios" => $this->idEmpresaEnvios,
-        "id_direccion" => $idDireccion,
-        "nombre_sucursal_empresa" => $this->nombreSucursal,
-      ]
-    ]);
-    if ($ultimoId == false || $ultimoId <= 0) {
-      $error();
-      return [
-        "tipo" => "simple",
-        "titulo" => "Sucursal no registrado",
-        "texto" => "La sucursal no ha sido registrada exitosamente",
-        "icono" => "error",
-      ];
-    }
+    $objWS       = new mensajesWSModelo();
 
-    $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'Registrar', 'Éxito');
-    $this->commit();
-    return [
-      "tipo" => "limpiarYcerrar",
-      "titulo" => "Sucursal registrado",
-      "texto" => "La sucursal ha sido registrada exitosamente",
-      "icono" => "success",
+    $datosNuevo = [
+        'id_empresa_envios'       => $this->idEmpresaEnvios,
+        'id_direccion'            => null,
+        'nombre_sucursal_empresa' => $this->nombreSucursal,
     ];
-  }
-  private function actualizarSucursalesEmpresasEnviosP() {
+
+    try {
+        $idLatitud = $this->VEYSNEC([
+            'tabla'  => 'latitudes_direcciones',
+            'campos' => 'id_latitud_direccion',
+            'WHERE'  => [
+                'coordenada_latitud' => $this->latitudSucursal,
+            ],
+        ]);
+
+        $idLongitud = $this->VEYSNEC([
+            'tabla'  => 'longitudes_direcciones',
+            'campos' => 'id_longitud_direccion',
+            'WHERE'  => [
+                'coordenada_longitud' => $this->longitudSucursal,
+            ],
+        ]);
+
+        $nroKm = $this->calcularKmEntreCoordenadas([
+            'lat1' => $this->latitudSucursal,
+            'lon1' => $this->longitudSucursal,
+            'lat2' => coorJLACRUZ['latitud'],
+            'lon2' => coorJLACRUZ['longitud'],
+        ]);
+
+        $objRutas = new rutasModelo();
+
+        $rutaBD = $objRutas->seleccionarRutas([
+            'km_recorrido' => $nroKm,
+            'tipoConsulta' => 'porKm',
+            'isInterno'    => true,
+        ]);
+
+        // Validamos si existe una ruta para la distancia calculada
+        if (isset($rutaBD['tipo']) || !isset($rutaBD['id_ruta'])) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'registrar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => $datosNuevo,
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al registrar',
+                'texto'  => 'No hay rutas estipuladas para esa distancia',
+                'icono'  => 'error',
+            ];
+        }
+
+        $idDireccion = $this->VEYSNEC([
+            'tabla'  => 'direcciones',
+            'campos' => 'id_direccion',
+            'WHERE'  => [
+                'id_latitud_direccion'  => $idLatitud,
+                'id_longitud_direccion' => $idLongitud,
+                'id_ruta'               => $rutaBD['id_ruta'],
+            ],
+        ]);
+
+        $datosNuevo['id_direccion'] = $idDireccion;
+
+        $ultimoId = $this->guardarDatos2([
+            'tabla' => 'sucursales_empresas_envios',
+            'datos' => [
+                'id_empresa_envios'       => $this->idEmpresaEnvios,
+                'id_direccion'            => $idDireccion,
+                'nombre_sucursal_empresa' => $this->nombreSucursal,
+            ],
+        ]);
+
+        // Validamos si la sucursal fue registrada correctamente
+        if ($ultimoId === false || $ultimoId <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'registrar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => $datosNuevo,
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al registrar',
+                'texto'  => 'La sucursal no ha sido registrada exitosamente',
+                'icono'  => 'error',
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'registrar',
+            'resultado' => 'Éxito',
+            'viejo'     => [],
+            'nuevo'     => $this->seleccionarSucursalesEmpresasEnvios([
+                'id_sucursal_empresa_envios' => $ultimoId,
+            ]),
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol'  => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                [
+                    'accion' => 'borrarDataModuloSS',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'actDT',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Nueva Sucursal de Envíos',
+                        'texto'    => "Se ha registrado la sucursal {$this->nombreSucursal}",
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ],
+                ],
+            ],
+        ]);
+
+        return [
+            'tipo'   => 'limpiarYcerrar',
+            'titulo' => 'Sucursal registrada',
+            'texto'  => 'La sucursal ha sido registrada exitosamente',
+            'icono'  => 'success',
+        ];
+    } catch (\Throwable) {
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'registrar',
+            'resultado' => 'Fallido',
+            'viejo'     => [],
+            'nuevo'     => $datosNuevo,
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error al registrar',
+            'texto'  => 'No se ha podido registrar la sucursal',
+            'icono'  => 'error',
+        ];
+    }
+}
+private function actualizarSucursalesEmpresasEnviosP(){
     $objBitacora = new bitacoraModelo();
-    $error = function () use ($objBitacora) {
-      $this->rollback();
-      $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'registrar', 'Fallido', true);
-    };
-    $idLatitud = $this->VEYSNEC([
-      'tabla' => 'latitudes_direcciones',
-      'campos' => 'id_latitud_direccion',
-      'WHERE' => [
-        'coordenada_latitud' => $this->latitudSucursal
-      ],
-    ]);
-    $idLongitud = $this->VEYSNEC([
-      'tabla' => 'longitudes_direcciones',
-      'campos' => 'id_longitud_direccion',
-      'WHERE' => [
-        'coordenada_longitud' => $this->longitudSucursal
-      ],
-    ]);
-    $nroKm = $this->calcularKmEntreCoordenadas([
-      'lat1' => $this->latitudSucursal,
-      'lon1' => $this->longitudSucursal,
-      'lat2' => coorJLACRUZ['latitud'],
-      'lon2' => coorJLACRUZ['longitud'],
-    ]);
-    $objRutas = new rutasModelo();
-    $rutaBD = $objRutas->seleccionarRutas([
-      'km_recorrido' => $nroKm,
-      'tipoConsulta' => 'porKm'
-    ]);
-    if (!$rutaBD) {
-      $error();
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Sin rutas estipuladas',
-        'texto' => 'No hay rutas estipuladas para esa ubicación',
-        'icono' => 'error',
-      ];
-    }
-    $idDireccion = $this->VEYSNEC([
-      'tabla' => 'direcciones',
-      'WHERE' => [
-        'id_latitud_direccion' => $idLatitud,
-        'id_longitud_direccion' => $idLongitud,
-        'id_ruta' => $rutaBD['id_ruta']
-      ],
-      'campos' => 'id_direccion',
-    ]);
-    $ultimoId = $this->actualizarDatos2([
-      'tabla' => 'sucursales_empresas_envios',
-      'datos' => [
-        "id_empresa_envios" => $this->idEmpresaEnvios,
-        "id_direccion" => $idDireccion,
-        "nombre_sucursal_empresa" => $this->nombreSucursal,
-      ],
-      'WHERE' => [
-        'id_sucursal_empresa_envios' => $this->idSucursal
-      ]
-    ]);
-    if ($ultimoId == false || $ultimoId <= 0) {
-      $error();
-      return [
-        "tipo" => "simple",
-        "titulo" => "Sucursal no actualizada",
-        "texto" => "La sucursal no ha sido actualizada",
-        "icono" => "warning",
-      ];
-    }
+    $objWS       = new mensajesWSModelo();
 
-    $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'Actualizar', 'Éxito');
-    $this->commit();
-    return [
-      "tipo" => "limpiarYcerrar",
-      "titulo" => "Sucursal actualizada",
-      "texto" => "La sucursal ha sido actualizada exitosamente",
-      "icono" => "success",
+    $datosAntes = null;
+
+    $datosNuevos = [
+        'id_empresa_envios'       => $this->idEmpresaEnvios,
+        'id_direccion'            => null,
+        'nombre_sucursal_empresa' => $this->nombreSucursal,
     ];
-  }
-  private function eliminarSucursalesEmpresasEnviosP() {
+
+    try {
+        $datosAntes = $this->seleccionarSucursalesEmpresasEnvios([
+            'id_sucursal_empresa_envios' => $this->idSucursal,
+        ]);
+
+        // Validamos si existe la sucursal
+        if (!$datosAntes) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => [
+                    'id_sucursal_empresa_envios' => $this->idSucursal,
+                ],
+                'nuevo'     => $datosNuevos,
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al actualizar',
+                'texto'  => 'La sucursal no existe en el sistema',
+                'icono'  => 'error',
+            ];
+        }
+
+        $idLatitud = $this->VEYSNEC([
+            'tabla'  => 'latitudes_direcciones',
+            'campos' => 'id_latitud_direccion',
+            'WHERE'  => [
+                'coordenada_latitud' => $this->latitudSucursal,
+            ],
+        ]);
+
+        $idLongitud = $this->VEYSNEC([
+            'tabla'  => 'longitudes_direcciones',
+            'campos' => 'id_longitud_direccion',
+            'WHERE'  => [
+                'coordenada_longitud' => $this->longitudSucursal,
+            ],
+        ]);
+
+        $nroKm = $this->calcularKmEntreCoordenadas([
+            'lat1' => $this->latitudSucursal,
+            'lon1' => $this->longitudSucursal,
+            'lat2' => coorJLACRUZ['latitud'],
+            'lon2' => coorJLACRUZ['longitud'],
+        ]);
+
+        $objRutas = new rutasModelo();
+
+        $rutaBD = $objRutas->seleccionarRutas([
+            'km_recorrido' => $nroKm,
+            'tipoConsulta' => 'porKm',
+            'isInterno'    => true,
+        ]);
+
+        // Validamos si existe una ruta para esa ubicación
+        if (isset($rutaBD['tipo']) || !isset($rutaBD['id_ruta'])) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => $datosAntes,
+                'nuevo'     => $datosNuevos,
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al actualizar',
+                'texto'  => 'No hay rutas estipuladas para esa ubicación',
+                'icono'  => 'error',
+            ];
+        }
+
+        $idDireccion = $this->VEYSNEC([
+            'tabla'  => 'direcciones',
+            'campos' => 'id_direccion',
+            'WHERE'  => [
+                'id_latitud_direccion'  => $idLatitud,
+                'id_longitud_direccion' => $idLongitud,
+                'id_ruta'               => $rutaBD['id_ruta'],
+            ],
+        ]);
+
+        $datosNuevos['id_direccion'] = $idDireccion;
+
+        $resultado = $this->actualizarDatos2([
+            'tabla' => 'sucursales_empresas_envios',
+            'datos' => $datosNuevos,
+            'WHERE' => [
+                'id_sucursal_empresa_envios' => $this->idSucursal,
+            ],
+        ]);
+
+        // Validamos si la sucursal fue actualizada
+        if ($resultado === false || $resultado <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => $datosAntes,
+                'nuevo'     => $datosNuevos,
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al actualizar',
+                'texto'  => 'La sucursal no ha sido actualizada',
+                'icono'  => 'error',
+            ];
+        }
+
+        $datosDespues = $this->seleccionarSucursalesEmpresasEnvios([
+            'id_sucursal_empresa_envios' => $this->idSucursal,
+        ]);
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'actualizar',
+            'resultado' => 'Éxito',
+            'viejo'     => $datosAntes,
+            'nuevo'     => $datosDespues,
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol'  => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                [
+                    'accion' => 'borrarDataModuloSS',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'actDT',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Sucursal actualizada',
+                        'texto'    => "Se ha actualizado la sucursal {$this->nombreSucursal}",
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ],
+                ],
+            ],
+        ]);
+
+        return [
+            'tipo'   => 'limpiarYcerrar',
+            'titulo' => 'Sucursal actualizada',
+            'texto'  => 'La sucursal ha sido actualizada exitosamente',
+            'icono'  => 'success',
+        ];
+    } catch (\Throwable) {
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'actualizar',
+            'resultado' => 'Fallido',
+            'viejo'     => $datosAntes ?: [
+                'id_sucursal_empresa_envios' => $this->idSucursal,
+            ],
+            'nuevo'     => $datosNuevos,
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error al actualizar',
+            'texto'  => 'No se ha podido actualizar la sucursal',
+            'icono'  => 'error',
+        ];
+    }
+}
+private function eliminarSucursalesEmpresasEnviosP(){
     $objBitacora = new bitacoraModelo();
-    $eliminarUsuario = $this->eliminarDatos2([
-      "tabla" => "sucursales_empresas_envios",
-      "WHERE" => [
-        "id_sucursal_empresa_envios" => $this->idSucursal
-      ]
-    ]);
-    if ($eliminarUsuario <= 0) { /*Para verificar si se hizo la eliminación o no */
-      $this->rollback();
-      $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'eliminar sucursal con id: ' . $this->idSucursal, 'Error', true);
-      return [
-        "tipo" => "simple",
-        "titulo" => "Sucursal no encontrada",
-        "texto" => "La sucursal no existe en la Base de Datos",
-        "icono" => "error"
-      ];
-    }
+    $objWS       = new mensajesWSModelo();
 
-    $objBitacora->registrarBitacora('sucursalesEmpresasEnvios', 'eliminar Sucursal con id: ' . $this->idSucursal, 'Éxito');
-    $this->commit();
-    return [
-      "tipo" => "simple",
-      "titulo" => "Sucursal eliminada",
-      "texto" => "La sucursal ha sido eliminada con éxito",
-      "icono" => "success"
-    ];
-  }
+    $datosAntes = null;
+
+    try {
+        $datosAntes = $this->seleccionarSucursalesEmpresasEnvios([
+            'id_sucursal_empresa_envios' => $this->idSucursal,
+        ]);
+
+        // Validamos si existe la sucursal
+        if (!$datosAntes) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => [
+                    'id_sucursal_empresa_envios' => $this->idSucursal,
+                ],
+                'nuevo'     => [],
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al eliminar',
+                'texto'  => 'La sucursal no existe en la Base de Datos',
+                'icono'  => 'error',
+            ];
+        }
+
+        $resultado = $this->eliminarDatos2([
+            'tabla' => 'sucursales_empresas_envios',
+            'WHERE' => [
+                'id_sucursal_empresa_envios' => $this->idSucursal,
+            ],
+        ]);
+
+        // Validamos si la sucursal fue eliminada correctamente
+        if ($resultado === false || $resultado <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'sucursalesEmpresasEnvios',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => $datosAntes,
+                'nuevo'     => [],
+            ]);
+
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error al eliminar',
+                'texto'  => 'La sucursal no ha podido ser eliminada',
+                'icono'  => 'error',
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'eliminar',
+            'resultado' => 'Éxito',
+            'viejo'     => $datosAntes,
+            'nuevo'     => [],
+        ]);
+
+        $this->commit();
+
+        $objWS->enviarMensajesWS([
+            'noCommit' => true,
+            'receptor' => [
+                'tipo' => 'rol',
+                'rol'  => 'ADMINISTRADOR',
+            ],
+            'cuerpo' => [
+                [
+                    'accion' => 'borrarDataModuloSS',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'actDT',
+                    'modulo' => 'sucursalesEmpresasEnvios',
+                ],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Sucursal eliminada',
+                        'texto'    => 'La sucursal ha sido eliminada del sistema',
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ],
+                ],
+            ],
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Sucursal eliminada',
+            'texto'  => 'La sucursal ha sido eliminada con éxito',
+            'icono'  => 'success',
+        ];
+    } catch (\Throwable) {
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'sucursalesEmpresasEnvios',
+            'accion'    => 'eliminar',
+            'resultado' => 'Fallido',
+            'viejo'     => $datosAntes ?: [
+                'id_sucursal_empresa_envios' => $this->idSucursal,
+            ],
+            'nuevo'     => [],
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error al eliminar',
+            'texto'  => 'No se ha podido eliminar la sucursal',
+            'icono'  => 'error',
+        ];
+    }
+}
 }

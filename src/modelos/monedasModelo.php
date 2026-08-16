@@ -15,6 +15,8 @@ class monedasModelo extends conexion {
   private string $simboloMoneda = '';
   private float $valorMoneda = 0;
 
+// PÚBLICOS
+
   public function validarMonedas(string $permiso, array $instruccionesVal) {
     $objAcceso = new accesosModelo();
     $r = $objAcceso->validarPermisos('monedas', $permiso);
@@ -98,6 +100,7 @@ class monedasModelo extends conexion {
     return $this->limpiar_Verificar($campos);
   }
   public function seleccionarMonedas(array $info) {
+  
     if (($info['id_moneda'] ?? '') != '') {
       $resultado = $this->validarMonedas('ver', [
         'infoVal' => &$info,
@@ -111,9 +114,14 @@ class monedasModelo extends conexion {
     return $this->seleccionarMonedasP($info);
   }
   public function seleccionarCambiosMonedas() {
+    $objAcceso = new accesosModelo();
+    $v = $objAcceso->validarPermisos('monedas', 'listar');
+    if ($v) return $v;
+
     return $this->seleccionarCambiosMonedasP();
   }
   public function registrarMonedas(array $info) {
+    
     $resultado = $this->validarMonedas('registrar', [
       'infoVal' => &$info,
       'camposVal' => [
@@ -131,6 +139,8 @@ class monedasModelo extends conexion {
     return $this->registrarMonedasP();
   }
   public function actualizarMonedas(array $info) {
+  
+
     $campos = ['id_moneda', 'valor_moneda'];
     if (($info['tipoAct'] ?? '') == 'completa') {
       array_push($campos, 'nombre_moneda', 'simbolo_moneda');
@@ -160,7 +170,11 @@ class monedasModelo extends conexion {
     return $this->eliminarMonedasP();
   }
 
-  private function seleccionarMonedasP(array $info) {
+
+  //PRIVADOS
+
+
+private function seleccionarMonedasP(array $info) {
     if ($this->idMoneda == null || $this->idMoneda == "") {;
       switch ($info['tipoConsulta'] ?? '') {
         case 'divisasPorFecha':
@@ -207,211 +221,362 @@ class monedasModelo extends conexion {
         'ORDER' => 'nombre_moneda'
       ])->fetch();
     }
-  }
-  private function seleccionarCambiosMonedasP() {
+}
+
+private function seleccionarCambiosMonedasP() {
     return $this->seleccionarDatos2([
       'campos' => '*',
       'tabla' => 'v_cambios_monedas_todos',
     ])->fetchAll();
-  }
-  private function registrarMonedasP() {
-    $objBitacora = new bitacoraModelo();
-
-    $ultimoId = $this->guardarDatos2([
-      'tabla' => 'monedas',
-      'datos' => [
-        "nombre_moneda" => $this->nombreMoneda,
-        "simbolo_moneda" => $this->simboloMoneda,
-        "valor_moneda" => $this->valorMoneda,
-      ]
-    ]);
-
-    if ($ultimoId == false || $ultimoId <= 0) {
-      $this->rollback();
-      $objBitacora->registrarBitacora([
-        'modulo' => 'monedas',
-        'accion' => 'registrar',
-        'resultado' => 'Fallido',
-        'commit' => true
-      ]);
-      return [
-        "tipo" => "simple",
-        "titulo" => "Moneda no registrada",
-        "texto" => "La moneda no ha sido registrada exitosamente",
-        "icono" => "error",
-      ];
-    }
-
-    $objBitacora->registrarBitacora([
-      'modulo' => 'monedas',
-      'accion' => 'registrar',
-      'resultado' => 'Éxito',
-      'nuevo' => $this->seleccionarMonedas(['id_moneda' => $ultimoId])
-    ]);
-
-    $this->commit();
-
-    return [
-      "tipo" => "limpiarYcerrar",
-      "titulo" => "Moneda registrada",
-      "texto" => "La moneda ha sido registrada exitosamente",
-      "icono" => "success",
-    ];
-  }
-  private function actualizarMonedasP($tipoAct = null) {
-    $objBitacora = new bitacoraModelo();
-
-    // Datos antes
-    $datosAntes = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
-
-    $instruccionesBD = [
-      "tabla" => "monedas",
-      "datos" => [
-        "valor_moneda" => $this->valorMoneda,
-      ],
-      "WHERE" => [
-        "id_moneda" => $this->idMoneda,
-      ]
-    ];
-
-    if ($tipoAct == 'completa') {
-      $instruccionesBD['datos']['nombre_moneda'] = $this->nombreMoneda;
-      $instruccionesBD['datos']['simbolo_moneda'] = $this->simboloMoneda;
-    }
-
-    $resultado = $this->actualizarDatos2($instruccionesBD);
-
-    if ($resultado == false || $resultado <= 0) {
-      $this->rollback();
-      $objBitacora->registrarBitacora([
-        'modulo' => 'monedas',
-        'accion' => 'Acualizar con id: ' . $this->idMoneda,
-        'resultado' => 'Fallido',
-        'commit' => true
-      ]);
-      return [
-        "tipo" => "simple",
-        "titulo" => "Sin cambios realizados",
-        "texto" => "No se realizó ningún cambio en la moneda",
-        "icono" => "warning",
-      ];
-    }
-
-    $datosDespues = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
-
-    $objBitacora->registrarBitacora([
-      'modulo' => 'monedas',
-      'accion' => 'Actualizar con id:' . $this->idMoneda,
-      'resultado' => 'Éxito',
-      'viejo' => $datosAntes,
-      'nuevo' => $datosDespues
-    ]);
-
-    $mensajeNotificacion = 'La moneda "' . $datosAntes['nombre_moneda'] . '" ha sido actualizada';
-    if ($datosAntes['valor_moneda'] != $this->valorMoneda) {
-      $mensajeNotificacion .= ' (valor: ' . $datosAntes['valor_moneda'] . ' → ' . $this->valorMoneda . ')';
-    }
-
-    $objetoNot = new mensajesWSModelo();
-    $objetoNot->enviarMensajesWS([
-      "receptor" => [
-        'tipo' => 'todosSinExcepcion',
-      ],
-      'cuerpo' => [
-        [
-          'accion' => "borrarDataModuloSS",
-          'modulo' => 'monedas'
-        ],
-        [
-          'accion' => "actDT",
-          'modulo' => 'monedas'
-        ],
-        [
-          'accion' => 'alertar',
-          'alerta' => [
-            'tipo' => 'simple',
-            'titulo' => 'Moneda actualizada',
-            'texto' => $mensajeNotificacion,
-            'icono' => 'info',
-            'notifier' => true,
-          ]
-        ],
-      ],
-      'noCommit' => true
-    ]);
-    $this->commit();
-    return [
-      "tipo" => "limpiarYcerrar",
-      "titulo" => "Moneda actualizada",
-      "texto" => "La moneda ha sido actualizada exitosamente",
-      "icono" => "success",
-    ];
-  }
-  private function eliminarMonedasP() {
-    $objBitacora = new bitacoraModelo();
-
-    $resultado = $this->eliminarDatos2([
-      'tabla' => "monedas",
-      'WHERE' => [
-        "id_moneda" => $this->idMoneda
-      ]
-    ]);
-
-    if ($resultado == 1) {
-      $objBitacora->registrarBitacora([
-        'modulo' => 'monedas',
-        'accion' => 'Eliminar con id:' . $this->idMoneda,
-        'resultado' => 'Éxito',
-      ]);
-
-      $objetoNot = new mensajesWSModelo();
-      $objetoNot->enviarMensajesWS([
-        "receptor" => [
-          'tipo' => 'todosSinExcepcion',
-        ],
-        'cuerpo' => [
-          [
-            'accion' => "borrarDataModuloSS",
-            'modulo' => 'monedas'
-          ],
-          [
-            'accion' => "actDT",
-            'modulo' => 'monedas'
-          ],
-          [
-            'accion' => 'alertar',
-            'alerta' => [
-              'tipo' => 'simple',
-              'titulo' => 'Moneda eliminada',
-              'texto' => 'La moneda ha sido eliminada del sistema',
-              'icono' => 'info',
-              'notifier' => true,
-            ]
-          ],
-        ],
-        'noCommit' => true
-      ]);
-
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Moneda eliminada",
-        "texto" => "La moneda ha sido eliminada con éxito",
-        "icono" => "success"
-      ];
-      $this->commit();
-    } else {
-      $objBitacora->registrarBitacora([
-        'modulo' => 'monedas',
-        'accion' => 'Eliminar con id:' . $this->idMoneda,
-        'resultado' => 'Fallido',
-      ]);
-      $alerta = [
-        "tipo" => "simple",
-        "titulo" => "Moneda no encontrada",
-        "texto" => "La moneda no existe en la Base de Datos",
-        "icono" => "error"
-      ];
-    }
-    return $alerta;
-  }
 }
+  
+
+private function registrarMonedasP() {
+    $objBitacora = new bitacoraModelo();
+
+    try {
+        $ultimoId = $this->guardarDatos2([
+            'tabla' => 'monedas',
+            'datos' => [
+                "nombre_moneda"  => $this->nombreMoneda,
+                "simbolo_moneda" => $this->simboloMoneda,
+                "valor_moneda"   => $this->valorMoneda,
+            ]
+        ]);
+
+        
+        if ($ultimoId == false || $ultimoId <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'monedas',
+                'accion'    => 'registrar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => [
+                    "nombre_moneda"  => $this->nombreMoneda,
+                    "simbolo_moneda" => $this->simboloMoneda,
+                    "valor_moneda"   => $this->valorMoneda,
+                ]
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Moneda no registrada",
+                "texto"  => "No se ha podido registrar la moneda",
+                "icono"  => "error",
+            ];
+        }
+
+        
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'registrar',
+            'resultado' => 'Éxito',
+            'viejo'     => [],
+            'nuevo'     => $this->seleccionarMonedas(['id_moneda' => $ultimoId])
+        ]);
+
+        $this->commit();
+
+        $objetoNot = new mensajesWSModelo();
+        $objetoNot->enviarMensajesWS([
+            'noCommit' => true,
+            "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+            'cuerpo' => [
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'monedas'],
+                ['accion' => "actDT", 'modulo' => 'monedas'],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Nueva Moneda',
+                        'texto'    => "Se ha registrado la moneda {$this->nombreMoneda}",
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ]
+                ]
+            ],
+        ]);
+
+        return [
+            "tipo"   => "limpiarYcerrar",
+            "titulo" => "Moneda registrada",
+            "texto"  => "La moneda ha sido registrada exitosamente",
+            "icono"  => "success",
+        ];
+
+    } catch (\Exception) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'registrar',
+            'resultado' => 'Fallido',
+            'viejo'     => [],
+            'nuevo'     => [
+                "nombre_moneda"  => $this->nombreMoneda,
+                "simbolo_moneda" => $this->simboloMoneda,
+                "valor_moneda"   => $this->valorMoneda,
+            ]
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Error",
+            "texto"  => "No se ha podido registrar la moneda",
+            "icono"  => "error",
+        ];
+    }
+}
+   
+private function actualizarMonedasP($tipoAct = null) {
+    $objBitacora = new bitacoraModelo();
+
+    try {
+        
+        $datosAntes = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
+
+        
+        if (!$datosAntes) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'monedas',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => ['id_moneda' => $this->idMoneda]
+            ]);
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Moneda no encontrada",
+                "texto"  => "La moneda no existe en el sistema.",
+                "icono"  => "error",
+            ];
+        }
+
+        $instruccionesBD = [
+            "tabla" => "monedas",
+            "datos" => [
+                "valor_moneda" => $this->valorMoneda,
+            ],
+            "WHERE" => [
+                "id_moneda" => $this->idMoneda,
+            ]
+        ];
+
+        if ($tipoAct == 'completa') {
+            $instruccionesBD['datos']['nombre_moneda']    = $this->nombreMoneda;
+            $instruccionesBD['datos']['simbolo_moneda']   = $this->simboloMoneda;
+        }
+
+        $resultado = $this->actualizarDatos2($instruccionesBD);
+
+        
+        if ($resultado == false || $resultado <= 0) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'monedas',
+                'accion'    => 'actualizar',
+                'resultado' => 'Fallido',
+                'viejo'     => $datosAntes,
+                'nuevo'     => [
+                    "valor_moneda"   => $this->valorMoneda,
+                    "nombre_moneda"  => $this->nombreMoneda,
+                    "simbolo_moneda" => $this->simboloMoneda,
+                ]
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Moneda no actualizada",
+                "texto"  => "No se ha podido actualizar la moneda",
+                "icono"  => "error",
+            ];
+        }
+
+        $datosDespues = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'actualizar',
+            'resultado' => 'Éxito',
+            'viejo'     => $datosAntes,
+            'nuevo'     => $datosDespues
+        ]);
+
+        $this->commit();
+
+        $mensajeNotificacion = 'La moneda "' . $datosAntes['nombre_moneda'] . '" ha sido actualizada';
+        if ($datosAntes['valor_moneda'] != $this->valorMoneda) {
+            $mensajeNotificacion .= ' (valor: ' . $datosAntes['valor_moneda'] . ' → ' . $this->valorMoneda . ')';
+        }
+
+        $objetoNot = new mensajesWSModelo();
+        $objetoNot->enviarMensajesWS([
+            'noCommit' => true,
+            "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+            'cuerpo' => [
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'monedas'],
+                ['accion' => "actDT", 'modulo' => 'monedas'],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Moneda actualizada',
+                        'texto'    => $mensajeNotificacion,
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ]
+                ],
+            ],
+        ]);
+
+        return [
+            "tipo"   => "limpiarYcerrar",
+            "titulo" => "Moneda actualizada",
+            "texto"  => "La moneda ha sido actualizada exitosamente",
+            "icono"  => "success",
+        ];
+
+    } catch (\Exception) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'actualizar',
+            'resultado' => 'Fallido',
+            'viejo'     => $datosAntes ?? ['id_moneda' => $this->idMoneda],
+            'nuevo'     => [
+                "valor_moneda"   => $this->valorMoneda,
+                "nombre_moneda"  => $this->nombreMoneda,
+                "simbolo_moneda" => $this->simboloMoneda,
+            ]
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Error",
+            "texto"  => "No se ha podido actualizar la moneda",
+            "icono"  => "warning",
+        ];
+    }
+}
+  
+private function eliminarMonedasP() {
+    $objBitacora = new bitacoraModelo();
+
+    try {
+        $datosAntes = $this->seleccionarMonedas(['id_moneda' => $this->idMoneda]);
+
+        
+        if (!$datosAntes) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'monedas',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => [],
+                'nuevo'     => ['id_moneda' => $this->idMoneda]
+            ]);
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Moneda no encontrada",
+                "texto"  => "La moneda no existe en la Base de Datos",
+                "icono"  => "error"
+            ];
+        }
+
+        $resultado = $this->eliminarDatos2([
+            'tabla' => "monedas",
+            'WHERE' => [
+                "id_moneda" => $this->idMoneda
+            ]
+        ]);
+
+        
+        if ($resultado != 1) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'monedas',
+                'accion'    => 'eliminar',
+                'resultado' => 'Fallido',
+                'viejo'     => $datosAntes,
+                'nuevo'     => []
+            ]);
+
+            $this->rollback();
+
+            return [
+                "tipo"   => "simple",
+                "titulo" => "Moneda no eliminada",
+                "texto"  => "No se ha podido eliminar la moneda",
+                "icono"  => "error"
+            ];
+        }
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'eliminar',
+            'resultado' => 'Éxito',
+            'viejo'     => $datosAntes,
+            'nuevo'     => []
+        ]);
+
+        $this->commit();
+
+        $objetoNot = new mensajesWSModelo();
+        $objetoNot->enviarMensajesWS([
+            'noCommit' => true,
+            "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+            'cuerpo' => [
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'monedas'],
+                ['accion' => "actDT", 'modulo' => 'monedas'],
+                [
+                    'accion' => 'alertar',
+                    'alerta' => [
+                        'tipo'     => 'simple',
+                        'titulo'   => 'Moneda eliminada',
+                        'texto'    => 'La moneda ha sido eliminada del sistema',
+                        'icono'    => 'info',
+                        'notifier' => true,
+                        'tiempo'   => 3000,
+                    ]
+                ],
+            ],
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Moneda eliminada",
+            "texto"  => "La moneda ha sido eliminada con éxito",
+            "icono"  => "success"
+        ];
+
+    } catch (\Exception) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'monedas',
+            'accion'    => 'eliminar',
+            'resultado' => 'Fallido',
+            'viejo'     => $datosAntes ?? ['id_moneda' => $this->idMoneda],
+            'nuevo'     => []
+        ]);
+
+        return [
+            "tipo"   => "simple",
+            "titulo" => "Error",
+            "texto"  => "No se ha podido eliminar la moneda",
+            "icono"  => "error"
+        ];
+    }
+}
+
+}
+

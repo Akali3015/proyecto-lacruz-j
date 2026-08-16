@@ -114,15 +114,14 @@
   }
 </style>
 
-<div class="main-content px-4" id="mainContent">
-  <div class="container-fluid py-4">
-    
-    <!-- Header Premium -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="m-0 fw-bold" style="color: #1a1a1a;">Dashboard Administrativo</h2>
-        <p class="text-muted m-0 mt-1" style="font-size: 0.95rem;">Visión general y estadísticas del sistema</p>
-      </div>
+<div class="container-fluid py-2">
+  
+  <!-- Header Premium -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="m-0 fw-bold" style="color: #1a1a1a;">Reportes Estadísticos</h2>
+      <p class="text-muted m-0 mt-1" style="font-size: 0.95rem;">Visión general y estadísticas del sistema</p>
+    </div>
       <div class="d-flex align-items-center gap-2">
         <select class="form-select dash-input shadow-sm" id="filtroTiempoDashboard" style="width: auto;">
           <option value="ultimos_30_dias">Últimos 30 días</option>
@@ -409,4 +408,3 @@
 
     </div>
   </div>
-</div>

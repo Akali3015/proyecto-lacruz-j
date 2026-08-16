@@ -54,7 +54,11 @@ echo $componente->listaDataTable($instruccionesLista);
             </div>
             <div class="col-md-4 mb-3">
               <label class="form-label fw-semibold">Foto del Servicio</label>
-              <input type="file" class="form-control" name="foto_servicio" accept="image/*">
+              <input type="file" class="form-control inputFotoServicio" name="foto_servicio" accept="image/*">
+              <div class="previewFotoServicio mt-2 d-none text-center">
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" imgRespaldo="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Preview" class="img-thumbnail" style="max-height:120px; object-fit:cover; border-radius:8px;">
+                <small class="d-block text-muted mt-1">Vista previa</small>
+              </div>
             </div>
 
             <!-- Productos que consume el servicio -->
@@ -137,6 +141,18 @@ echo $componente->listaDataTable($instruccionesLista);
                 <option value="0">No, esconder de tienda</option>
                 <option value="1">Sí, mostrar en tienda</option>
               </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-semibold">Foto del Servicio</label>
+              <div class="previewFotoServicioActual mb-2 text-center d-none">
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" imgRespaldo="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Foto actual" class="img-thumbnail fotoServicioActualImg" style="max-height:120px; object-fit:cover; border-radius:8px;">
+                <small class="d-block text-muted mt-1">Foto actual del servicio</small>
+              </div>
+              <input type="file" class="form-control formularioActualizar inputFotoServicio" name="foto_servicio" accept="image/*">
+              <div class="previewFotoServicio mt-2 d-none text-center">
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" imgRespaldo="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Preview" class="img-thumbnail" style="max-height:120px; object-fit:cover; border-radius:8px;">
+                <small class="d-block text-muted mt-1">Nueva foto (preview)</small>
+              </div>
             </div>
 
             <!-- Productos que consume el servicio -->

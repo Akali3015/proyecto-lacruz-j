@@ -1,9 +1,14 @@
 //#region [ IMPORTACIONES ] COMIENZO
 import {
-  enviarFormulario, obtenerDatosRegistro,
-  listarDataTable, cargarInputsActualizarQNR,
-  pedirDatosAjax, validarEnTiempoReal,
-  obtenerSiguienteIndice, cambiarFormatos
+  enviarFormulario,
+  listarDataTable,
+  pedirDatosAjax,
+  validarEnTiempoReal,
+  cambiarFormatos,
+  reiniciarDataModuloSS,
+  reiniciarDataTables,
+  alertasAjax,
+  mostrarOcultarSpinnerCarga
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -79,7 +84,6 @@ async function cargarProductos() {
       modulo: 'productos',
       datosPe: { accion: 'listar' }
     });
-    console.log('Productos cargados:', productosData);
   } catch (error) {
     console.error('Error cargando productos:', error);
   }
@@ -135,7 +139,6 @@ async function actualizarUnidadMedida($select) {
 
   if (!idProducto) {
     $fila.find('.unidad-medida-texto').val('');
-    $fila.find('.id-unidad-medida').val('');
     return;
   }
 
@@ -203,26 +206,19 @@ async function agregarFilaProducto(contenedorId, esActualizar = false, detallesA
 
       let filaDetalleHTML = $contenedor.find('.fila-producto').last();
 
-      // Cargar productos en el select
       await cargarProductosEnSelect(filaDetalleHTML.find('.selectProductos'), detalleBD.id_producto);
-
-      // Asignar valores
       filaDetalleHTML.find('.cantidad-producto').val(detalleBD.cantidad_producida);
-
-      // Obtener unidad de medida
       await actualizarUnidadMedida(filaDetalleHTML.find('.selectProductos'));
 
       $nuevaFila.hide().fadeIn(300);
     }
   } else {
-    const siguienteIndice = obtenerSiguienteIndice(
-      $contenedor,
-      'input',
-      'productos'
-    );
-    let nuevaFilaHtml = template.replace(/\[INDICE\]/g, siguienteIndice);
+    const filasExistentes = $contenedor.find('.fila-producto').length;
+    const nuevoIndice = filasExistentes;
+    
+    let nuevaFilaHtml = template.replace(/\[INDICE\]/g, nuevoIndice);
     const $nuevaFila = $(nuevaFilaHtml);
-    $nuevaFila.attr('data-indice', siguienteIndice);
+    $nuevaFila.attr('data-indice', nuevoIndice);
     $contenedor.append($nuevaFila);
     await cargarProductosEnSelect($nuevaFila.find('.selectProductos'));
     $nuevaFila.hide().fadeIn(300);
@@ -248,28 +244,8 @@ function eliminarFilaProducto($btnEliminar) {
     return;
   }
 
-  Swal.fire({
-    title: '¿Eliminar producto?',
-    text: '¿Estás seguro de eliminar este producto de la producción?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      $fila.fadeOut(300, function () {
-        $(this).remove();
-        Swal.fire({
-          icon: 'success',
-          title: 'Eliminado',
-          text: 'El producto ha sido eliminado',
-          timer: 1500,
-          showConfirmButton: false
-        });
-      });
-    }
+  $fila.fadeOut(300, function () {
+    $(this).remove();
   });
 }
 
@@ -283,6 +259,8 @@ async function consultarProduccion(boton) {
   tbody.html('<tr><td colspan="3" class="text-center text-muted">Cargando...</td></tr>');
 
   try {
+    mostrarOcultarSpinnerCarga('mostrar');
+    
     const produccion = await pedirDatosAjax({
       modulo: 'producciones',
       datosPe: {
@@ -291,12 +269,10 @@ async function consultarProduccion(boton) {
       }
     });
 
+    mostrarOcultarSpinnerCarga('ocultar');
+
     if (!produccion || produccion.icono === 'error') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: produccion?.texto || 'No se pudo cargar la producción'
-      });
+      await alertasAjax(produccion);
       return;
     }
 
@@ -351,11 +327,12 @@ async function consultarProduccion(boton) {
     modal.modal('show');
 
   } catch (error) {
+    mostrarOcultarSpinnerCarga('ocultar');
     console.error('Error al consultar producción:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'No se pudo cargar la información de la producción'
+    await alertasAjax({
+      icono: 'error',
+      titulo: 'Error',
+      texto: 'No se pudo cargar la información de la producción'
     });
   }
 }
@@ -451,15 +428,29 @@ $(document).on('click', '.btn-eliminar-fila', function (e) {
 
 $(document).off('show.bs.modal', '.modalRegistrar');
 $(document).on('show.bs.modal', '.modalRegistrar', function () {
+  $(this).find('input[name="accion"]').val('registrar');
   const $contenedor = $('#contenedorProductos');
   $contenedor.empty();
   agregarFilaProducto('contenedorProductos');
+});
+
+$(document).off('show.bs.modal', '.modalActualizar');
+$(document).on('show.bs.modal', '.modalActualizar', function () {
+  $(this).find('input[name="accion"]').val('actualizar');
 });
 
 $(document).off('hidden.bs.modal', '.modalRegistrar');
 $(document).on('hidden.bs.modal', '.modalRegistrar', function () {
   $('#contenedorProductos').empty();
   $(this).find('form')[0].reset();
+  $(this).find('input[name="accion"]').val('registrar');
+});
+
+$(document).off('hidden.bs.modal', '.modalActualizar');
+$(document).on('hidden.bs.modal', '.modalActualizar', function () {
+  $('#contenedorProductosActualizar').empty();
+  $(this).find('form')[0].reset();
+  $(this).find('input[name="accion"]').val('actualizar');
 });
 
 $(document).off('submit', '.formularioAjax');
@@ -471,11 +462,10 @@ $(document).on('submit', '.formularioAjax', async function (e) {
   const numProductos = $contenedor.find('.fila-producto').length;
 
   if (numProductos === 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Sin productos',
-      text: 'Debe agregar al menos un producto a la producción',
-      confirmButtonText: 'Entendido'
+    await alertasAjax({
+      icono: 'warning',
+      titulo: 'Sin productos',
+      texto: 'Debe agregar al menos un producto a la producción'
     });
     return;
   }
@@ -504,23 +494,43 @@ $(document).on('submit', '.formularioAjax', async function (e) {
   });
 
   if (hayError) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Error de validación',
-      text: mensajeError,
-      confirmButtonText: 'Entendido'
+    await alertasAjax({
+      icono: 'warning',
+      titulo: 'Error de validación',
+      texto: mensajeError
     });
     return;
+  }
+
+  if (!$form.find('input[name="accion"]').val()) {
+    if ($form.closest('.modalRegistrar').length > 0) {
+      $form.find('input[name="accion"]').val('registrar');
+    } else if ($form.closest('.modalActualizar').length > 0) {
+      $form.find('input[name="accion"]').val('actualizar');
+    }
   }
 
   const respuesta = await enviarFormulario({
     'formulario': this,
     'modulo': 'producciones',
-    'convertirJSON': true,
     'camposFuera': []
   });
 
-  console.log('Respuesta del servidor:', respuesta);
+  if (respuesta && respuesta.icono === 'success') {
+    reiniciarDataModuloSS('producciones');
+    reiniciarDataTables();
+    $form.find('input, select, textarea').val('');
+    $contenedor.empty();
+    
+    if ($form.closest('.modalRegistrar').length > 0) {
+      $form.find('input[name="accion"]').val('registrar');
+    } else if ($form.closest('.modalActualizar').length > 0) {
+      $form.find('input[name="accion"]').val('actualizar');
+    }
+    
+    agregarFilaProducto('contenedorProductos');
+    $form.closest('.modal').modal('hide');
+  }
 });
 
 $(document).off('click', '.botonEditar');
@@ -532,20 +542,13 @@ $(document).on('click', '.botonEditar', async function (e) {
   const $form = $modal.find('form');
   const $contenedor = $('#contenedorProductosActualizar');
 
-  // Limpiar todo
   $contenedor.empty();
   $form.find('input[name="id_produccion"]').val('');
-
-  Swal.fire({
-    title: 'Cargando...',
-    text: 'Obteniendo datos de la producción',
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
-  });
+  $form.find('input[name="accion"]').val('actualizar');
 
   try {
+    mostrarOcultarSpinnerCarga('mostrar');
+    
     const produccion = await pedirDatosAjax({
       modulo: 'producciones',
       datosPe: {
@@ -554,18 +557,12 @@ $(document).on('click', '.botonEditar', async function (e) {
       }
     });
 
-    Swal.close();
+    mostrarOcultarSpinnerCarga('ocultar');
 
     if (!produccion || produccion.icono === 'error') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: produccion?.texto || 'No se pudo cargar la producción'
-      });
+      await alertasAjax(produccion);
       return;
     }
-
-    console.log('Producción cargada:', produccion);
 
     $form.find('input[name="id_produccion"]').val(produccion.id_produccion);
 
@@ -578,12 +575,12 @@ $(document).on('click', '.botonEditar', async function (e) {
     $contenedor.find('input, select').addClass('formularioActualizar');
 
   } catch (error) {
-    Swal.close();
+    mostrarOcultarSpinnerCarga('ocultar');
     console.error('Error al cargar producción:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Ocurrió un error al cargar los datos de la producción'
+    await alertasAjax({
+      icono: 'error',
+      titulo: 'Error',
+      texto: 'Ocurrió un error al cargar los datos de la producción'
     });
   }
 });

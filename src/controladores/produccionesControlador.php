@@ -6,13 +6,18 @@ use src\modelos\accesosModelo;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
 
+  if (isset($_POST['productos']) && is_string($_POST['productos'])) {
+    $_POST['productos'] = json_decode($_POST['productos'], true);
+  }
+
   $accion = $_POST['accion'] ?? '';
   $objeto = new produccionesModelo();
   ob_clean();
-    $resultado = [
+  $resultado = [
     'icono' => 'error',
     'titulo' => 'Acción no reconocida'
   ];
+  
   switch ($accion) {
     case "listar":
       $resultado = $objeto->seleccionarProducciones($_POST);
@@ -30,9 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['cedula'])) {
   $objeto->DECORE($resultado);
   exit();
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-  $objAcceso= new accesosModelo();
-  $v= $objAcceso->validarPermisos('producciones','ver');
-  if($v) $objAcceso->DECORE($v);
+  $objAcceso = new accesosModelo();
+  $v = $objAcceso->validarPermisos('producciones', 'ver');
+  if ($v) $objAcceso->DECORE($v);
 
   $objComponentes = new componentesModelo();
   require_once "src/config/inc/header.php";

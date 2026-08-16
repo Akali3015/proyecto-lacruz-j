@@ -70,38 +70,6 @@ function getStatusInfo(status, estaRetrasado = false) {
 
 let ordenActualGlobal = null;
 
-function renderizarProductosRequeridos(productos, cantidadServicio) {
-    if (!productos || productos.length === 0) {
-        return '<tr><td colspan="5" class="text-center">Este servicio no requiere productos</td></tr>';
-    }
-    
-    let html = '';
-    for (const prod of productos) {
-        const cantidadTotal = parseFloat(prod.cantidad_producto) * parseFloat(cantidadServicio);
-        const stockActual = parseFloat(prod.stock_producto || 0);
-        const hayStock = stockActual >= cantidadTotal;
-        const estadoStock = hayStock 
-            ? '<span class="badge bg-success">Stock suficiente</span>'
-            : '<span class="badge bg-danger">Stock insuficiente</span>';
-        
-        html += `
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="me-2"><i class="fi fi-rs-box fs-5"></i></div>
-                        <div><strong>${prod.nombre_producto || prod.id_producto}</strong></div>
-                    </div>
-                </td>
-                <td class="text-center">${parseFloat(prod.cantidad_producto).toFixed(2)}</td>
-                <td class="text-center">${cantidadTotal.toFixed(2)}</td>
-                <td class="text-center">${stockActual.toFixed(2)}</td>
-                <td class="text-center">${estadoStock}</td>
-            </tr>
-        `;
-    }
-    return html;
-}
-
 async function verDetallesOrden() {
     const idOrden = $(this).attr('value');
     const modal = $('.modalDetallesOrden');
@@ -150,10 +118,6 @@ async function verDetallesOrden() {
     modal.find('.nombre_ruta').text(orden.nombre_ruta || 'No asignada');
     modal.find('.coordenadas').text(`${orden.coordenada_latitud}, ${orden.coordenada_longitud}`);
     modal.find('.url_direccion_btn').attr('href', orden.url_direccion);
-    
-    // Productos
-    const productosHTML = renderizarProductosRequeridos(orden.productos_requeridos, orden.cantidad_servicio);
-    modal.find('.cuerpoProductosRequeridos').html(productosHTML);
     
     modal.modal('show');
 }
@@ -268,30 +232,6 @@ async function enviarActualizacionOrden(e) {
         return;
     }
     
-    if (parseInt(nuevoStatus) === 2 && ordenActualGlobal && ordenActualGlobal.productos_requeridos && ordenActualGlobal.productos_requeridos.length > 0) {
-        let stockInsuficiente = false;
-        let mensajeProductos = '';
-        
-        for (const prod of ordenActualGlobal.productos_requeridos) {
-            const cantidadTotal = parseFloat(prod.cantidad_producto) * parseFloat(ordenActualGlobal.cantidad_servicio);
-            const stockActual = parseFloat(prod.stock_producto || 0);
-            if (stockActual < cantidadTotal) {
-                stockInsuficiente = true;
-                mensajeProductos += `\n- ${prod.nombre_producto}: Stock ${stockActual}, Necesario ${cantidadTotal}`;
-            }
-        }
-        
-        if (stockInsuficiente) {
-            alertasAjax({
-                tipo: 'simple',
-                titulo: 'Stock insuficiente',
-                texto: 'No hay suficiente stock para ejecutar este servicio:' + mensajeProductos,
-                icono: 'warning'
-            });
-            return;
-        }
-    }
-    
     let titulo = '';
     let texto = '';
     
@@ -346,6 +286,10 @@ async function enviarActualizacionOrden(e) {
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 
 $(document).on('DOMContentLoaded', async function () {
+    registrarTutorial();
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const permisos = await pedirDatosAjax({
         modulo: 'accesos',
         datosPe: { accion: 'listarPorRol' }
@@ -402,8 +346,6 @@ $(document).on('DOMContentLoaded', async function () {
                 return botones;
             }
         });
-        
-        registrarTutorial();
         
         const driverPendiente = sessionStorage.getItem('driver_pendiente');
         if (driverPendiente === 'ordenesServicios') {

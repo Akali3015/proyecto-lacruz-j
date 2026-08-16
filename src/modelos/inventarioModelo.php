@@ -108,6 +108,7 @@ class inventarioModelo extends conexion {
     }
     return $this->limpiar_Verificar($totalValidaciones);
   }
+  
   public function registrarMovimientos(array $info) {
     $this->tipoItem = $info['tipo_item'] ?? '';
 
@@ -154,6 +155,7 @@ class inventarioModelo extends conexion {
       return $this->registrarMovimientosProductosP();
     }
   }
+  
   public function verEntradasSalidas(array $info) {
     $this->tipo = $info['tipo'] ?? '';
 
@@ -186,8 +188,9 @@ class inventarioModelo extends conexion {
       "icono" => "error"
     ];
   }
+  
   public function reporteProductos(array $info) {
-    $resultado = $this->validarInventario('imprimir reportes de anomalias de productos', [
+    $resultado = $this->validarInventario('ver historial de e/s de los productos', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_producto',
@@ -214,8 +217,9 @@ class inventarioModelo extends conexion {
 
     return $this->reporteProductosP();
   }
+  
   public function reporteMateriasPrimas(array $info) {
-    $resultado = $this->validarInventario('imprimir reportes de anomalias de materias primas', [
+    $resultado = $this->validarInventario('ver historial de e/s de las materias primas', [
       'infoVal' => &$info,
       'camposVal' => [
         'id_materia_prima',
@@ -307,6 +311,7 @@ class inventarioModelo extends conexion {
     }
     return true;
   }
+  
   private function registrarMovimientosProductosP() {
     $objBitacora = new bitacoraModelo();
 
@@ -500,6 +505,7 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
+  
   private function registrarMovimientosMateriasPrimasP() {
     $objBitacora = new bitacoraModelo();
 
@@ -643,6 +649,7 @@ class inventarioModelo extends conexion {
       "icono" => "success"
     ];
   }
+  
   private function verMovimientosProductosP() {
     return $this->seleccionarDatos2([
       'campos' => 'map.id_movimiento_anomalo_producto, p.nombre_presentacion, map.cantidad_movimiento, map.tipo_movimiento, map.motivo_movimiento, map.fecha_movimiento, pr.id_producto, pr.nombre_producto',
@@ -654,11 +661,12 @@ class inventarioModelo extends conexion {
         "productos as pr" => "pp.id_producto = pr.id_producto"
       ],
       'WHERE' => [
-        "pr.id_producto" => $this->idProducto,
+        "pp.id_producto" => $this->idProducto,
       ],
       'ORDER' => 'map.id_movimiento_anomalo_producto DESC'
     ])->fetchAll();
   }
+  
   private function verMovimientosMateriasPrimasP() {
     return $this->seleccionarDatos2([
       'campos' => '
@@ -677,48 +685,56 @@ class inventarioModelo extends conexion {
       'ORDER' => 'mamp.id_movimiento_anomalo_materia_prima DESC'
     ])->fetchAll();
   }
+  
   private function reporteProductosP() {
-
-    $WHERE = [
-      "DATE(map.fecha_movimiento)" => [
-        '>=' => $this->info['fecha_desde'],
-        '<=' => $this->info['fecha_hasta'],
-      ]
+    $conexion = $this->conectar();
+    
+    $sql = "
+        SELECT 
+            map.id_movimiento_anomalo_producto, 
+            p.nombre_presentacion,
+            map.cantidad_movimiento,
+            map.tipo_movimiento,
+            map.motivo_movimiento,
+            map.fecha_movimiento,
+            pr.nombre_producto
+        FROM movimientos_anomalos_productos as map
+        INNER JOIN presentaciones_productos as pp ON map.id_presentacion_producto = pp.id_presentacion_producto
+        INNER JOIN presentaciones as p ON pp.id_presentacion = p.id_presentacion
+        INNER JOIN productos as pr ON pp.id_producto = pr.id_producto
+        WHERE map.status = 1
+        AND DATE(map.fecha_movimiento) >= :fecha_desde
+        AND DATE(map.fecha_movimiento) <= :fecha_hasta
+    ";
+    
+    $params = [
+        ':fecha_desde' => $this->info['fecha_desde'],
+        ':fecha_hasta' => $this->info['fecha_hasta']
     ];
+    
     if (!empty($this->info['id_producto'])) {
-      $WHERE['pr.id_producto'] = $this->info['id_producto'];
+        $sql .= " AND pp.id_producto = :id_producto";
+        $params[':id_producto'] = $this->info['id_producto'];
     }
-
-    $instruccionesDB = [
-      'tabla' => 'movimientos_anomalos_productos as map',
-      'campos' => '
-        map.id_movimiento_anomalo_producto, p.nombre_presentacion,
-        map.cantidad_movimiento,map.tipo_movimiento,map.motivo_movimiento,
-        map.fecha_movimiento,pr.nombre_producto
-      ',
-      'datosJoins' => [
-        "presentaciones_productos as pp" => "map.id_presentacion_producto = pp.id_presentacion_producto",
-        "presentaciones as p" => "pp.id_presentacion = p.id_presentacion",
-        "productos as pr" => "pp.id_producto = pr.id_producto"
-      ],
-      'WHERE' => $WHERE,
-      'ORDER' => 'map.fecha_movimiento ASC'
-    ];
-
-    $infoCeldas = $this->seleccionarDatos2($instruccionesDB)->fetchAll();
+    
+    $sql .= " ORDER BY map.fecha_movimiento ASC";
+    
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute($params);
+    $infoCeldas = $stmt->fetchAll();
 
     if (empty($infoCeldas)) {
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Sin registros',
-        'texto' => 'No hay movimientos en el rango de fechas seleccionado',
-        'icono' => 'warning',
-      ];
+        return [
+            'tipo' => 'simple',
+            'titulo' => 'Sin registros',
+            'texto' => 'No hay movimientos en el rango de fechas seleccionado',
+            'icono' => 'warning',
+        ];
     }
 
     foreach ($infoCeldas as &$fila) {
-      $fila['fecha_movimiento'] = $this->FechaHora_Sel('fecha_hora_AM_PM', $fila['fecha_movimiento']);
-      $fila['tipo_movimiento'] = $fila['tipo_movimiento'] == 1 ? 'CARGA' : 'DESCARGA';
+        $fila['fecha_movimiento'] = $this->FechaHora_Sel('fecha_hora_AM_PM', $fila['fecha_movimiento']);
+        $fila['tipo_movimiento'] = $fila['tipo_movimiento'] == 1 ? 'CARGA' : 'DESCARGA';
     }
     unset($fila);
 
@@ -726,60 +742,69 @@ class inventarioModelo extends conexion {
     $objetoPDF->SetTitle('REPORTE DE MOVIMIENTOS');
 
     return $objetoPDF->crearPDF([
-      "tituloReporte" => "REPORTE DE MOVIMIENTOS",
-      "datosExtCabecera" => [
-        "PRODUCTOS Desde: " . date('d-m-Y', strtotime($this->info['fecha_desde'])) . " Hasta: " . date('d-m-Y', strtotime($this->info['fecha_hasta']))
-      ],
-      "configColumnas" => [
-        'id_movimiento_anomalo_producto' => ['ID', 10],
-        'nombre_producto' => ['PRODUCTO', 35],
-        'nombre_presentacion' => ['PRESENTACION', 35],
-        'tipo_movimiento' => ['TIPO', 25],
-        'cantidad_movimiento' => ['CANT', 20],
-        'motivo_movimiento' => ['MOTIVO', 30],
-        'fecha_movimiento' => ['FECHA', 35],
-      ],
-      "infoBD" => $infoCeldas,
+        "tituloReporte" => "REPORTE DE MOVIMIENTOS",
+        "datosExtCabecera" => [
+            "PRODUCTOS Desde: " . date('d-m-Y', strtotime($this->info['fecha_desde'])) . " Hasta: " . date('d-m-Y', strtotime($this->info['fecha_hasta']))
+        ],
+        "configColumnas" => [
+            'id_movimiento_anomalo_producto' => ['ID', 10],
+            'nombre_producto' => ['PRODUCTO', 35],
+            'nombre_presentacion' => ['PRESENTACION', 35],
+            'tipo_movimiento' => ['TIPO', 25],
+            'cantidad_movimiento' => ['CANT', 20],
+            'motivo_movimiento' => ['MOTIVO', 30],
+            'fecha_movimiento' => ['FECHA', 35],
+        ],
+        "infoBD" => $infoCeldas,
     ]);
   }
+  
   private function reporteMateriasPrimasP() {
-    $where = [];
-    $where['DATE(mamp.fecha_movimiento)'] = [
-      ">=" => $this->info['fecha_desde'],
-      "<=" => $this->info['fecha_hasta']
+    $conexion = $this->conectar();
+
+    $sql = "
+        SELECT 
+            mamp.id_movimiento_anomalo_materia_prima,
+            mp.nombre_materia_prima,
+            mamp.cantidad_movimiento,
+            mamp.tipo_movimiento,
+            mamp.motivo_movimiento,
+            mamp.fecha_movimiento
+        FROM movimientos_anomalos_materias_primas as mamp
+        INNER JOIN materias_primas as mp ON mamp.id_materia_prima = mp.id_materia_prima
+        WHERE mamp.status = 1
+        AND DATE(mamp.fecha_movimiento) >= :fecha_desde
+        AND DATE(mamp.fecha_movimiento) <= :fecha_hasta
+    ";
+    
+    $params = [
+        ':fecha_desde' => $this->info['fecha_desde'],
+        ':fecha_hasta' => $this->info['fecha_hasta']
     ];
+    
     if (!empty($this->info['id_materia_prima'])) {
-      $where['mp.id_materia_prima'] = $this->info['id_materia_prima'];
+        $sql .= " AND mp.id_materia_prima = :id_materia_prima";
+        $params[':id_materia_prima'] = $this->info['id_materia_prima'];
     }
-    $infoCeldas = $this->seleccionarDatos2([
-      'tabla' => 'movimientos_anomalos_materias_primas as mamp',
-      'campos' => '
-        mamp.id_movimiento_anomalo_materia_prima,
-        mp.nombre_materia_prima,
-        mamp.cantidad_movimiento,
-        mamp.tipo_movimiento,
-        mamp.motivo_movimiento,
-        mamp.fecha_movimiento
-      ',
-      'datosJoins' => [
-        "materias_primas as mp" => "mamp.id_materia_prima = mp.id_materia_prima"
-      ],
-      'WHERE' => $where,
-      'ORDER' => 'mamp.fecha_movimiento ASC'
-    ])->fetchAll();
+    
+    $sql .= " ORDER BY mamp.fecha_movimiento ASC";
+    
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute($params);
+    $infoCeldas = $stmt->fetchAll();
 
     if (empty($infoCeldas)) {
-      return [
-        'tipo' => 'simple',
-        'titulo' => 'Sin registros',
-        'texto' => 'No hay movimientos en el rango de fechas seleccionado',
-        'icono' => 'warning',
-      ];
+        return [
+            'tipo' => 'simple',
+            'titulo' => 'Sin registros',
+            'texto' => 'No hay movimientos en el rango de fechas seleccionado',
+            'icono' => 'warning',
+        ];
     }
 
     foreach ($infoCeldas as &$fila) {
-      $fila['fecha_movimiento'] = $this->FechaHora_Sel('fecha_hora_AM_PM', $fila['fecha_movimiento']);
-      $fila['tipo_movimiento'] = $fila['tipo_movimiento'] == 1 ? 'CARGA' : 'DESCARGA';
+        $fila['fecha_movimiento'] = $this->FechaHora_Sel('fecha_hora_AM_PM', $fila['fecha_movimiento']);
+        $fila['tipo_movimiento'] = $fila['tipo_movimiento'] == 1 ? 'CARGA' : 'DESCARGA';
     }
     unset($fila);
 
@@ -787,19 +812,19 @@ class inventarioModelo extends conexion {
     $objetoPDF->SetTitle('REPORTE DE MOVIMIENTOS ');
 
     return $objetoPDF->crearPDF([
-      "tituloReporte" => "REPORTE DE MOVIMIENTOS",
-      "datosExtCabecera" => [
-        "MATERIAS PRIMAS Desde: " . date('d-m-Y', strtotime($this->info['fecha_desde'])) . " Hasta: " . date('d-m-Y', strtotime($this->info['fecha_hasta']))
-      ],
-      "configColumnas" => [
-        'id_movimiento_anomalo_materia_prima' => ['ID', 15],
-        'nombre_materia_prima' => ['MATERIA PRIMA', 40],
-        'tipo_movimiento' => ['TIPO', 25],
-        'cantidad_movimiento' => ['CANT', 25],
-        'motivo_movimiento' => ['MOTIVO', 45],
-        'fecha_movimiento' => ['FECHA', 40],
-      ],
-      "infoBD" => $infoCeldas,
+        "tituloReporte" => "REPORTE DE MOVIMIENTOS",
+        "datosExtCabecera" => [
+            "MATERIAS PRIMAS Desde: " . date('d-m-Y', strtotime($this->info['fecha_desde'])) . " Hasta: " . date('d-m-Y', strtotime($this->info['fecha_hasta']))
+        ],
+        "configColumnas" => [
+            'id_movimiento_anomalo_materia_prima' => ['ID', 15],
+            'nombre_materia_prima' => ['MATERIA PRIMA', 40],
+            'tipo_movimiento' => ['TIPO', 25],
+            'cantidad_movimiento' => ['CANT', 25],
+            'motivo_movimiento' => ['MOTIVO', 45],
+            'fecha_movimiento' => ['FECHA', 40],
+        ],
+        "infoBD" => $infoCeldas,
     ]);
   }
 }
