@@ -42,6 +42,7 @@ class frontController extends conexion {
       'ordenesEntregasPresupuestos',
       'ordenesServicios',
       'others',
+      'pagos',
       'pedidos',
       'permisos',
       'preguntas-seguridad',

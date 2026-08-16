@@ -22,7 +22,7 @@ class componentesModelo extends conexion {
         'icono' => 'users-medical'
       ],
       [
-        'url' => 'facturacion',
+        'url' => 'ordenesEntregasPresupuestos',
         'texto' => 'Órdenes de Entrega',
         'modulo' => 'facturacion',
         'icono' => 'receipt',
@@ -34,6 +34,13 @@ class componentesModelo extends conexion {
         'url' => 'pedidos',
         'icono' => 'order-food-mobile',
         'texto' => 'Pedidos',
+      ],
+      [
+        'modulo' => 'pagos',
+        'permiso' => 'ver',
+        'url' => 'pagos',
+        'icono' => 'credit-card',
+        'texto' => 'Pagos',
       ],
       [
         'modulo' => 'inventario',

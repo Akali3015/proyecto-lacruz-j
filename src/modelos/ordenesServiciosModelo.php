@@ -58,6 +58,7 @@ class ordenesServiciosModelo extends conexion {
 
     return $this->limpiar_Verificar($campos);
   }
+  
   public function listarOrdenesServicios(array $info) {
     if (($info['id_servicio_factura'] ?? '') != "") {
       $resultado = $this->validarOrdenesServicios('ver', $info, ['id_servicio_factura']);
@@ -66,6 +67,7 @@ class ordenesServiciosModelo extends conexion {
     }
     return $this->listarOrdenesServiciosP($info);
   }
+  
   public function actualizarOrdenesServicio(array $info) {
     $resultado = $this->validarOrdenesServicios('actualizar', $info, ['id_servicio_factura', 'status']);
     if ($resultado) return $resultado;
@@ -146,6 +148,7 @@ class ordenesServiciosModelo extends conexion {
 
     return $ordenes;
   }
+
   private function seleccionarOrdenesServiciosP() {
     $orden = $this->seleccionarDatos2([
       'campos' => '
@@ -224,10 +227,8 @@ class ordenesServiciosModelo extends conexion {
         }
       }
       unset($prodReq);
-      $orden['productos_requeridos'] = $productosRequeridos;
       $this->productosAsociados = $productosRequeridos;
     } else {
-      $orden['productos_requeridos'] = [];
       $this->productosAsociados = [];
     }
 
@@ -243,6 +244,7 @@ class ordenesServiciosModelo extends conexion {
 
     return $orden;
   }
+
   private function actualizarOrdenesServicioP() {
     $objBitacora = new bitacoraModelo();
     $error = function () use ($objBitacora) {
@@ -254,6 +256,7 @@ class ordenesServiciosModelo extends conexion {
         'commit' => true,
       ]);
     };
+    
     $ordenAntes = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
     if (isset($ordenAntes['icono']) && $ordenAntes['icono'] == 'error') {
       return $ordenAntes;
@@ -316,50 +319,7 @@ class ordenesServiciosModelo extends conexion {
           return [
             'tipo' => 'simple',
             'titulo' => 'Error al devolver stock',
-            'texto' => 'No se pudo devolver el stock del producto: ' . ($producto['nombre_producto'] ?? $producto['id_producto']),
-            'icono' => 'error'
-          ];
-        }
-      }
-    }
-
-    if ($this->nuevoStatus == 2 && $statusAnterior != 2) {
-      $faltantes = [];
-      foreach ($this->productosAsociados as $producto) {
-        $cantidadNecesaria = $producto['cantidad_producto'] * $cantidadServicio;
-        $stockDisponible = $producto['stock_producto'];
-
-        if ($stockDisponible < $cantidadNecesaria) {
-          $faltantes[] = ($producto['nombre_producto'] ?? $producto['id_producto']) . " (Stock: $stockDisponible, Necesario: $cantidadNecesaria)";
-        }
-      }
-
-      if (!empty($faltantes)) {
-        $error();
-        return [
-          'tipo' => 'simple',
-          'titulo' => 'Stock insuficiente',
-          'texto' => 'Error: stock insuficiente: ' . implode(', ', $faltantes),
-          'icono' => 'warning'
-        ];
-      }
-
-      foreach ($this->productosAsociados as $producto) {
-        $cantidadADescontar = $producto['cantidad_producto'] * $cantidadServicio;
-        $stockActual = $producto['stock_producto'];
-
-        $resultado = $this->actualizarDatos2([
-          'tabla' => 'productos',
-          'datos' => ['stock_producto' => $stockActual - $cantidadADescontar],
-          'WHERE' => ['id_producto' => $producto['id_producto']]
-        ]);
-
-        if ($resultado === false || $resultado <= 0) {
-          $error();
-          return [
-            'tipo' => 'simple',
-            'titulo' => 'Error al descontar stock',
-            'texto' => 'No se pudo descontar el stock del producto: ' . ($producto['nombre_producto'] ?? $producto['id_producto']),
+            'texto' => 'No se pudo devolver el stock del producto',
             'icono' => 'error'
           ];
         }
@@ -381,6 +341,7 @@ class ordenesServiciosModelo extends conexion {
         'icono' => 'error'
       ];
     }
+    
     $ordenDespues = $this->listarOrdenesServicios(['id_servicio_factura' => $this->idOrdenServicio]);
 
     $objBitacora->registrarBitacora([
@@ -390,6 +351,7 @@ class ordenesServiciosModelo extends conexion {
       'viejo' => $ordenAntes,
       'nuevo' => $ordenDespues
     ]);
+    
     $estadosTexto = [1 => 'Pendiente', 2 => 'Ejecutada', 3 => 'Retrasada', 4 => 'Cancelada'];
 
     $objMensajesWS = new mensajesWSModelo();
@@ -424,9 +386,9 @@ class ordenesServiciosModelo extends conexion {
 
     $mensajeExito = '';
     if ($this->nuevoStatus == 4) {
-      $mensajeExito = 'La orden ha sido cancelada exitosamente';
+      $mensajeExito = 'La orden ha sido cancelada exitosamente y el stock ha sido devuelto.';
     } elseif ($this->nuevoStatus == 2) {
-      $mensajeExito = 'La orden ha sido marcada como ejecutada';
+      $mensajeExito = 'La orden ha sido marcada como ejecutada.';
     } else {
       $mensajeExito = 'La orden ha sido actualizada exitosamente';
       if (!empty($this->nuevaFechaEjecucion)) {

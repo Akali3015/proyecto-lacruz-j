@@ -2,7 +2,7 @@
 import {
   listarDataTable, pedirDatosAjax, enviarFormulario,
   alertasAjax, reiniciarDataTables, validarEnTiempoReal,
-  cambiarFormatos
+  cambiarFormatos, encabezadosPeticiones
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -18,10 +18,35 @@ let timerCedula = null; // debounce para búsqueda de cliente
 let mapaDelivery = null;
 let marcadorDelivery = null;
 let tasaBolivar = 1;
+//#endregion [VARIABLES GLOBALES] FIN
+
+//#region [HELPERS DE MONTO] COMIENZO
+
+function parsearMonto(rawStr) {
+  let s = (rawStr || '').trim();
+  if (s === '' || s === '0') return 0;
+  
+  if (s.includes(',')) {
+    let clean = s.replace(/\./g, '').replace(',', '.');
+    return parseFloat(clean) || 0;
+  }
+  
+  if (s.includes('.')) {
+    return parseFloat(s) || 0;
+  }
+  
+  return parseFloat(s.replace(/\D/g, '')) / 100 || 0;
+}
+
+
+function formatearMontoEnvio(monto) {
+  return parseFloat(monto).toFixed(2).replace('.', ',');
+}
+//#endregion [HELPERS DE MONTO] FIN
+
 let ivaActivo = 0;
 const CENTRO_JLACRUZ = { lat: 10.063276, lng: -69.31708 };
 const TOMTOM_API_KEY = 'plFhQVWfX5abG1DPt7jja56Syrqh7rY2';
-//#endregion [VARIABLES GLOBALES] FIN
 
 //#region [FUNCIONES DEL MODULO] COMIENZO
 
@@ -146,6 +171,13 @@ async function cargarRepartidores() {
 }
 
 // === A partir de aquí tenemos todo lo que hace funcionar el mapita del delivery ===
+function destruirMapaDelivery() {
+  if (mapaDelivery) {
+    mapaDelivery.remove();
+    mapaDelivery = null;
+    marcadorDelivery = null;
+  }
+}
 
 async function inicializarMapaDelivery() {
   // Por si acaso había un mapa de antes, lo borramos para no sobrecargar
@@ -200,13 +232,7 @@ async function inicializarMapaDelivery() {
     await actualizarDeliveryPorUbicacion(e.latlng);
   });
 }
-function destruirMapaDelivery() {
-  if (mapaDelivery) {
-    mapaDelivery.remove();
-    mapaDelivery = null;
-    marcadorDelivery = null;
-  }
-}
+
 async function actualizarDeliveryPorUbicacion(latlng) {
   // Guardamos la latitud y longitud en unos inputs ocultos para usarlos luego
   $('#latDeliveryOrden').val(latlng.lat);
@@ -1278,8 +1304,10 @@ async function validarCedulaRepartidorOrden(cedula) {
   let input = $('#inputCedulaRepartidorOrden');
   let feedback = $('#feedbackRepartidorOrden');
   let hiddenInput = $('#selectRepartidorOrden');
+  let icon = $('#iconRepartidorOrden');
 
-  feedback.html('<span class="text-muted"><i class="fi fi-rs-loading me-1"></i>Buscando...</span>');
+  feedback.html('<span class="text-muted"><i class="fi fi-rs-loading me-1 spinner-border spinner-border-sm"></i>Buscando...</span>');
+  icon.html('<i class="fi fi-rs-loading text-primary"></i>');
 
   let resultado = await pedirDatosAjax({
     modulo: 'repartidores',
@@ -1288,21 +1316,26 @@ async function validarCedulaRepartidorOrden(cedula) {
   });
 
   if (!resultado || resultado.icono === 'error' || Array.isArray(resultado)) {
-    input.addClass('is-invalid');
+    input.removeClass('is-valid').addClass('is-invalid').css({ 'border-color': '#dc3545', 'background-color': '#fffafa' });
+    icon.html('<i class="fi fi-rs-cross-circle text-danger"></i>').addClass('border-danger');
+    
     feedback.html(`
-      <span class="text-danger d-block mb-1"><i class="fi fi-rs-cross-circle me-1"></i>No existe</span>
-      <button type="button" class="btn btn-sm text-white" 
-      style="background: linear-gradient(135deg, #4e54c8, #8f94fb); 
-      border: none;" id="btnAbrirRegistroRepartidorOrden">Registrar Repartidor</button>
+      <div class="text-danger mb-1 fw-medium">Repartidor no encontrado</div>
+      <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" id="btnAbrirRegistroRepartidorOrden">
+        <i class="fi fi-rs-user-add me-1"></i>Registrar ahora
+      </button>
     `);
   } else {
-    input.addClass('is-valid').css({ 'border-color': '#42ba96', 'background-color': '#f2fcf5' });
+    input.removeClass('is-invalid').addClass('is-valid').css({ 'border-color': '#198754', 'background-color': '#f8fff9' });
+    icon.html('<i class="fi fi-rs-check-circle text-success"></i>').removeClass('border-danger').addClass('border-success');
+    
     hiddenInput.val(resultado.cedula_repartidor);
-    feedback.html(`<span class="text-success"><i class="fi fi-rs-check-circle me-1"></i>${resultado.nombre_repartidor} ${resultado.apellido_repartidor}</span>`);
+    feedback.html(`<span class="text-success fw-medium"><i class="fi fi-rs-user-check me-1"></i>${resultado.nombre_repartidor} ${resultado.apellido_repartidor}</span>`);
   }
 }
 
 let timerRepartidor = null;
+
 $(document).off('input', '#inputCedulaRepartidorOrden').on('input', '#inputCedulaRepartidorOrden', function () {
   // Formatear cédula: primera letra V, E, J, G, P seguida de números
   let val = $(this).val().toUpperCase().replace(/[^VEJGP0-9]/g, '');
@@ -1322,6 +1355,7 @@ $(document).off('input', '#inputCedulaRepartidorOrden').on('input', '#inputCedul
 
   $('#feedbackRepartidorOrden').html('');
   $('#selectRepartidorOrden').val('');
+  $('#iconRepartidorOrden').html('<i class="fi fi-rs-motorcycle text-muted"></i>').removeClass('border-danger border-success');
   $(this).removeClass('is-valid is-invalid').css({ 'border-color': '', 'background-color': '' });
 
   // Solo buscamos si tiene al menos una letra y algunos números (ej: V1234)
@@ -1819,7 +1853,7 @@ async function abrirModalPagos(idOrden) {
   if (monDolar) bsRate = parseFloat(monDolar.valor_moneda);
 
   let metodosOpt = '<option value="">Seleccione...</option>' + resMetodos.filter(m => m.status == 1).map(m => `<option value="${m.id_metodo_pago}" data-moneda="${m.necesita_moneda}" data-emisor="${m.necesita_banco_emisor}" data-receptor="${m.necesita_banco_receptor}" data-ref="${m.necesita_referencia}">${m.nombre_metodo_pago}</option>`).join('');
-  let monedasOpt = '<option value="">Seleccione...</option>' + resMonedas.filter(m => m.status == 1).map(m => `<option value="${m.id_moneda}" data-valor="${m.valor_moneda}">${m.nombre_moneda}</option>`).join('');
+  let monedasOpt = resMonedas.filter(m => m.status == 1).map(m => `<option value="${m.id_moneda}" data-valor="${m.valor_moneda}">${m.nombre_moneda}</option>`).join('');
   let bancosOpt = '<option value="">Seleccione...</option>' + (Array.isArray(resBancos) ? resBancos.filter(b => b.status == 1).map(b => `<option value="${b.id_banco}">${b.nombre_banco}</option>`).join('') : '');
 
   // Seteamos la información en el modal estático
@@ -1831,7 +1865,7 @@ async function abrirModalPagos(idOrden) {
   // Dejamos una sola fila de pago limpia y cargamos las opciones dinámicamente
   let firstRow = $('#modalPagosOrden #contenedorDetallesPago .fila-pago').first();
   firstRow.find('.btn-eliminar-pago').addClass('d-none');
-  firstRow.find('.input-monto-pago').val('0.00');
+  firstRow.find('.input-monto-pago').val('');
   firstRow.find('.input-referencia-pago').val('');
   firstRow.find('.sel-metodo-pago').html(metodosOpt).prop('selectedIndex', 0);
   firstRow.find('.sel-moneda-pago').html(monedasOpt).prop('selectedIndex', 0);
@@ -1850,7 +1884,8 @@ async function abrirModalPagos(idOrden) {
   let calcularRestanteModal = () => {
     let sumPagadoEnModal = 0;
     $('#modalPagosOrden .fila-pago').each(function () {
-      let valInput = parseFloat($(this).find('.input-monto-pago').val() || 0);
+      let rawVal = $(this).find('.input-monto-pago').val() || '0';
+      let valInput = parsearMonto(rawVal);
       let optMetodo = $(this).find('.sel-metodo-pago option:selected');
       let reqMoneda = optMetodo.data('moneda') == 1;
 
@@ -1913,7 +1948,7 @@ async function abrirModalPagos(idOrden) {
   $(document).on('click', '#btnAgregarOtroPago', function () {
     let clone = $('#modalPagosOrden .fila-pago').first().clone();
     clone.find('.btn-eliminar-pago').removeClass('d-none');
-    clone.find('.input-monto-pago').val('0.00');
+    clone.find('.input-monto-pago').val('');
     clone.find('.sel-metodo-pago').prop('selectedIndex', 0);
     clone.find('.sel-moneda-pago').prop('selectedIndex', 0);
     clone.find('.sel-banco-emisor').prop('selectedIndex', 0);
@@ -1932,28 +1967,45 @@ async function abrirModalPagos(idOrden) {
     let pagosEnvio = [];
     let valido = true;
     $('#modalPagosOrden .fila-pago').each(function () {
+      let optMetodo = $(this).find('.sel-metodo-pago option:selected');
+      let reqMoneda = optMetodo.data('moneda') == 1;
+      let reqEmisor = optMetodo.data('emisor') == 1;
+      let reqReceptor = optMetodo.data('receptor') == 1;
+      let reqRef = optMetodo.data('ref') == 1;
+
       let metodo = $(this).find('.sel-metodo-pago').val();
       let moneda = $(this).find('.sel-moneda-pago').val() || null;
       let bancoE = $(this).find('.sel-banco-emisor').val() || null;
       let bancoR = $(this).find('.sel-banco-receptor').val() || null;
       let ref = $(this).find('.input-referencia-pago').val() || null;
-      let monto = parseFloat($(this).find('.input-monto-pago').val());
+      let rawMonto = $(this).find('.input-monto-pago').val() || '0';
+      let monto = parsearMonto(rawMonto);
 
-      if (isNaN(monto) || monto <= 0 || !metodo) {
+      let filaValida = true;
+      if (!metodo || isNaN(monto) || monto <= 0) filaValida = false;
+      if (reqMoneda && !moneda) filaValida = false;
+      if (reqEmisor && !bancoE) filaValida = false;
+      if (reqReceptor && !bancoR) filaValida = false;
+      if (reqRef && !ref) filaValida = false;
+
+      if (!filaValida) {
         valido = false;
+        $(this).addClass("border-danger");
+      } else {
+        $(this).removeClass("border-danger");
+        pagosEnvio.push({
+          id_metodo_pago: metodo,
+          id_moneda: moneda,
+          id_banco_emisor: bancoE,
+          id_banco_receptor: bancoR,
+          referencia_pago: ref,
+          monto_pago: formatearMontoEnvio(monto)
+        });
       }
-      pagosEnvio.push({
-        id_metodo_pago: metodo,
-        id_moneda: moneda,
-        id_banco_emisor: bancoE,
-        id_banco_receptor: bancoR,
-        referencia_pago: ref,
-        monto_pago: monto
-      });
     });
 
     if (!valido || pagosEnvio.length === 0) {
-      Swal.fire('Atención', 'Asegúrese de ingresar montos válidos mayores a 0', 'warning');
+      Swal.fire('Atención', 'Campos faltantes o valor de moneda igual a 0', 'warning');
       return;
     }
 
@@ -1973,7 +2025,8 @@ async function abrirModalPagos(idOrden) {
         }
       }
 
-      sumEnvio += (p.monto_pago * tasaMonedaSeleccionada) / bsRate;
+      let parsedMonto = parsearMonto(p.monto_pago);
+      sumEnvio += (parsedMonto * tasaMonedaSeleccionada) / bsRate;
     });
 
     if (sumEnvio > restante + 0.01) {
@@ -2004,14 +2057,13 @@ async function abrirModalPagos(idOrden) {
     let O = window.location.origin + "/proyecto-lacruz-j/";
     let csrfToken = $('meta[name="TOKEN_CSRF"]').attr('content');
     
+    let misHeaders = new Headers(encabezadosPeticiones);
+
     $('#spinnerCarga').removeClass('d-none');
     try {
       let req = await fetch(O + 'ordenesEntregasPresupuestos', {
         method: 'POST',
-        headers: {
-          'X-TOKEN-CSRF': csrfToken,
-          'X-ES-AJAX': 'true'
-        },
+        headers: misHeaders,
         body: fd
       });
       let resp = await req.json();
@@ -2072,4 +2124,8 @@ $(document).off('click', '.btnDespacharOrden').on('click', '.btnDespacharOrden',
 });
 //#endregion [LOGICA DE ESTADOS Y PAGOS] FIN
 
-
+//Evento para validar en tiempo real y formatear moneda
+$(document).off('input blur', '#modalPagosOrden input, #modalPagosOrden select')
+$(document).on('input blur', '#modalPagosOrden input, #modalPagosOrden select', function () {
+  validarEnTiempoReal(this, 'ordenesEntregasPresupuestos');
+})

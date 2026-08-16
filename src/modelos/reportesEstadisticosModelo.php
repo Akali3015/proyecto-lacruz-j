@@ -18,6 +18,13 @@ class reportesEstadisticosModelo extends conexion {
 
     if ($info === null) return false;
 
+    if (isset($info['fecha_inicio']) && $info['fecha_inicio'] === '') {
+      unset($info['fecha_inicio']);
+    }
+    if (isset($info['fecha_fin']) && $info['fecha_fin'] === '') {
+      unset($info['fecha_fin']);
+    }
+
     $esquema = [
       'tipo' => 'arrayA',
       'propiedades' => [
@@ -42,6 +49,7 @@ class reportesEstadisticosModelo extends conexion {
     if ($v) return $v;
     return false;
   }
+
   public function obtenerDatosDashboard(array $datos) {
     $v = $this->validarReportesEstadisticos('ver reportes estadísticos', $datos);
     if ($v) return $v;
@@ -69,7 +77,7 @@ class reportesEstadisticosModelo extends conexion {
 
     return $this->obtenerDatosDashboardP($filtros);
   }
-  
+
   private function obtenerDatosDashboardP(array $filtros) {
     $this->conectar();
 
@@ -104,22 +112,22 @@ class reportesEstadisticosModelo extends conexion {
       $kpis = ['nuevosClientes' => $nuevosClientes, 'producciones' => $producciones, 'pedidosPendientes' => $pedidosPendientes];
 
       // Top Productos
-      $stmt = self::$conexion->prepare("SELECT pr.nombre_producto as nombre, SUM(pof.cantidad_producto) as total_vendido FROM productos_ordenes_entregas_presupuestos pof INNER JOIN ordenes_entregas_presupuestos o ON pof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto INNER JOIN presentaciones_productos pp ON pof.id_presentacion_producto = pp.id_presentacion_producto INNER JOIN productos pr ON pp.id_producto = pr.id_producto WHERE o.status IN (7,8) AND pof.status = 1 $fVentas GROUP BY pr.id_producto ORDER BY total_vendido DESC LIMIT 5");
+      $stmt = self::$conexion->prepare("SELECT pr.nombre_producto as nombre, SUM(pof.cantidad_producto) as total_vendido FROM productos_ordenes_entregas_presupuestos pof INNER JOIN ordenes_entregas_presupuestos o ON pof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto INNER JOIN presentaciones_productos pp ON pof.id_presentacion_producto = pp.id_presentacion_producto INNER JOIN productos pr ON pp.id_producto = pr.id_producto WHERE o.status != 2 AND pof.status = 1 $fVentas GROUP BY pr.id_producto ORDER BY total_vendido DESC LIMIT 5");
       $stmt->execute();
       $topProductos = $formatChartData($stmt->fetchAll(PDO::FETCH_ASSOC), 'nombre', 'total_vendido');
 
       // Top Servicios
-      $stmt = self::$conexion->prepare("SELECT s.nombre_servicio as nombre, COUNT(sof.id_servicio_factura) as total_vendido FROM servicios_ordenes_entregas_presupuestos sof INNER JOIN ordenes_entregas_presupuestos o ON sof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto INNER JOIN servicios s ON sof.id_servicio = s.id_servicio WHERE o.status IN (7,8) AND sof.status = 1 $fVentas GROUP BY s.id_servicio ORDER BY total_vendido DESC LIMIT 5");
+      $stmt = self::$conexion->prepare("SELECT s.nombre_servicio as nombre, COUNT(sof.id_servicio_factura) as total_vendido FROM servicios_ordenes_entregas_presupuestos sof INNER JOIN ordenes_entregas_presupuestos o ON sof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto INNER JOIN servicios s ON sof.id_servicio = s.id_servicio WHERE o.status != 2 AND sof.status = 1 $fVentas GROUP BY s.id_servicio ORDER BY total_vendido DESC LIMIT 5");
       $stmt->execute();
       $topServicios = $formatChartData($stmt->fetchAll(PDO::FETCH_ASSOC), 'nombre', 'total_vendido');
 
       // Top Clientes
-      $stmt = self::$conexion->prepare("SELECT c.razon_social_cliente as nombre, COUNT(o.id_orden_entrega_presupuesto) as total_pedidos FROM ordenes_entregas_presupuestos o INNER JOIN clientes c ON o.rif_cedula_cliente = c.rif_cedula_cliente WHERE o.status IN (7,8) $fVentas GROUP BY c.rif_cedula_cliente ORDER BY total_pedidos DESC LIMIT 5");
+      $stmt = self::$conexion->prepare("SELECT c.razon_social_cliente as nombre, COUNT(o.id_orden_entrega_presupuesto) as total_pedidos FROM ordenes_entregas_presupuestos o INNER JOIN clientes c ON o.rif_cedula_cliente = c.rif_cedula_cliente WHERE o.status != 2 $fVentas GROUP BY c.rif_cedula_cliente ORDER BY total_pedidos DESC LIMIT 5");
       $stmt->execute();
       $topClientes = $formatChartData($stmt->fetchAll(PDO::FETCH_ASSOC), 'nombre', 'total_pedidos');
 
       // Ingresos vs Egresos Mensuales
-      $stmt = self::$conexion->prepare("SELECT DATE_FORMAT(o.fecha_orden_entrega_presupuesto, '%Y-%m') as mes, COUNT(o.id_orden_entrega_presupuesto) as ingresos_cant FROM ordenes_entregas_presupuestos o WHERE o.status IN (7,8) AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY mes ORDER BY mes ASC");
+      $stmt = self::$conexion->prepare("SELECT DATE_FORMAT(o.fecha_orden_entrega_presupuesto, '%Y-%m') as mes, COUNT(o.id_orden_entrega_presupuesto) as ingresos_cant FROM ordenes_entregas_presupuestos o WHERE o.status != 2 AND o.fecha_orden_entrega_presupuesto >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY mes ORDER BY mes ASC");
       $stmt->execute();
       $ingresos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -142,10 +150,10 @@ class reportesEstadisticosModelo extends conexion {
       $ingresosEgresos = empty($meses) ? ['fechas' => [], 'ingresos' => [], 'egresos' => []] : ['fechas' => $meses, 'ingresos' => $ingresosData, 'egresos' => $egresosData];
 
       // Productos Vs Servicios
-      $stmt1 = self::$conexion->prepare("SELECT COUNT(pof.id_producto_factura) as cant FROM productos_ordenes_entregas_presupuestos pof INNER JOIN ordenes_entregas_presupuestos o ON pof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status IN (7,8) $fVentas");
+      $stmt1 = self::$conexion->prepare("SELECT COUNT(pof.id_producto_factura) as cant FROM productos_ordenes_entregas_presupuestos pof INNER JOIN ordenes_entregas_presupuestos o ON pof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status != 2 AND pof.status = 1 $fVentas");
       $stmt1->execute();
       $p = $stmt1->fetchColumn() ?: 0;
-      $stmt2 = self::$conexion->prepare("SELECT COUNT(sof.id_servicio_factura) as cant FROM servicios_ordenes_entregas_presupuestos sof INNER JOIN ordenes_entregas_presupuestos o ON sof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status IN (7,8) $fVentas");
+      $stmt2 = self::$conexion->prepare("SELECT COUNT(sof.id_servicio_factura) as cant FROM servicios_ordenes_entregas_presupuestos sof INNER JOIN ordenes_entregas_presupuestos o ON sof.id_orden_entrega_presupuesto = o.id_orden_entrega_presupuesto WHERE o.status != 2 AND sof.status = 1 $fVentas");
       $stmt2->execute();
       $s = $stmt2->fetchColumn() ?: 0;
       $productosVsServicios = ['productos' => $p, 'servicios' => $s, 'vacio' => ($p == 0 && $s == 0)];
@@ -153,7 +161,7 @@ class reportesEstadisticosModelo extends conexion {
       // Ventas por Día de la Semana
       $dias = ['Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miércoles', 'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sábado', 'Sunday' => 'Domingo'];
       $dataMap = array_fill_keys(array_values($dias), 0);
-      $stmt = self::$conexion->prepare("SELECT DAYNAME(o.fecha_orden_entrega_presupuesto) as dia_en, COUNT(o.id_orden_entrega_presupuesto) as total FROM ordenes_entregas_presupuestos o WHERE o.status IN (7,8) $fVentas GROUP BY dia_en");
+      $stmt = self::$conexion->prepare("SELECT DAYNAME(o.fecha_orden_entrega_presupuesto) as dia_en, COUNT(o.id_orden_entrega_presupuesto) as total FROM ordenes_entregas_presupuestos o WHERE o.status != 2 $fVentas GROUP BY dia_en");
       $stmt->execute();
       foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if (isset($dias[$row['dia_en']])) $dataMap[$dias[$row['dia_en']]] = (int)$row['total'];
@@ -171,10 +179,10 @@ class reportesEstadisticosModelo extends conexion {
       $historialProduccion = $formatChartData($stmt->fetchAll(PDO::FETCH_ASSOC), 'fecha', 'cantidad');
 
       // Cuentas por Cobrar
-      $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status = 5");
+      $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status IN (1, 10)");
       $stmt->execute();
       $pendientes = $stmt->fetchColumn() ?: 0;
-      $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status IN (7,8)");
+      $stmt = self::$conexion->prepare("SELECT COUNT(id_orden_entrega_presupuesto) FROM ordenes_entregas_presupuestos WHERE status IN (3, 11)");
       $stmt->execute();
       $pagadas = $stmt->fetchColumn() ?: 0;
       $cuentasPorCobrar = ['pendientes' => $pendientes, 'pagadas' => $pagadas, 'vacio' => ($pendientes == 0 && $pagadas == 0)];
@@ -185,7 +193,7 @@ class reportesEstadisticosModelo extends conexion {
       $consumoMateriasPrimas = $formatChartData($stmt->fetchAll(PDO::FETCH_ASSOC), 'nombre', 'cantidad');
 
       // Actividad Reciente
-      $stmt = self::$conexion->prepare("(SELECT 'Venta' as tipo, id_orden_entrega_presupuesto as id, c.razon_social_cliente as referencia, fecha_orden_entrega_presupuesto as fecha FROM ordenes_entregas_presupuestos o INNER JOIN clientes c ON o.rif_cedula_cliente = c.rif_cedula_cliente WHERE o.status IN (7,8) ORDER BY fecha DESC LIMIT 3) UNION ALL (SELECT 'Compra' as tipo, id_compra as id, pr.razon_social_proveedor as referencia, fecha_compra as fecha FROM compras co INNER JOIN proveedores pr ON co.rif_proveedor = pr.rif_proveedor WHERE co.status = 1 ORDER BY fecha DESC LIMIT 3) ORDER BY fecha DESC LIMIT 5");
+      $stmt = self::$conexion->prepare("(SELECT 'Venta' as tipo, id_orden_entrega_presupuesto as id, c.razon_social_cliente as referencia, fecha_orden_entrega_presupuesto as fecha FROM ordenes_entregas_presupuestos o INNER JOIN clientes c ON o.rif_cedula_cliente = c.rif_cedula_cliente WHERE o.status != 2 ORDER BY fecha DESC LIMIT 3) UNION ALL (SELECT 'Compra' as tipo, id_compra as id, pr.razon_social_proveedor as referencia, fecha_compra as fecha FROM compras co INNER JOIN proveedores pr ON co.rif_proveedor = pr.rif_proveedor WHERE co.status = 1 ORDER BY fecha DESC LIMIT 3) ORDER BY fecha DESC LIMIT 5");
       $stmt->execute();
       $actividadReciente = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 

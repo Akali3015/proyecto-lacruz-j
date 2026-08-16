@@ -4,9 +4,11 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
-use PDO;
 use src\modelos\mensajesWSModelo;
 use src\modelos\accesosModelo;
+use src\modelos\productosModelo;
+use PDO;
+
 
 class serviciosModelo extends conexion {
   private string $idServicio = '';
@@ -17,6 +19,9 @@ class serviciosModelo extends conexion {
   private array $fotoServicio = [];
   private array  $productosServicio = [];
 
+  // PÚBLICOS
+
+  
   public function validarServicios(string $permiso, array &$info = [], array $requerido = []) {
     $objAcceso = new accesosModelo();
     $v = $objAcceso->validarPermisos('servicios', $permiso);
@@ -56,11 +61,12 @@ class serviciosModelo extends conexion {
           "nombreAlerta" => "precio del servicio",
         ],
         'mostrar_ecommerce' => [
-          ...molBooleanoInt,
+          ...molBooleano,
           "nombreAlerta" => "mostrar en el ecommerce",
         ],
         'productos_servicio' => [
           'tipo' => 'array',
+          'minItems' => 0,
           'items' => [
             'tipo' => 'arrayA',
             'propiedades' => [
@@ -72,7 +78,7 @@ class serviciosModelo extends conexion {
                 "debeExistirBD" => true,
               ],
               'cantidad_producto' => [
-                ...molCantidadItem,
+                ...molPrecioFormateado,
                 "nombreAlerta" => "cantidad del producto",
               ],
             ],
@@ -91,20 +97,27 @@ class serviciosModelo extends conexion {
       $info['productos_servicio'] = array_values($info['productos_servicio']);
     }
 
+    // Convertir mostrar_ecommerce de string a bool (el form envía "1" o "0")
+    if (isset($info['mostrar_ecommerce'])) {
+      $info['mostrar_ecommerce'] = (bool) $info['mostrar_ecommerce'];
+    }
+
     $v = $this->limpiarValidar($info, $esquema);
     if ($v) return $v;
 
     return false;
   }
   public function seleccionarServicios(array $info) {
-    if (($info['id_servicio'] ?? '') != '') {
-      $respuesta = $this->validarServicios('listar', $info, ['id_servicio']);
-      if ($respuesta !== false) return $respuesta;
-      $this->idServicio = $info['id_servicio'];
-    } else {
-      $respuesta = $this->validarServicios('listar', $info, []);
-      if ($respuesta !== false) return $respuesta;
+    if (!isset($info['isInterno'])) {
+      if (($info['id_servicio'] ?? '') != '') {
+        $respuesta = $this->validarServicios('listar', $info, ['id_servicio']);
+        if ($respuesta !== false) return $respuesta;
+      } else {
+        $respuesta = $this->validarServicios('listar', $info, []);
+        if ($respuesta !== false) return $respuesta;
+      }
     }
+    $this->idServicio = $info['id_servicio'] ?? '';
     return $this->seleccionarServiciosP($info);
   }
   public function obtenerParaChatbot() {
@@ -166,6 +179,7 @@ class serviciosModelo extends conexion {
     $this->fotoServicio = $info['foto_servicio'];
     return $this->actualizarFotoServicioP();
   }
+
   public function eliminarFotoServicio(array $info) {
     $respuesta = $this->validarServicios('actualizar', $info, ['id_servicio']);
     if ($respuesta !== false) return $respuesta;
@@ -173,7 +187,18 @@ class serviciosModelo extends conexion {
     return $this->eliminarFotoServicioP();
   }
 
-  private function seleccionarServiciosP(array $info) {
+  // PRIVADOS
+
+  private function obtenerParaChatbotP() {
+    $resultado = $this->seleccionarDatos2([
+      'campos' => 'nombre_servicio, precio_servicio',
+      'tabla' => 'servicios',
+      'WHERE' => ['status' => 1]
+    ]);
+    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
+  }
+ 
+  private function seleccionarServiciosP(){
     if ($this->idServicio == null || $this->idServicio == "") {
       $resultado = $this->seleccionarDatos2([
         'campos' => '*',
@@ -207,26 +232,32 @@ class serviciosModelo extends conexion {
 
       // Productos del servicio (materias primas)
       $resultado = $this->seleccionarDatos2([
-        'campos' => 'id_producto, cantidad_producto',
-        'tabla' => 'productos_servicios',
+        'campos' => 'ps.id_producto, ps.cantidad_producto',
+        'tabla' => 'productos_servicios as ps',
         'WHERE' => [
-          "id_servicio" => $this->idServicio
+          "ps.id_servicio" => $this->idServicio
         ]
       ]);
-      $productosServicio = $resultado->fetchAll(PDO::FETCH_ASSOC);
+      $productosServicioRaw = $resultado->fetchAll(PDO::FETCH_ASSOC);
+
+      $productosServicio = [];
+      $objProductos = new productosModelo();
+      foreach ($productosServicioRaw as $ps) {
+        $infoProd = $objProductos->seleccionarProductos([
+          'id_producto' => $ps['id_producto'],
+          'isInterno' => true
+        ]);
+        if ($infoProd && !isset($infoProd['tipo'])) {
+          $ps['nombre_producto'] = $infoProd['nombre_producto'] ?? '';
+          $ps['nombre_unidad_medida'] = $infoProd['nombre_unidad_medida'] ?? '';
+          $productosServicio[] = $ps;
+        }
+      }
       $servicio['detallesExtra'] = [
         'productos_servicio' => $productosServicio,
       ];
       return $servicio;
     }
-  }
-  private function obtenerParaChatbotP() {
-    $resultado = $this->seleccionarDatos2([
-      'campos' => 'nombre_servicio, precio_servicio',
-      'tabla' => 'servicios',
-      'WHERE' => ['status' => 1]
-    ]);
-    return ($resultado && $resultado->rowCount() > 0) ? $resultado->fetchAll(\PDO::FETCH_ASSOC) : [];
   }
   private function registrarServicioP() {
     $funcionError = function ($objBi) {
@@ -318,7 +349,7 @@ class serviciosModelo extends conexion {
     $objBit->registrarBitacora([
       'modulo' => 'servicios',
       'accion' => 'Registrar servicio: ' . $this->nombreServicio,
-      'resultado' => 'exitoso',
+      'resultado' => 'Éxito',
       'nuevo' => $datosNuevos,
     ]);
     $this->commit();
@@ -375,15 +406,31 @@ class serviciosModelo extends conexion {
 
     $servicioActual = $this->seleccionarServicios(['id_servicio' => $this->idServicio]);
 
+    $datosGenerales = [
+      "id_unidad_medida" => $this->idUnidadMedida,
+      "nombre_servicio" => $this->nombreServicio,
+      "precio_servicio" => $this->precioServicio,
+      "mostrar_ecommerce" => $this->mostrarEcommerce,
+    ];
+
+    // Foto
+    if ($this->fotoServicio != '') {
+      $nombreImagen = $this->Imagenes_Reg(
+        'servicios',
+        $this->fotoServicio,
+        'servicios'
+      );
+      $datosGenerales["foto_servicio"] = $nombreImagen;
+
+      if (($servicioActual['foto_servicio'] ?? '') != '') {
+        $this->Imagenes_Eli2('servicios', $servicioActual['foto_servicio']);
+      }
+    }
+
     // Datos generales
     $resultado = $this->actualizarDatos2([
       "tabla" => "servicios",
-      "datos" => [
-        "id_unidad_medida" => $this->idUnidadMedida,
-        "nombre_servicio" => $this->nombreServicio,
-        "precio_servicio" => $this->precioServicio,
-        "mostrar_ecommerce" => $this->mostrarEcommerce,
-      ],
+      "datos" => $datosGenerales,
       "WHERE" => [
         "id_servicio" => $this->idServicio,
       ]
@@ -440,19 +487,26 @@ class serviciosModelo extends conexion {
       'productos_servicio' => $this->productosServicio,
     ];
 
+    $productosServicioViejos = array_map(function($p) {
+      return [
+        'id_producto' => (string)$p['id_producto'],
+        'cantidad_producto' => (string)$p['cantidad_producto']
+      ];
+    }, $servicioActual['detallesExtra']['productos_servicio'] ?? []);
+
     $datosViejos = [
       'id_unidad_medida' => $servicioActual['id_unidad_medida'] ?? '',
       'nombre_servicio' => $servicioActual['nombre_servicio'] ?? '',
       'precio_servicio' => $servicioActual['precio_servicio'] ?? 0,
       'mostrar_ecommerce' => $servicioActual['mostrar_ecommerce'] ?? 0,
-      'productos_servicio' => $servicioActual['detallesExtra']['productos_servicio'] ?? [],
+      'productos_servicio' => $productosServicioViejos,
     ];
 
     $bitacoraModelo = new bitacoraModelo();
     $resultado = $bitacoraModelo->registrarBitacora([
       'modulo' => 'servicios',
       'accion' => 'Actualizar servicio: ' . $this->nombreServicio,
-      'resultado' => 'exitoso',
+      'resultado' => 'Éxito',
       'viejo' => $datosViejos,
       'nuevo' => $datosNuevos,
     ]);
@@ -496,6 +550,10 @@ class serviciosModelo extends conexion {
           'rol' => 'ADMINISTRADOR'
         ],
         'cuerpo' => [
+          [
+            'accion' => "borrarDataModuloSS",
+            'modulo' => 'servicios'
+          ],
           [
             'accion' => "actDT",
             'modulo' => 'servicios'
@@ -572,7 +630,7 @@ class serviciosModelo extends conexion {
     $resBit = $objBi->registrarBitacora([
       'modulo' => 'servicios',
       'accion' => 'Eliminar servicio: ' . ($servicioActual['nombre_servicio'] ?? $this->idServicio),
-      'resultado' => 'exitoso',
+      'resultado' => 'Éxito',
       'viejo' => $datosViejos,
     ]);
     if ($resBit) {

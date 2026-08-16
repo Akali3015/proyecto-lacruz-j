@@ -2,7 +2,7 @@
 import {
   enviarFormulario, eliminarRegistro, obtenerDatosRegistro,
   listarDataTable, cargarInputsActualizarQNR, extraerDatosAjax,
-  pedirDatosAjax, instanciasDatatable, validarEnTiempoReal
+  pedirDatosAjax, validarEnTiempoReal
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
 import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
@@ -14,7 +14,21 @@ async function renderizarPresentaciones() {
     modulo: "presentaciones",
     datosPe: { accion: "listar" },
   });
-  let html = "";
+
+  // Extraer unidades de medida únicas para el filtro
+  let unidades = [...new Set(presentacionesBD.map(p => p.nombre_unidad_medida))];
+  
+  let htmlFilter = `
+    <div class="col-12 mb-3">
+      <label class="form-label text-muted small fw-bold">Filtrar Presentaciones por Categoría (Unidad)</label>
+      <select class="form-select select-filtro-presentacion">
+        <option value="todas">Mostrar Todas</option>
+        ${unidades.map(u => `<option value="${u}">${u}</option>`).join('')}
+      </select>
+    </div>
+  `;
+
+  let html = htmlFilter;
   for (let i = 0; i < presentacionesBD.length; i++) {
     let {
       id_presentacion,
@@ -23,15 +37,15 @@ async function renderizarPresentaciones() {
       nombre_unidad_medida
     } = presentacionesBD[i]
     html += `
-      <div class="filaPresentacion col-lg-4 mb-3">
-        <div class="form-check card-presentacion p-3 border rounded">
+      <div class="filaPresentacion col-lg-4 mb-3" data-unidad="${nombre_unidad_medida}">
+        <div class="form-check card-presentacion p-3 border rounded cursor-pointer transition-all">
           <input 
-            name="presentaciones-${i}"
+            name="presentaciones-${i}-id_presentacion"
             class="checkbox-presentacion d-none" 
             type="checkbox" 
             value="${id_presentacion}"
           >
-          <div class="form-check-label w-100">
+          <div class="form-check-label w-100" style="cursor:pointer;">
             <div class="d-flex justify-content-between align-items-center">
               <strong>${nombre_presentacion}</strong>
               <span class="badge bg-info">${cantidad_pmp} ${nombre_unidad_medida}</span>
@@ -42,18 +56,34 @@ async function renderizarPresentaciones() {
     `;
   }
   $(".contenedor-presentaciones").empty().append(html);
+
+  // Agregar evento de filtrado
+  $(document).off('change', '.select-filtro-presentacion');
+  $(document).on('change', '.select-filtro-presentacion', function() {
+    let val = $(this).val();
+    let contenedor = $(this).closest('.contenedor-presentaciones');
+    if(val === 'todas') {
+      contenedor.find('.filaPresentacion').show();
+    } else {
+      contenedor.find('.filaPresentacion').hide();
+      contenedor.find(`.filaPresentacion[data-unidad="${val}"]`).show();
+    }
+  });
 }
+
+
 function habilitarDeshabilitarPresentacion(cambio = null) {
   let card = $(this);
   let checkBox = card.find('.checkbox-presentacion')
   if (cambio) {
     if (cambio == 'habilitar') {
-      checkBox.prop('checked', false);
-      card.removeClass('bg-light border-primary')
-    } else {
       checkBox.prop('checked', true);
       card.addClass('bg-light border-primary')
+    } else {
+      checkBox.prop('checked', false);
+      card.removeClass('bg-light border-primary')
     }
+    return;
   }
   card.toggleClass("bg-light border-primary")
   checkBox.prop("checked", function (i, val) {
@@ -166,6 +196,15 @@ $(document).on("click", ".btn-deseleccionar-todas", function (e) {
 $(document).off('submit', '.formularioAjax');
 $(document).on('submit', '.formularioAjax', async function (e) {
   e.preventDefault();
+  
+  let presentaciones = [];
+  $(this).find('.checkbox-presentacion:checked').each(function() {
+    presentaciones.push({ id_presentacion: $(this).val() });
+  });
+
+  $(this).find('input[name="presentaciones"]').remove();
+  $(this).append(`<input type="hidden" name="presentaciones" value='${JSON.stringify(presentaciones)}'>`);
+
   let resultado = await enviarFormulario({
     'formulario': this,
     'modulo': 'materiasPrimas',
@@ -206,17 +245,19 @@ $(document).on('click', '.botonEditar', async function (e) {
   console.log(infoCompleta);
   cargarInputsActualizarQNR.call(modal.find('form'));
 
-  $(modal).find('.card-presentacion').each((i, card) => {
-    let idPre = $(card).find('.checkbox-presentacion').val();
-    let idBuscado = infoCompleta.presentaciones.find(p => {
-      return p.id_presentacion == idPre
-    })
-    if (idBuscado) {
-      habilitarDeshabilitarPresentacion.call(card, 'habilitar');
-    } else {
-      habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
-    }
-  })
+  const contenedorPresentaciones = modal.find(".contenedor-presentaciones");
+  modal.find(".btn-deseleccionar-todas").trigger('click');
+  
+  if(infoCompleta.presentaciones && Array.isArray(infoCompleta.presentaciones)) {
+    infoCompleta.presentaciones.forEach(pres => {
+      let card = contenedorPresentaciones
+        .find(`.checkbox-presentacion[value="${pres.id_presentacion}"]`)
+        .closest('.card-presentacion');
+      if (card.length > 0) {
+        habilitarDeshabilitarPresentacion.call(card, 'habilitar');
+      }
+    });
+  }
 
 });
 

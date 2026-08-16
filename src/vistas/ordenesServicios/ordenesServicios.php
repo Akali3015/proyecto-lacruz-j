@@ -28,11 +28,6 @@ echo $componente->listaDataTable($instruccionesLista);
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="tab-productos-orden" data-bs-toggle="tab" data-bs-target="#productosOrden" type="button" role="tab">
-                                    <i class="fi fi-rs-box me-1"></i> Productos Requeridos
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="tab-cliente-orden" data-bs-toggle="tab" data-bs-target="#clienteOrden" type="button" role="tab">
                                     <i class="fi fi-rs-user me-1"></i> Datos del Cliente
                                 </button>
@@ -80,23 +75,6 @@ echo $componente->listaDataTable($instruccionesLista);
                                     <label class="fw-bold text-muted">Estado:</label>
                                     <span class="badge status_badge_orden fs-6 p-2">-</span>
                                 </div>
-                            </div>
-                        </div>
-                      
-                        <div class="tab-pane fade" id="productosOrden" role="tabpanel">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover tablaProductosRequeridos">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad por Servicio</th>
-                                            <th>Cantidad Total Necesaria</th>
-                                            <th>Stock Actual</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="cuerpoProductosRequeridos"></tbody>
-                                </table>
                             </div>
                         </div>
                         

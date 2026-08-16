@@ -133,7 +133,7 @@ echo $componente->listaDataTable($instruccionesLista);
       <div class="row align-items-center">
         <div class="col-md-5">
           <select class="form-select form-select-sm selectProductos"
-            name="productos-[INDICE]-id_producto"
+            name="productos[[INDICE]][id_producto]"
             required>
             <option value="">Seleccione Producto</option>
           </select>
@@ -142,7 +142,7 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="col-md-3">
           <input type="text"
             class="form-control form-control-sm bg-light unidad-medida-texto"
-            name="productos-[INDICE]-nombre_unidad_medida"
+            name="productos[[INDICE]][nombre_unidad_medida]"
             placeholder="Seleccione un producto"
             readonly
             disabled>
@@ -151,7 +151,7 @@ echo $componente->listaDataTable($instruccionesLista);
         <div class="col-md-2">
           <input type="number"
             class="form-control form-control-sm cantidad-producto"
-            name="productos-[INDICE]-cantidad_producida"
+            name="productos[[INDICE]][cantidad_producida]"
             min="0.01"
             step="0.01"
             value="1"

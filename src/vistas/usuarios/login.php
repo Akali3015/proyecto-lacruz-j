@@ -284,6 +284,7 @@
           <div class="form-group mb-3">
             <label for="codigo_cedula_usuario" class="form-label">Método de recuperación</label>
             <select class="form-control selectMetodoRecuperacion" name="metodo_recuperacion" required>
+              <option value="1">Código SMS</option>
               <option value="2">Correo Electrónico</option>
               <option value="3">Preguntas de Seguridad</option>
             </select>

@@ -4,82 +4,25 @@ namespace src\modelos;
 
 use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
-use PDO;
+use src\modelos\metodosPagoModelo; 
 use src\modelos\mensajesWSModelo;
 use src\modelos\accesosModelo;
-
+use PDO;
 class pagosModelo extends conexion {
 
   private string $idPago = '';
   private string $idOrden = '';
   private array $pagos = [];
-  private string $fechaPago = '';
+  private bool $noCommit = false;
+  
 
   // -------------------------------------------------------------------------
   // MÉTODOS PÚBLICOS
   // -------------------------------------------------------------------------
 
-  public function listarPagos(array $info) {
+public function validarPagos(string $permiso, array &$info = [], array $requerido = []) {
     $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'listar');
-    if ($v) return $v;
-    return $this->listarPagosP();
-  }
-
-  public function listarOEPs(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'registrar');
-    if ($v) return $v;
-    return $this->listarOEPsP();
-  }
-
-  public function obtenerDetallePago(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'ver');
-    if ($v) return $v;
-
-    $this->idPago = $info['id_pago'] ?? '';
-    if (empty($this->idPago)) return ['tipo' => 'simple', 'icono' => 'error', 'titulo' => 'Error', 'texto' => 'ID de pago no proporcionado'];
-
-    return $this->obtenerDetallePagoP();
-  }
-
-  public function registrarPago(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'registrar');
-    if ($v) return $v;
-
-    $esquema = [
-      'tipo' => 'arrayA',
-      'propiedades' => [
-        'id_orden_entrega_presupuesto' => [
-          ...molIdSeguro,
-          "nombreAlerta" => "código de OEP",
-          "nombreBD" => "id_orden_entrega_presupuesto",
-          "tablaBD" => "ordenes_entregas_presupuestos",
-          "debeExistirBD" => true,
-        ],
-      ],
-      'requerido' => ['id_orden_entrega_presupuesto']
-    ];
-
-    $v = $this->limpiarValidar($info, $esquema);
-    if (isset($v['error'])) return $v['error'];
-
-    $pagos = isset($info['pagos']) && is_string($info['pagos']) ? json_decode($info['pagos'], true) : ($info['pagos'] ?? []);
-    if (empty($pagos)) {
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => 'Debe ingresar al menos un detalle de pago.', 'icono' => 'warning'];
-    }
-
-    $this->idOrden = $info['id_orden_entrega_presupuesto'];
-    $this->pagos   = $pagos;
-
-    return $this->registrarPagoP();
-  }
-
-  public function actualizarPago(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'actualizar');
+    $v = $objAcceso->validarPermisos('pagos', $permiso);
     if ($v) return $v;
 
     $esquema = [
@@ -99,60 +42,6 @@ class pagosModelo extends conexion {
           "tablaBD" => "ordenes_entregas_presupuestos",
           "debeExistirBD" => true,
         ],
-      ],
-      'requerido' => ['id_pago', 'id_orden_entrega_presupuesto']
-    ];
-
-    $v = $this->limpiarValidar($info, $esquema);
-    if (isset($v['error'])) return $v['error'];
-
-    $pagos = isset($info['pagos']) && is_string($info['pagos']) ? json_decode($info['pagos'], true) : ($info['pagos'] ?? []);
-    if (empty($pagos)) {
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => 'Debe ingresar al menos un detalle de pago.', 'icono' => 'warning'];
-    }
-
-    $this->idPago = $info['id_pago'];
-    $this->idOrden = $info['id_orden_entrega_presupuesto'];
-    $this->pagos   = $pagos;
-
-    return $this->actualizarPagoP();
-  }
-
-  public function eliminarPago(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'eliminar');
-    if ($v) return $v;
-
-    $esquema = [
-      'tipo' => 'arrayA',
-      'propiedades' => [
-        'id_pago' => [
-          ...molIdSeguro,
-          "nombreAlerta" => "código del pago",
-          "nombreBD" => "id_pago",
-          "tablaBD" => "pagos",
-          "debeExistirBD" => true,
-        ],
-      ],
-      'requerido' => ['id_pago']
-    ];
-
-    $v = $this->limpiarValidar($info, $esquema);
-    if (isset($v['error'])) return $v['error'];
-
-    $this->idPago = $info['id_pago'];
-
-    return $this->eliminarPagoP();
-  }
-
-  public function eliminarComprobante(array $info) {
-    $objAcceso = new accesosModelo();
-    $v = $objAcceso->validarPermisos('pagos', 'actualizar');
-    if ($v) return $v;
-
-    $esquema = [
-      'tipo' => 'arrayA',
-      'propiedades' => [
         'id_comprobante_pago' => [
           ...molId,
           "nombreAlerta" => "ID del comprobante",
@@ -160,21 +49,191 @@ class pagosModelo extends conexion {
           "tablaBD" => "comprobantes_pagos",
           "debeExistirBD" => true,
         ],
+        'pagos' => [
+          'tipo' => 'array',
+          'items' => [
+            'tipo' => 'arrayA',
+            'propiedades' => [
+              'monto_pago' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "monto del pago",
+                "minL" => minRegexPrecio,
+                "maxL" => maxRegexPrecio,
+                "regex" => regexPrecio,
+                "cFloat" => true,
+              ],
+              'id_moneda' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_moneda",
+                "nombreAlerta" => "id de la moneda",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "monedas",
+                "debeExistirBD" => true,
+                'funcionVal' => function ($valor, $contexto) {
+                  $idMetodo = $contexto['padre']['id_metodo_pago'] ?? '';
+                  if ($idMetodo === '') return false;
+                  if (!isset($contexto['cache']['metodos_pago'])) {
+                    $objMP = new metodosPagoModelo();
+                    $contexto['cache']['metodos_pago'] = $objMP->seleccionarMetodosPagos(['tipoConsulta' => 'indexadosPorId']);
+                  }
+                  $metodos = $contexto['cache']['metodos_pago'];
+                  return (isset($metodos[$idMetodo]) && $metodos[$idMetodo]['necesita_moneda'] == 1);
+                }
+              ],
+              'id_metodo_pago' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_metodo_pago",
+                "nombreAlerta" => "id del método de pago",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "metodos_pagos",
+                "debeExistirBD" => true,
+              ],
+              'referencia_pago' => [
+                'tipo' => 'string',
+                "nombreAlerta" => "referencia del pago",
+                "minL" => minRegexCantidadItem,
+                "maxL" => maxRegexCantidadItem,
+                "regex" => regexCantidadItem,
+                'funcionVal' => function ($valor, $contexto) {
+                  $idMetodo = $contexto['padre']['id_metodo_pago'] ?? '';
+                  if ($idMetodo === '') return false;
+
+                  if (!isset($contexto['cache']['metodos_pago'])) {
+                    $objMP = new metodosPagoModelo();
+                    $contexto['cache']['metodos_pago'] = $objMP->seleccionarMetodosPagos(['tipoConsulta' => 'indexadosPorId']);
+                  }
+                  $metodos = $contexto['cache']['metodos_pago'];
+                  return (isset($metodos[$idMetodo]) && $metodos[$idMetodo]['necesita_referencia'] == 1);
+                },
+              ],
+              'id_banco_emisor' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_banco",
+                "nombreAlerta" => "banco emisor",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "bancos",
+                "debeExistirBD" => true,
+                'funcionVal' => function ($valor, $contexto) {
+                  $idMetodo = $contexto['padre']['id_metodo_pago'] ?? '';
+                  if ($idMetodo === '') return false;
+                  if (!isset($contexto['cache']['metodos_pago'])) {
+                    $objMP = new metodosPagoModelo();
+                    $contexto['cache']['metodos_pago'] = $objMP->seleccionarMetodosPagos(['tipoConsulta' => 'indexadosPorId']);
+                  }
+                  $metodos = $contexto['cache']['metodos_pago'];
+                  return (isset($metodos[$idMetodo]) && $metodos[$idMetodo]['necesita_banco_emisor'] == 1);
+                }
+              ],
+              'id_banco_receptor' => [
+                'tipo' => 'string',
+                "nombreBD" => "id_banco",
+                "nombreAlerta" => "banco receptor",
+                "minL" => minRegexId,
+                "maxL" => maxRegexId,
+                "regex" => regexId,
+                "tablaBD" => "bancos",
+                "debeExistirBD" => true,
+                'funcionVal' => function ($valor, $contexto) {
+                  $idMetodo = $contexto['padre']['id_metodo_pago'] ?? '';
+                  if ($idMetodo === '') return false;
+                  if (!isset($contexto['cache']['metodos_pago'])) {
+                    $objMP = new metodosPagoModelo();
+                    $contexto['cache']['metodos_pago'] = $objMP->seleccionarMetodosPagos(['tipoConsulta' => 'indexadosPorId']);
+                  }
+                  $metodos = $contexto['cache']['metodos_pago'];
+                  return (isset($metodos[$idMetodo]) && $metodos[$idMetodo]['necesita_banco_receptor'] == 1);
+                }
+              ],
+            ],
+            'requerido' => ['monto_pago', 'id_metodo_pago']
+          ],
+          'minItems' => 1,
+        ]
       ],
-      'requerido' => ['id_comprobante_pago']
+      'requerido' => $requerido
     ];
 
+    if (isset($info['pagos']) && is_string($info['pagos'])) {
+      $info['pagos'] = json_decode($info['pagos'], true) ?: [];
+    }
+    if (isset($info['pagos']) && is_array($info['pagos'])) {
+      $info['pagos'] = array_values($info['pagos']);
+    }
+
     $v = $this->limpiarValidar($info, $esquema);
-    if (isset($v['error'])) return $v['error'];
+    if ($v) return $v;
+
+    return false;
+}
+
+public function listarPagos(array $info) {
+    $v = $this->validarPagos('listar', $info, []);
+    if ($v) return $v;
+    return $this->listarPagosP();
+}
+
+public function listarOEPs(array $info) {
+    $v = $this->validarPagos('registrar', $info, []);
+    if ($v) return $v;
+    return $this->listarOEPsP();
+}
+
+public function obtenerDetallePago(array $info) {
+    $v = $this->validarPagos('ver', $info, ['id_pago']);
+    if ($v) return $v;
+
+    $this->idPago = $info['id_pago'];
+    return $this->obtenerDetallePagoP();
+}
+
+public function registrarPago(array $info) {
+    $v = $this->validarPagos('registrar', $info, ['id_orden_entrega_presupuesto', 'pagos']);
+    if ($v) return $v;
+
+    $this->idOrden = $info['id_orden_entrega_presupuesto'];
+    $this->pagos   = $info['pagos'];
+    $this->noCommit = isset($info['noCommit']) ? (bool)$info['noCommit'] : false;
+
+    return $this->registrarPagoP();
+}
+
+public function actualizarPago(array $info) {
+    $v = $this->validarPagos('actualizar', $info, ['id_pago', 'id_orden_entrega_presupuesto', 'pagos']);
+    if ($v) return $v;
+
+    $this->idPago = $info['id_pago'];
+    $this->idOrden = $info['id_orden_entrega_presupuesto'];
+    $this->pagos   = $info['pagos'];
+
+    return $this->actualizarPagoP();
+}
+
+public function eliminarPago(array $info) {
+    $v = $this->validarPagos('eliminar', $info, ['id_pago']);
+    if ($v) return $v;
+
+    $this->idPago = $info['id_pago'];
+    return $this->eliminarPagoP();
+}
+
+public function eliminarComprobante(array $info) {
+    $v = $this->validarPagos('actualizar', $info, ['id_comprobante_pago']);
+    if ($v) return $v;
 
     return $this->eliminarComprobanteP($info['id_comprobante_pago']);
-  }
+}
 
   // -------------------------------------------------------------------------
   // MÉTODOS PRIVADOS
   // -------------------------------------------------------------------------
 
-  private function listarPagosP() {
+private function listarPagosP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => "
         p.id_pago,
@@ -182,10 +241,8 @@ class pagosModelo extends conexion {
         p.fecha_pago,
         p.status,
         c.razon_social_cliente AS CLIENTE,
-        (SELECT COALESCE(SUM(
-           CASE WHEN mo.nombre_moneda = 'BÓLIVAR' OR mo.nombre_moneda = 'BS' 
-                THEN dp.monto_pago / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR')) 
-                ELSE dp.monto_pago END
+         (SELECT COALESCE(SUM(
+           (dp.monto_pago * mo.valor_moneda) / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR'))
          ), 0) 
          FROM detalles_pagos dp 
          JOIN monedas mo ON dp.id_moneda=mo.id_moneda 
@@ -202,10 +259,11 @@ class pagosModelo extends conexion {
     ]);
 
     return $resultado->fetchAll(PDO::FETCH_ASSOC);
-  }
+}
 
-  private function listarOEPsP() {
-    // Solo OEPs que no estén anuladas ni "Pagadas y Despachadas" ni "Procesada y Pagada" (Si están totalmente pagadas, no deberían salir acá por defecto, o sí, dependiendo de la regla, pero las listamos todas las que necesiten abonos)
+private function listarOEPsP() {
+    // Solo OEPs que no estén anuladas ni "Pagadas y Despachadas" ni "Procesada y Pagada" (Si están totalmente pagadas, no deberían salir acá por defecto,
+    // o sí, dependiendo de la regla, pero las listamos todas las que necesiten abonos)
     $resultado = $this->seleccionarDatos2([
       'campos' => "
         f.id_orden_entrega_presupuesto,
@@ -236,9 +294,7 @@ class pagosModelo extends conexion {
          LEFT JOIN latitudes_direcciones lat ON dir.id_latitud_direccion=lat.id_latitud_direccion
          WHERE d.id_orden_entrega_presupuesto = f.id_orden_entrega_presupuesto AND d.status = 1) AS sub_del,
         (SELECT COALESCE(SUM(
-           CASE WHEN mo.nombre_moneda = 'BÓLIVAR' OR mo.nombre_moneda = 'BS' 
-                THEN dp.monto_pago / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR')) 
-                ELSE dp.monto_pago END
+           (dp.monto_pago * mo.valor_moneda) / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR'))
          ), 0) 
          FROM pagos pa 
          JOIN detalles_pagos dp ON pa.id_pago=dp.id_pago 
@@ -276,9 +332,9 @@ class pagosModelo extends conexion {
       }
     }
     return $ordenesActivas;
-  }
+}
 
-  private function obtenerDetallePagoP() {
+private function obtenerDetallePagoP() {
     $resultado = $this->seleccionarDatos2([
       'campos' => "
         p.id_pago, p.id_orden_entrega_presupuesto, p.fecha_pago,
@@ -302,10 +358,8 @@ class pagosModelo extends conexion {
          JOIN rutas r ON dir.id_ruta=r.id_ruta 
          LEFT JOIN latitudes_direcciones lat ON dir.id_latitud_direccion=lat.id_latitud_direccion
          WHERE d.id_orden_entrega_presupuesto = p.id_orden_entrega_presupuesto AND d.status = 1) AS sub_del,
-        (SELECT COALESCE(SUM(
-           CASE WHEN mo.nombre_moneda = 'BÓLIVAR' OR mo.nombre_moneda = 'BS' 
-                THEN dp.monto_pago / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR')) 
-                ELSE dp.monto_pago END
+         (SELECT COALESCE(SUM(
+           (dp.monto_pago * mo.valor_moneda) / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR'))
          ), 0) 
          FROM pagos pa 
          JOIN detalles_pagos dp ON pa.id_pago=dp.id_pago 
@@ -361,323 +415,648 @@ class pagosModelo extends conexion {
     $pagoInfo['comprobantes'] = $comprobantes;
 
     return $pagoInfo;
-  }
+}
 
-  private function registrarPagoP() {
+private function registrarPagoP() {
     $objBitacora = new bitacoraModelo();
 
     try {
-      $idPago = $this->generarCodSeg([
-        'tablaBD' => 'pagos',
-        'prefijo' => 'PAG',
-        'campoID' => 'id_pago',
-      ]);
-
-      $fechaPago = $this->FechaHora_Sel('fecha_hora_BD');
-
-      $idPagoReg = $this->guardarDatos2([
-        'tabla' => 'pagos',
-        'datos' => [
-          'id_pago'    => $idPago,
-          'id_orden_entrega_presupuesto' => $this->idOrden,
-          'fecha_pago' => $fechaPago,
-          'status'     => 1
-        ]
-      ]);
-
-      if (!$idPagoReg) {
-        throw new \Exception("No se pudo registrar el pago principal.");
-      }
-
-      $stmtMo = $this->conectar()->query("SELECT id_moneda FROM monedas WHERE valor_moneda = 1 LIMIT 1");
-      $mo = $stmtMo->fetch(PDO::FETCH_ASSOC);
-      $idMonedaBolivar = $mo ? $mo['id_moneda'] : 2;
-
-      foreach ($this->pagos as $pago) {
-        $idMetodo = $pago['id_metodo_pago'] ?? '';
-        $idMoneda = $pago['id_moneda'] ?? '';
-        $monto    = floatval(str_replace(['.', ','], ['', '.'], $pago['monto_pago'] ?? 0));
-
-        if (empty($idMoneda)) $idMoneda = $idMonedaBolivar;
-
-        if (empty($idMetodo) || $monto <= 0) {
-          throw new \Exception("Datos de pago inválidos.");
-        }
-
-        $idDetalleReg = $this->guardarDatos2([
-          'tabla' => 'detalles_pagos',
-          'datos' => [
-            'id_pago'        => $idPago,
-            'id_metodo_pago' => $idMetodo,
-            'id_moneda'      => $idMoneda,
-            'monto_pago'     => $monto,
-            'status'         => 1
-          ]
+        $idPago = $this->generarCodSeg([
+            'tablaBD' => 'pagos',
+            'prefijo' => 'PAG',
+            'campoID' => 'id_pago',
         ]);
 
-        if (!$idDetalleReg) {
-          throw new \Exception("No se pudo registrar el detalle de pago.");
+        $fechaPago = $this->FechaHora_Sel('fecha_hora_BD');
+
+        $idPagoReg = $this->guardarDatos2([
+            'tabla' => 'pagos',
+            'datos' => [
+                'id_pago'    => $idPago,
+                'id_orden_entrega_presupuesto' => $this->idOrden,
+                'fecha_pago' => $fechaPago,
+                'status'     => 1
+            ]
+        ]);
+
+        // Validamos si no se pudo registrar el pago principal
+        if (!$idPagoReg) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'pagos',
+                'accion'    => 'Registrar Pago',
+                'resultado' => 'fallido',
+                'commit'    => true
+            ]);
+
+            if (!$this->noCommit) {
+                $this->rollback();
+            }
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error',
+                'texto'  => 'No se ha podido registrar el pago',
+                'icono'  => 'error'
+            ];
         }
 
-        if (($pago['id_banco_emisor'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'bancos_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'id_banco' => $pago['id_banco_emisor'], 'es_emisor' => 1]
-          ]);
-        }
-        if (($pago['id_banco_receptor'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'bancos_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'id_banco' => $pago['id_banco_receptor'], 'es_emisor' => 0]
-          ]);
-        }
-        if (($pago['referencia_pago'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'referencias_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'referencia_pago' => $pago['referencia_pago']]
-          ]);
-        }
-      }
+        $stmtMo = $this->conectar()->query("SELECT id_moneda FROM monedas WHERE valor_moneda = 1 LIMIT 1");
+        $mo = $stmtMo->fetch(PDO::FETCH_ASSOC);
+        $idMonedaBolivar = $mo ? $mo['id_moneda'] : 2;
 
-      // Procesar Comprobantes
-      if (isset($_FILES['comprobantes']) && !empty($_FILES['comprobantes']['name'][0])) {
-        $dirComprobantes = DIR_FOTOS . "comprobantes_pagos/";
-        if (!is_dir($dirComprobantes)) mkdir($dirComprobantes, 0777, true);
+        foreach ($this->pagos as $pago) {
+            $idMetodo = $pago['id_metodo_pago'] ?? '';
+            $idMoneda = $pago['id_moneda'] ?? '';
+
+            $monto = (float)($pago['monto_pago'] ?? 0);
+
+            if (empty($idMoneda)) $idMoneda = $idMonedaBolivar;
+
+            // Validamos si hay datos de pago invalidos
+            if (empty($idMetodo) || $monto <= 0) {
+                $objBitacora->registrarBitacora([
+                    'modulo'    => 'pagos',
+                    'accion'    => 'Registrar Pago',
+                    'resultado' => 'fallido',
+                    'commit'    => true
+                ]);
+
+                if (!$this->noCommit) {
+                    $this->rollback();
+                }
+
+                return [
+                    'tipo'   => 'simple',
+                    'titulo' => 'Error',
+                    'texto'  => 'No se ha podido registrar el pago',
+                    'icono'  => 'error'
+                ];
+            }
+
+            $idDetalleReg = $this->guardarDatos2([
+                'tabla' => 'detalles_pagos',
+                'datos' => [
+                    'id_pago'        => $idPago,
+                    'id_metodo_pago' => $idMetodo,
+                    'id_moneda'      => $idMoneda,
+                    'monto_pago'     => $monto,
+                    'status'         => 1
+                ]
+            ]);
+
+            // Validamos si no se pudo registrar el detalle de pago
+            if (!$idDetalleReg) {
+                $objBitacora->registrarBitacora([
+                    'modulo'    => 'pagos',
+                    'accion'    => 'Registrar Pago',
+                    'resultado' => 'fallido',
+                    'commit'    => true
+                ]);
+
+                if (!$this->noCommit) {
+                    $this->rollback();
+                }
+
+                return [
+                    'tipo'   => 'simple',
+                    'titulo' => 'Error',
+                    'texto'  => 'No se ha podido registrar el pago',
+                    'icono'  => 'error'
+                ];
+            }
+
+            if (($pago['id_banco_emisor'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'bancos_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'id_banco' => $pago['id_banco_emisor'],
+                        'es_emisor' => 1
+                    ]
+                ]);
+            }
+            if (($pago['id_banco_receptor'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'bancos_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'id_banco' => $pago['id_banco_receptor'],
+                        'es_emisor' => 0
+                    ]
+                ]);
+            }
+            if (($pago['referencia_pago'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'referencias_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'referencia_pago' => $pago['referencia_pago']
+                    ]
+                ]);
+            }
+        }
+
+        // Procesar Comprobantes
+        if (isset($_FILES['comprobantes']) && !empty($_FILES['comprobantes']['name'][0])) {
+            $dirComprobantes = DIR_FOTOS . "comprobantes_pagos/";
+            if (!is_dir($dirComprobantes)) mkdir($dirComprobantes, 0777, true);
+
+            $nuevos = count($_FILES['comprobantes']['name']);
+
+            // VALIDACIÓN: límite de comprobantes excedido
+            if ($nuevos > 3) {
+                $objBitacora->registrarBitacora([
+                    'modulo'    => 'pagos',
+                    'accion'    => 'Registrar Pago',
+                    'resultado' => 'fallido',
+                    'commit'    => true
+                ]);
+
+                if (!$this->noCommit) {
+                    $this->rollback();
+                }
+
+                return [
+                    'tipo'   => 'simple',
+                    'titulo' => 'Error',
+                    'texto'  => 'No se ha podido registrar el pago',
+                    'icono'  => 'error'
+                ];
+            }
+
+            for ($i = 0; $i < $nuevos; $i++) {
+                $nombreFile = $_FILES['comprobantes']['name'][$i];
+                $tmpFile = $_FILES['comprobantes']['tmp_name'][$i];
+                $ext = strtolower(pathinfo($nombreFile, PATHINFO_EXTENSION));
+
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) continue;
+
+                $nuevoNombre = $this->idOrden . "_pago_" . $idPago . "_" . time() . "_" . $i . "." . $ext;
+                if (move_uploaded_file($tmpFile, $dirComprobantes . $nuevoNombre)) {
+                    $this->guardarDatos2([
+                        'tabla' => 'comprobantes_pagos',
+                        'datos' => [
+                            'id_pago' => $idPago,
+                            'path_comprobante' => $nuevoNombre,
+                            'status' => 1
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        // Recalcular estado de la orden
+        $this->recalcularStatusOEPP($this->idOrden);
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => "Registrar Pago: " . $idPago,
+            'resultado' => 'Éxito',
+            'nuevo'     => ['id_pago' => $idPago, 'id_orden' => $this->idOrden]
+        ]);
+
+        if (!$this->noCommit) {
+            $this->commit();
+        }
+
+        if (!$this->noCommit) {
+            $objNot = new mensajesWSModelo();
+            $objNot->enviarMensajesWS([
+                "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+                'cuerpo' => [
+                    ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
+                    ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
+                    ['accion' => 'alertar', 'alerta' => [
+                        'tipo' => 'simple',
+                        'titulo' => 'Pago Recibido',
+                        'texto' => "Se ha registrado un pago para la OEP {$this->idOrden}.",
+                        'icono' => 'info',
+                        'notifier' => true,
+                        'tiempo' => 3000
+                    ]],
+                    ['accion' => "actDT", 'modulo' => 'pagos'],
+                    ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
+                ]
+            ]);
+        }
+
+        return [
+            'tipo'   => 'limpiarYcerrar',
+            'titulo' => 'Pago Registrado',
+            'texto'  => 'El pago ha sido procesado exitosamente.',
+            'icono'  => 'success'
+        ];
+
+    } catch (\Exception) {
         
-        $nuevos = count($_FILES['comprobantes']['name']);
-        if ($nuevos > 3) throw new \Exception("Límite de comprobantes excedido (máximo 3).");
-
-        for ($i = 0; $i < $nuevos; $i++) {
-          $nombreFile = $_FILES['comprobantes']['name'][$i];
-          $tmpFile = $_FILES['comprobantes']['tmp_name'][$i];
-          $ext = strtolower(pathinfo($nombreFile, PATHINFO_EXTENSION));
-
-          if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) continue;
-
-          $nuevoNombre = $this->idOrden . "_pago_" . $idPago . "_" . time() . "_" . $i . "." . $ext;
-          if (move_uploaded_file($tmpFile, $dirComprobantes . $nuevoNombre)) {
-            $this->guardarDatos2([
-              'tabla' => 'comprobantes_pagos',
-              'datos' => ['id_pago' => $idPago, 'path_comprobante' => $nuevoNombre, 'status' => 1]
-            ]);
-          }
+        if (!$this->noCommit) {
+            $this->rollback();
         }
-      }
 
-      // Recalcular estado de la orden (Procesada y Pagada, Pagada y Despachada, etc.)
-      $this->recalcularStatusOEPP($this->idOrden);
-
-      $objBitacora->registrarBitacora([
-        'modulo' => 'pagos',
-        'accion' => "Registrar Pago: " . $idPago,
-        'resultado' => 'exitoso',
-        'nuevo' => ['id_pago' => $idPago, 'id_orden' => $this->idOrden]
-      ]);
-
-      $this->commit();
-
-      $objNot = new mensajesWSModelo();
-      $objNot->enviarMensajesWS([
-        "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
-        'cuerpo' => [
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
-          ['accion' => 'alertar', 'alerta' => ['tipo' => 'simple', 'titulo' => 'Pago Recibido', 'texto' => "Se ha registrado un pago para la OEP {$this->idOrden}.", 'icono' => 'info', 'notifier' => true, 'tiempo' => 3000]],
-          ['accion' => "actDT", 'modulo' => 'pagos'],
-          ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
-        ]
-      ]);
-
-      return ['tipo' => 'limpiarYcerrar', 'titulo' => 'Pago Registrado', 'texto' => 'El pago ha sido procesado exitosamente.', 'icono' => 'success'];
-    } catch (\Exception $e) {
-      $this->rollback();
-      $objBitacora->registrarBitacora([
-        'modulo' => 'pagos',
-        'accion' => "Registrar Pago",
-        'resultado' => 'fallido',
-        'commit' => true
-      ]);
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => $e->getMessage(), 'icono' => 'error'];
-    }
-  }
-
-  private function actualizarPagoP() {
-    $objBitacora = new bitacoraModelo();
-
-    try {
-      $pagoExistente = $this->seleccionarDatos2([
-        'campos' => '*', 'tabla' => 'pagos', 'WHERE' => ['id_pago' => $this->idPago, 'status' => 1]
-      ])->fetch(PDO::FETCH_ASSOC);
-
-      if (!$pagoExistente) throw new \Exception("Pago no encontrado.");
-
-      $this->eliminarDatos2(['tabla' => 'detalles_pagos', 'WHERE' => ['id_pago' => $this->idPago], 'fisico' => true]);
-
-      $stmtMo = $this->conectar()->query("SELECT id_moneda FROM monedas WHERE valor_moneda = 1 LIMIT 1");
-      $mo = $stmtMo->fetch(PDO::FETCH_ASSOC);
-      $idMonedaBolivar = $mo ? $mo['id_moneda'] : 2;
-
-      foreach ($this->pagos as $pago) {
-        $idMetodo = $pago['id_metodo_pago'] ?? '';
-        $idMoneda = $pago['id_moneda'] ?? '';
-        $monto    = floatval(str_replace(['.', ','], ['', '.'], $pago['monto_pago'] ?? 0));
-        if (empty($idMoneda)) $idMoneda = $idMonedaBolivar;
-
-        if (empty($idMetodo) || $monto <= 0) throw new \Exception("Datos de pago inválidos.");
-
-        $idDetalleReg = $this->guardarDatos2([
-          'tabla' => 'detalles_pagos',
-          'datos' => ['id_pago' => $this->idPago, 'id_metodo_pago' => $idMetodo, 'id_moneda' => $idMoneda, 'monto_pago' => $monto, 'status' => 1]
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => 'Registrar Pago',
+            'resultado' => 'fallido',
+            'commit'    => true
         ]);
 
-        if (($pago['id_banco_emisor'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'bancos_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'id_banco' => $pago['id_banco_emisor'], 'es_emisor' => 1]
-          ]);
-        }
-        if (($pago['id_banco_receptor'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'bancos_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'id_banco' => $pago['id_banco_receptor'], 'es_emisor' => 0]
-          ]);
-        }
-        if (($pago['referencia_pago'] ?? '') != '') {
-          $this->guardarDatos2([
-            'tabla' => 'referencias_detalles_pagos',
-            'datos' => ['id_detalle_pago' => $idDetalleReg, 'referencia_pago' => $pago['referencia_pago']]
-          ]);
-        }
-      }
-
-      if (isset($_FILES['comprobantes']) && !empty($_FILES['comprobantes']['name'][0])) {
-        $stmtC = $this->conectar()->prepare("SELECT COUNT(id_comprobante_pago) as total FROM comprobantes_pagos WHERE id_pago = :id AND status = 1");
-        $stmtC->execute([':id' => $this->idPago]);
-        $totalActual = (int)($stmtC->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
-
-        $nuevos = count($_FILES['comprobantes']['name']);
-        if ($totalActual + $nuevos > 3) throw new \Exception("Límite de comprobantes excedido (máximo 3).");
-
-        $dirComprobantes = DIR_FOTOS . "comprobantes_pagos/";
-        if (!is_dir($dirComprobantes)) mkdir($dirComprobantes, 0777, true);
-
-        for ($i = 0; $i < $nuevos; $i++) {
-          $nombreFile = $_FILES['comprobantes']['name'][$i];
-          $tmpFile = $_FILES['comprobantes']['tmp_name'][$i];
-          $ext = strtolower(pathinfo($nombreFile, PATHINFO_EXTENSION));
-
-          if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) continue;
-
-          $nuevoNombre = $this->idOrden . "_pago_" . $this->idPago . "_" . time() . "_" . $i . "." . $ext;
-          if (move_uploaded_file($tmpFile, $dirComprobantes . $nuevoNombre)) {
-            $this->guardarDatos2([
-              'tabla' => 'comprobantes_pagos',
-              'datos' => ['id_pago' => $this->idPago, 'path_comprobante' => $nuevoNombre, 'status' => 1]
-            ]);
-          }
-        }
-      }
-
-      $this->recalcularStatusOEPP($this->idOrden);
-
-      $objBitacora->registrarBitacora([
-        'modulo' => 'pagos',
-        'accion' => "Actualizar Pago: " . $this->idPago,
-        'resultado' => 'exitoso'
-      ]);
-
-      $this->commit();
-
-      $objNot = new mensajesWSModelo();
-      $objNot->enviarMensajesWS([
-        "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
-        'cuerpo' => [
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
-          ['accion' => "actDT", 'modulo' => 'pagos'],
-          ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
-        ]
-      ]);
-
-      return ['tipo' => 'limpiarYcerrar', 'titulo' => 'Pago Actualizado', 'texto' => 'El pago se actualizó correctamente.', 'icono' => 'success'];
-
-    } catch (\Exception $e) {
-      $this->rollback();
-      $objBitacora->registrarBitacora(['modulo' => 'pagos', 'accion' => "Actualizar Pago", 'resultado' => 'fallido', 'commit' => true]);
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => $e->getMessage(), 'icono' => 'error'];
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error',
+            'texto'  => 'No se ha podido registrar el pago',
+            'icono'  => 'error'
+        ];
     }
-  }
+}
 
-  private function eliminarPagoP() {
+private function actualizarPagoP() {
     $objBitacora = new bitacoraModelo();
 
     try {
-      $pagoExistente = $this->seleccionarDatos2([
-        'campos' => 'id_orden_entrega_presupuesto', 'tabla' => 'pagos', 'WHERE' => ['id_pago' => $this->idPago, 'status' => 1]
-      ])->fetch(PDO::FETCH_ASSOC);
+        $pagoExistente = $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla'  => 'pagos',
+            'WHERE'  => ['id_pago' => $this->idPago, 'status' => 1]
+        ])->fetch(PDO::FETCH_ASSOC);
 
-      if (!$pagoExistente) throw new \Exception("Pago no encontrado.");
-      
-      $idOrden = $pagoExistente['id_orden_entrega_presupuesto'];
+        // Validamos si no existe el pago
+        if (!$pagoExistente) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'pagos',
+                'accion'    => 'Actualizar Pago',
+                'resultado' => 'fallido',
+                'commit'    => true
+            ]);
 
-      // Soft delete al pago y sus detalles
-      $this->actualizarDatos2(['tabla' => 'pagos', 'datos' => ['status' => 0], 'WHERE' => ['id_pago' => $this->idPago]]);
-      $this->actualizarDatos2(['tabla' => 'detalles_pagos', 'datos' => ['status' => 0], 'WHERE' => ['id_pago' => $this->idPago]]);
-      
-      // Recalcular estado de la orden (Procesada y sin pago, Despachada y sin pago, etc.)
-      $this->recalcularStatusOEPP($idOrden);
+            $this->rollback();
 
-      $objBitacora->registrarBitacora([
-        'modulo' => 'pagos',
-        'accion' => "Eliminar Pago: " . $this->idPago,
-        'resultado' => 'exitoso'
-      ]);
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error',
+                'texto'  => 'No se ha podido actualizar el Pago',
+                'icono'  => 'error'
+            ];
+        }
 
-      $this->commit();
+        // Capturar detalles ANTES de eliminarlos para la bitácora
+        $detallesViejos = $this->seleccionarDatos2([
+            'campos' => 'dp.id_detalle_pago, dp.monto_pago, dp.id_metodo_pago, dp.id_moneda,
+                mp.nombre_metodo_pago, mo.nombre_moneda, mo.simbolo_moneda,
+                (SELECT id_banco FROM bancos_detalles_pagos bdp WHERE bdp.id_detalle_pago = dp.id_detalle_pago AND bdp.es_emisor = 1 LIMIT 1) as id_banco_emisor,
+                (SELECT id_banco FROM bancos_detalles_pagos bdp WHERE bdp.id_detalle_pago = dp.id_detalle_pago AND bdp.es_emisor = 0 LIMIT 1) as id_banco_receptor,
+                (SELECT referencia_pago FROM referencias_detalles_pagos rdp WHERE rdp.id_detalle_pago = dp.id_detalle_pago LIMIT 1) as referencia_pago',
+            'tabla' => 'detalles_pagos as dp',
+            'datosJoins' => [
+                'metodos_pagos as mp' => 'dp.id_metodo_pago = mp.id_metodo_pago',
+                'monedas as mo'       => 'dp.id_moneda = mo.id_moneda',
+            ],
+            'WHERE' => ['dp.id_pago' => $this->idPago, 'dp.status' => 1]
+        ])->fetchAll(PDO::FETCH_ASSOC);
 
-      $objNot = new mensajesWSModelo();
-      $objNot->enviarMensajesWS([
-        "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
-        'cuerpo' => [
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
-          ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
-          ['accion' => "actDT", 'modulo' => 'pagos'],
-          ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
-        ]
-      ]);
+        $this->eliminarDatos2([
+            'tabla' => 'detalles_pagos',
+            'WHERE' => ['id_pago' => $this->idPago],
+            'fisico' => true
+        ]);
 
-      return ['tipo' => 'simple', 'titulo' => 'Pago Eliminado', 'texto' => 'El pago fue eliminado correctamente y el estado de la OEP se ha actualizado.', 'icono' => 'success'];
-    } catch (\Exception $e) {
-      $this->rollback();
-      $objBitacora->registrarBitacora(['modulo' => 'pagos', 'accion' => "Eliminar Pago", 'resultado' => 'fallido', 'commit' => true]);
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => $e->getMessage(), 'icono' => 'error'];
+        $stmtMo = $this->conectar()->query("SELECT id_moneda FROM monedas WHERE valor_moneda = 1 LIMIT 1");
+        $mo = $stmtMo->fetch(PDO::FETCH_ASSOC);
+        $idMonedaBolivar = $mo ? $mo['id_moneda'] : 2;
+
+        foreach ($this->pagos as $pago) {
+            $idMetodo = $pago['id_metodo_pago'] ?? '';
+            $idMoneda = $pago['id_moneda'] ?? '';
+
+            $monto = (float)($pago['monto_pago'] ?? 0);
+
+            if (empty($idMoneda)) $idMoneda = $idMonedaBolivar;
+
+            // Validamos los datos de pago que sean inválidos
+            if (empty($idMetodo) || $monto <= 0) {
+                $objBitacora->registrarBitacora([
+                    'modulo'    => 'pagos',
+                    'accion'    => 'Actualizar Pago',
+                    'resultado' => 'fallido',
+                    'commit'    => true
+                ]);
+
+                $this->rollback();
+
+                return [
+                    'tipo'   => 'simple',
+                    'titulo' => 'Error',
+                    'texto'  => 'No se ha podido actualizar el Pago',
+                    'icono'  => 'error'
+                ];
+            }
+
+            $idDetalleReg = $this->guardarDatos2([
+                'tabla' => 'detalles_pagos',
+                'datos' => [
+                    'id_pago'        => $this->idPago,
+                    'id_metodo_pago' => $idMetodo,
+                    'id_moneda'      => $idMoneda,
+                    'monto_pago'     => $monto,
+                    'status'         => 1
+                ]
+            ]);
+
+            if (($pago['id_banco_emisor'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'bancos_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'id_banco' => $pago['id_banco_emisor'],
+                        'es_emisor' => 1
+                    ]
+                ]);
+            }
+            if (($pago['id_banco_receptor'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'bancos_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'id_banco' => $pago['id_banco_receptor'],
+                        'es_emisor' => 0
+                    ]
+                ]);
+            }
+            if (($pago['referencia_pago'] ?? '') != '') {
+                $this->guardarDatos2([
+                    'tabla' => 'referencias_detalles_pagos',
+                    'datos' => [
+                        'id_detalle_pago' => $idDetalleReg,
+                        'referencia_pago' => $pago['referencia_pago']
+                    ]
+                ]);
+            }
+        }
+
+        if (isset($_FILES['comprobantes']) && !empty($_FILES['comprobantes']['name'][0])) {
+            $stmtC = $this->conectar()->prepare("SELECT COUNT(id_comprobante_pago) as total FROM comprobantes_pagos WHERE id_pago = :id AND status = 1");
+            $stmtC->execute([':id' => $this->idPago]);
+            $totalActual = (int)($stmtC->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+
+            $nuevos = count($_FILES['comprobantes']['name']);
+
+            // Validamos el límite de comprobantes excedido
+            if ($totalActual + $nuevos > 3) {
+                $objBitacora->registrarBitacora([
+                    'modulo'    => 'pagos',
+                    'accion'    => 'Actualizar Pago',
+                    'resultado' => 'fallido',
+                    'commit'    => true
+                ]);
+
+                $this->rollback();
+
+                return [
+                    'tipo'   => 'simple',
+                    'titulo' => 'Error',
+                    'texto'  => 'No se ha podido actualizar el Pago',
+                    'icono'  => 'error'
+                ];
+            }
+
+            $dirComprobantes = DIR_FOTOS . "comprobantes_pagos/";
+            if (!is_dir($dirComprobantes)) mkdir($dirComprobantes, 0777, true);
+
+            for ($i = 0; $i < $nuevos; $i++) {
+                $nombreFile = $_FILES['comprobantes']['name'][$i];
+                $tmpFile = $_FILES['comprobantes']['tmp_name'][$i];
+                $ext = strtolower(pathinfo($nombreFile, PATHINFO_EXTENSION));
+
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) continue;
+
+                $nuevoNombre = $this->idOrden . "_pago_" . $this->idPago . "_" . time() . "_" . $i . "." . $ext;
+                if (move_uploaded_file($tmpFile, $dirComprobantes . $nuevoNombre)) {
+                    $this->guardarDatos2([
+                        'tabla' => 'comprobantes_pagos',
+                        'datos' => [
+                            'id_pago' => $this->idPago,
+                            'path_comprobante' => $nuevoNombre,
+                            'status' => 1
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        $this->recalcularStatusOEPP($this->idOrden);
+
+        // Capturar detalles NUEVOS para la bitácora
+        $detallesNuevos = $this->seleccionarDatos2([
+            'campos' => 'dp.id_detalle_pago, dp.monto_pago, dp.id_metodo_pago, dp.id_moneda,
+                mp.nombre_metodo_pago, mo.nombre_moneda, mo.simbolo_moneda,
+                (SELECT id_banco FROM bancos_detalles_pagos bdp WHERE bdp.id_detalle_pago = dp.id_detalle_pago AND bdp.es_emisor = 1 LIMIT 1) as id_banco_emisor,
+                (SELECT id_banco FROM bancos_detalles_pagos bdp WHERE bdp.id_detalle_pago = dp.id_detalle_pago AND bdp.es_emisor = 0 LIMIT 1) as id_banco_receptor,
+                (SELECT referencia_pago FROM referencias_detalles_pagos rdp WHERE rdp.id_detalle_pago = dp.id_detalle_pago LIMIT 1) as referencia_pago',
+            'tabla' => 'detalles_pagos as dp',
+            'datosJoins' => [
+                'metodos_pagos as mp' => 'dp.id_metodo_pago = mp.id_metodo_pago',
+                'monedas as mo'       => 'dp.id_moneda = mo.id_moneda',
+            ],
+            'WHERE' => ['dp.id_pago' => $this->idPago, 'dp.status' => 1]
+        ])->fetchAll(PDO::FETCH_ASSOC);
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => "Actualizar Pago: " . $this->idPago,
+            'resultado' => 'Éxito',
+            'viejo'     => ['id_pago' => $this->idPago, 'id_orden' => $this->idOrden, 'detalles' => $detallesViejos],
+            'nuevo'     => ['id_pago' => $this->idPago, 'id_orden' => $this->idOrden, 'detalles' => $detallesNuevos],
+        ]);
+
+        $this->commit();
+
+        $objNot = new mensajesWSModelo();
+        $objNot->enviarMensajesWS([
+            "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+            'cuerpo' => [
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
+                ['accion' => "actDT", 'modulo' => 'pagos'],
+                ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
+            ]
+        ]);
+
+        return [
+            'tipo'   => 'limpiarYcerrar',
+            'titulo' => 'Pago Actualizado',
+            'texto'  => 'El pago se actualizó correctamente',
+            'icono'  => 'success'
+        ];
+
+    } catch (\Exception) {
+       
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => 'Actualizar Pago',
+            'resultado' => 'fallido',
+            'commit'    => true
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error',
+            'texto'  => 'No se ha podido actualizar el Pago',
+            'icono'  => 'error'
+        ];
     }
-  }
+}
 
-  private function eliminarComprobanteP($idComprobante) {
+private function eliminarPagoP() {
+    $objBitacora = new bitacoraModelo();
+
     try {
-      $comp = $this->seleccionarDatos2(['campos' => '*', 'tabla' => 'comprobantes_pagos', 'WHERE' => ['id_comprobante_pago' => $idComprobante]])->fetch(PDO::FETCH_ASSOC);
-      if (!$comp) throw new \Exception("Comprobante no encontrado.");
+        $pagoExistente = $this->seleccionarDatos2([
+            'campos' => 'id_orden_entrega_presupuesto',
+            'tabla'  => 'pagos',
+            'WHERE'  => ['id_pago' => $this->idPago, 'status' => 1]
+        ])->fetch(PDO::FETCH_ASSOC);
 
-      $this->eliminarDatos2(['tabla' => 'comprobantes_pagos', 'WHERE' => ['id_comprobante_pago' => $idComprobante], 'fisico' => true]);
-      $archivo = DIR_FOTOS . "comprobantes_pagos/" . $comp['path_comprobante'];
-      if (file_exists($archivo)) unlink($archivo);
+        // Validamos si no existe el pago
+        if (!$pagoExistente) {
+            $objBitacora->registrarBitacora([
+                'modulo'    => 'pagos',
+                'accion'    => 'Eliminar Pago',
+                'resultado' => 'fallido',
+                'commit'    => true
+            ]);
 
-      $this->commit();
-      return ['tipo' => 'simple', 'titulo' => 'Éxito', 'texto' => 'Comprobante eliminado', 'icono' => 'success'];
-    } catch (\Exception $e) {
-      $this->rollback();
-      return ['tipo' => 'simple', 'titulo' => 'Error', 'texto' => $e->getMessage(), 'icono' => 'error'];
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error',
+                'texto'  => 'No se ha podido eliminar el pago',
+                'icono'  => 'error'
+            ];
+        }
+
+        $idOrden = $pagoExistente['id_orden_entrega_presupuesto'];
+
+        // Soft delete al pago y sus detalles
+        $this->actualizarDatos2([
+            'tabla' => 'pagos',
+            'datos' => ['status' => 0],
+            'WHERE' => ['id_pago' => $this->idPago]
+        ]);
+        $this->actualizarDatos2([
+            'tabla' => 'detalles_pagos',
+            'datos' => ['status' => 0],
+            'WHERE' => ['id_pago' => $this->idPago]
+        ]);
+
+        // Recalcular estado de la orden
+        $this->recalcularStatusOEPP($idOrden);
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => "Eliminar Pago: " . $this->idPago,
+            'resultado' => 'Éxito'
+        ]);
+
+        $this->commit();
+
+        $objNot = new mensajesWSModelo();
+        $objNot->enviarMensajesWS([
+            "receptor" => ['tipo' => 'rol', 'rol' => 'ADMINISTRADOR'],
+            'cuerpo' => [
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'pagos'],
+                ['accion' => "borrarDataModuloSS", 'modulo' => 'ordenesEntregasPresupuestos'],
+                ['accion' => "actDT", 'modulo' => 'pagos'],
+                ['accion' => "actDT", 'modulo' => 'ordenesEntregasPresupuestos']
+            ]
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Pago Eliminado',
+            'texto'  => 'El pago fue eliminado correctamente y el estado de la OEP se ha actualizado.',
+            'icono'  => 'success'
+        ];
+
+    } catch (\Exception) {
+        
+        $this->rollback();
+
+        $objBitacora->registrarBitacora([
+            'modulo'    => 'pagos',
+            'accion'    => 'Eliminar Pago',
+            'resultado' => 'fallido',
+            'commit'    => true
+        ]);
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error',
+            'texto'  => 'No se ha podido eliminar el pago',
+            'icono'  => 'error'
+        ];
     }
-  }
+}
 
-  private function recalcularStatusOEPP($idOrden) {
+private function eliminarComprobanteP($idComprobante) {
+    try {
+        $comp = $this->seleccionarDatos2([
+            'campos' => '*',
+            'tabla'  => 'comprobantes_pagos',
+            'WHERE'  => ['id_comprobante_pago' => $idComprobante]
+        ])->fetch(PDO::FETCH_ASSOC);
+
+        // Validamos si no existe el comprobante
+        if (!$comp) {
+            $this->rollback();
+
+            return [
+                'tipo'   => 'simple',
+                'titulo' => 'Error',
+                'texto'  => 'Comprobante(s) no eliminado(s)',
+                'icono'  => 'error'
+            ];
+        }
+
+        $this->eliminarDatos2([
+            'tabla'  => 'comprobantes_pagos',
+            'WHERE'  => ['id_comprobante_pago' => $idComprobante],
+            'fisico' => true
+        ]);
+
+        $archivo = DIR_FOTOS . "comprobantes_pagos/" . $comp['path_comprobante'];
+        if (file_exists($archivo)) {
+            unlink($archivo);
+        }
+
+        $this->commit();
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Éxito',
+            'texto'  => 'Comprobante eliminado',
+            'icono'  => 'success'
+        ];
+
+    } catch (\Exception) {
+        
+        $this->rollback();
+
+        return [
+            'tipo'   => 'simple',
+            'titulo' => 'Error',
+            'texto'  => 'Comprobante(s) no eliminado(s)',
+            'icono'  => 'error'
+        ];
+    }
+}
+
+private function recalcularStatusOEPP($idOrden) {
     $stmtCheck = $this->conectar()->prepare("
       SELECT f.status,
              (SELECT COALESCE(SUM(
-               CASE WHEN mo.nombre_moneda = 'BÓLIVAR' OR mo.nombre_moneda = 'BS' 
-                    THEN dp.monto_pago / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR')) 
-                    ELSE dp.monto_pago END
+               (dp.monto_pago * mo.valor_moneda) / (SELECT MAX(valor_moneda) FROM monedas WHERE nombre_moneda IN ('DÓLAR', 'DOLAR'))
              ), 0) 
              FROM pagos pa 
              JOIN detalles_pagos dp ON pa.id_pago=dp.id_pago 
@@ -721,11 +1100,13 @@ class pagosModelo extends conexion {
       $nuevoStatus = $statusActual;
 
       if (round($tot - $pag, 2) <= 0.01) {
-        // Está pagada
-        $nuevoStatus = in_array($statusActual, [3, 4, 11]) ? 11 : 10;
+        // Está pagada — si estaba despachada (3 o 11) → pasa a 11 (Pagada y Despachada)
+        // si estaba solo procesada (1 o 10) → pasa a 10 (Procesada y Pagada)
+        $nuevoStatus = in_array($statusActual, [3, 11]) ? 11 : 10;
       } else {
-        // No está pagada totalmente
-        $nuevoStatus = in_array($statusActual, [3, 4, 11]) ? 4 : 1;
+        // No está pagada totalmente — mantiene el estado de despacho sin cambiar
+        // Status BD reales: 3=Despachada, 1=Procesada (status 4 es solo visualización frontend)
+        $nuevoStatus = in_array($statusActual, [3, 11]) ? 3 : 1;
       }
 
       if ($statusActual != $nuevoStatus) {
@@ -736,12 +1117,14 @@ class pagosModelo extends conexion {
         ]);
         $objBitacora = new bitacoraModelo();
         $objBitacora->registrarBitacora([
-          'modulo' => 'ordenesEntregasPresupuestos',
-          'accion' => "Cambio automático de estado a {$nuevoStatus} por recálculo de pagos en la orden: " . $idOrden,
-          'resultado' => 'exitoso'
+          'modulo'    => 'ordenesEntregasPresupuestos',
+          'accion'    => "Actualizar OEP: " . $idOrden,
+          'resultado' => 'Éxito',
+          'viejo'     => ['id_orden' => $idOrden, 'status' => $statusActual],
+          'nuevo'     => ['id_orden' => $idOrden, 'status' => $nuevoStatus]
         ]);
       }
     }
-  }
+}
 
 }

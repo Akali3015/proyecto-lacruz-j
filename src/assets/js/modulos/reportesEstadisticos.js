@@ -57,15 +57,20 @@ const DashboardApp = (function() {
       return;
     }
 
+    const payload = {
+      accion: 'obtenerDatosDashboard',
+      rango: rango || 'ultimos_30_dias'
+    };
+
+    if (rango === 'personalizado') {
+      payload.fecha_inicio = fInicio;
+      payload.fecha_fin = fFin;
+    }
+
     try {
       const data = await pedirDatosAjax({
         modulo: 'reportesEstadisticos',
-        datosPe: {
-          accion: 'obtenerDatosDashboard',
-          rango: rango,
-          fecha_inicio: fInicio,
-          fecha_fin: fFin
-        },
+        datosPe: payload,
         noGuardarLocal: true // Regla 8 (SessionStorage): No cachear consultas complejas de dashboard si no es necesario
       });
 
@@ -167,6 +172,7 @@ const DashboardApp = (function() {
   };
 
   const renderizar = (datos) => {
+    datosCargados = datos;
     // KPIs
     $('#metricPendientes').text(datos.cuentasPorCobrar?.pendientes || 0);
     $('#metricPagadas').text(datos.cuentasPorCobrar?.pagadas || 0);
@@ -361,14 +367,20 @@ const DashboardApp = (function() {
     pdf.save(filename + '.pdf');
   };
 
+  // Variable para cachear los datos en memoria
+  let datosCargados = null;
+
+  const hasData = () => datosCargados !== null;
+
   const redimensionarGraficas = () => {
+    if (datosCargados) {
+      renderizar(datosCargados);
+    }
     Object.values(chartsRegistry).forEach(chart => {
       try {
         if (chart && typeof chart.resize === 'function') {
-          if (chart.canvas && chart.canvas.offsetParent !== null) {
-            chart.resize();
-            if (typeof chart.update === 'function') chart.update();
-          }
+          chart.resize();
+          if (typeof chart.update === 'function') chart.update();
         }
       } catch (e) {
         console.warn("Resize Warning:", e);
@@ -376,7 +388,7 @@ const DashboardApp = (function() {
     });
   };
 
-  return { init, cargarDatos, exportarAPDF, redimensionarGraficas };
+  return { init, cargarDatos, exportarAPDF, redimensionarGraficas, hasData };
 
 })();
 // Funciones de eventos (Delegadas)
@@ -415,14 +427,30 @@ function shownBsTab() {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     DashboardApp.redimensionarGraficas.call(this);
-  }, 150);
+  }, 100);
 }
 // Fin de funciones de eventos
 //#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
-$(document).on('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  $(document).on('DOMContentLoaded', () => {
+    inicializarDashboard();
+  });
+} else {
   inicializarDashboard();
+}
+
+// Evento al hacer click o mostrar la pestaña principal de reportes estadísticos
+$(document).off('click', '#stats-reports-tab');
+$(document).on('click', '#stats-reports-tab', function() {
+  setTimeout(() => {
+    if (!DashboardApp.hasData()) {
+      DashboardApp.cargarDatos();
+    } else {
+      DashboardApp.redimensionarGraficas();
+    }
+  }, 150);
 });
 
 // Evento para el botón de recargar datos (Delegación al document - Regla 3)
@@ -450,8 +478,8 @@ $(document).on('click', '.btn-export', function(e) {
 });
 
 // Evento para redimensionar cuando cambian las pestañas de Bootstrap
-$(document).off('shown.bs.tab', 'button[data-bs-toggle="tab"]');
-$(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function () {
+$(document).off('shown.bs.tab', 'button[data-bs-toggle="tab"], button[data-bs-toggle="pill"]');
+$(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"], button[data-bs-toggle="pill"]', function () {
   shownBsTab.call(this);
 });
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

@@ -5,7 +5,7 @@ import {
   extraerDatosAjax, pedirDatosAjax, obtenerSiguienteIndice,
   validarEnTiempoReal, formateoCampos, rutaFotos
 } from '/proyecto-lacruz-j/src/assets/js/modulos/global.js';
-import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
+import { driverAyuda, mostrarAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriver.js"
 
 //#endregion [ IMPORTACIONES ] FIN
 
@@ -13,6 +13,71 @@ import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriv
 
 // Cache de productos para no pedirlos mil veces al servidor
 let cacheProductosServ = null;
+
+function registrarTutorial() {
+  driverAyuda('servicios', {
+    pasos: [
+      {
+        element: 'button[data-bs-target=".modalRegistrar"]',
+        popover: {
+          title: 'Registrar Servicio',
+          description: 'Haz clic aquí para agregar un nuevo servicio al sistema. Los servicios pueden ser ofrecidos a clientes y consumen productos del inventario.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.tabla-ajax',
+        popover: {
+          title: 'Lista de Servicios',
+          description: 'Aquí puedes ver todos los servicios registrados, su precio y si están visibles en la tienda online.',
+          side: 'top'
+        }
+      },
+      {
+        element: '.botonEditar',
+        popover: {
+          title: 'Editar Servicio',
+          description: 'Modifica los datos del servicio, su precio o los productos que consume.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.botonEliminar',
+        popover: {
+          title: 'Eliminar Servicio',
+          description: 'Elimina el servicio del sistema. Ten cuidado porque puede afectar facturas y pedidos asociados.',
+          side: 'left'
+        }
+      },
+      {
+        element: '.btnAbrirSelectorProdServ',
+        popover: {
+          title: 'Agregar Producto al Servicio',
+          description: 'Haz clic aquí para seleccionar productos del inventario que serán consumidos al realizar este servicio.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.dataTables_filter input',
+        popover: {
+          title: 'Buscador de Servicios',
+          description: 'Puedes buscar servicios por nombre, ID o cualquier otro campo de la tabla.',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        popover: {
+          title: '¡Ayuda completada!',
+          description: 'Ya conoces la gestión de servicios. Recuerda que cada servicio puede consumir productos del inventario automáticamente.',
+          side: 'top'
+        }
+      }
+    ]
+  });
+}
 
 async function cargarProductosParaSelector() {
   if (cacheProductosServ) return cacheProductosServ;
@@ -23,11 +88,19 @@ async function cargarProductosParaSelector() {
   cacheProductosServ = Array.isArray(items) ? items : [];
   return cacheProductosServ;
 }
+
 function agregarFilaProductoServicio(modal, idProducto, nombreProducto, cantidad = '') {
   let cuerpo = modal.find('.cuerpoTablaProductosServicio');
   let codigoFila = obtenerSiguienteIndice(modal, "input", "productos_servicio");
 
-  let cantidadFormateada = cantidad !== '' ? parseFloat(cantidad).toString() : '';
+  // Formateamos la cantidad igual que el precio (con coma decimal)
+  let cantidadFormateada = '';
+  if (cantidad !== '' && cantidad !== null && cantidad !== undefined) {
+    let num = parseFloat(cantidad);
+    if (!isNaN(num)) {
+      cantidadFormateada = num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  }
 
   let html = `<tr data-id-producto="${idProducto}">
     <td>
@@ -38,9 +111,9 @@ function agregarFilaProductoServicio(modal, idProducto, nombreProducto, cantidad
       </div>
     </td>
     <td>
-      <input type="number" step="any" min="0" name="productos_servicio-${codigoFila}-cantidad_producto"
-             class="form-control input-cantidad-producto"
-             placeholder="0.00" value="${cantidadFormateada}">
+      <input type="text" name="productos_servicio-${codigoFila}-cantidad_producto"
+             class="form-control dinero input-cantidad-producto"
+             placeholder="0,00" value="${cantidadFormateada}">
     </td>
     <td class="text-center">
       <button type="button" class="btn serv-btn-eliminar btn-eliminar-producto-serv">
@@ -52,11 +125,13 @@ function agregarFilaProductoServicio(modal, idProducto, nombreProducto, cantidad
   cuerpo.append(html);
   actualizarBadgeProductos(modal);
 }
+
 function actualizarBadgeProductos(modal) {
   let cant = modal.find('.cuerpoTablaProductosServicio tr').length;
   let badge = modal.find('.badgeCantProdServ');
   badge.text(cant === 1 ? '1 producto' : cant + ' productos');
 }
+
 async function abrirSelectorProductosServicio(modalPadre) {
   let items = await cargarProductosParaSelector();
   if (!items.length) { Swal.fire('Info', 'No hay productos registrados', 'info'); return; }
@@ -137,6 +212,7 @@ async function abrirSelectorProductosServicio(modalPadre) {
 
   modalInst.show();
 }
+
 async function inicializarModalServicio(modal) {
   try {
     let idServicio = modal.attr("id_servicio");
@@ -172,6 +248,12 @@ async function inicializarModalServicio(modal) {
 
 //#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
 $(document).on("DOMContentLoaded", async function () {
+  //  Registrar el tutorial PRIMERO
+  registrarTutorial();
+  
+  // Esperar un poco para que el DOM esté completamente renderizado
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   await listarDataTable({
     encabezados: {
       "id_servicio": "ID",
@@ -215,51 +297,7 @@ $(document).on("DOMContentLoaded", async function () {
       }
     }
   });
-  driverAyuda('servicios', {
-    pasos: [
-      {
-        element: 'button[data-bs-target=".modalRegistrar"]',
-        popover: {
-          title: 'Registrar Servicio',
-          description: 'Haz clic aquí para agregar un nuevo servicio al sistema. Los servicios pueden ser ofrecidos a clientes y consumen productos del inventario.',
-          side: 'bottom',
-          align: 'start'
-        }
-      },
-      {
-        element: '.tabla-ajax',
-        popover: {
-          title: 'Lista de Servicios',
-          description: 'Aquí puedes ver todos los servicios registrados, su precio y si están visibles en la tienda online.',
-          side: 'top'
-        }
-      },
-      {
-        element: '.botonEditar',
-        popover: {
-          title: 'Editar Servicio',
-          description: 'Modifica los datos del servicio, su precio o los productos que consume.',
-          side: 'left'
-        }
-      },
-      {
-        element: '.botonEliminar',
-        popover: {
-          title: 'Eliminar Servicio',
-          description: 'Elimina el servicio del sistema. Ten cuidado porque puede afectar facturas y pedidos asociados.',
-          side: 'left'
-        }
-      },
-      {
-        popover: {
-          title: '¡Ayuda completada!',
-          description: 'Ya conoces la gestión de servicios. Recuerda que cada servicio puede consumir productos del inventario automáticamente.',
-          side: 'top'
-        }
-      }
-    ]
-  });
-
+  
   // Cargar unidades de medida en los selects
   await extraerDatosAjax({
     modulosPeticion: ["unidadesMedidas"],
@@ -274,6 +312,15 @@ $(document).on("DOMContentLoaded", async function () {
       }
     ],
   });
+  
+  // Verificar si hay un driver pendiente para servicios
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'servicios') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
 });
 
 // Abrir el DataTable de productos al hacer click en "Agregar Producto"
@@ -315,18 +362,13 @@ $(document).off("submit", ".formularioAjax");
 $(document).on("submit", ".formularioAjax", async function (e) {
   e.preventDefault();
 
-  // Validar que tenga al menos un producto agregado
-  let cantProductos = $(this).find('.cuerpoTablaProductosServicio tr').length;
-  if (cantProductos === 0) {
-    Swal.fire('Productos requeridos', 'Debe agregar al menos un producto que consuma el servicio', 'warning');
-    return;
-  }
-
   // Validar que todos los productos tengan cantidad
   let faltaCantidad = false;
   $(this).find('.input-cantidad-producto').each(function () {
     let val = $(this).val().trim();
-    if (!val || parseFloat(val) <= 0) {
+    // Parsear formato con coma (1.234,56) o punto (1234.56)
+    let num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+    if (!val || isNaN(num) || num <= 0) {
       faltaCantidad = true;
       $(this).addClass('is-invalid');
     } else {
@@ -361,11 +403,25 @@ $(document).on("click", ".botonEditar", async function (e) {
   const modalTarget = $(this).attr("data-bs-target");
   const modal = $(modalTarget);
 
-  await obtenerDatosRegistro({
+  // Limpiar preview de foto anterior y reset del input
+  modal.find('.previewFotoServicioActual').addClass('d-none');
+  modal.find('.fotoServicioActualImg').attr('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+  modal.find('.previewFotoServicio').addClass('d-none');
+  modal.find('.previewFotoServicio img').attr('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+  modal.find('.inputFotoServicio').val('');
+
+  let datosServicio = await obtenerDatosRegistro({
     boton: this,
     campoId: 'id_servicio',
     modulo: 'servicios',
   });
+
+  // Mostrar foto actual si existe
+  if (datosServicio && datosServicio.foto_servicio) {
+    let fotoUrl = rutaFotos + 'servicios/' + datosServicio.foto_servicio;
+    modal.find('.fotoServicioActualImg').attr('src', fotoUrl);
+    modal.find('.previewFotoServicioActual').removeClass('d-none');
+  }
 
   // Formatear los inputs de dinero que trae la base de datos para que no se vuelva decimal al actualizar
   modal.find('.dinero, .dineroDolar, .dineroBolivar').each(function () {
@@ -393,10 +449,29 @@ $(document).on("click", ".botonEliminar", function (e) {
   });
 });
 
-// Formateo campos dinero
+// Formateo campos dinero (precio)
 $(document).off("input", ".dinero");
 $(document).on("input", ".dinero", function () {
   formateoCampos($(this), 'dinero');
+});
+
+// Preview de foto al seleccionar archivo
+$(document).off('change', '.inputFotoServicio');
+$(document).on('change', '.inputFotoServicio', function () {
+  let modal = $(this).closest('.modal');
+  let file = this.files && this.files[0];
+  let previewBox = modal.find('.previewFotoServicio');
+  if (file) {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      previewBox.find('img').attr('src', e.target.result);
+      previewBox.removeClass('d-none');
+    }
+    reader.readAsDataURL(file);
+  } else {
+    previewBox.find('img').attr('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+    previewBox.addClass('d-none');
+  }
 });
 
 // Validación en tiempo real

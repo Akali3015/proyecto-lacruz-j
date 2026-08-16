@@ -56,7 +56,11 @@ if (
   require_once "src/config/inc/header.php";
   echo $objComponentes->sidebar();
   require_once "src/vistas/pagos/pagos.php";
-} else {
+} 
+
+
+/* 
+else {
   http_response_code(405);
   echo json_encode([
     'tipo'   => 'simple',
@@ -64,4 +68,5 @@ if (
     'texto'  => 'Solo se permiten peticiones GET y POST',
     'icono'  => 'error',
   ]);
-}
+
+*/
