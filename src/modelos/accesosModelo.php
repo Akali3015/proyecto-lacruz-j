@@ -14,7 +14,7 @@ class accesosModelo extends conexion {
   private string $permisoVal = '';
 
   public function validarAccesos(string $permiso = '', array &$info = [], array $requerido = []) {
-    if ($permiso!='') {
+    if ($permiso != '') {
       $v = $this->validarPermisos('accesos', $permiso);
       if ($v) return $v;
     }
@@ -224,6 +224,9 @@ class accesosModelo extends conexion {
         'ver historial de cambio del iva',
         'actualizar cambio del iva'
       ],
+      'clientes' => [
+        'ver detalles de los clientes',
+      ],
       'dashboard' => [
         'ver dashboard'
       ],
@@ -250,11 +253,13 @@ class accesosModelo extends conexion {
       'productos' => [
         'ver detalles de los productos',
       ],
+      'repartidores' => [
+        'ver detalles de los repartidores',
+      ],
       'reportes' => [
         'ver reportes',
         'imprimir reportes de ventas',
         'imprimir reportes de productos',
-        'imprimir comandas',
       ],
       'usuarios' => [
         'asignar roles a usuarios',

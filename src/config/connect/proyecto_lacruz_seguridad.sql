@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-08-2026 a las 16:48:23
+-- Tiempo de generación: 17-08-2026 a las 01:55:39
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `proyecto_lacruz_seguridad`
 --
+CREATE DATABASE IF NOT EXISTS `proyecto_lacruz_seguridad` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `proyecto_lacruz_seguridad`;
 
 DELIMITER $$
 --
@@ -299,14 +301,14 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1005, 1, 248, 651, 1),
 (1006, 1, 248, 652, 1),
 (1007, 2, 18, 618, 1),
-(1008, 3, 18, 618, 1),
-(1009, 3, 9, 618, 1),
-(1010, 3, 8, 618, 1),
-(1011, 3, 1, 618, 1),
-(1012, 3, 249, 618, 1),
-(1013, 3, 264, 618, 1),
-(1014, 3, 251, 618, 1),
-(1015, 3, 261, 618, 1),
+(1008, 3, 18, 618, 0),
+(1009, 3, 9, 618, 0),
+(1010, 3, 8, 618, 0),
+(1011, 3, 1, 618, 0),
+(1012, 3, 249, 618, 0),
+(1013, 3, 264, 618, 0),
+(1014, 3, 251, 618, 0),
+(1015, 3, 261, 618, 0),
 (1016, 3, 261, 619, 1),
 (1017, 3, 251, 619, 1),
 (1018, 3, 18, 619, 1),
@@ -314,8 +316,8 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1020, 3, 249, 619, 1),
 (1021, 3, 1, 619, 1),
 (1022, 3, 8, 619, 1),
-(1023, 3, 29, 618, 1),
-(1024, 3, 250, 618, 1),
+(1023, 3, 29, 618, 0),
+(1024, 3, 250, 618, 0),
 (1025, 3, 250, 619, 1),
 (1026, 1, 248, 653, 1),
 (1027, 3, 9, 622, 1),
@@ -352,7 +354,294 @@ INSERT INTO `accesos` (`id_acceso`, `id_rol`, `id_modulo`, `id_permiso`, `status
 (1066, 1, 303, 619, 1),
 (1067, 1, 303, 620, 1),
 (1068, 1, 303, 621, 1),
-(1069, 1, 303, 622, 1);
+(1069, 1, 303, 622, 1),
+(1070, 1, 307, 666, 1),
+(1071, 1, 307, 667, 1),
+(1072, 1, 309, 618, 1),
+(1073, 1, 309, 619, 1),
+(1074, 1, 309, 670, 1),
+(1075, 1, 309, 620, 1),
+(1076, 1, 309, 621, 1),
+(1077, 1, 309, 622, 1),
+(1078, 1, 309, 671, 1),
+(1079, 1, 309, 675, 1),
+(1080, 1, 309, 672, 1),
+(1081, 1, 305, 618, 1),
+(1082, 1, 305, 619, 1),
+(1083, 1, 305, 620, 1),
+(1084, 1, 305, 621, 1),
+(1085, 1, 305, 622, 1),
+(1086, 1, 311, 620, 1),
+(1087, 1, 311, 619, 1),
+(1088, 1, 311, 618, 1),
+(1089, 1, 311, 621, 1),
+(1090, 1, 311, 622, 1),
+(1091, 1, 311, 674, 1),
+(1092, 1, 1, 676, 1),
+(1093, 1, 252, 677, 1),
+(1094, 2, 261, 665, 1),
+(1095, 2, 251, 619, 1),
+(1096, 2, 251, 620, 1),
+(1097, 2, 251, 621, 1),
+(1098, 2, 251, 622, 1),
+(1099, 2, 10, 624, 1),
+(1100, 2, 10, 625, 1),
+(1101, 2, 18, 619, 1),
+(1102, 2, 18, 620, 1),
+(1103, 2, 18, 626, 1),
+(1104, 2, 18, 621, 1),
+(1105, 2, 18, 622, 1),
+(1106, 2, 18, 627, 1),
+(1107, 2, 264, 618, 1),
+(1108, 2, 264, 619, 1),
+(1109, 2, 264, 620, 1),
+(1110, 2, 264, 621, 1),
+(1111, 2, 264, 622, 1),
+(1112, 2, 249, 618, 1),
+(1113, 2, 249, 619, 1),
+(1114, 2, 249, 620, 1),
+(1115, 2, 249, 621, 1),
+(1116, 2, 249, 622, 1),
+(1117, 2, 307, 618, 1),
+(1118, 2, 307, 619, 1),
+(1119, 2, 307, 620, 1),
+(1120, 2, 307, 621, 1),
+(1121, 2, 307, 622, 1),
+(1122, 2, 307, 667, 1),
+(1123, 2, 307, 666, 1),
+(1124, 2, 1, 618, 1),
+(1125, 2, 1, 619, 1),
+(1126, 2, 1, 620, 1),
+(1127, 2, 1, 621, 1),
+(1128, 2, 1, 622, 1),
+(1129, 2, 1, 676, 1),
+(1130, 2, 8, 618, 1),
+(1131, 2, 8, 619, 1),
+(1132, 2, 8, 620, 1),
+(1133, 2, 8, 621, 1),
+(1134, 2, 8, 622, 1),
+(1135, 2, 29, 618, 1),
+(1136, 2, 29, 619, 1),
+(1137, 2, 29, 620, 1),
+(1138, 2, 29, 621, 1),
+(1139, 2, 29, 622, 1),
+(1140, 2, 29, 623, 1),
+(1141, 2, 250, 618, 1),
+(1142, 2, 250, 619, 1),
+(1143, 2, 250, 620, 1),
+(1144, 2, 250, 621, 1),
+(1145, 2, 250, 622, 1),
+(1146, 2, 3, 618, 1),
+(1147, 2, 3, 619, 1),
+(1148, 2, 3, 620, 1),
+(1149, 2, 3, 621, 1),
+(1150, 2, 3, 622, 1),
+(1151, 2, 266, 618, 1),
+(1152, 2, 266, 619, 1),
+(1153, 2, 266, 620, 1),
+(1154, 2, 266, 621, 1),
+(1155, 2, 266, 622, 1),
+(1156, 2, 25, 618, 1),
+(1157, 2, 25, 619, 1),
+(1158, 2, 25, 620, 1),
+(1159, 2, 25, 621, 1),
+(1160, 2, 25, 622, 1),
+(1161, 2, 253, 643, 1),
+(1162, 2, 253, 655, 1),
+(1163, 2, 253, 656, 1),
+(1164, 2, 253, 654, 1),
+(1165, 2, 253, 657, 1),
+(1166, 2, 258, 619, 1),
+(1167, 2, 258, 618, 1),
+(1168, 2, 258, 620, 1),
+(1169, 2, 258, 621, 1),
+(1170, 2, 258, 622, 1),
+(1171, 2, 24, 618, 1),
+(1172, 2, 24, 619, 1),
+(1173, 2, 24, 620, 1),
+(1174, 2, 24, 621, 1),
+(1175, 2, 24, 622, 1),
+(1176, 2, 267, 618, 1),
+(1177, 2, 267, 619, 1),
+(1178, 2, 267, 620, 1),
+(1179, 2, 267, 621, 1),
+(1180, 2, 267, 622, 1),
+(1181, 2, 19, 618, 1),
+(1182, 2, 19, 619, 1),
+(1183, 2, 19, 620, 1),
+(1184, 2, 19, 621, 1),
+(1185, 2, 19, 622, 1),
+(1186, 2, 303, 618, 1),
+(1187, 2, 303, 619, 1),
+(1188, 2, 303, 620, 1),
+(1189, 2, 303, 621, 1),
+(1190, 2, 303, 622, 1),
+(1191, 2, 262, 618, 0),
+(1192, 2, 262, 619, 1),
+(1193, 2, 262, 620, 0),
+(1194, 2, 262, 621, 0),
+(1195, 2, 262, 622, 0),
+(1196, 2, 23, 618, 1),
+(1197, 2, 23, 619, 1),
+(1198, 2, 23, 620, 1),
+(1199, 2, 23, 621, 1),
+(1200, 2, 23, 622, 1),
+(1201, 2, 23, 664, 1),
+(1202, 2, 309, 618, 1),
+(1203, 2, 309, 619, 1),
+(1204, 2, 309, 620, 1),
+(1205, 2, 309, 621, 1),
+(1206, 2, 309, 622, 1),
+(1207, 2, 309, 671, 1),
+(1208, 2, 309, 675, 1),
+(1209, 2, 309, 670, 1),
+(1210, 2, 309, 672, 1),
+(1211, 2, 260, 618, 1),
+(1212, 2, 260, 619, 1),
+(1213, 2, 260, 620, 1),
+(1214, 2, 260, 621, 1),
+(1215, 2, 260, 622, 1),
+(1216, 2, 259, 618, 1),
+(1217, 2, 259, 619, 1),
+(1218, 2, 259, 620, 1),
+(1219, 2, 259, 621, 1),
+(1220, 2, 259, 622, 1),
+(1221, 2, 248, 618, 1),
+(1222, 2, 248, 619, 1),
+(1223, 2, 248, 620, 1),
+(1224, 2, 248, 621, 1),
+(1225, 2, 248, 622, 1),
+(1226, 2, 248, 648, 1),
+(1227, 2, 248, 647, 1),
+(1228, 2, 248, 650, 1),
+(1229, 2, 248, 662, 1),
+(1230, 2, 248, 649, 1),
+(1231, 2, 248, 653, 1),
+(1232, 2, 248, 652, 1),
+(1233, 2, 248, 651, 1),
+(1234, 2, 28, 618, 0),
+(1235, 2, 28, 619, 1),
+(1236, 2, 308, 619, 1),
+(1237, 2, 21, 619, 1),
+(1238, 2, 21, 618, 1),
+(1239, 2, 21, 620, 1),
+(1240, 2, 21, 621, 1),
+(1241, 2, 21, 622, 1),
+(1242, 2, 305, 618, 1),
+(1243, 2, 305, 619, 1),
+(1244, 2, 305, 620, 1),
+(1245, 2, 305, 621, 1),
+(1246, 2, 305, 622, 1),
+(1247, 2, 246, 618, 1),
+(1248, 2, 246, 619, 1),
+(1249, 2, 246, 620, 1),
+(1250, 2, 246, 621, 1),
+(1251, 2, 246, 622, 1),
+(1252, 2, 4, 618, 1),
+(1253, 2, 4, 619, 1),
+(1254, 2, 4, 620, 1),
+(1255, 2, 4, 621, 1),
+(1256, 2, 4, 622, 1),
+(1257, 2, 4, 663, 1),
+(1258, 2, 15, 618, 1),
+(1259, 2, 15, 619, 1),
+(1260, 2, 15, 620, 1),
+(1261, 2, 15, 621, 1),
+(1262, 2, 15, 622, 1),
+(1263, 2, 7, 618, 1),
+(1264, 2, 7, 619, 1),
+(1265, 2, 7, 620, 1),
+(1266, 2, 7, 621, 1),
+(1267, 2, 7, 622, 1),
+(1268, 2, 252, 618, 1),
+(1269, 2, 252, 619, 1),
+(1270, 2, 252, 620, 1),
+(1271, 2, 252, 621, 1),
+(1272, 2, 252, 622, 1),
+(1273, 2, 252, 677, 1),
+(1274, 2, 11, 634, 1),
+(1275, 2, 11, 636, 1),
+(1276, 2, 11, 635, 1),
+(1277, 2, 11, 637, 1),
+(1278, 2, 311, 618, 1),
+(1279, 2, 311, 620, 1),
+(1280, 2, 311, 619, 1),
+(1281, 2, 311, 621, 1),
+(1282, 2, 311, 622, 1),
+(1283, 2, 311, 674, 1),
+(1284, 2, 17, 619, 1),
+(1285, 2, 247, 618, 1),
+(1286, 2, 247, 619, 1),
+(1287, 2, 247, 620, 1),
+(1288, 2, 247, 621, 1),
+(1289, 2, 247, 622, 1),
+(1290, 2, 5, 618, 1),
+(1291, 2, 5, 619, 1),
+(1292, 2, 5, 620, 1),
+(1293, 2, 5, 621, 1),
+(1294, 2, 5, 622, 1),
+(1295, 2, 257, 618, 1),
+(1296, 2, 257, 619, 1),
+(1297, 2, 257, 620, 1),
+(1298, 2, 257, 621, 1),
+(1299, 2, 257, 622, 1),
+(1300, 2, 22, 619, 1),
+(1301, 2, 22, 618, 1),
+(1302, 2, 22, 620, 1),
+(1303, 2, 22, 621, 1),
+(1304, 2, 22, 622, 1),
+(1305, 2, 9, 618, 1),
+(1306, 2, 9, 619, 1),
+(1307, 2, 9, 620, 1),
+(1308, 2, 9, 621, 1),
+(1309, 2, 9, 622, 1),
+(1310, 2, 9, 638, 1),
+(1311, 2, 9, 640, 1),
+(1312, 2, 9, 639, 1),
+(1313, 2, 9, 641, 1),
+(1314, 2, 9, 642, 1),
+(1315, 3, 261, 665, 1),
+(1316, 3, 3, 619, 1),
+(1317, 3, 266, 619, 1),
+(1318, 3, 25, 619, 1),
+(1319, 3, 258, 619, 1),
+(1320, 3, 24, 619, 1),
+(1321, 3, 267, 619, 1),
+(1322, 3, 267, 620, 1),
+(1323, 3, 19, 619, 1),
+(1324, 3, 303, 619, 1),
+(1325, 3, 262, 619, 1),
+(1326, 3, 23, 619, 1),
+(1327, 3, 309, 619, 1),
+(1328, 3, 260, 619, 1),
+(1329, 3, 259, 619, 1),
+(1330, 3, 248, 619, 1),
+(1331, 3, 28, 619, 1),
+(1332, 3, 308, 619, 1),
+(1333, 3, 21, 619, 1),
+(1334, 3, 305, 619, 1),
+(1335, 3, 246, 619, 1),
+(1336, 3, 4, 619, 1),
+(1337, 3, 15, 619, 1),
+(1338, 3, 7, 619, 1),
+(1339, 3, 252, 619, 1),
+(1340, 3, 11, 635, 0),
+(1341, 3, 311, 619, 0),
+(1342, 3, 17, 619, 1),
+(1343, 3, 247, 619, 1),
+(1344, 3, 5, 619, 1),
+(1345, 3, 257, 619, 1),
+(1346, 3, 22, 619, 1),
+(1347, 3, 9, 619, 1),
+(1348, 3, 9, 621, 1),
+(1349, 3, 9, 639, 1),
+(1350, 3, 9, 641, 1),
+(1351, 3, 9, 642, 1),
+(1352, 3, 9, 640, 1),
+(1353, 3, 248, 618, 1),
+(1354, 3, 248, 620, 1),
+(1355, 3, 248, 651, 1),
+(1356, 3, 248, 647, 1);
 
 -- --------------------------------------------------------
 
@@ -386,7 +675,10 @@ INSERT INTO `acciones_resagadas_usuarios` (`id_accion_resagada_usuario`, `id_mod
 (1191, 19, 'V30485681', 'borrarDataModuloSS', 1),
 (1193, 19, 'V30485681', 'actDT', 1),
 (1227, 4, 'V30485681', 'borrarDataModuloSS', 1),
-(1229, 4, 'V30485681', 'actDT', 1);
+(1229, 4, 'V30485681', 'actDT', 1),
+(1285, 9, 'V30485631', 'actDT', 1),
+(1289, 4, 'V30485631', 'actDT', 1),
+(1301, 9, 'V30485631', 'borrarDataModuloSS', 1);
 
 -- --------------------------------------------------------
 
@@ -571,7 +863,37 @@ INSERT INTO `bitacora` (`id_bitacora`, `cedula_usuario`, `id_modulo`, `resultado
 (2405, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:15:12\"}}', '2026-08-14 13:10:12', 1),
 (2406, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:40:53\"}}', '2026-08-14 13:35:53', 1),
 (2407, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 13:56:25\"},\"intentos_inicio_sesion_fallidos_usuario\":{\"Modificado\":0}}', '2026-08-14 13:51:25', 1),
-(2408, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 14:04:41\"}}', '2026-08-14 13:59:41', 1);
+(2408, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-14 14:04:41\"}}', '2026-08-14 13:59:41', 1),
+(2409, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-15 11:01:46\"}}', '2026-08-15 10:56:46', 1),
+(2410, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-15 18:30:26\"}}', '2026-08-15 18:25:26', 1),
+(2411, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-15 18:40:36\"}}', '2026-08-15 18:35:36', 1),
+(2412, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-15 18:49:19\"}}', '2026-08-15 18:44:19', 1),
+(2413, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 15:36:42\"}}', '2026-08-16 15:31:42', 1),
+(2414, 'V30485684', 17, 'Éxito', 'eliminar', '190.97.229.57', '{\"id_rol\":{\"Eliminado\":2},\"nombre_rol\":{\"Eliminado\":\"OFICINISTA\"},\"status\":{\"Eliminado\":1}}', '2026-08-16 15:35:40', 1),
+(2416, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 15:43:57\"}}', '2026-08-16 15:38:57', 1),
+(2422, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 15:51:48\"}}', '2026-08-16 15:46:48', 1),
+(2424, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:04:30\"}}', '2026-08-16 15:59:30', 1),
+(2426, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:07:52\"}}', '2026-08-16 16:02:52', 1),
+(2428, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485681', '181.208.252.213', NULL, '2026-08-16 16:03:15', 1),
+(2429, 'V30485631', 9, 'Éxito', 'Iniciar sesión', '181.208.252.213', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:10:37\"}}', '2026-08-16 16:05:37', 1),
+(2430, 'V30485684', 17, 'Éxito', 'actualizar', '190.97.229.57', '{\"nombre_rol\":{\"Modificado\":\"CLIENTE\"},\"status\":{\"Eliminado\":1}}', '2026-08-16 16:05:58', 1),
+(2431, 'V30485631', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:19:39\"}}', '2026-08-16 16:14:39', 1),
+(2432, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:28:37\"}}', '2026-08-16 16:23:37', 1),
+(2434, 'V30485631', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 16:30:41\"}}', '2026-08-16 16:25:41', 1),
+(2435, 'V30485684', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 17:55:08\"}}', '2026-08-16 17:50:08', 1),
+(2437, 'V30485631', 9, 'Éxito', 'Iniciar sesión', '190.97.229.57', '{\"ultimo_acceso_usuario\":{\"Modificado\":\"2026-08-16 17:55:27\"}}', '2026-08-16 17:50:27', 1),
+(2438, 'V30485684', 4, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-08-16 18:57:00', 1),
+(2439, 'V30485684', 4, 'Éxito', 'Eliminar', '181.208.252.213', NULL, '2026-08-16 18:57:05', 1),
+(2440, 'V30485631', 248, 'Fallido', 'registrar', '190.97.229.57', NULL, '2026-08-16 18:59:25', 1),
+(2441, 'V30485631', 248, 'Éxito', 'registrar', '190.97.229.57', '{\"productos\":[{\"id_producto\":{\"Registrado\":\"PROD-26222-00002-19\"},\"id_presentacion\":{\"Registrado\":\"PRES-26123-00001-28\"},\"id_presentacion_producto\":{\"Registrado\":\"PRPR-26222-00007-32\"},\"cantidad\":{\"Registrado\":1}}],\"pagos\":[{\"id_metodo_pago\":{\"Registrado\":\"3\"},\"id_moneda\":{\"Registrado\":\"1\"},\"referencia_pago\":{\"Registrado\":\"123456\"},\"monto_pago\":{\"Registrado\":113}}],\"delivery\":{\"latitud\":{\"Registrado\":9.861855646518277},\"longitud\":{\"Registrado\":-69.61206931161935}},\"comprobantes_pago\":[{\"Registrado\":[\"comprobantes_pagos_2026_08_16_19_00_02_21.jpg\"]}]}', '2026-08-16 19:00:05', 1),
+(2442, 'V30485684', 248, 'Éxito', 'Asignar Repartidor al pedido (FACT-26227-00001-55)', '190.97.229.57', '{\"status_pedido\":{\"Modificado\":7},\"cedula_repartidor\":{\"Registrado\":\"V30485654\"},\"cedula_usuario\":{\"Registrado\":\"V30485684\"}}', '2026-08-16 19:25:14', 1),
+(2443, 'V30485684', 248, 'Éxito', 'Actualizar pedido (FACT-26227-00001-55)', '190.97.229.57', '{\"status_pedido\":{\"Modificado\":8}}', '2026-08-16 19:25:36', 1),
+(2445, 'V30485684', 9, 'Éxito', 'Actualizar foto del usuario con la cedula/rif: V30485631', '190.97.229.57', '{\"foto_usuario\":{\"name\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"full_path\":{\"Registrado\":\"Imagen de WhatsApp 2025-09-18 a las 10.52.56_6cf5b4d7.jpg\"},\"type\":{\"Registrado\":\"image\\/jpeg\"},\"tmp_name\":{\"Registrado\":\"C:\\\\xampp\\\\tmp\\\\phpD44.tmp\"},\"error\":{\"Registrado\":0},\"size\":{\"Registrado\":118154}},\"fofo_usuario\":{\"Eliminado\":\"\"}}', '2026-08-16 19:49:47', 1),
+(2446, 'V30485684', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485631', '190.97.229.57', '{\"apellido_usuario\":{\"Modificado\":\"Mendozam\"},\"cedula_usuario\":{\"Eliminado\":\"V30485631\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026-08-16_19_49_47.jpg?v=2026-08-16_19_49_47\"}}', '2026-08-16 19:49:57', 1),
+(2447, 'V30485684', 9, 'Éxito', 'Actualizar usuario con la cedula/rif: V30485631', '190.97.229.57', '{\"apellido_usuario\":{\"Modificado\":\"Mendoza\"},\"cedula_usuario\":{\"Eliminado\":\"V30485631\"},\"foto_usuario\":{\"Eliminado\":\"usuarios_2026-08-16_19_49_47.jpg?v=2026-08-16_19_49_47\"}}', '2026-08-16 19:50:04', 1),
+(2448, 'V30485684', 9, 'Éxito', 'registrar usuario con la cédula/rif: V30485688', '190.97.229.57', '{\"cedula_usuario\":{\"Registrado\":\"V30485688\"},\"nombre_usuario\":{\"Registrado\":\"Anderson\"},\"apellido_usuario\":{\"Registrado\":\"Freitez\"},\"correo_usuario\":{\"Registrado\":\"andersonfreitenz6@gmail.com\"},\"telefono_usuario\":{\"Registrado\":\"04169484640\"},\"id_rol\":{\"Registrado\":2},\"usuario_usuario\":{\"Registrado\":\"Ander12399\"},\"contrasena_usuario\":{\"Registrado\":\"$2y$10$OFi7gH2tMZled2NsBfYyI.NWAYlnlg3CUuQN\\/mEoH3phwkhCk5jDO\"},\"foto_usuario\":{\"Registrado\":\"usuarios_2026_08_16_19_51_07_2.png\"},\"direccion_usuario\":{\"Registrado\":\"BARQUISIMETO\"}}', '2026-08-16 19:51:10', 1),
+(2449, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485631', '190.97.229.57', NULL, '2026-08-16 19:51:25', 1),
+(2450, 'V30485684', 9, 'Éxito', 'Eliminar usuario con la cedula/rif: V30485688', '190.97.229.57', NULL, '2026-08-16 19:51:31', 1);
 
 -- --------------------------------------------------------
 
@@ -655,7 +977,8 @@ INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `status`) VALUES
 (306, 'mamm', 0),
 (307, 'chatbot', 1),
 (308, 'preguntas-seguridad', 1),
-(309, 'ordenesEntregasPresupuestos', 1);
+(309, 'ordenesEntregasPresupuestos', 1),
+(311, 'reportesEstadisticos', 1);
 
 -- --------------------------------------------------------
 
@@ -685,7 +1008,8 @@ INSERT INTO `notificaciones` (`id_notificacion`, `cedula_usuario`, `id_icono_not
 (400, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido registrado en el sistema.', '2026-08-08 13:50:22', 0),
 (401, 'V30485684', 1, 2, 0, 'Permisos', 'Un permiso ha sido eliminado del sistema.', '2026-08-08 13:50:26', 0),
 (402, 'V30485681', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-10 17:44:31', 1),
-(403, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-10 17:44:31', 0);
+(403, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-10 17:44:31', 0),
+(404, 'V30485684', 1, 2, 0, 'Pedido nuevo', 'Acaba de llegar un pedido nuevo', '2026-08-16 19:00:03', 1);
 
 -- --------------------------------------------------------
 
@@ -758,7 +1082,11 @@ INSERT INTO `permisos` (`id_permiso`, `nombre_permiso`, `status`) VALUES
 (670, 'anular', 1),
 (671, 'despachar orden', 1),
 (672, 'agregar pago', 1),
-(673, 'permisox', 0);
+(673, 'permisox', 0),
+(674, 'ver reportes estadísticos', 1),
+(675, 'agregar cliente', 1),
+(676, 'ver detalles de los clientes', 1),
+(677, 'ver detalles de los repartidores', 1);
 
 -- --------------------------------------------------------
 
@@ -819,18 +1147,30 @@ INSERT INTO `preguntas_seguridad_usuarios` (`id_pregunta_usuario`, `id_pregunta`
 ('PRUS-26213-00004-32', 'PREG-26210-00013-26', 'V30485684', '$2y$10$AAs.exVU1/hT.kK/2wYnRumBj0/81k6la0doYE7P81IEKCENLZ2Yi', 1),
 ('PRUS-26213-00005-91', 'PREG-26210-00012-08', 'V30485684', '$2y$10$nEuTtqbC4VHg/Fq7MjHDJuo8pAjGVNj.MQ1/DvKaH5lVu6FeminVe', 1),
 ('PRUS-26213-00006-15', 'PREG-26210-00010-46', 'V30485684', '$2y$10$.pudhcTVmpJqP56lu1guxOCQpi8czdVNALQv04oklr6X3byw/GHly', 1),
-('PRUS-26221-00001-41', 'PREG-26210-00001-26', 'V30485688', '$2y$10$kkIvKOeLqnsJjPepiPbPaObftz5zu.Utme0AAci7k9jqbCwNdxb7.', 1),
-('PRUS-26221-00002-20', 'PREG-26210-00002-21', 'V30485688', '$2y$10$WXVuBpVC/aD2eJjIjiGOzu5rMVQU9i.LDG77RAib4sAlNRE5hLgDG', 1),
-('PRUS-26221-00003-40', 'PREG-26210-00003-77', 'V30485688', '$2y$10$xplVAHINlxboKlbtghJQFOGG/93Wa0ZmgDSIXQe7ymr.mRtfNYl8i', 1),
-('PRUS-26221-00004-31', 'PREG-26210-00015-02', 'V30485688', '$2y$10$97U9ZxMj0mPK/rtsBgTM.e6A33jx6DFV./yd6R5aHTD9pVEpI4CEa', 1),
-('PRUS-26221-00005-05', 'PREG-26210-00014-96', 'V30485688', '$2y$10$.vWhvgbmkDn0wSvhLpu5p.YRkVpg.Qy1r5sEV4REGFFmhSaPvJJoe', 1),
-('PRUS-26221-00006-70', 'PREG-26210-00012-08', 'V30485688', '$2y$10$MSyyqq8/wDJedr3JCR/GeuXLtDX2fE4z/XR1LEAV4rWAdodyVmRYG', 1),
-('PRUS-26221-00007-22', 'PREG-26210-00001-26', 'V30485681', '$2y$10$wU8cYibX8NLN27pihZMW4Obl1MtwCq60TaylCpisI7k3graGFoaHu', 1),
-('PRUS-26221-00008-99', 'PREG-26210-00002-21', 'V30485681', '$2y$10$oCY9ov16IiozchUkb/jkhOZnuIwVC4HRPtkcjLoGoBQxkUDJW2auy', 1),
-('PRUS-26221-00009-61', 'PREG-26210-00003-77', 'V30485681', '$2y$10$EJGejQQ/q8/bHep25huPnO9AKIXVy9q0Pkt/WV/rah7C4rBlUwKoq', 1),
-('PRUS-26221-00010-42', 'PREG-26210-00014-96', 'V30485681', '$2y$10$F0WYELHGHtHBGMWGEJvE.ehIVVz5VMtDaa1x38KCl6Eh.Yx84sf1C', 1),
-('PRUS-26221-00011-68', 'PREG-26210-00012-08', 'V30485681', '$2y$10$b3u2pHbQ24nWvTq8Tg8DXep2j6CQYU1ICmfpfrMmJXVP80Z2u/r7i', 1),
-('PRUS-26221-00012-42', 'PREG-26210-00011-43', 'V30485681', '$2y$10$caw/tqyKBEMy7cZcRrMcMePBXzmAwEgzkbctT.h3Ax9ilGYtgfdv6', 1);
+('PRUS-26221-00001-41', 'PREG-26210-00001-26', 'V30485688', '$2y$10$kkIvKOeLqnsJjPepiPbPaObftz5zu.Utme0AAci7k9jqbCwNdxb7.', 0),
+('PRUS-26221-00002-20', 'PREG-26210-00002-21', 'V30485688', '$2y$10$WXVuBpVC/aD2eJjIjiGOzu5rMVQU9i.LDG77RAib4sAlNRE5hLgDG', 0),
+('PRUS-26221-00003-40', 'PREG-26210-00003-77', 'V30485688', '$2y$10$xplVAHINlxboKlbtghJQFOGG/93Wa0ZmgDSIXQe7ymr.mRtfNYl8i', 0),
+('PRUS-26221-00004-31', 'PREG-26210-00015-02', 'V30485688', '$2y$10$97U9ZxMj0mPK/rtsBgTM.e6A33jx6DFV./yd6R5aHTD9pVEpI4CEa', 0),
+('PRUS-26221-00005-05', 'PREG-26210-00014-96', 'V30485688', '$2y$10$.vWhvgbmkDn0wSvhLpu5p.YRkVpg.Qy1r5sEV4REGFFmhSaPvJJoe', 0),
+('PRUS-26221-00006-70', 'PREG-26210-00012-08', 'V30485688', '$2y$10$MSyyqq8/wDJedr3JCR/GeuXLtDX2fE4z/XR1LEAV4rWAdodyVmRYG', 0),
+('PRUS-26221-00007-22', 'PREG-26210-00001-26', 'V30485681', '$2y$10$wU8cYibX8NLN27pihZMW4Obl1MtwCq60TaylCpisI7k3graGFoaHu', 0),
+('PRUS-26221-00008-99', 'PREG-26210-00002-21', 'V30485681', '$2y$10$oCY9ov16IiozchUkb/jkhOZnuIwVC4HRPtkcjLoGoBQxkUDJW2auy', 0),
+('PRUS-26221-00009-61', 'PREG-26210-00003-77', 'V30485681', '$2y$10$EJGejQQ/q8/bHep25huPnO9AKIXVy9q0Pkt/WV/rah7C4rBlUwKoq', 0),
+('PRUS-26221-00010-42', 'PREG-26210-00014-96', 'V30485681', '$2y$10$F0WYELHGHtHBGMWGEJvE.ehIVVz5VMtDaa1x38KCl6Eh.Yx84sf1C', 0),
+('PRUS-26221-00011-68', 'PREG-26210-00012-08', 'V30485681', '$2y$10$b3u2pHbQ24nWvTq8Tg8DXep2j6CQYU1ICmfpfrMmJXVP80Z2u/r7i', 0),
+('PRUS-26221-00012-42', 'PREG-26210-00011-43', 'V30485681', '$2y$10$caw/tqyKBEMy7cZcRrMcMePBXzmAwEgzkbctT.h3Ax9ilGYtgfdv6', 0),
+('PRUS-26227-00001-58', 'PREG-26210-00001-26', 'V30485631', '$2y$10$XtK3dfbu27H6smxaIwNBDuC/W3J5esegFOxzGYqmlYZUxMFOIF2qO', 0),
+('PRUS-26227-00002-60', 'PREG-26210-00002-21', 'V30485631', '$2y$10$.Pi5SWuInsDZ/QE2EyQRGOfecbw5Rt2nOcMuKd4D4bPf/QkkP.bTC', 0),
+('PRUS-26227-00003-26', 'PREG-26210-00003-77', 'V30485631', '$2y$10$AyfEGBCe5hHBQU/ZRmy9..7kMSEcOG1C2bX1Z/QVHhqPFJx6r6j0.', 0),
+('PRUS-26227-00004-88', 'PREG-26210-00004-61', 'V30485631', '$2y$10$twjRhlLjk2E138yreZfCY.HfGtcd6YwS1OlrvG5.enL69ltKE1S5K', 0),
+('PRUS-26227-00005-55', 'PREG-26210-00005-63', 'V30485631', '$2y$10$kuqj.R/XY26DnbiVRS7BXe9dVd2waEePUzG8EXNNnSXQogsJIk7ne', 0),
+('PRUS-26227-00006-84', 'PREG-26210-00006-60', 'V30485631', '$2y$10$gvzXH7dcsGLwu2mlW2ILm.W0zAXRJKJgHelsEIyS23o.wmIK9aFfa', 0),
+('PRUS-26227-00007-21', 'PREG-26210-00001-26', 'V30485688', '$2y$10$3gcuhRdZD7BKvZZDgFvKXOGwzupUMpukIjUFl/jbohDXTxXBhlSBa', 0),
+('PRUS-26227-00008-47', 'PREG-26210-00003-77', 'V30485688', '$2y$10$h7IURdkgkEwdeHo5k7CAm.r.I69Uc6vL1/k3P1S5coycthy0E40Q.', 0),
+('PRUS-26227-00009-82', 'PREG-26210-00002-21', 'V30485688', '$2y$10$MDb9SYu2UCMArqfd5KrEfu.PcIApHsjvAGJ72uAF7ragC0RUF7p4i', 0),
+('PRUS-26227-00010-26', 'PREG-26210-00014-96', 'V30485688', '$2y$10$7jHbnoRdBc5eZB0qMCQWAecGqkflPj1BWblxToi9W4KwFvxPUeyTC', 0),
+('PRUS-26227-00011-13', 'PREG-26210-00015-02', 'V30485688', '$2y$10$ca9XzzUtY.A5pOjuEIN8O.P5NXZ18ugezQA1IISYT01Fymg/LrC0W', 0),
+('PRUS-26227-00012-54', 'PREG-26210-00012-08', 'V30485688', '$2y$10$S1Du8BywViYS1DV21mBfBu0v7nGbGGJwHe2CVMGoE8I9ThQNfAZqm', 0);
 
 -- --------------------------------------------------------
 
@@ -864,9 +1204,9 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id_rol`, `nombre_rol`, `status`) VALUES
-(1, 'ADMINISTRADOR', 1),
-(2, 'OFICINISTA', 1),
-(3, 'CLIENTES', 1);
+(1, 'SUPER ADMINISTRADOR', 1),
+(2, 'ADMINISTRADOR', 1),
+(3, 'CLIENTE', 1);
 
 -- --------------------------------------------------------
 
@@ -930,9 +1270,10 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`cedula_usuario`, `id_rol`, `nombre_usuario`, `apellido_usuario`, `usuario_usuario`, `contrasena_usuario`, `telefono_usuario`, `correo_usuario`, `foto_usuario`, `direccion_usuario`, `ultimo_acceso_usuario`, `intentos_inicio_sesion_fallidos_usuario`, `status`) VALUES
-('V30485681', 1, 'Anderson', 'Freitez', 'Ander1236', '$2y$10$6ljN.VrGlB6mn4wLkHfDaOXke8z9135c.OYp5R.mHKk/y0bWnjNde', '04169484643', 'andersonfreitez66@gmail.com', 'usuarios_2026_08_10_16_58_55_14.jpg', 'BARQUISIMETO', '2026-08-11 04:58:55', 0, 1),
-('V30485684', 1, 'Anderson', 'Freitez', 'Ander123', '$2y$10$c6nJB8cfBNeptJq45jPrMOK.jPOGFOEq7rZAFHyHkg3k7WzQMQXC6', '04169484649', 'andersonfreitez6@gmail.com', '', 'SANARE', '2026-08-14 14:12:56', 0, 1),
-('V30485688', 1, 'Andersoa', 'Freitez', 'Ander1239', '$2y$10$petVY5x/7OGMh1gk/PuBt.R2SxsI20QXItsUrfqIG.XrEk4aScQ5m', '04169484640', 'andersonfremitez6@gmail.com', 'usuarios_2026_08_10_16_45_15_60.jpg?v=2026-08-10_17_00_26', 'BARQUISIMETO', '2026-08-11 04:45:15', 0, 0);
+('V30485631', 3, 'Ander', 'Mendoza', 'Ander1234', '$2y$10$q1kepCAa6lqPBN76ncHveuNSFzsU8azGLPCUADq2h13tB2hUahpMG', '04160484640', 'andersonfreitez63@gmail.com', 'usuarios_2026-08-16_19_49_47.jpg?v=2026-08-16_19_49_47', 'El Molino', '2026-08-16 17:55:27', 0, 0),
+('V30485681', 1, 'Anderson', 'Freitez', 'Ander1236', '$2y$10$6ljN.VrGlB6mn4wLkHfDaOXke8z9135c.OYp5R.mHKk/y0bWnjNde', '04169484643', 'andersonfreitez66@gmail.com', 'usuarios_2026_08_10_16_58_55_14.jpg', 'BARQUISIMETO', '2026-08-11 04:58:55', 0, 0),
+('V30485684', 1, 'Anderson', 'Freitez', 'Ander123', '$2y$10$GclIuFtWodZio618mmWCJuXOr0LYxmLAjyaR7s3TA8vKUZ8Jczuxm', '04169484649', 'andersonfreitez6@gmail.com', '', 'SANARE', '2026-08-16 17:55:08', 0, 1),
+('V30485688', 2, 'Anderson', 'Freitez', 'Ander12399', '$2y$10$OFi7gH2tMZled2NsBfYyI.NWAYlnlg3CUuQN/mEoH3phwkhCk5jDO', '04169484640', 'andersonfreitenz6@gmail.com', 'usuarios_2026_08_16_19_51_07_2.png', 'BARQUISIMETO', '2026-08-11 04:45:15', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1077,19 +1418,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `accesos`
 --
 ALTER TABLE `accesos`
-  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1070;
+  MODIFY `id_acceso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1357;
 
 --
 -- AUTO_INCREMENT de la tabla `acciones_resagadas_usuarios`
 --
 ALTER TABLE `acciones_resagadas_usuarios`
-  MODIFY `id_accion_resagada_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1281;
+  MODIFY `id_accion_resagada_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1313;
 
 --
 -- AUTO_INCREMENT de la tabla `bitacora`
 --
 ALTER TABLE `bitacora`
-  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2409;
+  MODIFY `id_bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2451;
 
 --
 -- AUTO_INCREMENT de la tabla `iconos_notificaciones`
@@ -1101,19 +1442,19 @@ ALTER TABLE `iconos_notificaciones`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=311;
+  MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=312;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=404;
+  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=405;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=674;
+  MODIFY `id_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=678;
 
 --
 -- AUTO_INCREMENT de la tabla `prompts_usuarios`

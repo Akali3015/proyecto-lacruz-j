@@ -140,7 +140,7 @@ async function verDetallesPedido() {
           let precioBS = (parseFloat(dolar.valor_fecha_moneda) * parseFloat(info.valor));
           return `
             <div class="py-3 text-end listarItemsPedido">
-              <div class="precio_usd">${info.valor}$</div>
+              <div class="precio_usd">${parseFloat(info.valor).toFixed(2)}$</div>
               <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
             </div>
           `;
@@ -156,10 +156,13 @@ async function verDetallesPedido() {
               <div class="precio_bs">${precioBS.toFixed(2)} Bs</div>
             </div>
           `;
+        },
+        cantidad_producto:(info)=>{
+          return `<span class="cantidadProducto">${info.valor}</span>`;
         }
       },
       datosFooter: {
-        'Monto total de los productos': [`${totalProductos.toFixed(2)}$`, 5],
+        'Monto total de los productos': [`<span class="totalProductosPedido">${totalProductos.toFixed(2)}$</span>`, 5],
       }
     }));
 
@@ -188,16 +191,16 @@ async function verDetallesPedido() {
       },
       infoTratoEspecial: {
         equivalencia_fecha_factura: (info) => {
-          return info.valor.toFixed(2) + '$'
+          return `<span class="equivalenciaSubTotalPago">${info.valor.toFixed(2)}$</span>`
         }
       },
       datosFooter: {
-        'Total Productos': [totalProductos.toFixed(2) + '$', 1],
-        'Total Envío': [totalEnvio.toFixed(2) + '$', 1],
-        [`Monto IVA (${porcentaje_IVA}%)`]: [monto_IVA + '$', 2],
-        'Total General': [`${(total_IVA).toFixed(2)}$`, 1],
-        'Total Cancelado': [`${totalPagos.toFixed(2)}$`, 1],
-        [tituloExcedente]: [`${(totalPagos - total_IVA).toFixed(2)}$`, 1],
+        'Total Productos': [`<span class="totalDolar">${totalProductos.toFixed(2)}</span>`, 1],
+        'Total Envío': [`<span class="totalDolar">${totalEnvio.toFixed(2)}</span>`, 1],
+        [`Monto IVA (${porcentaje_IVA}%)`]: [`<span class="totalDolar">${monto_IVA.toFixed(2)}</span>`, 2],
+        'Total General': [`<span class="totalDolar">${total_IVA.toFixed(2)}</span>`, 1],
+        'Total Cancelado': [`<span class="totalDolar">${totalPagos.toFixed(2)}</span>`, 1],
+        [tituloExcedente]: [`<span class="totalDolar">${(totalPagos - total_IVA).toFixed(2)}</span>`, 1],
       }
     }));
 
@@ -235,17 +238,18 @@ async function verDetallesPedido() {
     let infoRestante = {
       ...cliente, ...vendedor, ...medioEnvio, ...calculos
     }
+
+    
+    //Insercion de datos
     let valoresAparte = [
       'foto_usuario', 'url_direccion',
     ];
-
-    //Insercion de datos
     let clavesDineroDolar = [
       'precio_ruta_factura', 'totalEnvio'
     ];
     for (const [clave, valor] of Object.entries(infoRestante)) {
       if (valoresAparte.includes(clave)) continue;
-      if (clavesDineroDolar.includes(clave)) modalD.find(`.tap_${clave}`).text(valor + '$');
+      if (clavesDineroDolar.includes(clave)) modalD.find(`.tap_${clave}`).text(parseFloat(valor).toFixed(2) + '$');
       else modalD.find(`.tap_${clave}`).text(valor);
     }
     let foto = infoRestante.foto_usuario ? infoRestante.foto_usuario : 'perfilDefaultUsuario.png'
@@ -299,8 +303,22 @@ async function verDetallesPedido() {
 
     await Promise.all(promesas);
 
-    let preciosBs = $('.tablaProductosPedido').find('.precio_bs');
+    //Formateos cantidades
+    let preciosBs = $(modalD).find('.precio_bs');
+    let preciosUsd = $(modalD).find(`
+      .precio_usd, 
+      .totalProductosPedido,
+      .tap_precio_ruta_factura,
+      .tap_totalEnvio,
+      .equivalenciaSubTotalPago,
+      .totalDolar
+    `);
+    let dinero = $(modalD).find('.cantidadProducto');
+
+    formateoCampos(dinero, 'dinero');
     formateoCampos(preciosBs, 'dineroBolivar');
+    formateoCampos(preciosUsd, 'dineroDolar');
+
 
     modalD.find('.btnTapProductos').trigger('click');
 
@@ -385,7 +403,7 @@ $(document).on("DOMContentLoaded", async function () {
     }
   });
   if (permisos?.icono == 'error') return alertasAjax(permisos);
-  
+
   if (permisos.pedidos.includes('ver pedidos propios')) {
     let promesas = [];
     // Catalogo de productos

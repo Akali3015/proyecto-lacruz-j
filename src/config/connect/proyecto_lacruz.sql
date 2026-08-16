@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-08-2026 a las 16:48:13
+-- Tiempo de generación: 17-08-2026 a las 01:55:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -399,14 +399,15 @@ INSERT INTO `clientes` (`rif_cedula_cliente`, `razon_social_cliente`, `telefono_
 ('V12345669', 'Anderson Freitez', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 0),
 ('V1234567', 'ANDEROSN FREITEZ', '04169484649', 'andersonfreitez6@gmail.com', 'BARQUISIMETO', 0),
 ('V304856111', 'Anderson Freitei', '04169484647', 'andersonfreitez68@gmail.com', 'BARQUISIMETO', 0),
+('V30485631', 'Ander Mendoza', '04160484640', 'andersonfreitez63@gmail.com', 'El Molino', 0),
 ('V30485680', 'Anderson Freitez', '04169484655', 'andersonfreitez76@gmail.com', 'SANARE', 0),
-('V30485681', 'Anderson Freitez', '04169484643', 'andersonfreitez66@gmail.com', 'BARQUISIMETO', 1),
+('V30485681', 'Anderson Freitez', '04169484643', 'andersonfreitez66@gmail.com', 'BARQUISIMETO', 0),
 ('V30485682', 'NADA', '04141234567', 'andersonfreitez6@gmail.co', 'SANARE', 0),
 ('V30485683', 'Anderson Freitezm', '04169484648', 'andersonfreitez68@gmail.com', 'BARQUISIMETO', 0),
 ('V30485684', 'Anderson Freitez', '04169484649', 'andersonfreitez6@gmail.com', 'SANARE', 0),
 ('V304856845', '54114', '04169484646', 'andersonfreitez66@gmail.com', 'hhhh', 0),
 ('V30485686', 'Anderson Freitez', '04169999999', 'andersonfreitez6999@gmail.com', 'SANARE', 0),
-('V30485688', 'Anderson Freitez', '04169484640', 'andersonfremitez6@gmail.com', 'BARQUISIMETO', 1),
+('V30485688', 'Anderson Freitez', '04169484640', 'andersonfremitez6@gmail.com', 'BARQUISIMETO', 0),
 ('V30485689', 'ANDEROSN FREITEZ', '04169484648', 'andersonfreitez6@gmail.con', 'David', 0),
 ('V30485694', 'Anderson Freitez', '04169484699', 'andersonfreitez996@gmail.com', 'BARQUISIMETO', 0),
 ('V33333331', 'ANDEROSN FREITEZaa', '04161234569', 'andersonfreitez6@gmail.coj', 'ANDERSON', 0),
@@ -469,7 +470,8 @@ INSERT INTO `comprobantes_pagos` (`id_comprobante_pago`, `id_pago`, `path_compro
 (147, 'PAG-26183-00001-58', 'comprobantes_pagos_2026_07_03_06_44_09_24.jpg', 1),
 (148, 'PAG-26183-00002-83', 'comprobantes_pagos_2026_07_03_06_55_02_9.jpg', 1),
 (149, 'PAG-26190-00001-58', 'comprobantes_pagos_2026_07_10_00_47_24_22.jpg', 1),
-(150, 'PAG-26221-00001-44', 'comprobantes_pagos_2026_08_10_17_44_30_56.jpg', 1);
+(150, 'PAG-26221-00001-44', 'comprobantes_pagos_2026_08_10_17_44_30_56.jpg', 1),
+(151, 'PAG-26227-00001-57', 'comprobantes_pagos_2026_08_16_19_00_02_21.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -497,7 +499,8 @@ INSERT INTO `deliveries` (`id_delivery`, `id_orden_entrega_presupuesto`, `id_dir
 ('DELI-26183-00001-31', 'FACT-26183-00001-30', 160, 'V12344567', 1),
 ('DELI-26183-00002-07', 'FACT-26183-00002-26', 161, 'V12344567', 1),
 ('DELI-26190-00001-38', 'FACT-26190-00001-44', 162, 'V12344567', 1),
-('DELI-26221-00001-04', 'FACT-26221-00001-60', 163, 'V12344567', 1);
+('DELI-26221-00001-04', 'FACT-26221-00001-60', 163, 'V12344567', 1),
+('DELI-26227-00001-53', 'FACT-26227-00001-55', 164, 'V30485654', 1);
 
 -- --------------------------------------------------------
 
@@ -526,7 +529,8 @@ INSERT INTO `detalles_pagos` (`id_detalle_pago`, `id_pago`, `id_metodo_pago`, `i
 (268, 'PAG-26183-00001-58', 3, 1, 337.00, 1),
 (269, 'PAG-26183-00002-83', 3, 1, 337.00, 1),
 (270, 'PAG-26190-00001-58', 3, 1, 320.16, 1),
-(271, 'PAG-26221-00001-44', 3, 1, 304.00, 1);
+(271, 'PAG-26221-00001-44', 3, 1, 304.00, 1),
+(272, 'PAG-26227-00001-57', 3, 1, 113.00, 1);
 
 -- --------------------------------------------------------
 
@@ -601,7 +605,8 @@ INSERT INTO `direcciones` (`id_direccion`, `id_latitud_direccion`, `id_longitud_
 (160, 189, 184, 11, 1),
 (161, 190, 185, 11, 1),
 (162, 191, 186, 11, 1),
-(163, 192, 187, 11, 1);
+(163, 192, 187, 11, 1),
+(164, 193, 188, 11, 1);
 
 -- --------------------------------------------------------
 
@@ -719,7 +724,8 @@ INSERT INTO `latitudes_direcciones` (`id_latitud_direccion`, `coordenada_latitud
 (189, '9.8600491537911', 1),
 (190, '9.8598981990669', 1),
 (191, '9.8597769944842', 1),
-(192, '9.93103', 1);
+(192, '9.93103', 1),
+(193, '9.8618556465183', 1);
 
 -- --------------------------------------------------------
 
@@ -790,7 +796,8 @@ INSERT INTO `longitudes_direcciones` (`id_longitud_direccion`, `coordenada_longi
 (184, '-69.611980430118', 1),
 (185, '-69.611971249216', 1),
 (186, '-69.611963692348', 1),
-(187, '-69.621948', 1);
+(187, '-69.621948', 1),
+(188, '-69.612069311619', 1);
 
 -- --------------------------------------------------------
 
@@ -909,9 +916,9 @@ INSERT INTO `materias_primas_productos` (`id_materia_prima_producto`, `id_materi
 (200, 'MATE-26123-00001-66', 'PROD-26150-00001-39', 0.10, 0),
 (202, 'MATE-26123-00001-66', 'PROD-26222-00001-83', 2.00, 0),
 (203, 'MATE-26123-00001-66', 'PROD-26222-00002-19', 10.00, 1),
-(204, 'MATE-26123-00001-66', 'PROD-26222-00003-10', 10.00, 1),
+(204, 'MATE-26123-00001-66', 'PROD-26222-00003-10', 10.00, 0),
 (206, 'MATE-26123-00001-66', 'PROD-26222-00006-10', 0.01, 0),
-(214, 'MATE-26123-00001-66', 'PROD-26222-00004-43', 1.00, 1);
+(214, 'MATE-26123-00001-66', 'PROD-26222-00004-43', 1.00, 0);
 
 -- --------------------------------------------------------
 
@@ -1072,7 +1079,8 @@ INSERT INTO `ordenes_entregas_presupuestos` (`id_orden_entrega_presupuesto`, `ce
 ('FACT-26183-00001-30', 'V30485688', 257, 'V30485688', '2026-07-03 06:44:09', 8),
 ('FACT-26183-00002-26', 'V30485688', 257, 'V30485688', '2026-07-03 06:55:02', 8),
 ('FACT-26190-00001-44', 'V30485684', 258, 'V30485684', '2026-07-10 00:47:24', 7),
-('FACT-26221-00001-60', 'V30485684', 258, 'V30485684', '2026-08-10 17:44:30', 8);
+('FACT-26221-00001-60', 'V30485684', 258, 'V30485684', '2026-08-10 17:44:30', 8),
+('FACT-26227-00001-55', 'V30485684', 258, 'V30485631', '2026-08-16 19:00:02', 8);
 
 -- --------------------------------------------------------
 
@@ -1099,7 +1107,8 @@ INSERT INTO `pagos` (`id_pago`, `id_orden_entrega_presupuesto`, `fecha_pago`, `s
 ('PAG-26183-00001-58', 'FACT-26183-00001-30', '2026-07-03 00:00:00', 1),
 ('PAG-26183-00002-83', 'FACT-26183-00002-26', '2026-07-03 00:00:00', 1),
 ('PAG-26190-00001-58', 'FACT-26190-00001-44', '2026-07-10 00:00:00', 1),
-('PAG-26221-00001-44', 'FACT-26221-00001-60', '2026-08-10 00:00:00', 1);
+('PAG-26221-00001-44', 'FACT-26221-00001-60', '2026-08-10 00:00:00', 1),
+('PAG-26227-00001-57', 'FACT-26227-00001-55', '2026-08-16 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -1160,8 +1169,8 @@ INSERT INTO `precios_productos` (`id_precio_producto`, `id_producto`, `precio_pr
 (95, 'PROD-26150-00001-39', 1.00, '2026-07-03 11:12:43', 0),
 (96, 'PROD-26222-00001-83', 1.00, '2026-08-12 00:22:42', 0),
 (97, 'PROD-26222-00002-19', 1.00, '2026-08-12 00:37:05', 1),
-(98, 'PROD-26222-00003-10', 1.00, '2026-08-12 00:37:59', 1),
-(101, 'PROD-26222-00004-43', 1.00, '2026-08-12 00:48:20', 1),
+(98, 'PROD-26222-00003-10', 1.00, '2026-08-12 00:37:59', 0),
+(101, 'PROD-26222-00004-43', 1.00, '2026-08-12 00:48:20', 0),
 (102, 'PROD-26222-00005-98', 1.00, '2026-08-12 00:48:53', 0),
 (103, 'PROD-26222-00006-10', 10.00, '2026-08-12 00:50:58', 0);
 
@@ -1329,12 +1338,12 @@ INSERT INTO `presentaciones_productos` (`id_presentacion_producto`, `id_producto
 ('PRPR-26222-00010-25', 'PROD-26222-00002-19', 'PRES-26159-00003-24', 1, '', 1),
 ('PRPR-26222-00011-11', 'PROD-26222-00002-19', 'PRES-26177-00001-19', 1, '', 1),
 ('PRPR-26222-00012-62', 'PROD-26222-00002-19', 'PRES-26177-00002-40', 1, '', 1),
-('PRPR-26222-00013-45', 'PROD-26222-00003-10', 'PRES-26123-00001-28', 1, '', 1),
-('PRPR-26222-00014-75', 'PROD-26222-00003-10', 'PRES-26159-00001-42', 0, '', 1),
-('PRPR-26222-00015-48', 'PROD-26222-00003-10', 'PRES-26159-00002-78', 0, '', 1),
-('PRPR-26222-00016-38', 'PROD-26222-00003-10', 'PRES-26159-00003-24', 0, '', 1),
-('PRPR-26222-00017-82', 'PROD-26222-00003-10', 'PRES-26177-00001-19', 0, '', 1),
-('PRPR-26222-00018-55', 'PROD-26222-00003-10', 'PRES-26177-00002-40', 0, '', 1),
+('PRPR-26222-00013-45', 'PROD-26222-00003-10', 'PRES-26123-00001-28', 1, '', 0),
+('PRPR-26222-00014-75', 'PROD-26222-00003-10', 'PRES-26159-00001-42', 0, '', 0),
+('PRPR-26222-00015-48', 'PROD-26222-00003-10', 'PRES-26159-00002-78', 0, '', 0),
+('PRPR-26222-00016-38', 'PROD-26222-00003-10', 'PRES-26159-00003-24', 0, '', 0),
+('PRPR-26222-00017-82', 'PROD-26222-00003-10', 'PRES-26177-00001-19', 0, '', 0),
+('PRPR-26222-00018-55', 'PROD-26222-00003-10', 'PRES-26177-00002-40', 0, '', 0),
 ('PRPR-26222-00025-15', 'PROD-26222-00005-98', 'PRES-26123-00001-28', 1, 'presentaciones_productos_2026_08_11_12_48_53_82.png', 0),
 ('PRPR-26222-00026-98', 'PROD-26222-00005-98', 'PRES-26159-00001-42', 0, 'presentaciones_productos_2026_08_11_12_48_53_82.png', 0),
 ('PRPR-26222-00027-61', 'PROD-26222-00005-98', 'PRES-26159-00002-78', 1, 'presentaciones_productos_2026_08_11_12_48_53_82.png', 0),
@@ -1347,11 +1356,11 @@ INSERT INTO `presentaciones_productos` (`id_presentacion_producto`, `id_producto
 ('PRPR-26222-00034-70', 'PROD-26222-00006-10', 'PRES-26159-00003-24', 0, '', 0),
 ('PRPR-26222-00035-71', 'PROD-26222-00006-10', 'PRES-26177-00001-19', 0, '', 0),
 ('PRPR-26222-00036-95', 'PROD-26222-00006-10', 'PRES-26177-00002-40', 0, '', 0),
-('PRPR-26222-00037-00', 'PROD-26222-00004-43', 'PRES-26123-00001-28', 1, '', 1),
-('PRPR-26222-00038-12', 'PROD-26222-00004-43', 'PRES-26159-00002-78', 0, '', 1),
-('PRPR-26222-00039-70', 'PROD-26222-00004-43', 'PRES-26159-00003-24', 1, 'presentaciones_productos_2026-08-11_13_57_40.png?v=2026-08-11_13_57_40', 1),
-('PRPR-26222-00040-06', 'PROD-26222-00004-43', 'PRES-26177-00001-19', 1, '', 1),
-('PRPR-26222-00041-20', 'PROD-26222-00004-43', 'PRES-26177-00002-40', 0, 'presentaciones_productos_2026-08-11_13_57_32.png?v=2026-08-11_13_57_32', 1);
+('PRPR-26222-00037-00', 'PROD-26222-00004-43', 'PRES-26123-00001-28', 1, '', 0),
+('PRPR-26222-00038-12', 'PROD-26222-00004-43', 'PRES-26159-00002-78', 0, '', 0),
+('PRPR-26222-00039-70', 'PROD-26222-00004-43', 'PRES-26159-00003-24', 1, 'presentaciones_productos_2026-08-11_13_57_40.png?v=2026-08-11_13_57_40', 0),
+('PRPR-26222-00040-06', 'PROD-26222-00004-43', 'PRES-26177-00001-19', 1, '', 0),
+('PRPR-26222-00041-20', 'PROD-26222-00004-43', 'PRES-26177-00002-40', 0, 'presentaciones_productos_2026-08-11_13_57_32.png?v=2026-08-11_13_57_32', 0);
 
 -- --------------------------------------------------------
 
@@ -1400,9 +1409,9 @@ INSERT INTO `productos` (`id_producto`, `id_unidad_medida`, `id_categoria_produc
 ('PROD-26150-00001-39', 2, 1, 'CLORO', 1.00, 600.00, 20.00, 0),
 ('PROD-26183-00001-56', 2, 1, 'CLORO2', 1.00, 100.00, 10.00, 0),
 ('PROD-26222-00001-83', 2, 1, 'CLORO2', 1.00, 100.00, 5.00, 0),
-('PROD-26222-00002-19', 2, 1, 'CLORO', 1.00, 100.00, 5.00, 1),
-('PROD-26222-00003-10', 2, 1, 'CLORO2', 1.00, 1.00, 5.00, 1),
-('PROD-26222-00004-43', 2, 1, 'CLOROf', 1.00, 1.00, 5.00, 1),
+('PROD-26222-00002-19', 2, 1, 'CLORO', 1.00, 99.00, 5.00, 1),
+('PROD-26222-00003-10', 2, 1, 'CLORO2', 1.00, 1.00, 5.00, 0),
+('PROD-26222-00004-43', 2, 1, 'CLOROf', 1.00, 1.00, 5.00, 0),
 ('PROD-26222-00005-98', 2, 2, 'CLOROm', 1.00, 1.00, 5.00, 0),
 ('PROD-26222-00006-10', 2, 1, 'CLOROs', 10.00, 1.00, 5.00, 0);
 
@@ -1464,7 +1473,8 @@ CREATE TABLE `productos_ordenes_entregas_presupuestos` (
 
 INSERT INTO `productos_ordenes_entregas_presupuestos` (`id_producto_factura`, `id_orden_entrega_presupuesto`, `id_presentacion_producto`, `cantidad_producto`, `status`) VALUES
 (327, 'FACT-26190-00001-44', 'PRPR-26183-00015-86', 1.00, 1),
-(328, 'FACT-26221-00001-60', 'PRPR-26183-00015-86', 1.00, 1);
+(328, 'FACT-26221-00001-60', 'PRPR-26183-00015-86', 1.00, 1),
+(329, 'FACT-26227-00001-55', 'PRPR-26222-00007-32', 1.00, 1);
 
 -- --------------------------------------------------------
 
@@ -1561,7 +1571,8 @@ INSERT INTO `referencias_detalles_pagos` (`id_referencia_detalle_pago`, `id_deta
 (217, 268, 123456, 1),
 (218, 269, 123456, 1),
 (219, 270, 123456, 1),
-(220, 271, 123456, 1);
+(220, 271, 123456, 1),
+(221, 272, 123456, 1);
 
 -- --------------------------------------------------------
 
@@ -2309,19 +2320,19 @@ ALTER TABLE `categorias_productos`
 -- AUTO_INCREMENT de la tabla `comprobantes_pagos`
 --
 ALTER TABLE `comprobantes_pagos`
-  MODIFY `id_comprobante_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
+  MODIFY `id_comprobante_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=152;
 
 --
 -- AUTO_INCREMENT de la tabla `detalles_pagos`
 --
 ALTER TABLE `detalles_pagos`
-  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=272;
+  MODIFY `id_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=273;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=165;
 
 --
 -- AUTO_INCREMENT de la tabla `empresas_envios`
@@ -2333,13 +2344,13 @@ ALTER TABLE `empresas_envios`
 -- AUTO_INCREMENT de la tabla `latitudes_direcciones`
 --
 ALTER TABLE `latitudes_direcciones`
-  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
+  MODIFY `id_latitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
 
 --
 -- AUTO_INCREMENT de la tabla `longitudes_direcciones`
 --
 ALTER TABLE `longitudes_direcciones`
-  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=188;
+  MODIFY `id_longitud_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=189;
 
 --
 -- AUTO_INCREMENT de la tabla `materias_primas_compras`
@@ -2423,7 +2434,7 @@ ALTER TABLE `productos_compras`
 -- AUTO_INCREMENT de la tabla `productos_ordenes_entregas_presupuestos`
 --
 ALTER TABLE `productos_ordenes_entregas_presupuestos`
-  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=329;
+  MODIFY `id_producto_factura` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=330;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_producciones`
@@ -2441,7 +2452,7 @@ ALTER TABLE `productos_servicios`
 -- AUTO_INCREMENT de la tabla `referencias_detalles_pagos`
 --
 ALTER TABLE `referencias_detalles_pagos`
-  MODIFY `id_referencia_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
+  MODIFY `id_referencia_detalle_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=222;
 
 --
 -- AUTO_INCREMENT de la tabla `rutas`
