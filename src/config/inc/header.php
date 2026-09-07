@@ -217,57 +217,71 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
         <input type="hidden" name="accion" value="actualizar">
         <div class="modal-body">
           <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3 form-group">
-                <label for="cedula" class="form-label">Cédula</label>
-                <input name="cedula_usuario" type="text" class="form-control" readonly>
-              </div>
-              <div class="mb-3 form-group">
-                <label for="nombre" class="form-label">Nombre de Usuario</label>
-                <input type="text"
-                  class="form-control" name="usuario_usuario" pattern="<?php echo regexUsuario ?>"
-                  minlength="<?php echo minRegexUsuario ?>" maxlength="<?php echo maxRegexUsuario  ?>"
-                  required>
-              </div>
-              <div class="mb-3 form-group">
-                <label for="telefono" class="form-label">Teléfono</label>
-                <input type="text" class="form-control" name="telefono_usuario"
-                  pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono  ?>"
-                  maxlength="<?php echo maxRegexTelefono  ?>" required>
-                <div class="form-text">Formato: 04121234567</div>
-              </div>
-              <div class="mb-3 form-group">
-                <label for="correo" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" name="correo_usuario" pattern="<?php echo regexCorreo ?>"
-                  minlength="<?php echo minRegexCorreo  ?>" maxlength="<?php echo maxRegexCorreo  ?>"
-                  required>
-              </div>
-              <div class="mb-3 form-group">
-                <label for="id_rol" class="form-label">Rol</label>
-                <select class="form-control selectRoles" id="id_rol" name="id_rol"
-                  pattern="<?php echo regexId ?>" minlength="<?php echo minRegexId  ?>"
-                  maxlength="<?php echo maxRegexId  ?>" required>
-                  <option value="">Seleccione un rol</option>
-                </select>
+            <div class="col-md-6 mb-3">
+              <label for="cedula" class="form-label">Nombre</label>
+              <input type="text" class="form-control formularioActualizar" name="nombre_usuario" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: CARLOS">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="cedula" class="form-label">Apellido</label>
+              <input type="text" class="form-control formularioActualizar" name="apellido_usuario" pattern="<?php echo regexNombrePer ?>" minlength="<?php echo minRegexNombrePer ?>" maxlength="<?php echo maxRegexNombrePer ?>" required placeholder="Ej: ALFARO">
+            </div>
+            <div class="col-md-6 mb-3 form-group">
+              <label for="cedula" class="form-label">Cédula</label>
+              <input name="cedula_usuario" type="text" class="form-control" readonly>
+            </div>
+            <div class="col-md-6 mb-3 form-group">
+              <label for="nombre" class="form-label">Nombre de Usuario</label>
+              <input type="text"
+                class="form-control" name="usuario_usuario" pattern="<?php echo regexUsuario ?>"
+                minlength="<?php echo minRegexUsuario ?>" maxlength="<?php echo maxRegexUsuario  ?>"
+                required>
+            </div>
+            <div class="col-md-6 mb-3 form-group">
+              <label for="telefono" class="form-label">Teléfono</label>
+              <input type="text" class="form-control" name="telefono_usuario"
+                pattern="<?php echo regexTelefono ?>" minlength="<?php echo minRegexTelefono  ?>"
+                maxlength="<?php echo maxRegexTelefono  ?>" required>
+              <div class="form-text">Formato: 04121234567</div>
+            </div>
+            <div class="col-md-6 mb-3 form-group">
+              <label for="correo" class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" name="correo_usuario" pattern="<?php echo regexCorreo ?>"
+                minlength="<?php echo minRegexCorreo  ?>" maxlength="<?php echo maxRegexCorreo  ?>"
+                required>
+            </div>
+            <div class="col-md-6 mb-3 form-group">
+              <label for="id_rol" class="form-label">Rol</label>
+              <select class="form-control selectRoles" id="id_rol" name="id_rol"
+                pattern="<?php echo regexId ?>" minlength="<?php echo minRegexId  ?>"
+                maxlength="<?php echo maxRegexId  ?>" required>
+                <option value="">Seleccione un rol</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="clave" class="form-label">Dirección</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fi fi-br-direction-signal-arrow"></i></span>
+                <input type="text" class="form-control" name="direccion_usuario" minlength="<?php echo minRegexDescripcion ?>" maxlength="<?php echo maxRegexDescripcion ?>" pattern="<?php echo regexDescripcion ?>" required>
               </div>
             </div>
-            <div class="col-md-6">
-              <h5 class="text-primary">Cambiar Contraseña</h5>
-              <div class="form-text mb-3">
-                Completa estos campos solo si deseas cambiar tu contraseña.
+          </div>
+          <div class="row">
+            <h5 class="col-md-12 text-primary">Cambiar Contraseña</h5>
+            <div class="col-md-12 form-text mb-3">
+              Completa estos campos solo si deseas cambiar tu contraseña.
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="clave" class="form-label">Nueva Contraseña</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
+                <input type="password" class="form-control" name="contrasena1_usuario" id="contrasena1_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
               </div>
-              <div class="mb-3 form-group">
-                <label for="clave_nueva" class="form-label">Nueva Contraseña</label>
-                <input autocomplete="off" type="password" class="form-control" name="contrasena1_usuario"
-                  pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
-                  maxlength="<?php echo maxRegexContrasena  ?>">
-                <div class="form-text">Mínimo 6 caracteres.</div>
-              </div>
-              <div class="mb-3 form-group">
-                <label for="confirmar_clave" class="form-label">Confirmar Nueva Contraseña</label>
-                <input autocomplete="off" type="password" class="form-control" name="contrasena2_usuario"
-                  pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>"
-                  maxlength="<?php echo maxRegexContrasena  ?>">
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="confirmar_clave" class="form-label">Confirmar Contraseña </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
+                <input type="password" class="form-control" name="contrasena2_usuario" id="contrasena2_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
               </div>
             </div>
           </div>

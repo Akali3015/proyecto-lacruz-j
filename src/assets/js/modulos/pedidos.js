@@ -157,7 +157,7 @@ async function verDetallesPedido() {
             </div>
           `;
         },
-        cantidad_producto:(info)=>{
+        cantidad_producto: (info) => {
           return `<span class="cantidadProducto">${info.valor}</span>`;
         }
       },
@@ -239,7 +239,7 @@ async function verDetallesPedido() {
       ...cliente, ...vendedor, ...medioEnvio, ...calculos
     }
 
-    
+
     //Insercion de datos
     let valoresAparte = [
       'foto_usuario', 'url_direccion',
@@ -409,8 +409,8 @@ $(document).on("DOMContentLoaded", async function () {
     // Catalogo de productos
     promesas.push(listarDataTable({
       encabezados: {
-        "nombre_producto": "PRODUCTO",
         "id_presentacion_producto": "CÓDIGO",
+        "nombre_producto": "PRODUCTO",
         "nombre_categoria_producto": 'CATEGORÍA',
         "precio_dolar": "PRECIO",
         "stock_producto": "STOCK",
@@ -461,7 +461,14 @@ $(document).on("DOMContentLoaded", async function () {
             '<i class="fi fi-rr-check-circle text-success fs-5 title="Disponible""></i>' :
             '<i class="fi fi-rr-cross-circle text-danger fs-5" title="No disponiblek"></i>'
         },
-      }
+      },
+      visualizacionResponsiveColumnas: {
+        "id_presentacion_producto": "l",
+        "nombre_producto": "p",
+        "precio_dolar": "p",
+        "nombre_categoria_producto": 'l',
+        "stock_producto": "xxl",
+      },
     }));
     // Del cliente que inicio sesion
     promesas.push(listarDataTable({
@@ -530,6 +537,11 @@ $(document).on("DOMContentLoaded", async function () {
         `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
+      },
+      visualizacionResponsiveColumnas: {
+        "id_orden_entrega_presupuesto": "p",
+        "fecha_orden_entrega_presupuesto": 'p',
+        'status_pedido': 'l',
       },
     }));
 
@@ -610,6 +622,11 @@ $(document).on("DOMContentLoaded", async function () {
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
+      visualizacionResponsiveColumnas: {
+        "id_orden_entrega_presupuesto": "p",
+        "fecha_orden_entrega_presupuesto": "p",
+        "razon_social_cliente": "l",
+      },
     });
 
     //Rechazados
@@ -659,6 +676,11 @@ $(document).on("DOMContentLoaded", async function () {
         `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
+      },
+      visualizacionResponsiveColumnas: {
+        "id_orden_entrega_presupuesto": "p",
+        "fecha_orden_entrega_presupuesto": "p",
+        "razon_social_cliente": "l",
       },
     });
 
@@ -745,6 +767,11 @@ $(document).on("DOMContentLoaded", async function () {
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
       },
+      visualizacionResponsiveColumnas: {
+        "id_orden_entrega_presupuesto": "p",
+        "fecha_orden_entrega_presupuesto": "p",
+        "razon_social_cliente": "l",
+      },
     });
 
     //Entregados
@@ -808,6 +835,11 @@ $(document).on("DOMContentLoaded", async function () {
           `;
         }
         return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
+      },
+      visualizacionResponsiveColumnas: {
+        "id_orden_entrega_presupuesto": "p",
+        "fecha_orden_entrega_presupuesto": "p",
+        "razon_social_cliente": "l",
       },
     });
   }

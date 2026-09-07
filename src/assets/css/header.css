@@ -177,13 +177,13 @@ a {
   transition: background-color 0.2s ease;
 }
 
-.sidebar-menu li:hover > a i,
-.sidebar-menu li.activa > a i {
+.sidebar-menu li:hover>a i,
+.sidebar-menu li.activa>a i {
   color: rgb(255, 255, 255);
 }
 
-.sidebar-menu li:hover > a,
-.sidebar-menu li.activa > a {
+.sidebar-menu li:hover>a,
+.sidebar-menu li.activa>a {
   background-color: #1952c1;
   color: rgb(255, 255, 255);
   font-weight: 500;
@@ -543,11 +543,45 @@ body.sidebar-closed .sidebar {
   transform: translateY(-1px);
 }
 
-.headerPrincipal .dropdownUsuario.a {
-  padding: 0.25rem 0.75rem;
-  border-radius: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.1);
+.badge {
+  line-height: 1;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 576px) {
+  .headerPrincipal .navbar-nav {
+    gap: 0.5rem !important;
+  }
+
+  .contenedorPrecioDolar {
+    font-size: 0.75rem !important;
+  }
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--light-color);
+}
+
+.navbar-nav .nav-link {
+  color: var(--text-dark);
+  padding: 0.5rem 1rem;
+  transition: var(--transition);
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--text-dark);
+  background-color: #e9ecef;
+}
+
+/* Dropdown Styles */
+.dropdown-menu {
+  border: none;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  padding: 0.5rem 0;
 }
 
 .headerPrincipal .dropdownUsuario ul {
@@ -1597,6 +1631,7 @@ body.sidebar-closed .sidebar {
 }
 
 .imgG-60 {
+  /* object-fit:fill; */
   width: 60px;
   height: 60px;
 }
@@ -1626,6 +1661,9 @@ body.sidebar-closed .sidebar {
   display: block;
   width: 100%;
   object-fit: contain;
+}
+.btnMostrarOcultarContrasena{
+  cursor: pointer;
 }
 
 .form-control.error {
@@ -1830,5 +1868,76 @@ i {
     position: fixed;
     top: 15%;
     max-width: fit-content;
+  }
+}
+
+
+/* media queries y estilos para el responsive del datatable */
+
+.botoneraDT {
+  position: relative;
+}
+.botoneraInternaDT{
+  padding: 0px 35px;
+}
+
+.btnPlegarDT {
+  font-size: 24px;
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  z-index: 10;
+  padding: 1px;
+  cursor: pointer;
+}
+
+.btnDesplegarDT {
+  font-size: 24px;
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  z-index: 10;
+  padding: 1px;
+  cursor: pointer;
+}
+
+/* Estilos para teléfonos pequeños (p) */
+@media(max-width: 480px) {
+  .dt-CDTM:not(.visualizarAjuro),
+  .dt-CDTL:not(.visualizarAjuro),
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para móviles grandes y tablets en vertical (m) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .dt-CDTL:not(.visualizarAjuro),
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para tablets horizontales y laptops compactas (l) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para pantallas de escritorio estándar (xl) */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .dt-CDTXXL:not(.visualizarAjuro) {
+    display: none;
+  }
+}
+
+/* Estilos para pantallas de escritorio muy grandes (xxl) */
+@media (min-width: 1201px) {
+  .btnDesplegarDT{
+    display: none;
   }
 }
