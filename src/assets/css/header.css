@@ -30,7 +30,6 @@ body {
   overflow-x: hidden;
 }
 
-
 .noselec {
   user-select: none;
   -webkit-user-select: none;
@@ -144,9 +143,10 @@ a {
   border-bottom: 1px solid #e9ecef;
 }
 
-.sidebar-menu i{
+.sidebar-menu i {
   color: #1952c1;
 }
+
 .sidebar-menu li a i,
 .subMenuSidebar div i {
   margin-right: 1rem;
@@ -159,7 +159,6 @@ a {
   height: 50px;
   object-fit: contain;
 }
-
 
 .sidebar .aSidebar {
   display: flex;
@@ -181,13 +180,13 @@ a {
   transition: background-color 0.2s ease;
 }
 
-.sidebar-menu li:hover > a i,
-.sidebar-menu li.activa > a i{
+.sidebar-menu li:hover>a i,
+.sidebar-menu li.activa>a i {
   color: rgb(255, 255, 255);
 }
 
-.sidebar-menu li:hover > a,
-.sidebar-menu li.activa > a{
+.sidebar-menu li:hover>a,
+.sidebar-menu li.activa>a {
   background-color: #1952c1;
   color: rgb(255, 255, 255);
   font-weight: 500;
@@ -499,7 +498,7 @@ a {
   .headerPrincipal .navbar-nav {
     gap: 0.5rem !important;
   }
-  
+
   .contenedorPrecioDolar {
     font-size: 0.75rem !important;
   }
@@ -1418,37 +1417,38 @@ body.sidebar-closed .sidebar {
   height: 100%;
 }
 
-.text-green-500{
+.text-green-500 {
   color: #52c41a;
 }
+
 .alineado_vertical {
-    vertical-align: middle !important;
+  vertical-align: middle !important;
 }
 
-.estiloFotoRegistro{
-  width: 50px; 
-  height: 50px; 
-  border-radius: 50%; 
-  object-fit: cover; 
+.estiloFotoRegistro {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
   cursor: pointer;
 }
 
-.imgG-60{
+.imgG-60 {
   /* object-fit:fill; */
-  width: 60px; 
-  height: 60px; 
+  width: 60px;
+  height: 60px;
 }
 
-.zindex1080{
+.zindex1080 {
   z-index: 1080 !important;
 }
 
 #spinnerCarga {
-  background-color: rgba(255, 255, 255, 0.6); 
+  background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(5px);
   z-index: 9999;
   pointer-events: all;
-  width: 100%; 
+  width: 100%;
   height: 100%;
   position: fixed;
   top: 0;
@@ -1458,12 +1458,15 @@ body.sidebar-closed .sidebar {
   align-items: center;
 }
 
-.capturePagos{
-      max-width: 100%;
-    height: auto;
-    display: block;
-    width: 100%;
-    object-fit: contain;
+.capturePagos {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  width: 100%;
+  object-fit: contain;
+}
+.btnMostrarOcultarContrasena{
+  cursor: pointer;
 }
 
 @media (max-width: 992px) {
@@ -1630,5 +1633,76 @@ body.sidebar-closed .sidebar {
     position: fixed;
     top: 15%;
     max-width: fit-content;
+  }
+}
+
+
+/* media queries y estilos para el responsive del datatable */
+
+.botoneraDT {
+  position: relative;
+}
+.botoneraInternaDT{
+  padding: 0px 35px;
+}
+
+.btnPlegarDT {
+  font-size: 24px;
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  z-index: 10;
+  padding: 1px;
+  cursor: pointer;
+}
+
+.btnDesplegarDT {
+  font-size: 24px;
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  z-index: 10;
+  padding: 1px;
+  cursor: pointer;
+}
+
+/* Estilos para teléfonos pequeños (p) */
+@media(max-width: 480px) {
+  .dt-CDTM:not(.visualizarAjuro),
+  .dt-CDTL:not(.visualizarAjuro),
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para móviles grandes y tablets en vertical (m) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .dt-CDTL:not(.visualizarAjuro),
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para tablets horizontales y laptops compactas (l) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dt-CDTXL:not(.visualizarAjuro), 
+  .dt-CDTXXL:not(.visualizarAjuro){
+    display: none;
+  }
+}
+
+/* Estilos para pantallas de escritorio estándar (xl) */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .dt-CDTXXL:not(.visualizarAjuro) {
+    display: none;
+  }
+}
+
+/* Estilos para pantallas de escritorio muy grandes (xxl) */
+@media (min-width: 1201px) {
+  .btnDesplegarDT{
+    display: none;
   }
 }

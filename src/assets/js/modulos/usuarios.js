@@ -305,7 +305,17 @@ $(document).on('DOMContentLoaded', async function (e) {
               data-foto_default="perfilDefaultUsuario.png"
             >`;
         }
-      }
+      },
+      visualizacionResponsiveColumnas: {
+        "cedula_usuario": "p",
+        "nombre_usuario": "p",
+        "apellido_usuario": "xl",
+        "foto_usuario": "xl",
+        "nombre_rol": "xl",
+        "telefono_usuario": "xl",
+        "correo_usuario": "xl",
+        "usuario_usuario": "xl",
+      },
     });
     extraerDatosAjax({
       'modulosPeticion': ['roles'],

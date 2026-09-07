@@ -32,6 +32,13 @@ $(document).on('DOMContentLoaded', async function (e) {
       necesita_referencia: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
       mostrar_ecommerce: (info) => { return (info.valor == 1 ? 'SI' : 'NO') },
     },
+    visualizacionResponsiveColumnas: {
+      "necesita_moneda": "l",
+      "necesita_banco_emisor": "xl",
+      "necesita_banco_receptor": "xl",
+      "necesita_referencia": "xxl",
+      "mostrar_ecommerce": "xxl",
+    },
   });
   driverAyuda('metodos-pago', {
     pasos: [

@@ -23,7 +23,8 @@
                 autocomplete="username">
               <label for="usuario">Usuario</label>
             </div>
-            <div class="form-floating mb-4">
+            <div class="col- input-group input-group mb-4">
+              <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
               <input
                 type="password"
                 class="form-control"
@@ -31,7 +32,6 @@
                 placeholder="Contraseña"
                 required
                 autocomplete="current-password">
-              <label for="clave">Contraseña</label>
             </div>
             <div class="d-flex justify-content-center mb-4">
               <div class="g-recaptcha" data-sitekey="6LdSVPgsAAAAAMmHarx-2gZ5zUWdGHM91UouPOE-"></div>
@@ -173,33 +173,19 @@
               autocomplete="username">
             <div class="invalid-feedback"></div>
           </div>
-          <div class="form-group mb-3">
+          <div class="form-group col-md-12 mb-3">
             <label for="clave" class="form-label">Contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              name="contrasena1_usuario"
-              id="contrasena1_usuario"
-              minlength="<?php echo minRegexContrasena ?>"
-              maxlength="<?php echo maxRegexContrasena ?>"
-              pattern="<?php echo regexContrasena ?>"
-              required
-              autocomplete="new-password">
-            <div class="invalid-feedback"></div>
+            <div class="input-group">
+              <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
+              <input type="password" class="form-control" name="contrasena1_usuario" id="contrasena1_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
+            </div>
           </div>
-          <div class="form-group mb-3">
-            <label for="clave" class="form-label">Repetir Contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              name="contrasena2_usuario"
-              id="contrasena2_usuario"
-              minlength="<?php echo minRegexContrasena ?>"
-              maxlength="<?php echo maxRegexContrasena ?>"
-              pattern="<?php echo regexContrasena ?>"
-              required
-              autocomplete="new-password">
-            <div class="invalid-feedback"></div>
+          <div class="form-group col-md-12 mb-3">
+            <label for="confirmar_clave" class="form-label">Repetir Contraseña </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
+              <input type="password" class="form-control" name="contrasena2_usuario" id="contrasena2_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
+            </div>
           </div>
           <div class="d-grid">
             <button class="btn btn-primary btn-lg btnSiguiente" type="button" disabled>
@@ -380,7 +366,7 @@
           <div class="mb-3">
             <img src="<?php echo APP_URL ?>src/assets/images/numerico.png" alt="email" style="width:72px;" class="mb-2">
             <p class="mb-2">
-              Hemos enviado un código de seguridad al correo <span class="spanCorreo"></span>. Por favor, 
+              Hemos enviado un código de seguridad al correo <span class="spanCorreo"></span>. Por favor,
               introdúcelo aquí para continuar.</p>
           </div>
           <div class="mb-3">

@@ -208,7 +208,8 @@ function renderizarDashboard() {
   let total = datosTabla.length;
   let criticos = datosTabla.filter(p => parseFloat(p.stock_producto) <= parseFloat(p.stock_minimo_producto)).length;
   let valorDivisas = datosTabla.reduce((acc, p) => acc + (parseFloat(p.precio_producto) * parseFloat(p.stock_producto)), 0);
-
+  valorDivisas= valorDivisas.toFixed(2)
+  
   let dashboardHTML = `
     <div class="row mb-4" id="metricasDashboard">
       <div class="col-md-4">
@@ -241,7 +242,7 @@ function renderizarDashboard() {
                 Valor Inventario ($)
               </h6>
               <h3 class="valorTotalInventario mb-0 fw-bold">
-                ${formateoCampos(valorDivisas,'dineroDolar')}
+                ${formateoCampos(valorDivisas, 'dineroDolar')}
               </h3>
             </div>
           </div>
@@ -271,7 +272,7 @@ function renderizarDashboard() {
     $(dashboardHTML).insertBefore($('.tabla-ajax').closest('.card'));
   } else {
     dashboard.find('.totalProdDashboard').text(total)
-    dashboard.find('.valorTotalInventario').text(`${formateoCampos(valorDivisas,'dineroDolar')}`)
+    dashboard.find('.valorTotalInventario').text(`${formateoCampos(valorDivisas, 'dineroDolar')}`)
     dashboard.find('.nroProdStockCriticos').text(criticos)
   }
 
@@ -301,124 +302,6 @@ function habilitarDeshabilitarPresentacion(cambio = null) {
     return !val;
   });
 }
-//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
-
-//#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
-$(document).on("DOMContentLoaded", async function () {
-  registrarTutorial();
-  
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  await listarDataTable({
-    encabezados: {
-      "id_producto": "ID",
-      "nombre_producto": "NOMBRE",
-      "nombre_categoria_producto": "CATEGORÍA",
-      "precio_producto": "PRECIO",
-      "stock_producto": "STOCK",
-      "nombre_unidad_medida": "UNIDAD DE MEDIDA",
-    },
-    informacionPe: {
-      modulo: "productos",
-      datosPe: { accion: "listar" },
-    },
-    botones: (info) => {
-      let { permisos, fila } = info;
-      let btn = ``;
-      if (permisos.productos.includes('ver detalles de los productos')) {
-        btn += `
-          <li 
-            class="list-inline-item align-bottom" 
-            data-bs-toggle="tooltip" 
-            data-bs-placement="top" 
-            title="Ver presentaciones del producto"
-          >
-            <a 
-              href="#" 
-              value="${fila.id_producto}"
-              class="btnVer avtar avtar-xs btn-link-success btn-pc-default"
-              data-bs-toggle="modal" 
-              data-bs-target=".modalVerPresentaciones"
-            >
-              <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
-            </a>
-          </li>
-        `;
-      }
-      if (permisos.productos.includes('actualizar')) {
-        btn += `
-          <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
-              <a href="#" value="${fila.id_producto}" class="botonEditar avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalActualizar">
-              <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
-              </a>
-          </li>
-        `;
-      }
-      if (permisos.productos.includes('eliminar')) {
-        btn += `
-          <li value="${fila.id_producto}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-              <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
-              <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
-              </a>
-          </li>
-        `;
-      }
-      return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
-    },
-    infoTratoEspecial: {
-      precio_producto: (info) => {
-        return `<strong class="valor">${formateoCampos(info.valor,'dineroDolar')}</strong>`;
-      },
-      stock_producto: (info) => {
-        const stockActual = parseFloat(info.valor);
-        const stockMinimo = parseFloat(info.fila?.stock_minimo_producto ?? 0);
-        const clase = stockActual <= stockMinimo ? 'danger' : 'success';
-        const stockFormateado = stockActual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        return `<span class="badge bg-${clase} px-2 py-1" style="font-size:.85rem;">${stockFormateado}</span>`;
-      },
-    }
-  });
-
-  // Cargar categorías y dibujarlas manualmente para incluir el data-fabricado
-  let categorias = await pedirDatosAjax({
-    modulo: "categoriasProductos",
-    datosPe: { accion: "listar" }
-  });
-  if (categorias?.icono == 'error') return alertasAjax(categorias);
-
-  let htmlCat = '<option value="">Seleccione una categoría</option>';
-  if (categorias && Array.isArray(categorias)) {
-    categorias.forEach(cat => {
-      htmlCat += `<option value="${cat.id_categoria_producto}" data-fabricado="${cat.necesitan_materias_primas}">${cat.nombre_categoria_producto}</option>`;
-    });
-  }
-  $('.selectCategoriaProducto').html(htmlCat);
-
-  await extraerDatosAjax({
-    modulosPeticion: ["unidadesMedidas"],
-    accionesPeticion: [{ accion: "listar" }],
-    tipoElemento: ["select"],
-    elementosDestino: [$(".selectUnidadMedida")],
-    datosInsertar: [
-      {
-        value: "id_unidad_medida",
-        texto: "nombre_unidad_medida",
-        textoDefault: "Seleccione una unidad",
-      }
-    ],
-  });
-  renderizarPresentaciones();
-  renderizarDashboard();
-
-  const driverPendiente = sessionStorage.getItem('driver_pendiente');
-  if (driverPendiente === 'productos') {
-    sessionStorage.removeItem('driver_pendiente');
-    setTimeout(() => {
-      mostrarAyuda();
-    }, 1000);
-  }
-});
-
 function registrarTutorial() {
   driverAyuda('productos', {
     pasos: [
@@ -481,6 +364,129 @@ function registrarTutorial() {
     ]
   });
 }
+//#endregion [ FUNCIONES PROPIAS DEL MODULO ] FIN
+
+//#region [ DELEGACIÓN DE EVENTOS ] COMIENZO
+$(document).on("DOMContentLoaded", async function () {
+  registrarTutorial();
+
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  await listarDataTable({
+    encabezados: {
+      "id_producto": "ID",
+      "nombre_producto": "NOMBRE",
+      "nombre_categoria_producto": "CATEGORÍA",
+      "precio_producto": "PRECIO",
+      "stock_producto": "STOCK",
+      "nombre_unidad_medida": "UNIDAD DE MEDIDA",
+    },
+    informacionPe: {
+      modulo: "productos",
+      datosPe: { accion: "listar" },
+    },
+    botones: (info) => {
+      let { permisos, fila } = info;
+      let btn = ``;
+      if (permisos.productos.includes('ver detalles de los productos')) {
+        btn += `
+          <li 
+            class="list-inline-item align-bottom" 
+            data-bs-toggle="tooltip" 
+            data-bs-placement="top" 
+            title="Ver presentaciones del producto"
+          >
+            <a 
+              href="#" 
+              value="${fila.id_producto}"
+              class="btnVer avtar avtar-xs btn-link-success btn-pc-default"
+              data-bs-toggle="modal" 
+              data-bs-target=".modalVerPresentaciones"
+            >
+              <i class="fi fi-rs-eye fs-3 iconoCentrado"></i>
+            </a>
+          </li>
+        `;
+      }
+      if (permisos.productos.includes('actualizar')) {
+        btn += `
+          <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar datos del registro">
+              <a href="#" value="${fila.id_producto}" class="botonEditar avtar avtar-xs btn-link-success btn-pc-default" data-bs-toggle="modal" data-bs-target=".modalActualizar">
+              <i class="fi fi-rs-pen-circle fs-3 iconoCentrado"></i>
+              </a>
+          </li>
+        `;
+      }
+      if (permisos.productos.includes('eliminar')) {
+        btn += `
+          <li value="${fila.id_producto}" class="botonEliminar list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+              <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default">
+              <i class="fi fi-rs-trash fs-3 iconoCentrado"></i>
+              </a>
+          </li>
+        `;
+      }
+      return `<ul class="list-inline me-auto mb-0">${btn}</ul>`;
+    },
+    infoTratoEspecial: {
+      precio_producto: (info) => {
+        return `<strong class="valor">${formateoCampos(info.valor, 'dineroDolar')}</strong>`;
+      },
+      stock_producto: (info) => {
+        const stockActual = parseFloat(info.valor);
+        const stockMinimo = parseFloat(info.fila?.stock_minimo_producto ?? 0);
+        const clase = stockActual <= stockMinimo ? 'danger' : 'success';
+        const stockFormateado = stockActual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return `<span class="badge bg-${clase} px-2 py-1" style="font-size:.85rem;">${stockFormateado}</span>`;
+      },
+    },
+    visualizacionResponsiveColumnas: {
+      "stock_producto": "m",
+      "precio_producto": "l",
+      "nombre_categoria_producto": "xl",
+      "nombre_unidad_medida": "xxl",
+    },
+  });
+
+  // Cargar categorías y dibujarlas manualmente para incluir el data-fabricado
+  let categorias = await pedirDatosAjax({
+    modulo: "categoriasProductos",
+    datosPe: { accion: "listar" }
+  });
+  if (categorias?.icono == 'error') return alertasAjax(categorias);
+
+  let htmlCat = '<option value="">Seleccione una categoría</option>';
+  if (categorias && Array.isArray(categorias)) {
+    categorias.forEach(cat => {
+      htmlCat += `<option value="${cat.id_categoria_producto}" data-fabricado="${cat.necesitan_materias_primas}">${cat.nombre_categoria_producto}</option>`;
+    });
+  }
+  $('.selectCategoriaProducto').html(htmlCat);
+
+  await extraerDatosAjax({
+    modulosPeticion: ["unidadesMedidas"],
+    accionesPeticion: [{ accion: "listar" }],
+    tipoElemento: ["select"],
+    elementosDestino: [$(".selectUnidadMedida")],
+    datosInsertar: [
+      {
+        value: "id_unidad_medida",
+        texto: "nombre_unidad_medida",
+        textoDefault: "Seleccione una unidad",
+      }
+    ],
+  });
+  renderizarPresentaciones();
+  renderizarDashboard();
+
+  const driverPendiente = sessionStorage.getItem('driver_pendiente');
+  if (driverPendiente === 'productos') {
+    sessionStorage.removeItem('driver_pendiente');
+    setTimeout(() => {
+      mostrarAyuda();
+    }, 1000);
+  }
+});
 
 $(document).off('click', '.btnVer');
 $(document).on('click', '.btnVer', async function (e) {

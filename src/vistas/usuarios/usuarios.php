@@ -129,14 +129,14 @@ echo $componente->listaDataTable($instruccionesLista);
             <div class="col-md-6 mb-3">
               <label for="clave" class="form-label">Contraseña</label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fi fi-br-lock-alt"></i></span>
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
                 <input type="password" class="form-control" name="contrasena1_usuario" id="contrasena1_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" required placeholder="Mínimo 8 caracteres">
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="confirmar_clave" class="form-label">Confirmar Contraseña </label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fi fi-br-lock-alt"></i></span>
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
                 <input type="password" class="form-control" name="contrasena2_usuario" id="contrasena2_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" required placeholder="Repita la contraseña">
               </div>
             </div>
@@ -294,16 +294,17 @@ echo $componente->listaDataTable($instruccionesLista);
               </div>
             </div>
             <div class="col-md-6 mb-3">
+
               <label for="clave" class="form-label">Contraseña</label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fi fi-br-lock-alt"></i></span>
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
                 <input type="password" class="form-control" name="contrasena1_usuario" id="contrasena1_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="confirmar_clave" class="form-label">Confirmar Contraseña </label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fi fi-br-lock-alt"></i></span>
+                <span class="input-group-text"><i class="btnMostrarOcultarContrasena fi fi-rs-eye"></i></span>
                 <input type="password" class="form-control" name="contrasena2_usuario" id="contrasena2_usuario" pattern="<?php echo regexContrasena ?>" minlength="<?php echo minRegexContrasena ?>" maxlength="<?php echo maxRegexContrasena ?>" placeholder="OPCIONAL">
               </div>
             </div>
