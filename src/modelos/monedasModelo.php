@@ -139,8 +139,6 @@ class monedasModelo extends conexion {
     return $this->registrarMonedasP();
   }
   public function actualizarMonedas(array $info) {
-  
-
     $campos = ['id_moneda', 'valor_moneda'];
     if (($info['tipoAct'] ?? '') == 'completa') {
       array_push($campos, 'nombre_moneda', 'simbolo_moneda');

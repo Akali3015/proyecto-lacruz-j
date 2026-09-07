@@ -297,7 +297,7 @@ class usuariosModelo extends conexion {
   }
   public function iniciarSesionUsuarios(array $info) {
 
-    // Enviar verificacion interna al servidor de Google
+    //Enviar verificacion interna al servidor de Google
     if (empty($info['g-recaptcha-response']) && !modoDev) {
       return [
         "tipo" => "simple",

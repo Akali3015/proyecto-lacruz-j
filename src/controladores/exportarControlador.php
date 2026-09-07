@@ -11,6 +11,19 @@ if (!isset($_SESSION['cedula'])) {
   exit;
 }
 
+$rol = strtolower($_SESSION['nombreRol'] ?? $_SESSION['rol'] ?? '');
+
+if ($rol === 'cliente') {
+  http_response_code(403);
+  header('Content-Type: application/json');
+  echo json_encode([
+    'icono'  => 'error', 
+    'titulo' => 'Acceso denegado', 
+    'texto'  => 'No tienes permisos para exportar la base de datos.'
+  ]);
+  exit;
+}
+
 use src\modelos\exportarBDModelo;
 
 try {
