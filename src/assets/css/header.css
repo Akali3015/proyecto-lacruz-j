@@ -1937,7 +1937,7 @@ i {
 
 /* Estilos para pantallas de escritorio muy grandes (xxl) */
 @media (min-width: 1201px) {
-  .btnDesplegarDT{
+  .btnDesplegarDT, .btnPlegarDT{
     display: none;
   }
 }

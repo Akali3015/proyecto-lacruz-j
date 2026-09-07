@@ -178,8 +178,7 @@ echo $componente->listaDataTable($instruccionesLista);
           <button
             type="submit"
             class="btn btn-primary"
-            style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
-            >
+            style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;">
             <i class="fas fa-save me-2"></i> Registrar
           </button>
         </div>
