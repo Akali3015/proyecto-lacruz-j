@@ -18,11 +18,10 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
         <i class="fi fi-br-menu-burger fs-4"></i>
       </button>
     </div>
-    <div class="navbar-nav d-flex flex-row align-items-center gap-2 gap-md-3">
-      <!-- Precio Dólar -->
-      <div class="nav-item d-flex justify-content-center align-items-center">
-        <div class="bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill px-3 py-1 d-flex flex-column align-items-center justify-content-center shadow-sm">
-          <h6 class="contenedorPrecioDolar p-0 m-0 text-white fw-bold lh-1 d-flex align-items-center" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+    <div class="navbar-nav d-flex flex-row align-items-center gap-1 gap-sm-2 gap-md-3">
+      <div class="nav-item d-flex justify-content-center align-items-center d-none d-sm-flex precio-dolar-container">
+        <div class="bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill px-2 px-md-3 py-1 d-flex flex-column align-items-center justify-content-center shadow-sm">
+          <h6 class="contenedorPrecioDolar p-0 m-0 text-white fw-bold lh-1 d-flex align-items-center" style="font-size: 0.7rem; letter-spacing: 0.5px;">
             1<span class="text-green-500 me-1">$</span> ≈ <span class="ms-1 precio_dolar">0.0</span> <span class="ms-1 small opacity-75">Bs</span>
           </h6>
           <small class="tipoDeDolarPrecio m-0 p-0 d-none d-md-block" style="font-size: 0.6rem;">
@@ -30,6 +29,7 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
           </small>
         </div>
       </div>
+      
       <!-- Notificaciones -->
       <div class="nav-item dropdown custom-dropdown d-flex justify-content-center align-items-center">
         <a
@@ -40,9 +40,10 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
           class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center"
           aria-haspopup="true"
           aria-expanded="false"
-          style="width: 40px; height: 40px;">
-          <i class="fi fi-rs-bell fs-4"></i>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger nroNotNoLeidas border border-2 border-primary" style="font-size: 0.65rem; min-width: 18px; padding: 2px;"></span>
+          style="width: 38px; height: 38px;"
+          id="notificacionesBtn">
+          <i class="fi fi-rs-bell fs-4 icono-movil"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger nroNotNoLeidas border border-2 border-primary" style="font-size: 0.6rem; min-width: 16px; padding: 2px;"></span>
         </a>
         <div class="dropdown-notificaciones dropdown-menu shadow-lg border-0 mt-3 p-0" style="width: 320px; max-width: 90vw;">
           <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between rounded-top">
@@ -58,36 +59,75 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
           </ul>
         </div>
       </div>
+      
+      <div class="nav-item d-lg-none position-relative">
+        <button 
+          class="btn text-white p-2 rounded-circle hover-opacity"
+          id="btnMasOpciones"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; padding: 0;">
+          <i class="fi fi-rr-menu-dots-vertical fs-5 icono-movil"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-1 p-2" style="min-width: 180px; border-radius: 12px; position: fixed; top: 56px; right: 10px; left: auto; z-index: 9999; background: #ffffff;">
+          <!-- Exportar BD (solo para no clientes) -->
+          <?php if (strtolower($_SESSION['nombreRol'] ?? '') !== 'cliente' && strtolower($_SESSION['rol'] ?? '') !== 'cliente'): ?>
+          <li>
+            <a href="#" id="btnExportarBDMovil" title="Exportar BD" class="dropdown-item d-flex align-items-center py-2 px-3 rounded mb-1 text-muted fw-semibold"
+              data-bs-toggle="modal" data-bs-target="#modalExportarBD">
+              <i class="fi fi-rr-database fs-5 me-3 text-primary"></i>
+              <span class="m-0">Exportar BD</span>
+            </a>
+          </li>
+          <?php endif; ?>
+          <!-- Ayuda -->
+          <li>
+            <button class="dropdown-item d-flex align-items-center py-2 px-3 rounded mb-1 text-muted fw-semibold btnAyudaFlotante"
+              id="btnAyudaInteractivaMovil"
+              title="Ayuda interactiva del sistema">
+              <i class="fi fi-rr-interrogation fs-5 me-3 text-primary"></i>
+              <span class="m-0">Ayuda</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
       <!-- Exportar Base de Datos -->
-      <div class="nav-item">
+      <?php if (strtolower($_SESSION['nombreRol'] ?? '') !== 'cliente' && strtolower($_SESSION['rol'] ?? '') !== 'cliente'): ?>
+      <div class="nav-item d-none d-lg-block">
         <a href="#" id="btnExportarBD" title="Exportar BD" class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center"
-          style="width: 40px; height: 40px;" data-bs-toggle="modal" data-bs-target="#modalExportarBD">
+          style="width: 38px; height: 38px;" data-bs-toggle="modal" data-bs-target="#modalExportarBD">
           <i class="fi fi-rr-database fs-4"></i>
         </a>
       </div>
-      <!-- Ayuda -->
-      <div class="nav-item">
-        <button class="btn text-white btnAyudaFlotante p-2 me-1 rounded-circle hover-opacity"
+      <?php endif; ?>
+      
+      <!-- Ayuda (visible solo en desktop) -->
+      <div class="nav-item d-none d-lg-block">
+        <button class="btn text-white btnAyudaFlotante p-2 rounded-circle hover-opacity"
           id="btnAyudaInteractiva"
-          title="Ayuda interactiva del sistema">
+          title="Ayuda interactiva del sistema"
+          style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
           <i class="fi fi-rr-interrogation fs-4"></i>
         </button>
       </div>
+      
       <!-- Carrito -->
       <div class="nav-item">
         <a href="#" class="nav-link text-white p-2 position-relative d-flex align-items-center justify-content-center"
-          data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" style="width: 40px; height: 40px;">
-          <i class="fi fi-rr-shopping-cart fs-4"></i>
-          <span class="nroItemsPedido d-none position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary" style="font-size: 0.65rem; min-width: 18px; padding: 2px;">
+          data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" style="width: 38px; height: 38px;">
+          <i class="fi fi-rr-shopping-cart fs-4 icono-movil"></i>
+          <span class="nroItemsPedido d-none position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary" style="font-size: 0.6rem; min-width: 16px; padding: 2px;">
             0
           </span>
         </a>
       </div>
+      
       <!-- Usuario -->
       <div class="nav-item dropdown dropdownUsuario">
         <a class="nav-link d-flex align-items-center p-1 rounded-pill hover-bg-white-10" href="#" role="button" aria-expanded="false"
           data-bs-toggle="dropdown" data-bs-auto-close="outside">
-          <div class="user-avatar text-warning d-flex align-items-center justify-content-center overflow-hidden border border-2 border-white border-opacity-25" style="width: 36px; height: 36px; border-radius: 50%;">
+          <div class="user-avatar text-warning d-flex align-items-center justify-content-center overflow-hidden border border-2 border-white border-opacity-25" style="width: 34px; height: 34px; border-radius: 50%;">
             <img
               src="<?php echo $fotoPerfil; ?>"
               data-tabla_bd="usuarios"
@@ -96,8 +136,8 @@ $fotoPerfil = APP_URL . DIR_FOTOS . 'usuarios/' . $fotoPerfil[0];
               style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div class="ms-2 d-none d-md-block me-1">
-            <span class="user-name d-block fw-bold text-white lh-1" style="font-size: 0.9rem;"><?php echo $_SESSION['usuario'] ?? ''; ?></span>
-            <small class="text-white text-opacity-75" style="font-size: 0.7rem;">En línea</small>
+            <span class="user-name d-block fw-bold text-white lh-1" style="font-size: 0.85rem;"><?php echo $_SESSION['usuario'] ?? ''; ?></span>
+            <small class="text-white text-opacity-75" style="font-size: 0.65rem;">En línea</small>
           </div>
           <i class="fi fi-rr-angle-small-down fs-6 text-white d-none d-md-block ms-1"></i>
         </a>
