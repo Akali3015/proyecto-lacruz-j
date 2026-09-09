@@ -6,6 +6,9 @@ use src\config\connect\conexion;
 use src\modelos\bitacoraModelo;
 use src\modelos\mensajesWSModelo;
 use src\modelos\accesosModelo;
+use src\modelos\pdfModel;
+use src\modelos\productosModelo;
+use src\modelos\materiasPrimasModelo;
 use PDO;
 
 class comprasModelo extends conexion {
@@ -42,9 +45,9 @@ class comprasModelo extends conexion {
         "campo_nombre"      => "rif_proveedor",
         "formulario_nombre" => "RIF del Proveedor",
         "requerido"         => true,
-        "minimo"            => minRegexCedulaRifLetra,
-        "maximo"            => maxRegexCedulaRifLetra,
-        "expresion_re"      => regexCedulaRifLetra,
+        "minimo"            => 6,
+        "maximo"            => 20,
+        "expresion_re"      => '^[a-zA-Z0-9\-_]{6,20}$',
       ],
       "fecha_compra" => [
         "campo_nombre"      => "fecha_compra",
@@ -227,6 +230,17 @@ class comprasModelo extends conexion {
     ]);
     if ($alerta !== false) return $alerta;
 
+    // Validar que la compra no esté ya recepcionada
+    $compraExistente = $this->seleccionarCompra(['id_compra' => $id_compra]);
+    if (!empty($compraExistente) && isset($compraExistente[0]['status']) && (int)$compraExistente[0]['status'] === 2) {
+      return [
+        "tipo"   => "simple",
+        "titulo" => "Compra recepcionada",
+        "texto"  => "Esta compra ya fue marcada como Recibida y no puede ser modificada.",
+        "icono"  => "warning"
+      ];
+    }
+
     // Validar ítems
     if (empty($detalles)) {
       return [
@@ -296,6 +310,30 @@ class comprasModelo extends conexion {
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+  public function cambiarEstadoRecepcion(array $info) {
+    $id_compra = $info['id_compra'] ?? '';
+    $infoVal = ['id_compra' => &$id_compra];
+    $alerta = $this->validarCompras('actualizar', [
+      'infoVal'   => &$infoVal,
+      'camposVal' => ['id_compra']
+    ]);
+    if ($alerta !== false) return $alerta;
+
+    $this->id_compra = $id_compra;
+    return $this->cambiarEstadoRecepcionP();
+  }
+  public function imprimirOrdenCompra(array $info) {
+    $id_compra = $info['id_compra'] ?? '';
+    $infoVal = ['id_compra' => &$id_compra];
+    $alerta = $this->validarCompras('ver', [
+      'infoVal'   => &$infoVal,
+      'camposVal' => ['id_compra']
+    ]);
+    if ($alerta !== false) return $alerta;
+
+    $this->id_compra = $id_compra;
+    return $this->imprimirOrdenCompraP();
+  }
 
   // Metodos privados (BD)
   private function seleccionarCompraP() {
@@ -306,6 +344,11 @@ class comprasModelo extends conexion {
           c.id_compra,
           c.fecha_compra,
           c.rif_proveedor,
+          c.status,
+          CASE 
+            WHEN c.status = 2 THEN 'Recibido'
+            ELSE 'Pendiente por recibir'
+          END AS estado_compra,
           COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
           (
             (
@@ -331,7 +374,11 @@ class comprasModelo extends conexion {
     // Detalle completo por ID
     $sql = "
             SELECT
-                c.id_compra, c.fecha_compra, c.rif_proveedor,
+                c.id_compra, c.fecha_compra, c.rif_proveedor, c.status,
+                CASE 
+                  WHEN c.status = 2 THEN 'Recibido'
+                  ELSE 'Pendiente por recibir'
+                END AS estado_compra,
                 COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
                 'producto' AS TIPO,
                 prod.nombre_producto AS ARTICULO,
@@ -352,7 +399,11 @@ class comprasModelo extends conexion {
           UNION ALL
 
             SELECT
-                c.id_compra, c.fecha_compra, c.rif_proveedor,
+                c.id_compra, c.fecha_compra, c.rif_proveedor, c.status,
+                CASE 
+                  WHEN c.status = 2 THEN 'Recibido'
+                  ELSE 'Pendiente por recibir'
+                END AS estado_compra,
                 COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
                 'materia_prima' AS TIPO,
                 mp.nombre_materia_prima AS ARTICULO,
@@ -414,7 +465,7 @@ class comprasModelo extends conexion {
         }
       }
 
-      // 4. Insertar detalles y actualizar stock
+      // 4. Insertar detalles (quedan en status 1 sin sumar al inventario aun)
       foreach ($itemsAgrupados as $item) {
         $tipo    = $item['tipo'];
         $id_item = $item['id'];
@@ -429,11 +480,6 @@ class comprasModelo extends conexion {
             ':item'   => $id_item,
             ':cant'   => $cant
           ]);
-
-          $resProd = $objProductos->modificarStock($id_item, $cant, $cn);
-          if ($resProd !== true) {
-            throw new \Exception($resProd);
-          }
         } elseif ($tipo === 'materia_prima') {
           $cn->prepare(
             'INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status)
@@ -443,11 +489,6 @@ class comprasModelo extends conexion {
             ':item'   => $id_item,
             ':cant'   => $cant
           ]);
-
-          $resMp = $objMateriasPrimas->modificarStock($id_item, $cant, $cn);
-          if ($resMp !== true) {
-            throw new \Exception($resMp);
-          }
         }
       }
 
@@ -491,7 +532,7 @@ class comprasModelo extends conexion {
       return [
         'tipo'   => 'limpiar',
         'titulo' => 'Compra registrada',
-        'texto'  => 'La compra ha sido registrada exitosamente',
+        'texto'  => 'La compra ha sido registrada en estado Pendiente por recibir.',
         'icono'  => 'success'
       ];
     } catch (\Throwable $th) {
@@ -517,13 +558,10 @@ class comprasModelo extends conexion {
   }
   private function actualizarCompraP() {
     $bitacora = new bitacoraModelo();
-    $objProductos = new productosModelo();
-    $objMateriasPrimas = new materiasPrimasModelo();
     try {
       $cn = $this->conectar();
-      // $cn->beginTransaction();
 
-      // 1. Revertir stock de ítems anteriores
+      // 1. Obtener datos anteriores para bitácora
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
       $viejo = [
         'id_compra' => $this->id_compra,
@@ -537,20 +575,6 @@ class comprasModelo extends conexion {
           ];
         }, $anteriores) : []
       ];
-
-      foreach ($anteriores as $item) {
-        if ($item['TIPO'] === 'producto') {
-          $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
-          if ($resProd !== true) {
-            throw new \Exception($resProd);
-          }
-        } elseif ($item['TIPO'] === 'materia_prima') {
-          $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
-          if ($resMp !== true) {
-            throw new \Exception($resMp);
-          }
-        }
-      }
 
       // 2. Eliminar detalles anteriores
       $cn->prepare('DELETE FROM productos_compras WHERE id_compra = :id')
@@ -567,7 +591,7 @@ class comprasModelo extends conexion {
         ':id'    => $this->id_compra,
       ]);
 
-      // 4. Insertar nuevos ítems y actualizar stock
+      // 4. Insertar nuevos ítems (en status 1 sin sumar al inventario aún)
       foreach ($this->detalles as $det) {
         $tipo    = $det['tipo']     ?? '';
         $id_item = (string) ($det['id'] ?? '');
@@ -580,19 +604,11 @@ class comprasModelo extends conexion {
             'INSERT INTO productos_compras (id_compra, id_presentacion_producto, cantidad_producto, status)
                          VALUES (:compra, :item, :cant, 1)'
           )->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cant]);
-          $resProd = $objProductos->modificarStock($id_item, $cant, $cn);
-          if ($resProd !== true) {
-            throw new \Exception($resProd);
-          }
         } elseif ($tipo === 'materia_prima') {
           $cn->prepare(
             'INSERT INTO materias_primas_compras (id_compra, id_materia_prima, cantidad_materia_prima, status)
                          VALUES (:compra, :item, :cant, 1)'
           )->execute([':compra' => $this->id_compra, ':item' => $id_item, ':cant' => $cant]);
-          $resMp = $objMateriasPrimas->modificarStock($id_item, $cant, $cn);
-          if ($resMp !== true) {
-            throw new \Exception($resMp);
-          }
         }
       }
 
@@ -667,12 +683,13 @@ class comprasModelo extends conexion {
     $objMateriasPrimas = new materiasPrimasModelo();
     try {
       $cn = $this->conectar();
-      // $cn->beginTransaction();
 
-      // 1. Revertir stock de PRODUCTOS y MATERIAS PRIMAS (usando los modelos POO)
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      $statusActual = (int)($anteriores[0]['status'] ?? 0);
+
       $viejo = [
         'id_compra' => $this->id_compra,
+        'status' => $statusActual,
         'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
         'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
         'detalles' => is_array($anteriores) ? array_map(function ($item) {
@@ -684,21 +701,24 @@ class comprasModelo extends conexion {
         }, $anteriores) : []
       ];
 
-      foreach ($anteriores as $item) {
-        if ($item['TIPO'] === 'producto') {
-          $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
-          if ($resProd !== true) {
-            throw new \Exception($resProd);
-          }
-        } elseif ($item['TIPO'] === 'materia_prima') {
-          $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
-          if ($resMp !== true) {
-            throw new \Exception($resMp);
+      // Revertir stock de PRODUCTOS y MATERIAS PRIMAS solo si estaba recepcionada (status == 2)
+      if ($statusActual === 2) {
+        foreach ($anteriores as $item) {
+          if ($item['TIPO'] === 'producto') {
+            $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+            if ($resProd !== true) {
+              throw new \Exception($resProd);
+            }
+          } elseif ($item['TIPO'] === 'materia_prima') {
+            $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+            if ($resMp !== true) {
+              throw new \Exception($resMp);
+            }
           }
         }
       }
 
-      // 3. Soft delete en cascada
+      // Soft delete en cascada
       $cn->prepare('UPDATE compras SET status = 0 WHERE id_compra = :id')
         ->execute([':id' => $this->id_compra]);
       $cn->prepare('UPDATE productos_compras SET status = 0 WHERE id_compra = :id')
@@ -741,7 +761,7 @@ class comprasModelo extends conexion {
       return [
         "tipo"   => "recargar",
         "titulo" => "Compra eliminada",
-        "texto"  => "La compra #{$this->id_compra} fue eliminada y el stock fue revertido correctamente.",
+        "texto"  => "La compra #{$this->id_compra} fue eliminada exitosamente.",
         "icono"  => "success"
       ];
     } catch (\Throwable $e) {
@@ -760,5 +780,174 @@ class comprasModelo extends conexion {
         "icono"  => "error"
       ];
     }
+  }
+  private function cambiarEstadoRecepcionP() {
+    $bitacora = new bitacoraModelo();
+    $objProductos = new productosModelo();
+    $objMateriasPrimas = new materiasPrimasModelo();
+
+    try {
+      $cn = $this->conectar();
+      $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+      if (empty($anteriores)) {
+        return [
+          'tipo'   => 'simple',
+          'titulo' => 'No encontrada',
+          'texto'  => 'La orden de compra no fue encontrada.',
+          'icono'  => 'error'
+        ];
+      }
+
+      $statusActual = (int)($anteriores[0]['status'] ?? 0);
+      if ($statusActual === 2) {
+        return [
+          'tipo'   => 'simple',
+          'titulo' => 'Ya recepcionada',
+          'texto'  => 'Esta compra ya fue marcada como Recibida anteriormente.',
+          'icono'  => 'info'
+        ];
+      }
+      if ($statusActual === 0) {
+        return [
+          'tipo'   => 'simple',
+          'titulo' => 'Compra anulada',
+          'texto'  => 'No se puede recepcionar una compra anulada.',
+          'icono'  => 'error'
+        ];
+      }
+
+      // Sumar al stock de productos y materias primas al declarar la recepción
+      foreach ($anteriores as $item) {
+        $cant = (float)($item['cantidad_raw'] ?? 0);
+        if ($item['TIPO'] === 'producto') {
+          $resProd = $objProductos->modificarStock($item['id_item'], $cant, $cn);
+          if ($resProd !== true) {
+            throw new \Exception($resProd);
+          }
+        } elseif ($item['TIPO'] === 'materia_prima') {
+          $resMp = $objMateriasPrimas->modificarStock($item['id_item'], $cant, $cn);
+          if ($resMp !== true) {
+            throw new \Exception($resMp);
+          }
+        }
+      }
+
+      // Actualizar status de la compra a 2 (Recibido)
+      $cn->prepare('UPDATE compras SET status = 2 WHERE id_compra = :id')
+        ->execute([':id' => $this->id_compra]);
+
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'Recepcionar compra (' . $this->id_compra . ')',
+        'resultado' => 'Éxito',
+        'viejo' => [
+          'id_compra' => $this->id_compra,
+          'status' => 1
+        ],
+        'nuevo' => [
+          'id_compra' => $this->id_compra,
+          'status' => 2
+        ]
+      ]);
+      $this->commit();
+
+      $objetoNot = new mensajesWSModelo();
+      $objetoNot->enviarMensajesWS([
+        "receptor" => [
+          'tipo' => 'permisos',
+          'permisos' => ['compras' => ['ver']]
+        ],
+        'cuerpo' => [
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'compras'],
+          ['accion' => "borrarDataModuloSS", 'modulo' => 'inventario'],
+          ['accion' => "actDT", 'modulo' => 'compras'],
+          [
+            'accion' => 'alertar',
+            'alerta' => [
+              'tipo' => 'simple',
+              'titulo' => 'Compras',
+              'texto' => "La compra #{$this->id_compra} ha sido recepcionada e ingresada al inventario.",
+              'icono' => 'success',
+              'notifier' => true,
+            ]
+          ]
+        ],
+        'noCommit' => true
+      ]);
+
+      return [
+        "tipo"   => "recargar",
+        "titulo" => "Mercancía recibida",
+        "texto"  => "La compra #{$this->id_compra} fue declarada como recibida y su mercancía ingresó al inventario exitosamente.",
+        "icono"  => "success"
+      ];
+    } catch (\Throwable $e) {
+      $this->rollback();
+      $bitacora->registrarBitacora([
+        'modulo' => 'compras',
+        'accion' => 'Recepcionar compra (' . $this->id_compra . ')',
+        'resultado' => 'Fallido',
+        'viejo' => ['id_compra' => $this->id_compra, 'status' => 1],
+        'nuevo' => []
+      ]);
+      return [
+        "tipo"   => "simple",
+        "titulo" => "Error",
+        "texto"  => "Error al recepcionar la compra: " . $e->getMessage(),
+        "icono"  => "error"
+      ];
+    }
+  }
+  private function imprimirOrdenCompraP() {
+    $detalles = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
+    if (empty($detalles)) {
+      return [
+        'tipo'   => 'simple',
+        'titulo' => 'No encontrada',
+        'texto'  => 'La orden de compra solicitada no existe.',
+        'icono'  => 'warning'
+      ];
+    }
+
+    $proveedor = $detalles[0]['PROVEEDOR'] ?? 'No especificado';
+    $rif = $detalles[0]['rif_proveedor'] ?? '';
+    $fecha = $detalles[0]['fecha_compra'] ?? '';
+    $estado = $detalles[0]['estado_compra'] ?? 'Pendiente por recibir';
+
+    $infoCeldas = [];
+    $idx = 1;
+    foreach ($detalles as $det) {
+      $infoCeldas[] = [
+        'nro'      => (string) $idx++,
+        'tipo'     => ($det['TIPO'] === 'producto') ? 'Producto' : 'Materia Prima',
+        'articulo' => $det['ARTICULO'] ?? '',
+        'cantidad' => $det['cantidad'] ?? ''
+      ];
+    }
+
+    $objetoPDF = new pdfModel();
+    $objetoPDF->SetTitle('ORDEN DE COMPRA #' . $this->id_compra);
+
+    $bitacora = new bitacoraModelo();
+    $bitacora->registrarBitacora([
+      'modulo' => 'compras',
+      'accion' => 'Imprimir orden de compra (' . $this->id_compra . ')',
+      'resultado' => 'Éxito',
+    ]);
+
+    return $objetoPDF->crearPDF([
+      'tituloReporte' => 'ORDEN DE COMPRA N° ' . $this->id_compra,
+      'datosExtCabecera' => [
+        'PROVEEDOR: ' . $proveedor . ' (RIF: ' . $rif . ')',
+        'FECHA: ' . $fecha . '    |    ESTADO: ' . mb_strtoupper($estado, 'UTF-8')
+      ],
+      'configColumnas' => [
+        'nro'      => ['N°', 15],
+        'tipo'     => ['TIPO', 40],
+        'articulo' => ['ARTÍCULO', 95],
+        'cantidad' => ['CANTIDAD', 40]
+      ],
+      'infoBD' => $infoCeldas
+    ]);
   }
 }
