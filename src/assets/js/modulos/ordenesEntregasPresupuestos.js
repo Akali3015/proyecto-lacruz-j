@@ -1360,20 +1360,13 @@ async function validarCedulaRepartidorOrden(cedula) {
 let timerRepartidor = null;
 
 $(document).off('input', '#inputCedulaRepartidorOrden').on('input', '#inputCedulaRepartidorOrden', function () {
-  // Formatear cédula: primera letra V, E, J, G, P seguida de números
-  let val = $(this).val().toUpperCase().replace(/[^VEJGP0-9]/g, '');
-  if (val.length > 0) {
-    if (/^[0-9]/.test(val)) {
-      val = 'V' + val; // Si empieza por número, asume V por defecto
-    } else if (val.length > 1) {
-      let letra = val.charAt(0);
-      let numeros = val.substring(1).replace(/[^0-9]/g, '');
-      val = letra + numeros;
-    }
-  }
+  // Solo se aceptan dígitos; la letra viene del select
+  let val = $(this).val().replace(/\D/g, '');
   $(this).val(val);
 
-  let cedula = val.trim();
+  let letra = $('#selectCodigoRepartidorOrden').val() || 'V';
+  let cedula = letra + val;
+
   clearTimeout(timerRepartidor);
 
   $('#feedbackRepartidorOrden').html('');
@@ -1381,9 +1374,25 @@ $(document).off('input', '#inputCedulaRepartidorOrden').on('input', '#inputCedul
   $('#iconRepartidorOrden').html('<i class="fi fi-rs-motorcycle text-muted"></i>').removeClass('border-danger border-success');
   $(this).removeClass('is-valid is-invalid').css({ 'border-color': '', 'background-color': '' });
 
-  // Solo buscamos si tiene al menos una letra y algunos números (ej: V1234)
-  if (cedula.length < 5) return;
+  // Solo buscamos si tiene al menos 4 dígitos
+  if (val.length < 4) return;
 
+  timerRepartidor = setTimeout(() => {
+    validarCedulaRepartidorOrden(cedula);
+  }, 500);
+});
+
+// También disparar búsqueda al cambiar el select de prefijo de cédula
+$(document).off('change', '#selectCodigoRepartidorOrden').on('change', '#selectCodigoRepartidorOrden', function () {
+  let val = $('#inputCedulaRepartidorOrden').val().trim();
+  if (val.length < 4) return;
+  let letra = $(this).val() || 'V';
+  let cedula = letra + val;
+  clearTimeout(timerRepartidor);
+  $('#feedbackRepartidorOrden').html('');
+  $('#selectRepartidorOrden').val('');
+  $('#iconRepartidorOrden').html('<i class="fi fi-rs-motorcycle text-muted"></i>').removeClass('border-danger border-success');
+  $('#inputCedulaRepartidorOrden').removeClass('is-valid is-invalid').css({ 'border-color': '', 'background-color': '' });
   timerRepartidor = setTimeout(() => {
     validarCedulaRepartidorOrden(cedula);
   }, 500);
@@ -1391,7 +1400,9 @@ $(document).off('input', '#inputCedulaRepartidorOrden').on('input', '#inputCedul
 
 // Modal para registrar repartidor
 $(document).off('click', '#btnAbrirRegistroRepartidorOrden').on('click', '#btnAbrirRegistroRepartidorOrden', function () {
-  let cedulaActual = $('#inputCedulaRepartidorOrden').val().trim();
+  // Cedula completa = prefijo del select + valor del input
+  let letraCed = $('#selectCodigoRepartidorOrden').val() || 'V';
+  let cedulaActual = letraCed + $('#inputCedulaRepartidorOrden').val().trim();
 
   // Reseteamos el formulario
   let form = document.getElementById('formRegistroRepartidorOrden');
@@ -1404,8 +1415,10 @@ $(document).off('click', '#btnAbrirRegistroRepartidorOrden').on('click', '#btnAb
   $('#feedbackTelefonoRepartidorReg').html('');
   $('#btnGuardarRepartidorOrden').prop('disabled', true);
 
-  // Seteamos la cédula actual
+  // Seteamos la cédula en el campo oculto del modal de registro
   $('#modalRegistroRepartidorOrden input[name="cedula_repartidor"]').val(cedulaActual);
+  // Seteamos también el código en el hidden
+  $('#modalRegistroRepartidorOrden input[name="codigo_rif_cedula_repartidor"]').val(letraCed);
 
   // Oscurecemos el modal de Orden para que resalte este
   $('.modalRegistrar').addClass('fact-modal-dimmed');
@@ -1463,9 +1476,9 @@ function validarTelefonoRepartidor() {
   el.removeClass('is-valid is-invalid');
   fb.html('');
 
-  if (val.length !== 11) {
+  if (val.length !== 7) {
     el.addClass('is-invalid');
-    fb.html(`<small class="text-danger"><i class="fi fi-rs-cross-circle me-1"></i>Debe tener 11 dígitos (${val.length}/11)</small>`);
+    fb.html(`<small class="text-danger"><i class="fi fi-rs-cross-circle me-1"></i>Debe tener 7 dígitos (${val.length}/7)</small>`);
     validarCamposRegistroRepartidor();
     return;
   }
@@ -1524,11 +1537,11 @@ $(document).off('click', '#btnGuardarRepartidorOrden').on('click', '#btnGuardarR
   }
 
   // El backend espera prefijo_telefono_repartidor (4 dígitos) y telefono_repartidor (7 dígitos) separados
-  let telefonoCompleto = (datosObj.telefono_repartidor || '').replace(/\D/g, '');
-  if (telefonoCompleto.length === 11) {
-    datosObj.prefijo_telefono_repartidor = telefonoCompleto.substring(0, 4);
-    datosObj.telefono_repartidor = telefonoCompleto.substring(4);
-  }
+  // El prefijo viene del select y el cuerpo del input
+  let prefijo = $('#selectPrefijoTelefonoRepartidorReg').val() || '';
+  let cuerpoTel = (datosObj.telefono_repartidor || '').replace(/\D/g, '');
+  datosObj.prefijo_telefono_repartidor = prefijo;
+  datosObj.telefono_repartidor = cuerpoTel;
 
   let res = await pedirDatosAjax({
     modulo: 'repartidores',
@@ -1544,9 +1557,16 @@ $(document).off('click', '#btnGuardarRepartidorOrden').on('click', '#btnGuardarR
       icon: "success",
       confirmButtonText: "Continuar"
     }).then(() => {
-      // Colocar la cédula en el input y validar automáticamente
-      $('#inputCedulaRepartidorOrden').val(cedulaRegistrada);
-      validarCedulaRepartidorOrden(cedulaRegistrada);
+      // Separar letra y dígitos para restaurar en el input de búsqueda
+      let matchCed = cedulaRegistrada.match(/^([A-Za-z])(\d+)$/);
+      if (matchCed) {
+        $('#selectCodigoRepartidorOrden').val(matchCed[1].toUpperCase());
+        $('#inputCedulaRepartidorOrden').val(matchCed[2]);
+        validarCedulaRepartidorOrden(cedulaRegistrada);
+      } else {
+        $('#inputCedulaRepartidorOrden').val(cedulaRegistrada);
+        validarCedulaRepartidorOrden(cedulaRegistrada);
+      }
     });
   } else {
     btn.prop('disabled', false).html('Guardar');
