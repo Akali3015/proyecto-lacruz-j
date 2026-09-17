@@ -10,8 +10,8 @@ driverAyuda('compras', {
     {
       element: '#dashboardCompras',
       popover: {
-        title: 'Dashboard de Compras',
-        description: 'Aquí puedes ver métricas importantes: total de compras registradas, proveedores distintos y total de artículos comprados.',
+        title: 'Dashboard de Recepciones',
+        description: 'Aquí puedes ver métricas importantes: total de recepciones registradas, proveedores distintos y total de artículos recibidos.',
         side: 'bottom',
         align: 'start'
       }
@@ -19,8 +19,8 @@ driverAyuda('compras', {
     {
       element: 'button[data-bs-target=".modalRegistrar"]',
       popover: {
-        title: 'Registrar Compra',
-        description: 'Haz clic aquí para registrar una nueva compra. Puedes agregar múltiples productos o materias primas en una misma compra.',
+        title: 'Registrar Recepción',
+        description: 'Haz clic aquí para registrar una nueva recepción. Puedes agregar múltiples productos o materias primas en una misma recepción.',
         side: 'bottom',
         align: 'start'
       }
@@ -28,8 +28,8 @@ driverAyuda('compras', {
     {
       element: '.tabla-ajax',
       popover: {
-        title: 'Lista de Compras',
-        description: 'Aquí puedes ver todas las compras registradas, con su fecha, proveedor y cantidad de artículos.',
+        title: 'Lista de Recepciones',
+        description: 'Aquí puedes ver todas las recepciones registradas, con su fecha, proveedor y cantidad de artículos.',
         side: 'top'
       }
     },
@@ -37,30 +37,30 @@ driverAyuda('compras', {
       element: '.botonVer',
       popover: {
         title: 'Ver Detalles',
-        description: 'Haz clic aquí para ver todos los detalles de una compra específica.',
+        description: 'Haz clic aquí para ver todos los detalles de una recepción específica.',
         side: 'left'
       }
     },
     {
       element: '.botonEditar',
       popover: {
-        title: 'Editar Compra',
-        description: 'Modifica los datos de una compra existente.',
+        title: 'Editar Recepción',
+        description: 'Modifica los datos de una recepción existente.',
         side: 'left'
       }
     },
     {
       element: '.botonEliminar',
       popover: {
-        title: 'Eliminar Compra',
-        description: 'Elimina una compra del sistema. Esta acción no se puede deshacer.',
+        title: 'Eliminar Recepción',
+        description: 'Elimina una recepción del sistema. Esta acción no se puede deshacer.',
         side: 'left'
       }
     },
     {
       popover: {
         title: '¡Ayuda completada!',
-        description: 'Ya conoces la gestión de compras. Puedes registrar compras con múltiples artículos y llevar el control de tu inventario.',
+        description: 'Ya conoces la gestión de recepciones. Puedes registrar recepciones con múltiples artículos y llevar el control de tu inventario.',
         side: 'top'
       }
     }
@@ -74,7 +74,7 @@ let itemsCache = {
   'materia_prima': null,
   'producto': null
 };
-let itemsCompra = []; // items temporales para la compra
+let itemsCompra = []; // items temporales para la recepcion
 
 // Funciones del modulo
 
@@ -180,7 +180,7 @@ async function obtenerOpcionesItems(tipo, seleccionado = null) {
   return opcionesHtml;
 }
 
-// Agregar fila al grid de compras
+// Agregar fila al grid de recepciones
 async function agregarFila() {
   let index = $('.fila-compra').length;
 
@@ -249,7 +249,6 @@ async function agregarFila() {
   }
 }
 
-
 // Renderizar items en edicion
 async function actualizarTablaItems() {
   let contenedor = $('#contenedorItems');
@@ -282,7 +281,6 @@ async function actualizarTablaItems() {
                         ${provOptions}
                     </select>
                 </div>
-
 
                 <!-- Tipo -->
                 <div>
@@ -378,7 +376,7 @@ async function cargarDatosCompra(id, modo = 'editar') {
     });
 
     if (!respuesta || respuesta.length === 0) {
-      Swal.fire('Error', 'No se pudieron cargar los datos de la compra', 'error');
+      Swal.fire('Error', 'No se pudieron cargar los datos de la recepción', 'error');
       return;
     }
 
@@ -388,7 +386,7 @@ async function cargarDatosCompra(id, modo = 'editar') {
       let header = respuesta[0];
 
       modal.find('.modal-title').html(
-        '<i class="fas fa-edit me-2"></i> Actualizar Compra'
+        '<i class="fas fa-edit me-2"></i> Actualizar Recepción'
       );
       form.find('input[name="accion"]').val('actualizar');
       form.find('input[name="id_compra"]').val(id);
@@ -431,7 +429,7 @@ async function cargarDatosCompra(id, modo = 'editar') {
 
   } catch (error) {
     console.error(error);
-    Swal.fire('Error', 'Hubo un problema al cargar la compra', 'error');
+    Swal.fire('Error', 'Hubo un problema al cargar la recepción', 'error');
   }
 }
 
@@ -440,7 +438,7 @@ function resetearFormularioCompra() {
   let form = modal.find('form');
 
   modal.find('.modal-title').html(
-    '<i class="fas fa-shopping-cart me-2"></i> Registrar Compra'
+    '<i class="fas fa-shopping-cart me-2"></i> Registrar Recepción'
   );
   form.find('input[name="accion"]').val('registrar');
   form.find('input[name="id_compra"]').val('');
@@ -473,7 +471,7 @@ async function verDetallesCompra(idCompra) {
     });
 
     if (!respuesta || respuesta.length === 0) {
-      Swal.fire('Error', 'No se encontraron datos de la compra', 'error');
+      Swal.fire('Error', 'No se encontraron datos de la recepción', 'error');
       return;
     }
 
@@ -539,8 +537,8 @@ async function verDetallesCompra(idCompra) {
     modal.show();
 
   } catch (error) {
-    console.error('Error al cargar detalles de compra:', error);
-    Swal.fire('Error', 'Hubo un problema al cargar los detalles de la compra', 'error');
+    console.error('Error al cargar detalles de recepción:', error);
+    Swal.fire('Error', 'Hubo un problema al cargar los detalles de la recepción', 'error');
   }
 }
 // Fin de funciones
@@ -558,7 +556,7 @@ $(async function () {
 
   await listarDataTable({
     encabezados: {
-      "id_compra": "# COMPRA",
+      "id_compra": "# RECEPCIÓN",
       "fecha_compra": "FECHA",
       "PROVEEDOR": "PROVEEDOR",
       "total_articulos": "ARTÍCULOS",
@@ -626,7 +624,7 @@ $(async function () {
       let boton = '<ul class="list-inline me-auto mb-0">';
 
       if (permisos['compras']) {
-        // Solo las compras en estado Pendiente (status == 1) se pueden recepcionar o editar
+        // Solo las recepciones en estado Pendiente (status == 1) se pueden recepcionar o editar
         if (st === 1) {
           if (permisos['compras'].includes('actualizar')) {
             boton += `
@@ -654,9 +652,9 @@ $(async function () {
         }
       }
 
-      // Imprimir orden de compra
+      // Imprimir orden de recepcion
       boton += `
-            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Imprimir Orden de Compra">
+            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Imprimir Orden de Recepción">
                 <a href="#" value="${id}" class="botonImprimir avtar avtar-xs btn-link-secondary btn-pc-default">
                     <i class="fi fi-rs-print fs-3 iconoCentrado"></i>
                 </a>
@@ -706,7 +704,7 @@ $(document).on('draw.dt', '.tabla-ajax', function () {
 
   let tarjetas = [
     {
-      label: 'Total Compras',
+      label: 'Total Recepciones',
       valor: totalCompras,
       sub: 'registradas',
       icono: 'fi-rr-shopping-cart',
@@ -902,14 +900,14 @@ $(document).on("click", ".botonVer", function (e) {
   verDetallesCompra(id);
 });
 
-// Evento para eliminar compra (con confirmación)
+// Evento para eliminar recepcion (con confirmación)
 $(document).on("click", ".botonEliminar", function (e) {
   e.preventDefault();
   let id = $(this).attr("value");
 
   Swal.fire({
-    title: '¿Eliminar Compra #' + id + '?',
-    text: 'Esta acción desactivará la compra y sus artículos. No se puede deshacer.',
+    title: '¿Eliminar Recepción #' + id + '?',
+    text: 'Esta acción desactivará la recepción y sus artículos. No se puede deshacer.',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#dc3545',
@@ -924,11 +922,11 @@ $(document).on("click", ".botonEliminar", function (e) {
         datosPe: { accion: 'eliminar', id_compra: id }
       });
       if (respuesta && respuesta.icono === 'success') {
-        Swal.fire('Eliminado', respuesta.texto || 'Compra eliminada correctamente.', 'success');
+        Swal.fire('Eliminado', respuesta.texto || 'Recepción eliminada correctamente.', 'success');
         reiniciarDataModuloSS('compras');
         $('.tabla-ajax').DataTable().ajax.reload(null, false);
       } else {
-        Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo eliminar la compra.', 'error');
+        Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo eliminar la recepción.', 'error');
       }
     }
   });
@@ -938,7 +936,6 @@ $(document).on("click", ".botonEliminar", function (e) {
 $('.modalRegistrar').on('hidden.bs.modal', function () {
   resetearFormularioCompra();
 });
-
 
 // Validación en tiempo real: campo cantidad de cada fila
 $(document).on('input', '.inputCantidadFila', function () {
@@ -967,14 +964,14 @@ $(document).on('change', '.selectArticuloFila', function () {
   $(this).toggleClass('is-invalid', invalido);
 });
 
-// Evento para recepcionar compra (declarar como recibido e incrementar inventario)
+// Evento para recepcionar (declarar como recibido e incrementar inventario)
 $(document).on("click", ".botonRecepcionar", function (e) {
   e.preventDefault();
   let id = $(this).attr("value");
 
   Swal.fire({
     title: '¿Declarar mercancía como Recibida?',
-    text: `Al recepcionar la compra #${id}, se sumará el stock de sus artículos al inventario y la compra quedará bloqueada para futuras modificaciones.`,
+    text: `Al procesar la recepción #${id}, se sumará el stock de sus artículos al inventario y la recepción quedará bloqueada para futuras modificaciones.`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#28a745',
@@ -994,20 +991,20 @@ $(document).on("click", ".botonRecepcionar", function (e) {
         reiniciarDataModuloSS('inventario');
         $('.tabla-ajax').DataTable().ajax.reload(null, false);
       } else {
-        Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo recepcionar la compra.', 'error');
+        Swal.fire('Error', (respuesta && respuesta.texto) || 'No se pudo procesar la recepción.', 'error');
       }
     }
   });
 });
 
-// Evento para imprimir orden de compra desde tabla
+// Evento para imprimir orden de recepcion desde tabla
 $(document).on("click", ".botonImprimir", function (e) {
   e.preventDefault();
   let id = $(this).attr("value");
   imprimirOrden(id);
 });
 
-// Evento para imprimir orden de compra desde modal de detalles
+// Evento para imprimir orden de recepcion desde modal de detalles
 $(document).on("click", "#btnImprimirModalVer", function (e) {
   e.preventDefault();
   let id = $(this).data('id');
@@ -1031,11 +1028,11 @@ async function imprimirOrden(id) {
       Swal.fire({
         icon: respuesta.icono,
         title: respuesta.titulo || 'Error',
-        text: respuesta.texto || 'No se pudo generar la orden de compra.'
+        text: respuesta.texto || 'No se pudo generar la orden de recepción.'
       });
     }
   } catch (error) {
-    console.error('Error al generar la orden de compra:', error);
+    console.error('Error al generar la orden de recepción:', error);
   }
 }
 
@@ -1095,7 +1092,7 @@ $(document).on("submit", "#formRegistrarProveedorRapido", async function (e) {
     Swal.fire({
       icon: 'success',
       title: 'Proveedor Registrado',
-      text: 'El proveedor ha sido registrado exitosamente y asignado a esta compra.'
+      text: 'El proveedor ha sido registrado exitosamente y asignado a esta recepción.'
     });
 
     form.reset();

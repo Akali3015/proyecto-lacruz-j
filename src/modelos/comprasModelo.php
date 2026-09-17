@@ -45,9 +45,9 @@ class comprasModelo extends conexion {
         "campo_nombre"      => "rif_proveedor",
         "formulario_nombre" => "RIF del Proveedor",
         "requerido"         => true,
-        "minimo"            => 6,
-        "maximo"            => 20,
-        "expresion_re"      => '^[a-zA-Z0-9\-_]{6,20}$',
+        "minimo"            => minRegexCedulaRifLetra,
+        "maximo"            => maxRegexCedulaRifLetra,
+        "expresion_re"      => regexCedulaRifLetra,
       ],
       "fecha_compra" => [
         "campo_nombre"      => "fecha_compra",
@@ -295,21 +295,23 @@ class comprasModelo extends conexion {
     $sql = "
       SELECT
         pp.id_presentacion_producto,
-        p.nombre_producto AS nombre_producto,
-        p.id_unidad_medida,
-        um.nombre_unidad_medida,
-        um.simbolo_unidad_medida
+        CONCAT(p.nombre_producto, ' (', pre.nombre_presentacion, ')') AS nombre_producto,
+        COALESCE(um_pre.id_unidad_medida, um_prod.id_unidad_medida) AS id_unidad_medida,
+        COALESCE(um_pre.nombre_unidad_medida, um_prod.nombre_unidad_medida) AS nombre_unidad_medida,
+        COALESCE(um_pre.simbolo_unidad_medida, um_prod.simbolo_unidad_medida) AS simbolo_unidad_medida
       FROM presentaciones_productos pp
       INNER JOIN productos p   ON pp.id_producto   = p.id_producto
       INNER JOIN presentaciones pre ON pp.id_presentacion = pre.id_presentacion
-      LEFT  JOIN unidades_medidas um ON p.id_unidad_medida = um.id_unidad_medida
-      WHERE p.status != 0
+      LEFT  JOIN unidades_medidas um_pre ON pre.id_unidad_medida = um_pre.id_unidad_medida
+      LEFT  JOIN unidades_medidas um_prod ON p.id_unidad_medida = um_prod.id_unidad_medida
+      WHERE p.status = 1 AND pp.status = 1 AND pre.status = 1
       ORDER BY p.nombre_producto, pre.nombre_presentacion
     ";
     $stmt = $this->conectar()->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
   public function cambiarEstadoRecepcion(array $info) {
     $id_compra = $info['id_compra'] ?? '';
     $infoVal = ['id_compra' => &$id_compra];
@@ -381,8 +383,10 @@ class comprasModelo extends conexion {
                 END AS estado_compra,
                 COALESCE(p.razon_social_proveedor, c.rif_proveedor) AS PROVEEDOR,
                 'producto' AS TIPO,
-                prod.nombre_producto AS ARTICULO,
+                CONCAT(prod.nombre_producto, ' (', pre.nombre_presentacion, ')') AS ARTICULO,
                 pp.id_presentacion_producto AS id_item,
+                pp.id_producto,
+                pre.cantidad_pmp,
                 det.cantidad_producto AS cantidad_raw,
                 CONCAT(det.cantidad_producto, ' ',
                     COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
@@ -392,8 +396,9 @@ class comprasModelo extends conexion {
             LEFT JOIN proveedores p ON c.rif_proveedor = p.rif_proveedor
             INNER JOIN productos_compras det ON c.id_compra = det.id_compra
             INNER JOIN presentaciones_productos pp ON det.id_presentacion_producto = pp.id_presentacion_producto
+            INNER JOIN presentaciones pre ON pp.id_presentacion = pre.id_presentacion
             INNER JOIN productos prod ON pp.id_producto = prod.id_producto
-            LEFT JOIN unidades_medidas um ON prod.id_unidad_medida = um.id_unidad_medida
+            LEFT JOIN unidades_medidas um ON COALESCE(pre.id_unidad_medida, prod.id_unidad_medida) = um.id_unidad_medida
             WHERE c.status != 0 AND c.id_compra = :id1
 
           UNION ALL
@@ -408,6 +413,8 @@ class comprasModelo extends conexion {
                 'materia_prima' AS TIPO,
                 mp.nombre_materia_prima AS ARTICULO,
                 det.id_materia_prima AS id_item,
+                det.id_materia_prima AS id_producto,
+                1 AS cantidad_pmp,
                 det.cantidad_materia_prima AS cantidad_raw,
                 CONCAT(det.cantidad_materia_prima, ' ',
                     COALESCE(um.simbolo_unidad_medida, 'UNID')) AS cantidad,
@@ -532,7 +539,7 @@ class comprasModelo extends conexion {
       return [
         'tipo'   => 'limpiar',
         'titulo' => 'Compra registrada',
-        'texto'  => 'La compra ha sido registrada en estado Pendiente por recibir.',
+        'texto'  => 'La compra ha sido registrada exitosamente',
         'icono'  => 'success'
       ];
     } catch (\Throwable $th) {
@@ -558,8 +565,11 @@ class comprasModelo extends conexion {
   }
   private function actualizarCompraP() {
     $bitacora = new bitacoraModelo();
+    $objProductos = new productosModelo();
+    $objMateriasPrimas = new materiasPrimasModelo();
     try {
       $cn = $this->conectar();
+      // $cn->beginTransaction();
 
       // 1. Obtener datos anteriores para bitácora
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
@@ -683,13 +693,14 @@ class comprasModelo extends conexion {
     $objMateriasPrimas = new materiasPrimasModelo();
     try {
       $cn = $this->conectar();
+      // $cn->beginTransaction();
 
+      // 1. Revertir stock de PRODUCTOS y MATERIAS PRIMAS (usando los modelos POO) solo si estaba recepcionada
       $anteriores = $this->seleccionarCompra(['id_compra' => $this->id_compra]);
-      $statusActual = (int)($anteriores[0]['status'] ?? 0);
+      $statusActual = !empty($anteriores) && isset($anteriores[0]['status']) ? (int)$anteriores[0]['status'] : 1;
 
       $viejo = [
         'id_compra' => $this->id_compra,
-        'status' => $statusActual,
         'rif_proveedor' => is_array($anteriores) && isset($anteriores[0]['rif_proveedor']) ? $anteriores[0]['rif_proveedor'] : '',
         'fecha_compra' => is_array($anteriores) && isset($anteriores[0]['fecha_compra']) ? $anteriores[0]['fecha_compra'] : '',
         'detalles' => is_array($anteriores) ? array_map(function ($item) {
@@ -701,11 +712,14 @@ class comprasModelo extends conexion {
         }, $anteriores) : []
       ];
 
-      // Revertir stock de PRODUCTOS y MATERIAS PRIMAS solo si estaba recepcionada (status == 2)
       if ($statusActual === 2) {
         foreach ($anteriores as $item) {
           if ($item['TIPO'] === 'producto') {
-            $resProd = $objProductos->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
+            $idProdReal = $item['id_producto'] ?? $item['id_item'];
+            $factorConv = (float) ($item['cantidad_pmp'] ?? 1);
+            $cantBase   = (float) $item['cantidad_raw'] * $factorConv;
+
+            $resProd = $objProductos->modificarStock($idProdReal, -$cantBase, $cn);
             if ($resProd !== true) {
               throw new \Exception($resProd);
             }
@@ -718,7 +732,7 @@ class comprasModelo extends conexion {
         }
       }
 
-      // Soft delete en cascada
+      // 3. Soft delete en cascada
       $cn->prepare('UPDATE compras SET status = 0 WHERE id_compra = :id')
         ->execute([':id' => $this->id_compra]);
       $cn->prepare('UPDATE productos_compras SET status = 0 WHERE id_compra = :id')
@@ -820,7 +834,11 @@ class comprasModelo extends conexion {
       foreach ($anteriores as $item) {
         $cant = (float)($item['cantidad_raw'] ?? 0);
         if ($item['TIPO'] === 'producto') {
-          $resProd = $objProductos->modificarStock($item['id_item'], $cant, $cn);
+          $idProdReal = $item['id_producto'] ?? $item['id_item'];
+          $factorConv = (float)($item['cantidad_pmp'] ?? 1);
+          $cantBase   = $cant * $factorConv;
+
+          $resProd = $objProductos->modificarStock($idProdReal, $cantBase, $cn);
           if ($resProd !== true) {
             throw new \Exception($resProd);
           }

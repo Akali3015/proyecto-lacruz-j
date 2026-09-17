@@ -3,8 +3,8 @@
     use src\config\inc\componentesModelo;
     $componente = new componentesModelo();
     $instruccionesLista = [
-        'encabezado'   => 'Gestionar Compras',
-        'tituloBtnReg' => 'Registrar Compra',
+        'encabezado'   => 'Gestionar Recepciones',
+        'tituloBtnReg' => 'Agregar recepciones',
     ];
     echo $componente->listaDataTable($instruccionesLista);
 ?>
@@ -18,7 +18,7 @@
             <div class="modal-header modal-header-custom">
                 <h5 class="modal-title text-white fw-bold">
                     <i class="fas fa-shopping-cart me-2"></i>
-                    Registrar Compra
+                    Registrar Recepción
                 </h5>
                 <button type="button" class="btn-close btn-close-white"
                     data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -146,7 +146,7 @@
                 <h5 class="modal-title text-white fw-bold"
                     id="modalVerCompraLabel">
                     <i class="fas fa-eye me-2"></i>
-                    Detalles de Compra
+                    Detalles de Recepción
                 </h5>
                 <button type="button" class="btn-close btn-close-white"
                     data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -154,12 +154,12 @@
 
             <div class="modal-body p-0 modal-body-compras modal-body-custom">
 
-                <!-- Datos de compra -->
+                <!-- Datos de recepcion -->
                 <div class="header-global">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-hashtag me-2 text-primary icon-hashtag-sm"></i>
                         <span class="fw-bold text-dark text-uppercase text-uppercase-spaced">
-                            # Compra
+                            # Recepción
                         </span>
                     </div>
                     <div class="input-date-container">

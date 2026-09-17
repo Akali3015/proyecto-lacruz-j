@@ -5,8 +5,8 @@
 use src\config\inc\componentesModelo;
 $componente = new componentesModelo();
 $instruccionesLista = [
-  'encabezado'    => 'Gestionar Órdenes de Entregas y Presupuestos',
-  'tituloBtnReg'  => 'Nueva Orden',
+  'encabezado'    => 'Gestionar Órdenes de Entregas',
+  'tituloBtnReg'  => 'Agregar órdenes de entrega',
 ];
 echo $componente->listaDataTable($instruccionesLista);
 ?>
@@ -90,38 +90,53 @@ echo $componente->listaDataTable($instruccionesLista);
           </div>
 
           <!-- Pestañas para movernos entre productos, servicios y delivery -->
-          <ul class="nav nav-tabs" id="tabsOrden" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" data-bs-toggle="tab"
-                data-bs-target="#tabProductosOrden" type="button">
-                <i class="fi fi-rs-box me-1"></i>
-                Productos
-                <span class="badge bg-primary ms-1"
-                  style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
-                  id="badgeProdOrden">0</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" data-bs-toggle="tab"
-                data-bs-target="#tabServiciosOrden" type="button">
-                <i class="fi fi-tr-room-service"></i>
-                Servicios
-                <span class="badge bg-success ms-1"
-                  style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
-                  id="badgeServOrden">0</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation" id="liTabDeliveryOrden">
-              <button class="nav-link" data-bs-toggle="tab"
-                data-bs-target="#tabDeliveryOrden" type="button" id="btnTabDeliveryOrden">
-                <i class="fi fi-rs-truck-side me-1"></i>
-                Delivery
-                <span class="badge bg-secondary ms-1"
-                  style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
-                  id="badgeDelOrden">No</span>
-              </button>
-            </li>
-          </ul>
+          <div class="d-flex align-items-end justify-content-between gap-3 flex-wrap">
+            <ul class="nav nav-tabs flex-grow-1" id="tabsOrden" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab"
+                  data-bs-target="#tabProductosOrden" type="button">
+                  <i class="fi fi-rs-box me-1"></i>
+                  Productos
+                  <span class="badge bg-primary ms-1"
+                    style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
+                    id="badgeProdOrden">0</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tabServiciosOrden" type="button">
+                  <i class="fi fi-tr-room-service"></i>
+                  Servicios
+                  <span class="badge bg-success ms-1"
+                    style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
+                    id="badgeServOrden">0</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation" id="liTabDeliveryOrden">
+                <button class="nav-link" data-bs-toggle="tab"
+                  data-bs-target="#tabDeliveryOrden" type="button" id="btnTabDeliveryOrden">
+                  <i class="fi fi-rs-truck-side me-1"></i>
+                  Delivery
+                  <span class="badge bg-secondary ms-1"
+                    style="background: linear-gradient(135deg, #4e54c8, #8f94fb); border: none;"
+                    id="badgeDelOrden">No</span>
+                </button>
+              </li>
+            </ul>
+
+            <!-- Switch de Presupuesto: se oculta al procesar un presupuesto existente -->
+            <div id="contenedorPresupuestoCheck" class="pb-1">
+              <div class="d-flex align-items-center gap-2 px-3 py-2 rounded"
+                style="background: linear-gradient(135deg, rgba(124,58,237,.08), rgba(168,85,247,.12)); border: 1px solid rgba(124,58,237,.3);">
+                <input class="form-check-input mt-0" type="checkbox" id="chkPresupuestoOrden"
+                  style="cursor: pointer; border-color: #7c3aed; accent-color: #7c3aed;">
+                <label class="form-check-label fw-semibold small mb-0" for="chkPresupuestoOrden"
+                  style="color: #7c3aed; cursor: pointer; white-space: nowrap;">
+                  <i class="fi fi-rs-document me-1"></i>Presupuesto
+                </label>
+              </div>
+            </div>
+          </div>
 
           <div class="tab-content mt-3 border rounded p-3">
 
