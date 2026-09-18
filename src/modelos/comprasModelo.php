@@ -721,12 +721,14 @@ class comprasModelo extends conexion {
 
             $resProd = $objProductos->modificarStock($idProdReal, -$cantBase, $cn);
             if ($resProd !== true) {
-              throw new \Exception($resProd);
+              $msg = is_array($resProd) ? ($resProd['texto'] ?? $resProd['titulo'] ?? 'Error al modificar stock de producto') : (string) $resProd;
+              throw new \Exception($msg);
             }
           } elseif ($item['TIPO'] === 'materia_prima') {
             $resMp = $objMateriasPrimas->modificarStock($item['id_item'], -$item['cantidad_raw'], $cn);
             if ($resMp !== true) {
-              throw new \Exception($resMp);
+              $msg = is_array($resMp) ? ($resMp['texto'] ?? $resMp['titulo'] ?? 'Error al modificar stock de materia prima') : (string) $resMp;
+              throw new \Exception($msg);
             }
           }
         }
@@ -840,12 +842,14 @@ class comprasModelo extends conexion {
 
           $resProd = $objProductos->modificarStock($idProdReal, $cantBase, $cn);
           if ($resProd !== true) {
-            throw new \Exception($resProd);
+            $msg = is_array($resProd) ? ($resProd['texto'] ?? $resProd['titulo'] ?? 'Error al modificar stock de producto') : (string) $resProd;
+            throw new \Exception($msg);
           }
         } elseif ($item['TIPO'] === 'materia_prima') {
           $resMp = $objMateriasPrimas->modificarStock($item['id_item'], $cant, $cn);
           if ($resMp !== true) {
-            throw new \Exception($resMp);
+            $msg = is_array($resMp) ? ($resMp['texto'] ?? $resMp['titulo'] ?? 'Error al modificar stock de materia prima') : (string) $resMp;
+            throw new \Exception($msg);
           }
         }
       }

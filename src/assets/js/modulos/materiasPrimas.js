@@ -9,15 +9,19 @@ import { driverAyuda } from "/proyecto-lacruz-j/src/assets/js/configs/configDriv
 //#endregion [ IMPORTACIONES ] FIN
 
 //#region [FUNCIONES PROPIAS DEL MODULO] COMIENZO
+
 async function renderizarPresentaciones() {
   let presentacionesBD = await pedirDatosAjax({
     modulo: "presentaciones",
     datosPe: { accion: "listar" },
   });
 
-  // Extraer unidades de medida únicas para el filtro
+  if (!Array.isArray(presentacionesBD)) {
+    presentacionesBD = [];
+  }
+
   let unidades = [...new Set(presentacionesBD.map(p => p.nombre_unidad_medida))];
-  
+
   let htmlFilter = `
     <div class="col-12 mb-3">
       <label class="form-label text-muted small fw-bold">Filtrar Presentaciones por Categoría (Unidad)</label>
@@ -35,7 +39,7 @@ async function renderizarPresentaciones() {
       nombre_presentacion,
       cantidad_pmp,
       nombre_unidad_medida
-    } = presentacionesBD[i]
+    } = presentacionesBD[i];
     html += `
       <div class="filaPresentacion col-lg-4 mb-3" data-unidad="${nombre_unidad_medida}">
         <div class="form-check card-presentacion p-3 border rounded cursor-pointer transition-all">
@@ -59,10 +63,10 @@ async function renderizarPresentaciones() {
 
   // Agregar evento de filtrado
   $(document).off('change', '.select-filtro-presentacion');
-  $(document).on('change', '.select-filtro-presentacion', function() {
+  $(document).on('change', '.select-filtro-presentacion', function () {
     let val = $(this).val();
     let contenedor = $(this).closest('.contenedor-presentaciones');
-    if(val === 'todas') {
+    if (val === 'todas') {
       contenedor.find('.filaPresentacion').show();
     } else {
       contenedor.find('.filaPresentacion').hide();
@@ -71,25 +75,78 @@ async function renderizarPresentaciones() {
   });
 }
 
-
 function habilitarDeshabilitarPresentacion(cambio = null) {
   let card = $(this);
-  let checkBox = card.find('.checkbox-presentacion')
+  let checkBox = card.find('.checkbox-presentacion');
   if (cambio) {
-    if (cambio == 'habilitar') {
+    if (cambio === 'habilitar') {
       checkBox.prop('checked', true);
-      card.addClass('bg-light border-primary')
+      card.addClass('bg-light border-primary');
     } else {
       checkBox.prop('checked', false);
-      card.removeClass('bg-light border-primary')
+      card.removeClass('bg-light border-primary');
     }
     return;
   }
-  card.toggleClass("bg-light border-primary")
+  card.toggleClass("bg-light border-primary");
   checkBox.prop("checked", function (i, val) {
     return !val;
   });
 }
+
+function marcarPresentacionesEnModal(modal, presentacionesBackend) {
+  const contenedor = modal.find(".contenedor-presentaciones");
+
+  // Desmarcar todas primero
+  contenedor.find('.card-presentacion').each((i, card) => {
+    habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
+  });
+
+  // Marcar las que trae el backend
+  if (!Array.isArray(presentacionesBackend)) return;
+
+  presentacionesBackend.forEach(pres => {
+    const id = (typeof pres === 'object' && pres !== null)
+      ? (pres.id_presentacion ?? '')
+      : pres;
+
+    if (!id) return;
+
+    const $card = contenedor
+      .find(`.checkbox-presentacion[value="${id}"]`)
+      .closest('.card-presentacion');
+
+    if ($card.length > 0) {
+      habilitarDeshabilitarPresentacion.call($card, 'habilitar');
+    }
+  });
+}
+
+function cargarInputsConDatos($form, datos) {
+  $form.find('.formularioActualizar').each(function () {
+    const $input = $(this);
+    const nombre = $input.attr('name');
+    if (!nombre) return;
+
+    // Navegar por claves anidadas si el name tiene guiones
+    const partes = nombre.split('-');
+    let valor = datos;
+    for (const parte of partes) {
+      if (valor == null || typeof valor !== 'object') { valor = undefined; break; }
+      valor = valor[parte];
+    }
+
+    if (valor === undefined || valor === null) return;
+
+    const tipo = $input.attr('type');
+    if (tipo === 'checkbox') {
+      $input.prop('checked', valor == 1 || valor === true);
+    } else if (tipo !== 'file') {
+      $input.val(valor);
+    }
+  });
+}
+
 //#endregion [FUNCIONES PROPIAS DEL MODULO] FIN
 
 //#region [DELEGACIÓN DE EVENTOS] COMIENZO
@@ -114,6 +171,7 @@ $(document).on('DOMContentLoaded', async function (e) {
       precio_materia_prima: (info) => { return info.valor + '$'; },
     },
   });
+
   extraerDatosAjax({
     'modulosPeticion': ['unidadesMedidas'],
     'accionesPeticion': [{ 'accion': 'listar' }],
@@ -127,7 +185,9 @@ $(document).on('DOMContentLoaded', async function (e) {
       }
     ]
   });
+
   renderizarPresentaciones();
+
   driverAyuda('materiasPrimas', {
     pasos: [
       {
@@ -172,7 +232,7 @@ $(document).on('DOMContentLoaded', async function (e) {
       }
     ]
   });
-})
+});
 
 $(document).off("click", ".card-presentacion");
 $(document).on("click", ".card-presentacion", function (e) {
@@ -183,22 +243,22 @@ $(document).off("click", ".btn-seleccionar-todas");
 $(document).on("click", ".btn-seleccionar-todas", function (e) {
   $(this).closest(".modal").find(".card-presentacion").each((i, card) => {
     habilitarDeshabilitarPresentacion.call(card, 'habilitar');
-  })
+  });
 });
 
 $(document).off("click", ".btn-deseleccionar-todas");
 $(document).on("click", ".btn-deseleccionar-todas", function (e) {
   $(this).closest(".modal").find(".card-presentacion").each((i, card) => {
     habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
-  })
+  });
 });
 
 $(document).off('submit', '.formularioAjax');
 $(document).on('submit', '.formularioAjax', async function (e) {
   e.preventDefault();
-  
+
   let presentaciones = [];
-  $(this).find('.checkbox-presentacion:checked').each(function() {
+  $(this).find('.checkbox-presentacion:checked').each(function () {
     presentaciones.push({ id_presentacion: $(this).val() });
   });
 
@@ -209,13 +269,13 @@ $(document).on('submit', '.formularioAjax', async function (e) {
     'formulario': this,
     'modulo': 'materiasPrimas',
     'convertirJSON': true,
-  })
-  if (resultado['icono'] && resultado['icono'] == 'success') {
+  });
+
+  if (resultado['icono'] && resultado['icono'] === 'success') {
     $(this).closest('.modal').find('.card-presentacion').each((i, card) => {
       habilitarDeshabilitarPresentacion.call(card, 'deshabilitar');
-    })
+    });
   }
-
 });
 
 $(document).off('click', '.botonEliminar');
@@ -235,35 +295,50 @@ $(document).on('click', '.botonEliminar', function (e) {
 $(document).off('click', '.botonEditar');
 $(document).on('click', '.botonEditar', async function (e) {
   e.preventDefault();
-  const modalTarget = $(this).attr('data-bs-target');
+  const $boton = $(this);
+  const modalTarget = $boton.attr('data-bs-target');
   const modal = $(modalTarget);
-  let infoCompleta = await obtenerDatosRegistro({
-    boton: this,
-    campoId: 'id_materia_prima',
-    modulo: 'materiasPrimas',
-  });
-  console.log(infoCompleta);
-  cargarInputsActualizarQNR.call(modal.find('form'));
+  const $form = modal.find('form');
 
-  const contenedorPresentaciones = modal.find(".contenedor-presentaciones");
-  modal.find(".btn-deseleccionar-todas").trigger('click');
-  
-  if(infoCompleta.presentaciones && Array.isArray(infoCompleta.presentaciones)) {
-    infoCompleta.presentaciones.forEach(pres => {
-      let card = contenedorPresentaciones
-        .find(`.checkbox-presentacion[value="${pres.id_presentacion}"]`)
-        .closest('.card-presentacion');
-      if (card.length > 0) {
-        habilitarDeshabilitarPresentacion.call(card, 'habilitar');
-      }
-    });
+  const idMateria = $boton.attr('value');
+  if (!idMateria) {
+    console.error('No se encontró el id_materia_prima en el botón editar');
+    return;
   }
 
+  const infoCompleta = await pedirDatosAjax({
+    modulo: 'materiasPrimas',
+    datosPe: {
+      accion: 'listar',
+      id_materia_prima: idMateria
+    }
+  });
+
+  console.log('Datos completos:', infoCompleta);
+
+  if (infoCompleta?.icono === 'error') {
+    console.warn('No se pudo cargar el registro:', infoCompleta);
+    return;
+  }
+
+  cargarInputsConDatos($form, infoCompleta);
+
+  cargarInputsActualizarQNR.call($form);
+
+  const aplicarPresentaciones = () => {
+    marcarPresentacionesEnModal(modal, infoCompleta?.presentaciones);
+  };
+
+  if (modal.hasClass('show')) {
+    aplicarPresentaciones();
+  } else {
+    modal.one('shown.bs.modal', aplicarPresentaciones);
+  }
 });
 
 //Evento para validar en tiempo real
-$(document).off('input', '.validar input, .validar select')
+$(document).off('input', '.validar input, .validar select');
 $(document).on('input', '.validar input, .validar select', function () {
   validarEnTiempoReal(this, 'materiasPrimas');
-})
+});
 //#endregion [DELEGACIÓN DE EVENTOS] FIN

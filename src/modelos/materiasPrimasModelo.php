@@ -65,8 +65,8 @@ public function validarMateriasPrimas(string $permiso, array $instruccionesVal){
           "debeSerUnico" => true,
         ],
         'precio_materia_prima' => [
+          "campo_nombre" => "precio_materia_prima",
           "campo_valor" => &$valor,
-          'comaPunto' => true,
           "formulario_nombre" => "precio de la matería prima",
           "requerido" => true,
           "minimo" => minRegexPrecio,
@@ -188,7 +188,7 @@ public function registrarMateriasPrimas(array $info) {
 
     $this->idUnidadMedida = $info['id_unidad_medida'];
     $this->nombreMateriaPrima = $info['nombre_materia_prima'];
-    $this->precioMateriaPrima = $info['precio_materia_prima'];
+    $this->precioMateriaPrima = (float) $info['precio_materia_prima'];
     $this->stockMateriaPrima = $info['stock_materia_prima'];
     $this->stockMinimoMateriaPrima = $info['stock_minimo_materia_prima'];
     $this->presentaciones = $info['presentaciones'];
@@ -213,7 +213,7 @@ public function actualizarMateriasPrimas(array $info) {
     $this->idMateriaPrima = $info['id_materia_prima'];
     $this->idUnidadMedida = $info['id_unidad_medida'];
     $this->nombreMateriaPrima = $info['nombre_materia_prima'];
-    $this->precioMateriaPrima = $info['precio_materia_prima'];
+    $this->precioMateriaPrima = (float) $info['precio_materia_prima'];
     $this->stockMateriaPrima = $info['stock_materia_prima'];
     $this->stockMinimoMateriaPrima = $info['stock_minimo_materia_prima'];
     $this->presentaciones = $info['presentaciones'];

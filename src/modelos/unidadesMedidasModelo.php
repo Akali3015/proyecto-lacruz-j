@@ -42,14 +42,14 @@ class unidadesMedidasModelo extends conexion {
           "debeSerUnicoBD" => true
         ],
         'simbolo_unidad_medida' => [
-          ...molNombreObj,
+          ...molSimboloMoneda,
           "nombreAlerta" => "simbolo de la unidad de medida",
           "nombreBD" => "simbolo_unidad_medida",
           "tablaBD" => "unidades_medidas",
           "debeSerUnicoBD" => true
         ],
         'equivalencia_ub' => [
-          ...molPrecioFormateado,
+          ...molCantidadSimple,
           "nombreAlerta" => "equivalencia de la unidad base"
         ]
       ],

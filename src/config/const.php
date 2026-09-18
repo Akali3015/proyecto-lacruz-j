@@ -247,4 +247,16 @@ define('molNumControlFactura', [
   "maxL" => maxRegexNumControlFactura,
   "regex" => regexNumControlFactura
 ]);
+define('molSimboloMoneda', [
+  'tipo' => 'string',
+  "minL" => minRegexSimboloMoneda, 
+  "maxL" => maxRegexSimboloMoneda, 
+  "regex" => regexSimboloMoneda
+]);
+define('molCantidadSimple', [
+  'tipo' => ['string', 'int', 'float'],
+  "minL" => minRegexPrecio,
+  "maxL" => maxRegexPrecio,
+  "regex" => regexPrecio,
+]);
 // #endregion [ MOLÉCULAS - VALIDACIONES ]
